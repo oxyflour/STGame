@@ -1,0 +1,27 @@
+<!doctype html>
+<html>
+<head>
+<style>
+body {
+	margin: 0;
+	padding: 0;
+	background: #ddd;
+}
+.absolute {
+	position: absolute;
+}
+#canv {
+	background: url(res/bg.jpg);
+}
+</style>
+</head>
+<body>
+<div class="absolute">
+	<div>fps: <span class="ui" ui-bind="GAME.fps.toFixed(3)"></span></div>
+	<div>game: <span class="ui" ui-bind="keyfind(GAME.states, GAME.state)"></span></div>
+	<div>story: <span class="ui" ui-bind="STORY.current.scene"></span></div>
+</div>
+<canvas id="canv"></canvas>
+<script src="game.js"></script>
+</body>
+</html>
