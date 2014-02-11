@@ -77,6 +77,17 @@ function make_rect(rt, l, t, r, b) {
 	rt.b = b;
 }
 
+function $(s, p) {
+	return (p || document).querySelectorAll(s);
+}
+function $e(id) {
+	return document.getElementById(id);
+}
+function $attr(e, a) {
+	var attr = e && e.attributes[a];
+	return attr && attr.textContent;
+}
+
 function getTick() {
 	return (new Date()).getTime();
 }
@@ -142,7 +153,7 @@ function newTicker(t) {
 }
 
 var DC = (function() {
-	var canv = document.getElementById('canv'),
+	var canv = $e('canv'),
 		_t = canv.getContext('2d');
 	canv.width = 480; //window.innerWidth;
 	canv.height = 640; //window.innerHeight - 5;
@@ -155,6 +166,34 @@ var DC = (function() {
 	_t.strokeStyle = 'rgba(0,128,255,0.5)';
 	_t.fillStyle = 'rgba(0, 0, 0, 0.5)';
 	_t.lineWidth = 3;
+	return _t;
+})();
+
+var RES = (function() {
+	var res = $e('res'),
+		_t = {};
+	ieach(res.children, function(i, v, d) {
+		if (v.tagName == 'CANVAS') {
+			var from = $attr(v, 'from'),
+				trans = $attr(v, 'transform');
+			if (from) {
+				var im = $e(from),
+					dc = v.getContext('2d');
+				v.width = im.naturalWidth;
+				v.height = im.naturalHeight;
+				if (trans == 'mirror-x') {
+					dc.translate(v.width, 0);
+					dc.scale(-1, 1);
+				}
+				else if (trans == 'mirror-y') {
+					dc.translate(0, v.height);
+					dc.scale(1, -1);
+				}
+				dc.drawImage(im, 0, 0);
+			}
+		}
+		d[v.id] = v;
+	}, _t);
 	return _t;
 })();
 
@@ -514,6 +553,8 @@ SPRITE.newCls('Player', {
 		d.run(dt);
 
 		d.slowMode = m;
+		d.x0 = d.x;
+		d.y0 = d.y;
 
 		var vx = 0,
 			vy = 0;
@@ -541,6 +582,10 @@ SPRITE.newCls('Player', {
 			d.y = GAME.rect.t + d.r;
 		if (d.y+d.r > GAME.rect.b)
 			d.y = GAME.rect.b - d.r;
+
+		// update display frame
+		if (d.frame.run(dt))
+			this.updateframe(d);
 
 		// FIRE!
 		if (GAME.keyste[this.conf.key_fire]) {
@@ -576,11 +621,10 @@ SPRITE.newCls('Player', {
 			DC.globalAlpha = 0.5;
 		}
 
-		DC.fillStyle = 'black';
-		DC.beginPath();
-		DC.arc(d.x, d.y, d.r, 0, 2*Math.PI);
-		DC.closePath();
-		DC.fill();
+		var f = d.frames[d.framei];
+		DC.drawImage(RES[f.res],
+			f.x, f.y, f.w, f.h,
+			d.x-f.w/2, d.y-f.h/2, f.w, f.h);
 
 		if (d.slowMode) {
 			DC.fillStyle = 'white';
@@ -604,8 +648,28 @@ SPRITE.newCls('Player', {
 			x0: 0,
 			y0: 0,
 
-			fire: newTicker(180)
+			fire: newTicker(180),
+			frame: newTicker(150),
+			frames: this.frames0,
+			framei: 0,
 		}, d);
+	},
+	updateframe: function(d) {
+		if (d.x != d.x0 && !d.slowMode) {
+			var fs = d.x < d.x0 ? this.framesL : this.framesR;
+			if (d.frames != fs) {
+				d.frames = fs;
+				d.framei = 0;
+			}
+			d.framei = Math.min(d.framei + 1, d.frames.length - 1);
+		}
+		else {
+			if (d.frames != this.frames0) {
+				d.frames = this.frames0;
+				d.framei = 0;
+			}
+			d.framei = (d.framei + 1) % d.frames.length;
+		}
 	},
 
 	states: {
@@ -615,6 +679,31 @@ SPRITE.newCls('Player', {
 		3: { bomb:     1, life: 5000, next:  1, isInvinc: 1 },
 		4: { juesi:    1, life:   50, next:  2, isInvinc: 1 },
 	},
+
+	frames0: [ /* move up/down */
+		{ res:'player0L', x:32*0, y: 0, w:32, h:48 },
+		{ res:'player0L', x:32*1, y: 0, w:32, h:48 },
+		{ res:'player0L', x:32*2, y: 0, w:32, h:48 },
+		{ res:'player0L', x:32*3, y: 0, w:32, h:48 },
+	],
+	framesL: [ /* move left */
+		{ res:'player0L', x:32*0, y:48, w:32, h:48 },
+		{ res:'player0L', x:32*1, y:48, w:32, h:48 },
+		{ res:'player0L', x:32*2, y:48, w:32, h:48 },
+		{ res:'player0L', x:32*3, y:48, w:32, h:48 },
+		{ res:'player0L', x:32*4, y:48, w:32, h:48 },
+		{ res:'player0L', x:32*5, y:48, w:32, h:48 },
+		{ res:'player0L', x:32*6, y:48, w:32, h:48 },
+	],
+	framesR: [ /* move right */
+		{ res:'player0R', x:255-32*1, y:48, w:32, h:48 },
+		{ res:'player0R', x:255-32*2, y:48, w:32, h:48 },
+		{ res:'player0R', x:255-32*3, y:48, w:32, h:48 },
+		{ res:'player0R', x:255-32*4, y:48, w:32, h:48 },
+		{ res:'player0R', x:255-32*5, y:48, w:32, h:48 },
+		{ res:'player0R', x:255-32*6, y:48, w:32, h:48 },
+		{ res:'player0R', x:255-32*7, y:48, w:32, h:48 },
+	],
 
 	conf: {
 		key_left: 37,
@@ -793,7 +882,7 @@ SPRITE.newCls('Bullet', {
 	this.data = c.newdata({
 		r: 5,
 		vy: -0.5,
-		color: 'black',
+		color: 'white',
 		from: null
 	}, d);
 }, 'Base');
@@ -905,9 +994,9 @@ setInterval(function() {
 }, 16.6);
 
 setInterval(function() {
-	ieach(document.querySelectorAll('.ui'), function(i, e) {
+	ieach($('.ui'), function(i, e) {
 		if (!e.bindExec)
-			e.bindExec = Function('return '+e.attributes['ui-bind'].textContent);
+			e.bindExec = Function('return '+$attr(e, 'ui-bind'));
 		e.innerHTML = e.bindExec();
 	});
 }, 80);
