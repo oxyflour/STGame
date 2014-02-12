@@ -14,7 +14,7 @@ body {
 .hidden {
 	display: none;
 }
-#canv {
+.game-bg {
 	background: url(res/bg.jpg);
 }
 </style>
@@ -23,13 +23,17 @@ body {
 <div id="res" class="hidden">
 	<img id="player0L" src="res/player0.png" />
 	<canvas id="player0R" from="player0L" transform="mirror-x"></canvas>
+	<img id="etama3" src="res/etama3.png" />
+	<img id="stg1enm" src="res/stg1enm.png" />
 </div>
 <div class="absolute">
 	<div>fps: <span class="ui" ui-bind="GAME.fps.toFixed(3)"></span></div>
 	<div>game: <span class="ui" ui-bind="keyfind(GAME.states, GAME.state)"></span></div>
 	<div>story: <span class="ui" ui-bind="STORY.current.scene"></span></div>
 </div>
-<canvas id="canv"></canvas>
+<div class="game-bg ui" ui-eval="this.style['background-position-y']=tl.all.t*0.05+'px'">
+	<canvas id="canv"></canvas>
+</div>
 <script src="game.js"></script>
 </body>
 </html>

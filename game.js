@@ -1,5 +1,12 @@
-var Inf = parseFloat('Infinity');
+Math.Inf = parseFloat('Infinity');
 
+function array(n, fn) {
+	var ls = [];
+	for (var i = 0; i < n; i ++) {
+		ls[i] = fn(i);
+	}
+	return ls;
+}
 function ieach(ls, fn, d) {
 	for (var i = 0, n = ls.length; i < n; i ++) {
 		var r = fn(i, ls[i], d);
@@ -213,10 +220,12 @@ var SPRITE = (function() {
 		if (!_t.obj[c]) _t.obj[c] = [];
 		return cls;
 	};
-	_t.newObj = function(c, data) {
+	_t.newObj = function(c, data, override) {
 		var ls = _t.obj[c],
 			cls = _t.cls[c],
 			obj = new _t.init[c](data, cls);
+		if (override)
+			extend(obj, override);
 		var idx = ieach(ls, function(i, v) {
 			if (!v.isAlive) return i;
 		}, ls.length);
@@ -309,7 +318,7 @@ var STORY = (function() {
 			if (!v) return;
 			v.c += dt;
 			if (v.c >= v.t) {
-				if (v.n !== 0)
+				if (v.n !== 0) // do at least once
 					v.f.apply(v.d, [v.c, v.n]);
 				if (v.n > 0) {
 					v.c = 0;
@@ -419,6 +428,7 @@ SPRITE.newCls('Static', {
 			DC.globalAlpha = d.age / d.state.life;
 		else if (d.state.dying)
 			DC.globalAlpha = 1 - d.age / d.state.life;
+
 		if (d.color)
 			DC.fillStyle = d.color;
 		else
@@ -434,15 +444,16 @@ SPRITE.newCls('Static', {
 
 	states: {
 		0: { creating: 1, life:	500, next: 1 },
-		1: { living:   1, life:	Inf, next: 2 },
+		1: { living:   1, life:	Math.Inf, next: 2 },
 		2: { dying:    1, life: 500 }
 	},
 }, function(o, c) {
 	this.isAlive = true;
 	this.data = extend(newState(this.states), {
-		t: 'Static Text',
 		x: (GAME.rect.l+GAME.rect.r)/2,
 		y: (GAME.rect.t+GAME.rect.b)/2,
+		t: 'Static Text',
+		color: undefined,
 	}, o);
 });
 
@@ -453,6 +464,11 @@ SPRITE.newCls('Base', {
 		d.run(dt);
 		if (!d.state.life)
 			this.isAlive = false;
+
+		if (d.frametick && d.frametick.run(dt)) {
+			d.framei = (d.framei + 1) % d.frames.length;
+			d.frame = d.frames[d.framei];
+		}
 
 		d.x0 = d.x;
 		d.y0 = d.y;
@@ -477,10 +493,20 @@ SPRITE.newCls('Base', {
 			Math.max(d.y0, d.y) + d.r*1.1);
 	},
 	paint: function(d) {
-		DC.beginPath();
-		DC.arc(d.x, d.y, d.r, 0, 2*Math.PI);
-		DC.closePath();
-		DC.fill();
+		if (d.frame) {
+			var f = d.frame;
+			f.w = f.w || f.sw;
+			f.h = f.h || f.sh;
+			DC.drawImage(RES[f.res],
+				f.sx, f.sy, f.sw, f.sh,
+				d.x-f.w/2, d.y-f.h/2, f.w, f.h);
+		}
+		else {
+			DC.beginPath();
+			DC.arc(d.x, d.y, d.r, 0, 2*Math.PI);
+			DC.closePath();
+			DC.fill();
+		}
 	},
 	space: {
 		l: 40,
@@ -490,7 +516,6 @@ SPRITE.newCls('Base', {
 	},
 	newdata: function(d, e) {
 		return extend(newState(this.states), {
-			t: undefined,
 			r: 10,
 			x: (GAME.rect.l+GAME.rect.r)/2,
 			y: (GAME.rect.t+GAME.rect.b)/2,
@@ -498,6 +523,13 @@ SPRITE.newCls('Base', {
 			vy: 0,
 			x0: 0,
 			y0: 0,
+
+			// set frametick=newTicker(150) to enable animation
+			frametick: undefined,
+			frames: [],
+			framei: 0,
+			// if no animation is required, simply set frame for it
+			frame: undefined, // i.e. {res:'player0L', sx:0, sy:0, sw:10, sh:10, w:10, h:10}
 		}, d, e);
 	},
 }, function(d, c) {
@@ -584,17 +616,17 @@ SPRITE.newCls('Player', {
 			d.y = GAME.rect.b - d.r;
 
 		// update display frame
-		if (d.frame.run(dt))
+		if (d.frametick.run(dt))
 			this.updateframe(d);
 
 		// FIRE!
 		if (GAME.keyste[this.conf.key_fire]) {
-			if (d.fire.run(dt) || !d.fire.on) {
-				d.fire.tc = d.fire.on ? 80 : 0;
+			if (d.firetick.run(dt) || !d.fire_on) {
+				d.firetick.tc = d.fire_on ? 80 : 0;
 				STORY.on(STORY.events.PLAYER_FIRE, this);
 			}
 		}
-		d.fire.on = GAME.keyste[this.conf.key_fire];
+		d.fire_on = GAME.keyste[this.conf.key_fire];
 
 		// BOMB!
 		if (GAME.keyste[this.conf.key_bomb] && !d.state.bomb) {
@@ -621,13 +653,15 @@ SPRITE.newCls('Player', {
 			DC.globalAlpha = 0.5;
 		}
 
-		var f = d.frames[d.framei];
+		var f = d.frame;
+		f.w = f.w || f.sw;
+		f.h = f.h || f.sh;
 		DC.drawImage(RES[f.res],
-			f.x, f.y, f.w, f.h,
+			f.sx, f.sy, f.sw, f.sh,
 			d.x-f.w/2, d.y-f.h/2, f.w, f.h);
 
 		if (d.slowMode) {
-			DC.fillStyle = 'white';
+			DC.fillStyle = 'gray';
 			DC.beginPath();
 			DC.arc(d.x, d.y, d.h, 0, 2*Math.PI);
 			DC.closePath();
@@ -648,10 +682,12 @@ SPRITE.newCls('Player', {
 			x0: 0,
 			y0: 0,
 
-			fire: newTicker(180),
-			frame: newTicker(150),
+			firetick: newTicker(180),
+
+			frametick: newTicker(150),
 			frames: this.frames0,
 			framei: 0,
+			frame: this.frames0[0],
 		}, d);
 	},
 	updateframe: function(d) {
@@ -664,45 +700,44 @@ SPRITE.newCls('Player', {
 			d.framei = Math.min(d.framei + 1, d.frames.length - 1);
 		}
 		else {
-			if (d.frames != this.frames0) {
+			if (d.frames != this.frames0)
 				d.frames = this.frames0;
-				d.framei = 0;
-			}
 			d.framei = (d.framei + 1) % d.frames.length;
 		}
+		d.frame = d.frames[d.framei];
 	},
 
 	states: {
 		0: { creating: 1, life: 1000, next:  1, isInvinc: 1 },
-		1: { living:   1, life:  Inf, next:  2 },
+		1: { living:   1, life:  Math.Inf, next:  2 },
 		2: { dying:    1, life:  500 },
 		3: { bomb:     1, life: 5000, next:  1, isInvinc: 1 },
 		4: { juesi:    1, life:   50, next:  2, isInvinc: 1 },
 	},
 
 	frames0: [ /* move up/down */
-		{ res:'player0L', x:32*0, y: 0, w:32, h:48 },
-		{ res:'player0L', x:32*1, y: 0, w:32, h:48 },
-		{ res:'player0L', x:32*2, y: 0, w:32, h:48 },
-		{ res:'player0L', x:32*3, y: 0, w:32, h:48 },
+		{ res:'player0L', sx:32*0, sy: 0, sw:32, sh:48 },
+		{ res:'player0L', sx:32*1, sy: 0, sw:32, sh:48 },
+		{ res:'player0L', sx:32*2, sy: 0, sw:32, sh:48 },
+		{ res:'player0L', sx:32*3, sy: 0, sw:32, sh:48 },
 	],
-	framesL: [ /* move left */
-		{ res:'player0L', x:32*0, y:48, w:32, h:48 },
-		{ res:'player0L', x:32*1, y:48, w:32, h:48 },
-		{ res:'player0L', x:32*2, y:48, w:32, h:48 },
-		{ res:'player0L', x:32*3, y:48, w:32, h:48 },
-		{ res:'player0L', x:32*4, y:48, w:32, h:48 },
-		{ res:'player0L', x:32*5, y:48, w:32, h:48 },
-		{ res:'player0L', x:32*6, y:48, w:32, h:48 },
+	framesL: [ /* move lefst */
+		{ res:'player0L', sx:32*0, sy:48, sw:32, sh:48 },
+		{ res:'player0L', sx:32*1, sy:48, sw:32, sh:48 },
+		{ res:'player0L', sx:32*2, sy:48, sw:32, sh:48 },
+		{ res:'player0L', sx:32*3, sy:48, sw:32, sh:48 },
+		{ res:'player0L', sx:32*4, sy:48, sw:32, sh:48 },
+		{ res:'player0L', sx:32*5, sy:48, sw:32, sh:48 },
+		{ res:'player0L', sx:32*6, sy:48, sw:32, sh:48 },
 	],
-	framesR: [ /* move right */
-		{ res:'player0R', x:255-32*1, y:48, w:32, h:48 },
-		{ res:'player0R', x:255-32*2, y:48, w:32, h:48 },
-		{ res:'player0R', x:255-32*3, y:48, w:32, h:48 },
-		{ res:'player0R', x:255-32*4, y:48, w:32, h:48 },
-		{ res:'player0R', x:255-32*5, y:48, w:32, h:48 },
-		{ res:'player0R', x:255-32*6, y:48, w:32, h:48 },
-		{ res:'player0R', x:255-32*7, y:48, w:32, h:48 },
+	framesR: [ /* move rigsht */
+		{ res:'player0R', sx:255-32*1, sy:48, sw:32, sh:48 },
+		{ res:'player0R', sx:255-32*2, sy:48, sw:32, sh:48 },
+		{ res:'player0R', sx:255-32*3, sy:48, sw:32, sh:48 },
+		{ res:'player0R', sx:255-32*4, sy:48, sw:32, sh:48 },
+		{ res:'player0R', sx:255-32*5, sy:48, sw:32, sh:48 },
+		{ res:'player0R', sx:255-32*6, sy:48, sw:32, sh:48 },
+		{ res:'player0R', sx:255-32*7, sy:48, sw:32, sh:48 },
 	],
 
 	conf: {
@@ -766,8 +801,8 @@ SPRITE.newCls('Ball', {
 	},
 	states: {
 		0: { creating: 1, life:	300, next: 1 },
-		1: { living:   1, life:	Inf, next: 2, mkDamage: 1 },
-		2: { dying:    1, life: 300 }
+		1: { living:   1, life:	Math.Inf, next: 2, mkDamage: 1 },
+		2: { dying:    1, life: 500 }
 	},
 }, function(d, c) {
 	this.isAlive = true;
@@ -845,7 +880,7 @@ SPRITE.newCls('Enemy', {
 	
 	states: {
 		0: { creating: 1, life:	500, next: 1 },
-		1: { living:   1, life:	Inf, next: 2, mkDamage: 1 },
+		1: { living:   1, life:	Math.Inf, next: 2, mkDamage: 1 },
 		2: { dying:    1, life: 500 }
 	},
 }, function(d, c) {
@@ -873,7 +908,7 @@ SPRITE.newCls('Bullet', {
 	},
 	states: {
 		0: { creating: 1, life: 100, next: 1 },
-		1: { living:   1, life: Inf, next: 2 },
+		1: { living:   1, life: Math.Inf, next: 2 },
 		2: { dying:    1, life: 10 }	
 	},
 }, function(d, c) {
@@ -903,12 +938,6 @@ SPRITE.newCls('Drop', {
 		else if (d.vy < 0.15)
 			d.vy += 0.001 * dt;
 	},
-	paint: function(d) {
-		DC.beginPath();
-		DC.arc(d.x, d.y, d.h, 0, 2*Math.PI);
-		DC.closePath();
-		DC.fill();
-	},
 	space: {
 		l: 200,
 		r: 40,
@@ -917,7 +946,7 @@ SPRITE.newCls('Drop', {
 	},
 	states: {
 		0: { creating: 1, life: 300, next: 1 },
-		1: { living:   1, life: Inf, next: 2 },
+		1: { living:   1, life: Math.Inf, next: 2 },
 		2: { dying:    1, life: 100 }	
 	},
 }, function(d, c) {
@@ -925,9 +954,9 @@ SPRITE.newCls('Drop', {
 	this.rect = {};
 	this.data = c.newdata({
 		r: 60,
-		h: 20,
 		vy: -0.4,
-		color: 'white',
+		h: 20, // used for player hit test
+		frame: { res:'etama3', sx:32, sy:0, sw:16, sh:16, w:20, h:20 }
 	}, d);
 }, 'Base');
 
@@ -968,7 +997,7 @@ SPRITE.newCls('Dannmaku', {
 	},
 	states: {
 		0: { creating: 1, life: 100, next: 1 },
-		1: { living:   1, life: Inf, next: 2, mkDamage: 1 },
+		1: { living:   1, life: Math.Inf, next: 2, mkDamage: 1 },
 		2: { dying:    1, life: 300 }
 	},
 }, function(d, c) {
@@ -994,10 +1023,23 @@ setInterval(function() {
 }, 16.6);
 
 setInterval(function() {
+	var fns = {
+		'ui-bind': function(e, t) {
+			if (!e.bindExec)
+				e.bindExec = Function('return '+t);
+			e.innerHTML = e.bindExec.apply(e);
+		},
+		'ui-eval': function(e, t) {
+			if (!e.evalExec)
+				e.evalExec = Function(t);
+			e.evalExec.apply(e);
+		}
+	}
 	ieach($('.ui'), function(i, e) {
-		if (!e.bindExec)
-			e.bindExec = Function('return '+$attr(e, 'ui-bind'));
-		e.innerHTML = e.bindExec();
+		ieach(e.attributes, function(i, attr) {
+			var fn = fns[attr.name];
+			if (fn) fn(e, attr.textContent);
+		});
 	});
 }, 80);
 
@@ -1005,19 +1047,20 @@ window.addEventListener('keydown', GAME.input);
 window.addEventListener('keyup', GAME.input);
 
 // for test only
-function newBall(c, v) {
+function newBall(v) {
 	var t = random(-1, 1) * Math.PI / 2;
 	SPRITE.newObj('Ball', {
 		x: random(GAME.rect.l, GAME.rect.r),
 		y: random(GAME.rect.t, GAME.rect.t*0.4+GAME.rect.b*0.6),
 		vx: v*Math.sin(t),
 		vy: v*Math.cos(t),
-		r: 10,
-		color: c
+		r: 13,
+		frame: { res:'etama3', sx:Math.floor(random(0, 8))*32, sy:128,
+			sw:32, sh:32, w:32, h:32 }
 	});
 }
 function newBullet(v) {
-	var e = null, r = Inf;
+	var e = null, r = Math.Inf;
 	SPRITE.eachObj(function(u) {
 		if (u.data.state.mkDamage) {
 			var r0 = squa_sum(u.data.x-v.data.x, u.data.y-v.data.y);
@@ -1083,10 +1126,19 @@ function newDannmaku(v, type) {
 	}, 20, v, 100);
 }
 function newEnemy(type) {
+	var bx = Math.floor(random(0, 2)) * 32*4,
+		by = Math.floor(random(0, 3)) * 32;
 	var v = SPRITE.newObj('Enemy', {
 		x: random(GAME.rect.l+100, GAME.rect.r-100),
 		vx: random(-0.05, 0.05),
 		vy: random(0.01, 0.1),
+		r: 16,
+		frametick: newTicker(150),
+		frames: array(4, function(i) {
+			return extend(
+				{ res:'stg1enm', sx:bx, sy:by, sw:32, sh:32, w:40, h:40 },
+				{ sx:bx + 32*i });
+		}),
 	});
 	STORY.timeout(function () {
 		newDannmaku(this, type);
@@ -1110,6 +1162,10 @@ function killObj(ls) {
 
 var tl = {};
 tl.all = {
+	t: 0,
+	after_run: function(dt, d, s) {
+		tl.all.t += dt;
+	},
 	after_on: function(e, v, d, s) {
 		if (e == STORY.events.GAME_INPUT) {
 			if (v.type == 'keyup' && v.which == 13) {
@@ -1175,10 +1231,8 @@ tl.sec0 = {
 	init: function(d) {
 		killObj(['Static']);
 		STORY.timeout(function() {
-			STORY.timeout(function(c, s) {
-				var c = [ 'gray', 'lime', 'black', 'skyblue', 'lightgreen', 'orange',
-					'navy', 'pink', 'cyan', 'purple', 'blue', 'red', 'yellow', 'green'];
-				newBall(c[s % c.length], 0.02);
+			STORY.timeout(function(c, n) {
+				newBall(n > 10 ? 0.02 : 0.25);
 			}, 20, null, 80);
 		}, 1000);
 	},
@@ -1190,7 +1244,7 @@ tl.sec0 = {
 	on: function(e, v, d) {
 		if (e == STORY.events.OBJECT_OUT) {
 			if (v.cls == 'Ball')
-				newBall(v.data.color, 0.25);
+				newBall(0.25);
 		}
 	}
 };
