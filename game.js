@@ -1145,11 +1145,21 @@ tl.all = {
 			}, 'Drop');
 		}
 		else if (e == STORY.events.PLAYER_HIT) {
-			killObj(['Ball', 'Dannmaku']);
 			v.data.set('juesi');
+			STORY.timeout(function() {
+				killObj(['Ball', 'Dannmaku']);
+			}, 10, null, 80);
 		}
 		else if (e == STORY.events.PLAYER_DEAD) {
 			SPRITE.newObj('Player');
+			STORY.timeout(function() {
+				var x = v.data.x,
+					y = GAME.rect.t*0.7+GAME.rect.b*0.3;
+				SPRITE.newObj('Drop', { x:x+45, y:y+10 });
+				SPRITE.newObj('Drop', { x:x+15, y:y });
+				SPRITE.newObj('Drop', { x:x-15, y:y });
+				SPRITE.newObj('Drop', { x:x-45, y:y+10 });
+			}, 500);
 		}
 		else if (e == STORY.events.PLAYER_FIRE) {
 			if (!d.disable_fire)
