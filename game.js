@@ -188,28 +188,44 @@ var DC = (function() {
 var RES = (function() {
 	var res = $e('res'),
 		_t = {};
-	ieach(res.children, function(i, v, d) {
-		if (v.tagName == 'CANVAS') {
-			var from = $attr(v, 'from'),
-				trans = $attr(v, 'transform');
-			if (from) {
-				var im = $e(from),
-					dc = v.getContext('2d');
-				v.width = im.naturalWidth;
-				v.height = im.naturalHeight;
-				if (trans == 'mirror-x') {
-					dc.translate(v.width, 0);
-					dc.scale(-1, 1);
+	_t.process = 0;
+	function loaded() {
+		ieach(res.children, function(i, v, d) {
+			if (v.tagName == 'CANVAS') {
+				var from = $attr(v, 'from'),
+					trans = $attr(v, 'transform');
+				if (from) {
+					var im = $e(from),
+						dc = v.getContext('2d');
+					v.width = im.naturalWidth;
+					v.height = im.naturalHeight;
+					if (trans == 'mirror-x') {
+						dc.translate(v.width, 0);
+						dc.scale(-1, 1);
+					}
+					else if (trans == 'mirror-y') {
+						dc.translate(0, v.height);
+						dc.scale(1, -1);
+					}
+					dc.drawImage(im, 0, 0);
 				}
-				else if (trans == 'mirror-y') {
-					dc.translate(0, v.height);
-					dc.scale(1, -1);
-				}
-				dc.drawImage(im, 0, 0);
 			}
-		}
-		d[v.id] = v;
-	}, _t);
+			d[v.id] = v;
+		}, _t);
+		document.dispatchEvent(new CustomEvent('res.loaded'));
+	}
+	function check() {
+		var ls = ieach(res.children, function(i, v, d) {
+			if (v.tagName == 'IMG')
+				d.push(v.complete ? 1 : 0);
+		}, []);
+		_t.process = sum(ls) / ls.length;
+		if (_t.process == 1) 
+			loaded();
+		else
+			setTimeout(check, 500);
+	};
+	setTimeout(check, 10);
 	return _t;
 })();
 
@@ -950,7 +966,7 @@ SPRITE.newCls('Drop', {
 				cos = (e.y - d.y) / r;
 			d.vx = v * sin;
 			d.vy = v * cos;
-			d.collected = null;
+			d.collected = d.collected_auto ? d.collected : undefined;
 			d.collected_auto = false;
 		}
 		else if (d.vy < 0.15)
@@ -1241,22 +1257,6 @@ tl.init = {
 		*/
 		SPRITE.newObj('Player');
 
-		STORY.timeout(function() {
-			SPRITE.newObj('Enemy', {
-				r: 16,
-				ticks: [
-					UTIL.newFrameTick(150, array(4, function(i) {
-						var bx = by = 0;
-						return extend({ res:'stg1enm', sy:by, sw:32, sh:32, w:32, h:32 }, { sx:bx+32*i });
-					})),
-					UTIL.newPathTick(50, array(20, function(i) {
-						var t = i/19 * Math.PI;
-						return { fx: 0.4+0.6*Math.cos(t), fy: 0.0+0.4*Math.sin(t), v: 3 };
-					}))
-				]
-			});
-		}, 500, null, 8);
-
 		d.title = SPRITE.newObj('Static', {
 			t: 'Dannmaku Demo!'
 		});
@@ -1417,4 +1417,6 @@ tl.end = {
 };
 STORY.timeline = tl;
 
-GAME.init();
+document.addEventListener('res.loaded', function(e) {
+	GAME.init();
+});

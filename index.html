@@ -29,6 +29,9 @@ body {
 	<img id="stg1enm" src="res/stg1enm.png" />
 </div>
 <div class="absolute">
+	<div class="ui" ui-bind="RES.process<1 ? 'block' : 'none'" ui-bind-attr="this.style.display">
+		loading: <span class="ui" ui-bind="(RES.process*100).toFixed(1)+'%'"></span>
+	</div>
 	<div>fps: <span class="ui" ui-bind="GAME.fps.toFixed(3)"></span></div>
 	<div>game: <span class="ui" ui-bind="keyfind(GAME.states, GAME.state)"></span></div>
 	<div>story: <span class="ui" ui-bind="STORY.current.scene"></span></div>
