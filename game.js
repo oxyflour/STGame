@@ -61,6 +61,13 @@ function extend(c) {
 		return i == 0 ? r : ext(r, v);
 	}, c);
 }
+function arrcat() {
+	return ieach(arguments, function(i, v, d) {
+		each(v, function(j, u, d) {
+			d.push(u);
+		}, d);
+	}, []);
+}
 function sum(ls) {
 	return reduce(ls, function(i, v, r) {
 		return v + r;
@@ -68,7 +75,7 @@ function sum(ls) {
 }
 function random(b, e) {
 	var d = (e || 0) - b;
-	return b + Math.random()*d
+	return b + Math.random()*d;
 }
 function randin(ls) {
 	return ls[Math.floor(Math.random()*ls.length)];
@@ -427,6 +434,13 @@ var GAME = (function() {
 })();
 
 var UTIL = {
+	getAliveObjs: function(c) {
+		var ls = [];
+		SPRITE.eachObj(function(v) {
+			ls.push(v);
+		}, c);
+		return ls;
+	},
 	// fs should be array of objects like
 	// { res:'', sx:0, sy:0, sw:10, sh:10, w:10, h:10, [rot:1] }
 	newFrameTick: function(t, fs) {
@@ -984,7 +998,7 @@ SPRITE.newCls('Dannmaku', {
 				d.vy *= 0.98;
 			}
 			else {
-				var p = randin(SPRITE.obj.Player).data;
+				var p = randin(UTIL.getAliveObjs('Player')).data;
 				d.vx -= 10e-7 * dt * (d.x - p.x);
 				d.vy -= 10e-7 * dt * (d.y - p.y);
 			}
@@ -993,14 +1007,14 @@ SPRITE.newCls('Dannmaku', {
 			if (!d.pos) d.pos = {x: e.x, y: e.y, t: 0};
 			if (!e.dir) e.dir = randin([-1, 1]);
 			d.pos.t += dt;
-			d.x = 100*Math.sin(e.dir*d.pos.t/400) + d.pos.x;
-			d.y = 100*Math.cos(e.dir*d.pos.t/400) + d.pos.y;
+			d.x = 100*Math.sin(e.dir*d.pos.t/250) + d.pos.x;
+			d.y = 100*Math.cos(e.dir*d.pos.t/250) + d.pos.y;
 		}
 	},
 	states: {
 		0: { creating: 1, life: 100, next: 1 },
 		1: { living:   1, life: Math.Inf, next: 2, mkDamage: 1 },
-		2: { dying:    1, life: 300 }
+		2: { dying:    1, life: 100 },
 	},
 }, function(d, c) {
 	this.data = c.newdata({
@@ -1105,7 +1119,7 @@ function newDannmaku(v, type) {
 		if (!this.isAlive && !this.data.state.living)
 			return;
 		var e = this.data,
-			p = randin(SPRITE.obj.Player).data;
+			p = randin(UTIL.getAliveObjs('Player')).data;
 		var r = sqrt_sum(e.x-p.x, e.y-p.y),
 			t = Math.asin((p.x - e.x) / r),
 			n = 15, p = Math.PI*1.5,
@@ -1123,7 +1137,7 @@ function newDannmaku(v, type) {
 			from: this,
 			type: type
 		});
-	}, 30, v, 60);
+	}, 20, v, 60);
 }
 function newEnemy(type) {
 	var bx = randin([0, 1]) * 32*4,
@@ -1184,7 +1198,7 @@ tl.all = {
 		else if (e == STORY.events.PLAYER_HIT) {
 			v.data.set('juesi');
 			STORY.timeout(function() {
-				killObj(['Ball', 'Dannmaku']);
+				killObj(['Dannmaku']);
 			}, 10, null, 80);
 			STORY.timeout(function() {
 				if (v.data.state.dying) {
@@ -1278,17 +1292,28 @@ tl.sec0 = {
 };
 tl.sec1 = {
 	init: function(d) {
-		killObj(['Ball', 'Enemy', 'Dannmaku']);
+		killObj(['Ball', 'Enemy']);
 		STORY.timeout(function () {
 			newEnemy(tl.loop || 0);
 		}, 1000, null, 3);
 	},
 	run: function(dt, d) {
 		if (d.pass) {
+			SPRITE.eachObj(function(v) {
+				v.data.set('dying');
+				SPRITE.newObj('Drop', {
+					x: v.data.x,
+					y: v.data.y,
+					frame: { res:'etama3', sx:16, sy:0, sw:16, sh:16, w:20, h:20 },
+				});
+			}, 'Dannmaku');
+			STORY.timeout(function() {
+				STORY.on(STORY.events.PLAYER_AUTOCOLLECT,
+					randin(UTIL.getAliveObjs('Player')));
+			}, 100);
 			tl.loop = (tl.loop || 0) + 1;
-			if (tl.loop >= 5) {
+			if (tl.loop >= 5)
 				return 'diag';
-			}
 			else
 				return 'sec1';
 		}
