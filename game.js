@@ -676,7 +676,7 @@ SPRITE.newCls('Player', {
 	run: function(dt) {
 		var d = this.data;
 			m = GAME.keyste.shiftKey,
-			v = m ? 0.15 : 0.4;
+			v = m ? 0.14 : 0.35;
 
 		d.run(dt);
 		if (!d.state.life) {
@@ -762,15 +762,13 @@ SPRITE.newCls('Player', {
 			f.sx, f.sy, f.sw, f.sh,
 			d.x-f.w/2, d.y-f.h/2, f.w, f.h);
 
-		/*
 		if (d.slowMode) {
-			DC.fillStyle = 'gray';
+			DC.fillStyle = 'black';
 			DC.beginPath();
 			DC.arc(d.x, d.y, d.h, 0, 2*Math.PI);
 			DC.closePath();
 			DC.fill();
 		}
-		*/
 
 		DC.restore();
 	},
@@ -946,7 +944,7 @@ SPRITE.newCls('Drop', {
 	update: function(dt, d) {
 		if (d.collected) {
 			var e = d.collected.data,
-				v = d.collected_auto ? 0.6 : sqrt_sum(d.vx, d.vy),
+				v = d.collected_auto ? 0.8 : sqrt_sum(d.vx, d.vy),
 				r = sqrt_sum(d.x - e.x, d.y - e.y),
 				sin = (e.x - d.x) / r,
 				cos = (e.y - d.y) / r;
@@ -1161,7 +1159,7 @@ function newEnemy(type) {
 	});
 	STORY.timeout(function () {
 		newDannmaku(this, type);
-	}, 2000, v);
+	}, 1000, v);
 }
 function newBoss() {
 	var v = SPRITE.newObj('Enemy', {
@@ -1268,7 +1266,7 @@ tl.sec0 = {
 		STORY.timeout(function() {
 			STORY.timeout(function(c, n) {
 				newBall(n > 10 ? 0.05 : 0.25, n > 10 ? 0.6 : 0.2);
-			}, 20, null, 50);
+			}, 20, null, 60);
 		}, 1000);
 	},
 	run: function(dt, d) {
@@ -1288,7 +1286,7 @@ tl.sec1 = {
 		killObj(['Ball', 'Enemy']);
 		STORY.timeout(function () {
 			newEnemy(tl.loop || 0);
-		}, 500, null, 5);
+		}, 300, null, 5);
 	},
 	run: function(dt, d) {
 		if (d.pass) {
