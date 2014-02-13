@@ -426,9 +426,10 @@ var GAME = (function() {
 	return _t;
 })();
 
-var UTIL = (function() {
-	var _t = {};
-	_t.newFrameTick = function(t, fs) {
+var UTIL = {
+	// fs should be array of objects like
+	// { res:'', sx:0, sy:0, sw:10, sh:10, w:10, h:10, [rot:1] }
+	newFrameTick: function(t, fs) {
 		return {
 			t: newTicker(t),
 			f: function(v, d) {
@@ -440,9 +441,44 @@ var UTIL = (function() {
 				index: 0
 			}
 		}
-	};
-	return _t;
-})();
+	},
+	// ps should be array of objects like
+	// { x/fx:0, y/fy:0, v:10 }
+	// x and y should be between 0 and 1
+	newPathTick: function(t, ps) {
+		return {
+			t: newTicker(t),
+			f: function(v, d) {
+				var t = v.data,
+					n = d.pathnodes[d.index];
+				if (n) {
+					if (+n.fx == n.fx)
+						n.x = GAME.rect.l * (1-n.fx) + GAME.rect.r * n.fx;
+					if (+n.fy == n.fy)
+						n.y = GAME.rect.t * (1-n.fy) + GAME.rect.b * n.fy;
+					if (d.index == 0) {
+						t.x = n.x;
+						t.y = n.y;
+						d.index ++;
+					} else {
+						var dx = n.x - t.x,
+							dy = n.y - t.y,
+							r = sqrt_sum(dx, dy),
+							f = n.v / r;
+						t.x = t.x * (1-f) + n.x * f;
+						t.y = t.y * (1-f) + n.y * f;
+						if (f >= 1) // to next node
+							d.index ++;
+					}
+				}
+			},
+			d: {
+				pathnodes: ps,
+				index: 0
+			}
+		}
+	},
+};
 
 SPRITE.newCls('Static', {
 	run: function(dt) {
@@ -461,7 +497,7 @@ SPRITE.newCls('Static', {
 		else if (d.state.dying)
 			DC.globalAlpha = 1 - d.age / d.state.life;
 
-		if (d.color)
+		if (d.color !== undefined)
 			DC.fillStyle = d.color;
 		else
 			DC.fillStyle = ['pink', 'white', 'gray'][d.ste];
@@ -859,7 +895,7 @@ SPRITE.newCls('Enemy', {
 	this.data = c.newdata({
 		r: 20,
 		y: GAME.rect.t*0.9+GAME.rect.b*0.1,
-		life: 50
+		life: 30
 	}, d);
 }, 'Base');
 
@@ -1093,7 +1129,7 @@ function newEnemy(type) {
 	var bx = randin([0, 1]) * 32*4,
 		by = randin([0, 1, 2]) * 32,
 		fs = array(4, function(i) {
-			return extend( { res:'stg1enm', sy:by, sw:32, sh:32, w:32, h:32 }, { sx:bx+32*i });
+			return extend({ res:'stg1enm', sy:by, sw:32, sh:32, w:32, h:32 }, { sx:bx+32*i });
 		});
 	var v = SPRITE.newObj('Enemy', {
 		x: random(GAME.rect.l+100, GAME.rect.r-100),
@@ -1190,6 +1226,24 @@ tl.init = {
 		});
 		*/
 		SPRITE.newObj('Player');
+
+		var bx = by = 0;
+		var fs = array(4, function(i) {
+			return extend({ res:'stg1enm', sy:by, sw:32, sh:32, w:32, h:32 }, { sx:bx+32*i });
+		}), ps = array(20, function(i) {
+			var t = i/19 * Math.PI;
+			return { fx: 0.4+0.6*Math.cos(t), fy: 0.0+0.4*Math.sin(t), v: 3 };
+		});
+		STORY.timeout(function() {
+			SPRITE.newObj('Enemy', {
+				r: 16,
+				color: '',
+				ticks: [
+					UTIL.newFrameTick(150, fs),
+					UTIL.newPathTick(50, ps)
+				]
+			});
+		}, 500, null, 8);
 
 		d.title = SPRITE.newObj('Static', {
 			t: 'Dannmaku Demo!'
