@@ -497,10 +497,10 @@ SPRITE.newCls('Static', {
 		else if (d.state.dying)
 			DC.globalAlpha = 1 - d.age / d.state.life;
 
-		if (d.color !== undefined)
-			DC.fillStyle = d.color;
-		else
+		if (d.color === undefined)
 			DC.fillStyle = ['pink', 'white', 'gray'][d.ste];
+		else
+			DC.fillStyle = d.color;
 
 		if (this.paint)
 			this.paint(d);
@@ -1190,10 +1190,10 @@ tl.all = {
 				if (v.data.state.dying) {
 					var x = v.data.x,
 						y = GAME.rect.t*0.8+GAME.rect.b*0.2;
-					SPRITE.newObj('Drop', { x:x+45, y:y+10 });
-					SPRITE.newObj('Drop', { x:x+15, y:y });
-					SPRITE.newObj('Drop', { x:x-15, y:y });
-					SPRITE.newObj('Drop', { x:x-45, y:y+10 });
+					SPRITE.newObj('Drop', { x:x+90, y:y+10 });
+					SPRITE.newObj('Drop', { x:x+30, y:y });
+					SPRITE.newObj('Drop', { x:x-30, y:y });
+					SPRITE.newObj('Drop', { x:x-90, y:y+10 });
 				}
 			}, 200);
 		}
@@ -1227,20 +1227,18 @@ tl.init = {
 		*/
 		SPRITE.newObj('Player');
 
-		var bx = by = 0;
-		var fs = array(4, function(i) {
-			return extend({ res:'stg1enm', sy:by, sw:32, sh:32, w:32, h:32 }, { sx:bx+32*i });
-		}), ps = array(20, function(i) {
-			var t = i/19 * Math.PI;
-			return { fx: 0.4+0.6*Math.cos(t), fy: 0.0+0.4*Math.sin(t), v: 3 };
-		});
 		STORY.timeout(function() {
 			SPRITE.newObj('Enemy', {
 				r: 16,
-				color: '',
 				ticks: [
-					UTIL.newFrameTick(150, fs),
-					UTIL.newPathTick(50, ps)
+					UTIL.newFrameTick(150, array(4, function(i) {
+						var bx = by = 0;
+						return extend({ res:'stg1enm', sy:by, sw:32, sh:32, w:32, h:32 }, { sx:bx+32*i });
+					})),
+					UTIL.newPathTick(50, array(20, function(i) {
+						var t = i/19 * Math.PI;
+						return { fx: 0.4+0.6*Math.cos(t), fy: 0.0+0.4*Math.sin(t), v: 3 };
+					}))
 				]
 			});
 		}, 500, null, 8);
