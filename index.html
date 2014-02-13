@@ -14,12 +14,10 @@ body {
 .hidden {
 	display: none;
 }
-.game-bg {
-	background: url(res/bg.jpg);
-}
 #canv {
 	width: 480px;
 	height: 720px;
+	background: url(res/bg.jpg);
 }
 </style>
 </head>
@@ -35,9 +33,8 @@ body {
 	<div>game: <span class="ui" ui-bind="keyfind(GAME.states, GAME.state)"></span></div>
 	<div>story: <span class="ui" ui-bind="STORY.current.scene"></span></div>
 </div>
-<div class="game-bg ui" ui-bind="tl.all.t*0.05+'px'" ui-bind-attr="this.style['background-position-y']">
-	<canvas id="canv" width="320px" height="480px"></canvas>
-</div>
+<canvas ui-bind="tl.all.t*0.05+'px'" ui-bind-attr="this.style['background-position-y']"
+	id="canv" class="ui" width="320px" height="480px"></canvas>
 <script src="game.js"></script>
 </body>
 </html>

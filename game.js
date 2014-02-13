@@ -87,12 +87,6 @@ function circle_intersect(cr1, cr2) {
 	return squa_sum(cr1.x - cr2.x, cr1.y - cr2.y) < 
 		squa_sum(cr1.r + cr2.r, 0)
 }
-function make_rect(rt, l, t, r, b) {
-	rt.l = l;
-	rt.t = t;
-	rt.r = r;
-	rt.b = b;
-}
 
 function $(s, p) {
 	return (p || document).querySelectorAll(s);
@@ -372,7 +366,8 @@ var GAME = (function() {
 			SPRITE.eachObj(function(v2) {
 				if (c1 == c2 && v2.idx >= v1.idx)
 					return;
-				if (rect_intersect(v1.rect, v2.rect))
+				if (v1.rect && v2.rect &&
+						rect_intersect(v1.rect, v2.rect))
 					v1.hit(v2, dt)
 			}, c2);
 		}, c1);
@@ -398,7 +393,7 @@ var GAME = (function() {
 	_t.run = function(dt) {
 		SPRITE.eachCls(function(c1) {
 			var hits = SPRITE.cls[c1].hits;
-			if (hits) keach(hits, function(c2) {
+			if (hits) ieach(hits, function(i, c2) {
 				testhit(c1, c2, dt);
 			});
 		});
@@ -427,7 +422,25 @@ var GAME = (function() {
 			_t.keyste[e.which] = 0;
 		}
 		STORY.on(STORY.events.GAME_INPUT, e);
-	}
+	};
+	return _t;
+})();
+
+var UTIL = (function() {
+	var _t = {};
+	_t.newFrameTick = function(t, fs) {
+		return {
+			t: newTicker(t),
+			f: function(v, d) {
+				d.index = (d.index + 1) % d.frames.length;
+				v.data.frame = d.frames[d.index];
+			},
+			d: {
+				frames: fs,
+				index: 0
+			}
+		}
+	};
 	return _t;
 })();
 
@@ -451,7 +464,7 @@ SPRITE.newCls('Static', {
 		if (d.color)
 			DC.fillStyle = d.color;
 		else
-			DC.fillStyle = ['pink', 'red', 'gray'][d.ste];
+			DC.fillStyle = ['pink', 'white', 'gray'][d.ste];
 
 		if (this.paint)
 			this.paint(d);
@@ -483,17 +496,16 @@ SPRITE.newCls('Base', {
 		if (!d.state.life)
 			this.isAlive = false;
 
-		if (d.frametick && d.frametick.run(dt)) {
-			d.framei = (d.framei + 1) % d.frames.length;
-			d.frame = d.frames[d.framei];
-		}
-
 		d.x0 = d.x;
 		d.y0 = d.y;
 		d.x += d.vx * dt;
 		d.y += d.vy * dt;
 		if (this.update)
 			this.update(dt, d);
+
+		if (d.ticks) ieach(d.ticks, function(i, v, d) {
+			if (v.t.run(dt)) v.f(d, v.d);
+		}, this);
 
 		var s = this.space;
 		if (d.x+d.r+s.l < GAME.rect.l ||
@@ -504,11 +516,11 @@ SPRITE.newCls('Base', {
 			STORY.on(STORY.events.OBJECT_OUT, this);
 		}
 
-		make_rect(this.rect,
-			Math.min(d.x0, d.x) - d.r*1.1,
-			Math.min(d.y0, d.y) - d.r*1.1,
-			Math.max(d.x0, d.x) + d.r*1.1,
-			Math.max(d.y0, d.y) + d.r*1.1);
+		if (!this.rect) this.rect = {};
+		this.rect.l = Math.min(d.x0, d.x) - d.r*1.1;
+		this.rect.t = Math.min(d.y0, d.y) - d.r*1.1;
+		this.rect.r = Math.max(d.x0, d.x) + d.r*1.1;
+		this.rect.b = Math.max(d.y0, d.y) + d.r*1.1;
 	},
 	paint: function(d) {
 		if (d.frame) {
@@ -547,28 +559,23 @@ SPRITE.newCls('Base', {
 			vy: 0,
 			x0: 0,
 			y0: 0,
-
-			// set frametick=newTicker(150) to enable animation
-			frametick: undefined,
-			frames: [],
-			framei: 0,
-			// if no animation is required, simply set frame for it
 			frame: undefined, // i.e. {res:'player0L', sx:0, sy:0, sw:10, sh:10, w:10, h:10}
+
+			ticks: [], // arrays of { t:newTicker(150), f:fn, d:{} }
 		}, d, e);
 	},
 }, function(d, c) {
-	this.rect = { l:0, r:0, t:0, b:0 };
 	this.data = c.newdata(d);
 }, 'Static');
 
 SPRITE.newCls('Player', {
-	hits: dictflip([
+	hits: [
 		'Player',
 		'Ball',
 		'Enemy',
 		'Dannmaku',
 		'Drop',
-	]),
+	],
 	hit: function(v) {
 		var d = this.data,
 			e = v.data;
@@ -670,11 +677,11 @@ SPRITE.newCls('Player', {
 		if (d.frametick.run(dt))
 			this.updateframe(d);
 
-		make_rect(this.rect,
-			d.x - d.r*1.1,
-			d.y - d.r*1.1,
-			d.x + d.r*1.1,
-			d.y + d.r*1.1);
+		if (!this.rect) this.rect = {};
+		this.rect.l = d.x - d.r*1.1;
+		this.rect.t = d.y - d.r*1.1;
+		this.rect.r = d.x + d.r*1.1;
+		this.rect.b = d.y + d.r*1.1;
 	},
 	draw: function() {
 		var d = this.data;
@@ -767,16 +774,15 @@ SPRITE.newCls('Player', {
 		key_bomb: GAME.keychars.X,
 	},
 }, function(d, c) {
-	this.rect = { l:0, r:0, t:0, b:0 };
 	this.data = c.newdata(d);
 	if (d && d.conf)
 		this.conf = extend({}, c.conf, d.conf);
 }, 'Static');
 
 SPRITE.newCls('Ball', {
-	hits: dictflip([
+	hits: [
 		'Ball',
-	]),
+	],
 	hit: function(v) {
 		var d = this.data,
 			e = v.data;
@@ -822,14 +828,13 @@ SPRITE.newCls('Ball', {
 		2: { dying:    1, life: 500 }
 	},
 }, function(d, c) {
-	this.rect = { l:0, r:0, t:0, b:0 };
 	this.data = c.newdata(d);
 }, 'Base');
 
 SPRITE.newCls('Enemy', {
-	hits: dictflip([
+	hits: [
 		'Bullet',
-	]),
+	],
 	hit: function(v) {
 		var d = this.data,
 			e = v.data;
@@ -851,7 +856,6 @@ SPRITE.newCls('Enemy', {
 		2: { dying:    1, life: 500 }
 	},
 }, function(d, c) {
-	this.rect = { l:0, r:0, t:0, b:0 };
 	this.data = c.newdata({
 		r: 20,
 		y: GAME.rect.t*0.9+GAME.rect.b*0.1,
@@ -878,7 +882,6 @@ SPRITE.newCls('Bullet', {
 		2: { dying:    1, life: 10 }	
 	},
 }, function(d, c) {
-	this.rect = { l:0, r:0, t:0, b:0 };
 	this.data = c.newdata({
 		r: 5,
 		vy: -0.5,
@@ -912,10 +915,9 @@ SPRITE.newCls('Drop', {
 	states: {
 		0: { creating: 1, life: 300, next: 1 },
 		1: { living:   1, life: Math.Inf, next: 2 },
-		2: { dying:    1, life: 100 }	
+		2: { dying:    1, life: 100 }
 	},
 }, function(d, c) {
-	this.rect = { l:0, r:0, t:0, b:0 };
 	this.data = c.newdata({
 		r: 60,
 		vy: -0.4,
@@ -965,7 +967,6 @@ SPRITE.newCls('Dannmaku', {
 		2: { dying:    1, life: 300 }
 	},
 }, function(d, c) {
-	this.rect = { l:0, r:0, t:0, b:0 };
 	this.data = c.newdata({
 		r: 5,
 		vy: 0.3,
@@ -1081,7 +1082,7 @@ function newDannmaku(v, type) {
 			y: e.y + 20*dy,
 			vx: 0.3*dx,
 			vy: 0.3*dy,
-			r: 5,
+			r: 4,
 			frame: { res:'etama3', sx:0, sy:64, sw:16, sh:16, w:16, h:16, rot:1 },
 			from: this,
 			type: type
@@ -1090,16 +1091,16 @@ function newDannmaku(v, type) {
 }
 function newEnemy(type) {
 	var bx = randin([0, 1]) * 32*4,
-		by = randin([0, 1, 2]) * 32;
+		by = randin([0, 1, 2]) * 32,
+		fs = array(4, function(i) {
+			return extend( { res:'stg1enm', sy:by, sw:32, sh:32, w:32, h:32 }, { sx:bx+32*i });
+		});
 	var v = SPRITE.newObj('Enemy', {
 		x: random(GAME.rect.l+100, GAME.rect.r-100),
 		vx: random(-0.05, 0.05),
 		vy: random(0.01, 0.1),
 		r: 16,
-		frametick: newTicker(150),
-		frames: array(4, function(i) {
-			return extend( { res:'stg1enm', sy:by, sw:32, sh:32, w:32, h:32 }, { sx:bx+32*i });
-		}),
+		ticks: [ UTIL.newFrameTick(150, fs) ]
 	});
 	STORY.timeout(function () {
 		newDannmaku(this, type);
@@ -1149,17 +1150,19 @@ tl.all = {
 			STORY.timeout(function() {
 				killObj(['Ball', 'Dannmaku']);
 			}, 10, null, 80);
+			STORY.timeout(function() {
+				if (v.data.state.dying) {
+					var x = v.data.x,
+						y = GAME.rect.t*0.8+GAME.rect.b*0.2;
+					SPRITE.newObj('Drop', { x:x+45, y:y+10 });
+					SPRITE.newObj('Drop', { x:x+15, y:y });
+					SPRITE.newObj('Drop', { x:x-15, y:y });
+					SPRITE.newObj('Drop', { x:x-45, y:y+10 });
+				}
+			}, 200);
 		}
 		else if (e == STORY.events.PLAYER_DEAD) {
 			SPRITE.newObj('Player');
-			STORY.timeout(function() {
-				var x = v.data.x,
-					y = GAME.rect.t*0.7+GAME.rect.b*0.3;
-				SPRITE.newObj('Drop', { x:x+45, y:y+10 });
-				SPRITE.newObj('Drop', { x:x+15, y:y });
-				SPRITE.newObj('Drop', { x:x-15, y:y });
-				SPRITE.newObj('Drop', { x:x-45, y:y+10 });
-			}, 500);
 		}
 		else if (e == STORY.events.PLAYER_FIRE) {
 			if (!d.disable_fire)
