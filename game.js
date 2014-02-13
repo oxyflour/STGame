@@ -475,6 +475,20 @@ var UTIL = {
 			}
 		}
 	},
+	newFrameGroupTick: function(t, fgs, fn) {
+		return {
+			t: newTicker(t),
+			f: function(v, d) {
+				d.frames = fn(v, d, fgs);
+				d.index = (d.index + 1) % d.frames.length;
+				v.data.frame = d.frames[d.index];
+			},
+			d: {
+				frames: fgs[0],
+				index: 0
+			}
+		}
+	},
 	// ps should be array of objects like
 	// { x/fx:0, y/fy:0, v:10 }
 	// x and y should be between 0 and 1
@@ -684,50 +698,12 @@ SPRITE.newCls('Player', {
 			this.isAlive = false;
 		}
 
-		if (!d.state.dying) {
-			d.slowMode = m;
-			d.x0 = d.x;
-			d.y0 = d.y;
+		if (d.ticks) ieach(d.ticks, function(i, v, d) {
+			if (v.t.run(dt)) v.f(d, v.d);
+		}, this);
 
-			var vx = 0,
-				vy = 0;
-			if (GAME.keyste[this.conf.key_left])
-				vx = -v;
-			else if (GAME.keyste[this.conf.key_right])
-				vx = +v;
-			if (GAME.keyste[this.conf.key_up])
-				vy = -v;
-			else if (GAME.keyste[this.conf.key_down])
-				vy = +v;
-			if (vx && vy) {
-				vx /= 1.414;
-				vy /= 1.414
-			}
-			d.vx = vx;
-			d.vy = vy;
-			d.x += d.vx * dt;
-			d.y += d.vy * dt;
-
-			// FIRE!
-			if (GAME.keyste[this.conf.key_fire]) {
-				if (d.firetick.run(dt) || !d.fire_on) {
-					d.firetick.tc = d.fire_on ? 80 : 0;
-					STORY.on(STORY.events.PLAYER_FIRE, this);
-				}
-			}
-			d.fire_on = GAME.keyste[this.conf.key_fire];
-
-			// BOMB!
-			if (GAME.keyste[this.conf.key_bomb] && !d.state.bomb) {
-				d.set('bomb');
-				STORY.on(STORY.events.PLAYER_BOMB, this);
-			}
-
-			// AUTO COLLECT!
-			if (d.y < GAME.rect.t*0.7 + GAME.rect.b*0.3) {
-				STORY.on(STORY.events.PLAYER_AUTOCOLLECT, this);
-			}
-		}
+		if (!d.state.dying)
+			this.update(dt, d);
 
 		// limit player move inside boundary
 		if (d.x-d.r < GAME.rect.l)
@@ -738,10 +714,6 @@ SPRITE.newCls('Player', {
 			d.y = GAME.rect.t + d.r;
 		if (d.y+d.r > GAME.rect.b)
 			d.y = GAME.rect.b - d.r;
-
-		// update display frame
-		if (d.frametick.run(dt))
-			this.updateframe(d);
 
 		if (!this.rect) this.rect = {};
 		this.rect.l = d.x - d.r*1.1;
@@ -757,10 +729,12 @@ SPRITE.newCls('Player', {
 			DC.globalAlpha = 0.5;
 		}
 
-		var f = d.frame;
-		DC.drawImage(RES[f.res],
-			f.sx, f.sy, f.sw, f.sh,
-			d.x-f.w/2, d.y-f.h/2, f.w, f.h);
+		if (d.frame) {
+			var f = d.frame;
+			DC.drawImage(RES[f.res],
+				f.sx, f.sy, f.sw, f.sh,
+				d.x-f.w/2, d.y-f.h/2, f.w, f.h);
+		}
 
 		if (d.slowMode) {
 			DC.fillStyle = 'black';
@@ -771,6 +745,50 @@ SPRITE.newCls('Player', {
 		}
 
 		DC.restore();
+	},
+	update: function(dt, d) {
+		d.slowMode = m;
+		d.x0 = d.x;
+		d.y0 = d.y;
+
+		var vx = 0,
+			vy = 0;
+		if (GAME.keyste[this.conf.key_left])
+			vx = -v;
+		else if (GAME.keyste[this.conf.key_right])
+			vx = +v;
+		if (GAME.keyste[this.conf.key_up])
+			vy = -v;
+		else if (GAME.keyste[this.conf.key_down])
+			vy = +v;
+		if (vx && vy) {
+			vx /= 1.414;
+			vy /= 1.414
+		}
+		d.vx = vx;
+		d.vy = vy;
+		d.x += d.vx * dt;
+		d.y += d.vy * dt;
+
+		// FIRE!
+		if (GAME.keyste[this.conf.key_fire]) {
+			if (d.firetick.run(dt) || !d.fire_on) {
+				d.firetick.tc = d.fire_on ? 80 : 0;
+				STORY.on(STORY.events.PLAYER_FIRE, this);
+			}
+		}
+		d.fire_on = GAME.keyste[this.conf.key_fire];
+
+		// BOMB!
+		if (GAME.keyste[this.conf.key_bomb] && !d.state.bomb) {
+			d.set('bomb');
+			STORY.on(STORY.events.PLAYER_BOMB, this);
+		}
+
+		// AUTO COLLECT!
+		if (d.y < GAME.rect.t*0.7 + GAME.rect.b*0.3) {
+			STORY.on(STORY.events.PLAYER_AUTOCOLLECT, this);
+		}
 	},
 	newdata: function(d) {
 		return extend(newState(this.states), {
@@ -786,29 +804,23 @@ SPRITE.newCls('Player', {
 
 			firetick: newTicker(180),
 
-			frametick: newTicker(150),
-			frames: this.frames0,
-			framei: 0,
-			frame: this.frames0[0],
+			ticks: [
+				UTIL.newFrameGroupTick(120, [
+					this.frames0,
+					this.framesL,
+					this.framesR
+				], function(v, d, fgs) {
+					if (v.data.vx == 0)
+						return fgs[0];
+					var fs = fgs[v.data.vx < 0 ? 1 : 2];
+					if (d.frames != fs)
+						d.index = 0;
+					if (d.index + 1 > fs.length - 1)
+						d.index = 2;
+					return fs;
+				}),
+			]
 		}, d);
-	},
-	updateframe: function(d) {
-		if (d.vx != 0) {
-			var fs = d.vx < 0 ? this.framesL : this.framesR;
-			if (d.frames != fs) {
-				d.frames = fs;
-				d.framei = 0;
-			}
-			d.framei = d.framei + 1;
-			if (d.framei > d.frames.length - 1)
-				d.framei = 3;
-		}
-		else {
-			if (d.frames != this.frames0)
-				d.frames = this.frames0;
-			d.framei = (d.framei + 1) % d.frames.length;
-		}
-		d.frame = d.frames[d.framei];
 	},
 
 	states: {
