@@ -1055,15 +1055,19 @@ setInterval(function() {
 setInterval(function() {
 	var fns = {
 		'ui-bind': function(e, t) {
-			if (!e.bindExec) e.bindExec = Function(
-				($attr(e, 'ui-bind-attr') || 'this.innerHTML')+'='+t);
-			e.bindExec.apply(e);
+			return Function(($attr(e, 'ui-bind-attr') || 'this.innerHTML')+'='+t);
 		},
-	}
+		'ui-show': function(e, t) {
+			return Function('this.style.display=('+t+')?"block":"none"');
+		}
+	};
 	ieach($('.ui'), function(i, e) {
 		ieach(e.attributes, function(i, attr) {
-			var fn = fns[attr.name];
-			if (fn) fn(e, attr.textContent);
+			var n = attr.name,
+				t = attr.textContent,
+				k = 'exec-'+n+t,
+				f = fns[attr.name];
+			if (f) (e[k] = e[k] || f(e, t)).apply(e);
 		});
 	});
 }, 80);
