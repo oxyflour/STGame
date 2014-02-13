@@ -179,8 +179,8 @@ var DC = (function() {
 	}
 	_t.font = '30px Arial';
 	_t.textAlign = 'center';
-	_t.strokeStyle = 'rgba(0,128,255,0.5)';
-	_t.fillStyle = 'rgba(0, 0, 0, 0.5)';
+	_t.strokeStyle = 'rgba(255,128,0,0.5)';
+	_t.fillStyle = 'white';
 	_t.lineWidth = 3;
 	return _t;
 })();
@@ -237,8 +237,10 @@ var SPRITE = (function() {
 		sort: []
 	};
 	_t.newCls = function(c, cls, init, from) {
-		if (from)
-			cls = extend({}, _t.cls[from], cls)
+		if (from) {
+			cls.from = _t.cls[from];
+			cls = extend({}, cls.from, cls)
+		}
 		cls.cls = c;
 		init.prototype = cls;
 
@@ -306,10 +308,11 @@ var STORY = (function() {
 		'PLAYER_HIT',
 		'PLAYER_DEAD',
 		'PLAYER_AUTOCOLLECT',
-		'PLAYER_DROP_COLLECTED',
+		'PLAYER_GET_DROP',
 		'PLAYER_GRAZE',
 		'PLAYER_FIRE',
 		'PLAYER_BOMB',
+		'DROP_COLLECTED',
 		'ENEMY_KILL'
 	]);
 	_t.load = function() {
@@ -527,11 +530,6 @@ SPRITE.newCls('Static', {
 		else if (d.state.dying)
 			DC.globalAlpha = 1 - d.age / d.state.life;
 
-		if (d.color === undefined)
-			DC.fillStyle = ['pink', 'white', 'gray'][d.ste];
-		else
-			DC.fillStyle = d.color;
-
 		if (this.paint)
 			this.paint(d);
 		else
@@ -550,7 +548,6 @@ SPRITE.newCls('Static', {
 		x: (GAME.rect.l+GAME.rect.r)/2,
 		y: (GAME.rect.t+GAME.rect.b)/2,
 		t: 'Static Text',
-		color: undefined,
 	}, o);
 });
 
@@ -654,7 +651,8 @@ SPRITE.newCls('Player', {
 		else if (v.cls == 'Drop') {
 			if (e.state.living && circle_intersect(d, {x: e.x, y: e.y, r: e.h})) {
 				e.set('dying');
-				STORY.on(STORY.events.PLAYER_DROP_COLLECTED, [this, v]);
+				STORY.on(STORY.events.PLAYER_GETDROP, this);
+				STORY.on(STORY.events.DROP_COLLECTED, v);
 			}
 			else
 				e.collected = this;
@@ -892,8 +890,8 @@ SPRITE.newCls('Enemy', {
 			return;
 		if (circle_intersect(d, e)) {
 			e.set('dying');
-			d.life --;
-			if (d.life <= 0) {
+			d.damage ++;
+			if (d.damage >= d.life) {
 				d.set('dying');
 				STORY.on(STORY.events.ENEMY_KILL, this);
 			}
@@ -909,7 +907,8 @@ SPRITE.newCls('Enemy', {
 	this.data = c.newdata({
 		r: 20,
 		y: GAME.rect.t*0.9+GAME.rect.b*0.1,
-		life: 10
+		life: 10,
+		damage: 0
 	}, d);
 }, 'Base');
 
@@ -935,7 +934,6 @@ SPRITE.newCls('Bullet', {
 	this.data = c.newdata({
 		r: 5,
 		vy: -0.5,
-		color: 'white',
 		from: null
 	}, d);
 }, 'Base');
@@ -1020,7 +1018,6 @@ SPRITE.newCls('Dannmaku', {
 	this.data = c.newdata({
 		r: 5,
 		vy: 0.3,
-		color: 'red',
 		from: null
 	}, d);
 }, 'Base');
@@ -1146,10 +1143,10 @@ function newDannmaku(v, type) {
 }
 function newEnemy(type) {
 	var bx = randin([0, 1]) * 32*4,
-		by = randin([0, 1, 2]) * 32,
-		fs = array(4, function(i) {
-			return extend({ res:'stg1enm', sy:by, sw:32, sh:32, w:32, h:32 }, { sx:bx+32*i });
-		});
+		by = randin([0, 1, 2]) * 32;
+	var fs = array(4, function(i) {
+		return extend({ res:'stg1enm', sy:by, sw:32, sh:32, w:32, h:32 }, { sx:bx+32*i });
+	});
 	var v = SPRITE.newObj('Enemy', {
 		x: random(GAME.rect.l+100, GAME.rect.r-100),
 		vx: random(-0.05, 0.05),
@@ -1162,10 +1159,28 @@ function newEnemy(type) {
 	}, 1000, v);
 }
 function newBoss() {
+	var fs = array(8, function(i) {
+		return extend({ res:'stg1enm', sy:255-48, sw:32, sh:48, w:32, h:48 }, { sx:32*i });
+	}), ps = [
+		{ fx:0.0, fy:0.0, v:3 },
+		{ fx:0.1, fy:0.1, v:3 },
+		{ fx:0.5, fy:0.1, v:3 },
+	];
 	var v = SPRITE.newObj('Enemy', {
-		r: 50,
-		color: 'gold',
-		life: 300
+		r: 24,
+		life: 300,
+		ticks: [
+			UTIL.newFrameTick(150, fs),
+			UTIL.newPathTick(30, ps)
+		]
+	}, {
+		paint: function(d) {
+			SPRITE.cls[this.cls].paint.apply(this, [d]);
+			DC.beginPath();
+			DC.arc(d.x, d.y, d.r*1.5, 0, (d.life-d.damage)/d.life*2*Math.PI);
+			DC.stroke();
+			DC.closePath();
+		}
 	});
 }
 function killObj(ls) {
@@ -1292,6 +1307,8 @@ tl.sec1 = {
 		if (d.pass) {
 			SPRITE.eachObj(function(v) {
 				v.data.set('dying');
+				v.data.vx *= 0.01;
+				v.data.vy *= 0.01;
 				SPRITE.newObj('Drop', {
 					x: v.data.x,
 					y: v.data.y,
@@ -1391,8 +1408,8 @@ tl.boss = {
 				pass: 1
 			});
 		}
-		else if (e == STORY.events.PLAYER_DROP_COLLECTED) {
-			if (v[1].data.pass)
+		else if (e == STORY.events.DROP_COLLECTED) {
+			if (v.data.pass)
 				d.pass = true;
 		}
 	}
