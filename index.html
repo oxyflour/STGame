@@ -37,6 +37,7 @@ body {
 <div class="absolute full-width">
 	<div>fps: <span class="ui" ui-bind="GAME.fps.toFixed(3)"></span></div>
 	<div>story: <span class="ui" ui-bind="STORY.current.scene"></span></div>
+	<div>graze: <span class="ui" ui-bind="STORY.timeline.all.graze"></span></div>
 	<div class="ui" ui-show="RES.process < 1">
 		loading: <span class="ui" ui-bind="(RES.process*100).toFixed(1)+'%'"></span>
 	</div>

@@ -308,7 +308,7 @@ var STORY = (function() {
 		'PLAYER_HIT',
 		'PLAYER_DEAD',
 		'PLAYER_AUTOCOLLECT',
-		'PLAYER_GET_DROP',
+		'PLAYER_GETDROP',
 		'PLAYER_GRAZE',
 		'PLAYER_FIRE',
 		'PLAYER_BOMB',
@@ -659,10 +659,14 @@ SPRITE.newCls('Player', {
 		var d = this.data,
 			e = v.data;
 		if (e.state.mkDamage) {
-			if (!d.state.isInvinc && circle_intersect({x: d.x, y: d.y, r: d.h}, e))
+			if (!d.state.isInvinc && circle_intersect({x: d.x, y: d.y, r: d.h}, e)) {
+				e.set('dying');
 				STORY.on(STORY.events.PLAYER_HIT, this);
-			else if (circle_intersect(d, e))
+			}
+			else if (circle_intersect(d, e) && !e.grazed) {
+				e.grazed = true;
 				STORY.on(STORY.events.PLAYER_GRAZE, this);
+			}
 		}
 		else if (v.cls == 'Drop') {
 			if (e.state.living && circle_intersect(d, {x: e.x, y: e.y, r: e.h})) {
@@ -1081,7 +1085,7 @@ function newBall(v, fy) {
 		vy: v*Math.cos(t),
 		r: r,
 		frame: { res:'etama3', sx:randin(range(8))*32, sy:128,
-			sw:32, sh:32, w:r/13*32, h:r/13*32 }
+			sw:32, sh:32, w:r/14*32, h:r/14*32 }
 	});
 }
 function newBullet(v) {
@@ -1148,7 +1152,7 @@ function newDannmaku(v, type) {
 			y: e.y + 20*dy,
 			vx: 0.3*dx,
 			vy: 0.3*dy,
-			r: 4,
+			r: 3,
 			frame: { res:'etama3', sx:0, sy:64, sw:16, sh:16, w:16, h:16, rot:1 },
 			from: this,
 			type: type
@@ -1182,7 +1186,7 @@ function newBoss() {
 		{ fx:0.1, fy:0.1, v:3 },
 		{ fx:0.5, fy:0.1, v:3 },
 	];
-	var v = SPRITE.newObj('Enemy', {
+	SPRITE.newObj('Enemy', {
 		r: 24,
 		life: 300,
 		ticks: [
@@ -1211,6 +1215,7 @@ function killObj(ls) {
 var tl = {};
 tl.all = {
 	t: 0,
+	graze: 0,
 	after_run: function(dt, d, s) {
 		tl.all.t += dt;
 	},
@@ -1232,6 +1237,7 @@ tl.all = {
 			}, 'Drop');
 		}
 		else if (e == STORY.events.PLAYER_HIT) {
+			tl.all.graze --;
 			v.data.set('juesi');
 			/*
 			STORY.timeout(function() {
@@ -1248,6 +1254,9 @@ tl.all = {
 					SPRITE.newObj('Drop', { x:x-90, y:y+10 });
 				}
 			}, 200);
+		}
+		else if (e == STORY.events.PLAYER_GRAZE) {
+			tl.all.graze ++;
 		}
 		else if (e == STORY.events.PLAYER_DEAD) {
 			SPRITE.newObj('Player');
