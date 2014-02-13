@@ -600,7 +600,8 @@ SPRITE.newCls('Base', {
 				f.sx, f.sy, f.sw, f.sh,
 				d.x-f.w/2, d.y-f.h/2, f.w, f.h);
 		}
-		else {
+		else if (d.color) {
+			DC.fillStyle = d.color;
 			DC.beginPath();
 			DC.arc(d.x, d.y, d.r, 0, 2*Math.PI);
 			DC.closePath();
@@ -622,6 +623,7 @@ SPRITE.newCls('Base', {
 			vy: 0,
 			x0: 0,
 			y0: 0,
+			color: undefined,
 			frame: undefined, // i.e. {res:'player0L', sx:0, sy:0, sw:10, sh:10, w:10, h:10}
 
 			ticks: [], // arrays of { t:newTicker(150), f:fn, d:{} }
@@ -1152,7 +1154,9 @@ function newEnemy(type) {
 		vx: random(-0.05, 0.05),
 		vy: random(0.01, 0.1),
 		r: 16,
-		ticks: [ UTIL.newFrameTick(150, fs) ]
+		ticks: [
+			UTIL.newFrameTick(150, fs)
+		]
 	});
 	STORY.timeout(function () {
 		newDannmaku(this, type);
