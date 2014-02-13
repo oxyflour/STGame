@@ -852,10 +852,7 @@ SPRITE.newCls('Ball', {
 	hit: function(v) {
 		var d = this.data,
 			e = v.data;
-		var hit = circle_intersect(d, e);
-		if (hit && d.state.creating) d.freeze = true;
-		if (hit && e.state.creating) e.freeze = true;
-		if (d.state.mkDamage && e.state.mkDamage && hit) {
+		if (circle_intersect(d, e)) {
 			var r = sqrt_sum(d.x - e.x, d.y - e.y),
 				sin = (d.y - e.y) / r,
 				cos = (d.x - e.x) / r,
@@ -877,19 +874,8 @@ SPRITE.newCls('Ball', {
 		}
 	},
 
-	update: function(dt, d) {
-		if (d.freeze) {
-			if (d.state.creating)
-				d.age -= dt;
-			else {
-				d.set('creating');
-				d.age = d.state.life;
-			}
-			d.freeze = false;
-		}
-	},
 	states: {
-		0: { creating: 1, life:	300, next: 1 },
+		0: { creating: 1, life:	200, next: 1 },
 		1: { living:   1, life:	Math.Inf, next: 2, mkDamage: 1 },
 		2: { dying:    1, life: 500 }
 	},
@@ -925,7 +911,7 @@ SPRITE.newCls('Enemy', {
 	this.data = c.newdata({
 		r: 20,
 		y: GAME.rect.t*0.9+GAME.rect.b*0.1,
-		life: 30
+		life: 10
 	}, d);
 }, 'Base');
 
@@ -1076,16 +1062,17 @@ window.addEventListener('keydown', GAME.input);
 window.addEventListener('keyup', GAME.input);
 
 // for test only
-function newBall(v) {
-	var t = random(-1, 1) * Math.PI / 2;
+function newBall(v, fy) {
+	var t = random(-0.6, 0.6) * Math.PI / 2,
+		r = random(10) + 5;
 	SPRITE.newObj('Ball', {
 		x: random(GAME.rect.l, GAME.rect.r),
-		y: random(GAME.rect.t, GAME.rect.t*0.4+GAME.rect.b*0.6),
+		y: random(GAME.rect.t, GAME.rect.t*(1-fy)+GAME.rect.b*fy),
 		vx: v*Math.sin(t),
 		vy: v*Math.cos(t),
-		r: 13,
+		r: r,
 		frame: { res:'etama3', sx:randin(range(8))*32, sy:128,
-			sw:32, sh:32, w:32, h:32 }
+			sw:32, sh:32, w:r/13*32, h:r/13*32 }
 	});
 }
 function newBullet(v) {
@@ -1157,7 +1144,7 @@ function newDannmaku(v, type) {
 			from: this,
 			type: type
 		});
-	}, 20, v, 60);
+	}, 20, v, 80);
 }
 function newEnemy(type) {
 	var bx = randin([0, 1]) * 32*4,
@@ -1217,9 +1204,11 @@ tl.all = {
 		}
 		else if (e == STORY.events.PLAYER_HIT) {
 			v.data.set('juesi');
+			/*
 			STORY.timeout(function() {
 				killObj(['Dannmaku']);
 			}, 10, null, 80);
+			*/
 			STORY.timeout(function() {
 				if (v.data.state.dying) {
 					var x = v.data.x,
@@ -1278,19 +1267,19 @@ tl.sec0 = {
 		killObj(['Static']);
 		STORY.timeout(function() {
 			STORY.timeout(function(c, n) {
-				newBall(n > 10 ? 0.02 : 0.25);
+				newBall(n > 10 ? 0.05 : 0.25, n > 10 ? 0.6 : 0.2);
 			}, 20, null, 50);
 		}, 1000);
 	},
 	run: function(dt, d) {
 		d.age = (d.age || 0) + dt;
-		if (d.age > 15000)
+		if (d.age > 20000)
 			return 'sec1';
 	},
 	on: function(e, v, d) {
 		if (e == STORY.events.OBJECT_OUT) {
 			if (v.cls == 'Ball')
-				newBall(0.25);
+				newBall(0.25, 0.2);
 		}
 	}
 };
@@ -1299,7 +1288,7 @@ tl.sec1 = {
 		killObj(['Ball', 'Enemy']);
 		STORY.timeout(function () {
 			newEnemy(tl.loop || 0);
-		}, 1000, null, 3);
+		}, 500, null, 5);
 	},
 	run: function(dt, d) {
 		if (d.pass) {
