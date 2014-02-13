@@ -757,13 +757,13 @@ SPRITE.newCls('Player', {
 
 		var vx = 0,
 			vy = 0;
-		if (GAME.keyste[this.conf.key_left])
+		if (GAME.keyste[d.conf.key_left])
 			vx = -v;
-		else if (GAME.keyste[this.conf.key_right])
+		else if (GAME.keyste[d.conf.key_right])
 			vx = +v;
-		if (GAME.keyste[this.conf.key_up])
+		if (GAME.keyste[d.conf.key_up])
 			vy = -v;
-		else if (GAME.keyste[this.conf.key_down])
+		else if (GAME.keyste[d.conf.key_down])
 			vy = +v;
 		if (vx && vy) {
 			vx /= 1.414;
@@ -775,16 +775,16 @@ SPRITE.newCls('Player', {
 		d.y += d.vy * dt;
 
 		// FIRE!
-		if (GAME.keyste[this.conf.key_fire]) {
+		if (GAME.keyste[d.conf.key_fire]) {
 			if (d.firetick.run(dt) || !d.fire_on) {
 				d.firetick.tc = d.fire_on ? 80 : 0;
 				STORY.on(STORY.events.PLAYER_FIRE, this);
 			}
 		}
-		d.fire_on = GAME.keyste[this.conf.key_fire];
+		d.fire_on = GAME.keyste[d.conf.key_fire];
 
 		// BOMB!
-		if (GAME.keyste[this.conf.key_bomb] && !d.state.bomb) {
+		if (GAME.keyste[d.conf.key_bomb] && !d.state.bomb) {
 			d.set('bomb');
 			STORY.on(STORY.events.PLAYER_BOMB, this);
 		}
@@ -844,19 +844,16 @@ SPRITE.newCls('Player', {
 	framesR: array(7, function(i) {
 		return extend({ res:'player0R', sy:48, sw:32, sh:48, w:32, h:48 }, { sx:255-32*(i+1) });
 	}),
-
-	conf: {
+}, function(d, c) {
+	this.data = c.newdata(d);
+	this.data.conf = extend({
 		key_left: 37,
 		key_up: 38,
 		key_right: 39,
 		key_down: 40,
 		key_fire: GAME.keychars.Z,
 		key_bomb: GAME.keychars.X,
-	},
-}, function(d, c) {
-	this.data = c.newdata(d);
-	if (d && d.conf)
-		this.conf = extend({}, c.conf, d.conf);
+	}, this.data.conf);
 }, 'Static');
 
 SPRITE.newCls('Ball', {
