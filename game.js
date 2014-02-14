@@ -699,8 +699,8 @@ SPRITE.newCls('Player', {
 
 		d.run(dt);
 		if (!d.state.life) {
-			STORY.on(STORY.events.PLAYER_DEAD, this);
 			this.isAlive = false;
+			STORY.on(STORY.events.PLAYER_DEAD, this);
 		}
 
 		if (d.ticks) ieach(d.ticks, function(i, v, d) {
