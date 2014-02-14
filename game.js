@@ -544,9 +544,9 @@ SPRITE.newCls('Static', {
 		else if (d.state.dying)
 			DC.globalAlpha = 1 - d.age / d.state.life;
 
-		if (this.paint)
-			this.paint(d);
-		else
+		if (this.drawStatic)
+			this.drawStatic(d);
+		else if (d.t)
 			DC.fillText(d.t, d.x, d.y);
 
 		DC.restore();
@@ -577,8 +577,8 @@ SPRITE.newCls('Base', {
 		d.y0 = d.y;
 		d.x += d.vx * dt;
 		d.y += d.vy * dt;
-		if (this.update)
-			this.update(dt, d);
+		if (this.runBase)
+			this.runBase(dt, d);
 
 		if (d.ticks) ieach(d.ticks, function(i, v, d) {
 			if (v.t.run(dt)) v.f(d, v.d);
@@ -599,7 +599,7 @@ SPRITE.newCls('Base', {
 		this.rect.r = Math.max(d.x0, d.x) + d.r*1.1;
 		this.rect.b = Math.max(d.y0, d.y) + d.r*1.1;
 	},
-	paint: function(d) {
+	drawStatic: function(d) {
 		if (d.frame) {
 			var f = d.frame;
 			if (f.rot) {
@@ -637,6 +637,7 @@ SPRITE.newCls('Base', {
 			vy: 0,
 			x0: 0,
 			y0: 0,
+
 			color: undefined,
 			frame: undefined, // i.e. {res:'player0L', sx:0, sy:0, sw:10, sh:10, w:10, h:10}
 
@@ -928,7 +929,7 @@ SPRITE.newCls('Enemy', {
 }, 'Base');
 
 SPRITE.newCls('Bullet', {
-	update: function(dt, d) {
+	runBase: function(dt, d) {
 		var u = d.to,
 			e = u && u.data;
 		if (!u || !u.isAlive || !e.state.mkDamage)
@@ -954,7 +955,7 @@ SPRITE.newCls('Bullet', {
 }, 'Base');
 
 SPRITE.newCls('Drop', {
-	update: function(dt, d) {
+	runBase: function(dt, d) {
 		if (d.collected) {
 			var e = d.collected.data,
 				v = d.collected_auto ? 0.8 : sqrt_sum(d.vx, d.vy),
@@ -990,7 +991,7 @@ SPRITE.newCls('Drop', {
 }, 'Base');
 
 SPRITE.newCls('Dannmaku', {
-	update: function(dt, d) {
+	runBase: function(dt, d) {
 		var u = d.from,
 			e = u && u.data;
 		if (!u || !u.isAlive || !e.state.living)
@@ -1191,8 +1192,8 @@ function newBoss() {
 			UTIL.newPathTick(30, ps)
 		]
 	}, {
-		paint: function(d) {
-			SPRITE.cls[this.cls].paint.apply(this, [d]);
+		drawStatic: function(d) {
+			SPRITE.cls[this.cls].drawStatic.apply(this, [d]);
 			DC.beginPath();
 			DC.arc(d.x, d.y, d.r*1.5, 0, (d.life-d.damage)/d.life*2*Math.PI);
 			DC.stroke();
