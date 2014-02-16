@@ -252,11 +252,10 @@ var SPRITE = (function() {
 		_t.sort = keys(_t.cls).sort();
 		return cls;
 	};
-	_t.newObj = function(c, data, mod) {
+	_t.newObj = function(c, data) {
 		var ls = _t.obj[c],
 			cls = _t.cls[c],
 			obj = new _t.init[c](data, cls);
-		if (mod) mod.apply(obj, [data]);
 
 		var idx = ieach(ls, function(i, v) {
 			if (!v.isAlive) return i;
@@ -1181,23 +1180,22 @@ function newBoss() {
 		{ fx:0.1, fy:0.1, v:3 },
 		{ fx:0.5, fy:0.1, v:3 },
 	];
-	SPRITE.newObj('Enemy', {
+	var boss = SPRITE.newObj('Enemy', {
 		r: 24,
 		life: 300,
 		ticks: [
 			UTIL.newFrameTick(150, fs),
 			UTIL.newPathTick(30, ps)
 		]
-	}, function(d) {
-		var ds = this.drawStatic;
-		this.drawStatic = function(d) {
-			ds.apply(this, [d]);
-			DC.beginPath();
-			DC.arc(d.x, d.y, d.r*1.5, 0, (d.life-d.damage)/d.life*2*Math.PI);
-			DC.stroke();
-			DC.closePath();
-		}
 	});
+	var ds = boss.drawStatic;
+	boss.drawStatic = function(d) {
+		ds.apply(boss, [d]);
+		DC.beginPath();
+		DC.arc(d.x, d.y, d.r*1.5, 0, (d.life-d.damage)/d.life*2*Math.PI);
+		DC.stroke();
+		DC.closePath();
+	}
 }
 function killObj(ls) {
 	ieach(ls, function(i, c) {
