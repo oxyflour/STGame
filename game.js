@@ -1400,7 +1400,7 @@ tl.sec1 = {
 		if (d.pass) {
 			tl.loop = (tl.loop || 0) + 1;
 			if (tl.loop >= 5)
-				return 'diag';
+				return 'diag0';
 			else
 				return 'sec1';
 		}
@@ -1440,50 +1440,34 @@ tl.sec1 = {
 		}
 	}
 };
-tl.diag = {
-	init: function(d) {
-		d.ste = newState({
-			0: { life: 1, next: 1, data: { t: 'x0', x: GAME.rect.l+100 } },
-			1: { life: 1, next: 2, data: { t: 'y0', x: GAME.rect.r-100 } },
-			2: { life: 1, next: 3, data: { t: 'x1', x: GAME.rect.l+100 } },
-			3: { life: 1, next: 4, data: { t: 'y2', x: GAME.rect.r-100 } },
-			4: { life: 1, next: 5, data: { t: 'x1', x: GAME.rect.l+100 } },
-			5: { life: 1, data: { t: 'y2', x: GAME.rect.r-100 } },
-		});
-		STORY.timeout(function() {
-			this.ste.run(0.1);
-			this.obj = SPRITE.newObj('Static', d.ste.state.data);
-		}, 1000, d);
-	},
-	run: function(dt, d) {
-		d.disable_fire = true;
-		if (GAME.keyste.ctrlKey)
-			tl.diag.next(d);
-		if (d.pass)
-			return 'boss';
-	},
-	on: function(e, v, d) {
-		if (e == STORY.events.GAME_INPUT) {
-			if (v.type == 'keyup' && v.which == GAME.keychars.Z)
-				tl.diag.next(d);
-		}
-	},
-	next: function(d) {
-		if (!d.obj)
-			return;
-		d.ste.run(1);
-		d.obj.state.setWith('dying');
-		var n = d.ste.state.data;
-		if (n)
-			d.obj = SPRITE.newObj('Static', n);
-		else {
-			d.obj = null;
-			STORY.timeout(function() {
-				this.pass = true;
-			}, 1000, d);
-		}
+ieach([
+	{ t: 'x0aabbcc', x: GAME.rect.l+50 },
+	{ t: 'y0aabbcc', x: GAME.rect.r-50 },
+	{ t: 'x0aabbcc', x: GAME.rect.l+50 },
+	{ t: 'y0aabbcc', x: GAME.rect.r-50 },
+	{ t: 'x0aabbcc', x: GAME.rect.l+50 },
+	{ t: 'y0aabbcc', x: GAME.rect.r-50, next:'boss' },
+], function(i, v, tl) {
+	var c = 'diag'+i, n = v.next || 'diag'+(i+1);
+	tl[c] = {
+		init: function(d) {
+			d.text = SPRITE.newObj('Static', v);
+		},
+		run: function(dt, d) {
+			if (d.pass || GAME.keyste.ctrlKey)
+				return n;
+		},
+		quit: function(d) {
+			d.text.state.set('dying');
+		},
+		on: function(e, v, d) {
+			if (e == STORY.events.GAME_INPUT) {
+				if (v.type == 'keydown' && v.which == GAME.keychars.Z)
+					d.pass = true;
+			}
+		},
 	}
-};
+}, tl);
 tl.boss = {
 	init: function(d) {
 		killObj(['Static', 'Enemy', 'Dannmaku']);
