@@ -529,6 +529,12 @@ var UTIL = {
 			}
 		}
 	},
+	newTimeRunner: function(t, n) {
+		return function(dt, d) {
+			d.age = (d.age || 0) + dt;
+			if (d.age > t) return n;
+		}
+	},
 	newAliveSM: function(stes) {
 		function init(d) {
 			d.age = 0;
@@ -538,7 +544,7 @@ var UTIL = {
 			if (d.age > d.life)
 				return d.next !== undefined ? d.next : -1;
 		}
-		stes = each(stes, function(k, v, d) {
+		stes = ieach(stes, function(k, v, d) {
 			d[k] = { run:run, init:init, data:extend({}, v) }
 		}, []);
 		var s = newStateMachine(stes);
@@ -582,11 +588,11 @@ SPRITE.newCls('Static', {
 		DC.restore();
 	},
 
-	states: {
-		0: { creating: 1, life:	500, next: 1 },
-		1: { living:   1, life:	Math.Inf, next: 2 },
-		2: { dying:    1, life: 500 }
-	},
+	states: [
+		{ creating: 1, life:	500, next: 1 },
+		{ living:   1, life:	Math.Inf, next: 2 },
+		{ dying:    1, life: 500 }
+	],
 }, function(o, c) {
 	this.state = UTIL.newAliveSM(this.states);
 	this.data = extend({
@@ -864,13 +870,13 @@ SPRITE.newCls('Player', {
 		}, this.data.conf);
 	},
 
-	states: {
-		0: { creating: 1, life: 1000, next:  1, isInvinc: 1 },
-		1: { living:   1, life: Math.Inf, next:  2 },
-		2: { dying:    1, life: 1000, isInvinc: 1 },
-		3: { bomb:     1, life: 5000, next:  1, isInvinc: 1 },
-		4: { juesi:    1, life:  100, next:  2, isInvinc: 1 },
-	},
+	states: [
+		{ creating: 1, life: 1000, next:  1, isInvinc: 1 },
+		{ living:   1, life: Math.Inf, next:  2 },
+		{ dying:    1, life: 1000, isInvinc: 1 },
+		{ bomb:     1, life: 5000, next:  1, isInvinc: 1 },
+		{ juesi:    1, life:  100, next:  2, isInvinc: 1 },
+	],
 
 	frames0: array(4, function(i) {
 		return extend({ res:'player0L', sy: 0, sw:32, sh:48, w:32, h:48 }, { sx:32*i });
@@ -921,11 +927,11 @@ SPRITE.newCls('Ball', {
 		}
 	},
 
-	states: {
-		0: { creating: 1, life:	200, next: 1 },
-		1: { living:   1, life:	Math.Inf, next: 2, mkDamage: 1 },
-		2: { dying:    1, life: 500 }
-	},
+	states: [
+		{ creating: 1, life:	200, next: 1 },
+		{ living:   1, life:	Math.Inf, next: 2, mkDamage: 1 },
+		{ dying:    1, life: 500 }
+	],
 }, function(d, c) {
 	this.init(d);
 }, 'Base');
@@ -950,11 +956,11 @@ SPRITE.newCls('Enemy', {
 		}
 	},
 	
-	states: {
-		0: { creating: 1, life:	500, next: 1 },
-		1: { living:   1, life:	Math.Inf, next: 2, mkDamage: 1 },
-		2: { dying:    1, life: 500 }
-	},
+	states: [
+		{ creating: 1, life:	500, next: 1 },
+		{ living:   1, life:	Math.Inf, next: 2, mkDamage: 1 },
+		{ dying:    1, life: 500 }
+	],
 }, function(d, c) {
 	this.init({
 		r: 20,
@@ -978,11 +984,11 @@ SPRITE.newCls('Bullet', {
 			d.vy = v * (e.y - d.y)/r;
 		}
 	},
-	states: {
-		0: { creating: 1, life: 100, next: 1 },
-		1: { living:   1, life: Math.Inf, next: 2 },
-		2: { dying:    1, life: 10 }	
-	},
+	states: [
+		{ creating: 1, life: 100, next: 1 },
+		{ living:   1, life: Math.Inf, next: 2 },
+		{ dying:    1, life: 10 }	
+	],
 }, function(d, c) {
 	this.init({
 		r: 5,
@@ -1013,11 +1019,11 @@ SPRITE.newCls('Drop', {
 		t: 40,
 		b: 20
 	},
-	states: {
-		0: { creating: 1, life: 300, next: 1 },
-		1: { living:   1, life: Math.Inf, next: 2 },
-		2: { dying:    1, life: 100 }
-	},
+	states: [
+		{ creating: 1, life: 300, next: 1 },
+		{ living:   1, life: Math.Inf, next: 2 },
+		{ dying:    1, life: 100 }
+	],
 }, function(d, c) {
 	this.init({
 		r: 60,
@@ -1063,11 +1069,11 @@ SPRITE.newCls('Dannmaku', {
 			d.y = 100*Math.cos(e.dir*d.pos.t/250) + d.pos.y;
 		}
 	},
-	states: {
-		0: { creating: 1, life: 100, next: 1 },
-		1: { living:   1, life: Math.Inf, next: 2, mkDamage: 1 },
-		2: { dying:    1, life: 100 },
-	},
+	states: [
+		{ creating: 1, life: 100, next: 1 },
+		{ living:   1, life: Math.Inf, next: 2, mkDamage: 1 },
+		{ dying:    1, life: 100 },
+	],
 }, function(d, c) {
 	this.init({
 		r: 5,
@@ -1339,6 +1345,7 @@ tl.all = {
 	}
 };
 tl.init = {
+	run: UTIL.newTimeRunner(5000, 'sec0'),
 	init: function(d) {
 		// start the game!
 		GAME.state = GAME.states.RUNNING;
@@ -1360,25 +1367,19 @@ tl.init = {
 			t: 'Dannmaku Demo!'
 		});
 	},
-	run: function(dt, d) {
-		d.age = (d.age || 0) + dt;
-		if (d.age > 5000) {
-			d.title.state.setWith('dying');
-			return 'sec0';
-		}
+	quit: function(d) {
+		d.title.state.setWith('dying');
 	}
 };
 tl.sec0 = {
+	run: UTIL.newTimeRunner(20000, 'sec1'),
 	init: function(d) {
-		killObj(['Static']);
 		STORY.timeout(function(c, n) {
 			newBall(n > 10 ? 0.05 : 0.25, n > 10 ? 0.6 : 0.2);
 		}, 20, null, 60);
 	},
-	run: function(dt, d) {
-		d.age = (d.age || 0) + dt;
-		if (d.age > 20000)
-			return 'sec1';
+	quit: function(d) {
+		killObj(['Ball']);
 	},
 	on: function(e, v, d) {
 		if (e == STORY.events.OBJECT_OUT) {
@@ -1391,7 +1392,6 @@ tl.sec0 = {
 };
 tl.sec1 = {
 	init: function(d) {
-		killObj(['Ball', 'Enemy']);
 		STORY.timeout(function () {
 			newEnemy(tl.loop || 0);
 		}, 300, null, 5);
