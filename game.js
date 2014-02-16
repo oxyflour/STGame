@@ -1188,9 +1188,9 @@ function newBoss() {
 			UTIL.newPathTick(30, ps)
 		]
 	});
-	var ds = boss.drawStatic;
+	boss.drawOld = boss.drawStatic;
 	boss.drawStatic = function(d) {
-		ds.apply(boss, [d]);
+		boss.drawOld(d);
 		DC.beginPath();
 		DC.arc(d.x, d.y, d.r*1.5, 0, (d.life-d.damage)/d.life*2*Math.PI);
 		DC.stroke();
