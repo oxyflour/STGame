@@ -13,12 +13,11 @@ function range(n) {
 	});
 }
 function ieach(ls, fn, d) {
-	for (var i = 0, n = ls.length; i < n; i ++) {
-		var r = fn(i, ls[i], d);
-		if (r !== undefined)
-			return r;
+	var r = undefined;
+	for (var i = 0, n = ls.length; i < n && r === undefined; i ++) {
+		r = fn(i, ls[i], d);
 	}
-	return d;
+	return r === undefined ? d : r;
 }
 function keach(ls, fn, d) {
 	for (var i in ls) {
@@ -257,7 +256,7 @@ var SPRITE = (function() {
 		var ls = _t.obj[c],
 			cls = _t.cls[c],
 			obj = new _t.init[c](data, cls);
-		if (mod) mod.apply(obj);
+		if (mod) mod.apply(obj, [data]);
 
 		var idx = ieach(ls, function(i, v) {
 			if (!v.isAlive) return i;
@@ -499,9 +498,9 @@ var UTIL = {
 				var t = v.data,
 					n = d.pathnodes[d.index];
 				if (n) {
-					if (+n.fx == n.fx)
+					if (+n.fx === n.fx)
 						n.x = GAME.rect.l * (1-n.fx) + GAME.rect.r * n.fx;
-					if (+n.fy == n.fy)
+					if (+n.fy === n.fy)
 						n.y = GAME.rect.t * (1-n.fy) + GAME.rect.b * n.fy;
 					if (d.index == 0) {
 						t.x = n.x;
@@ -600,7 +599,7 @@ SPRITE.newCls('Base', {
 		if (d.frame) {
 			var f = d.frame;
 			if (f.rotate) {
-				var t = +f.rotate==f.rotate ? f.rotate :
+				var t = +f.rotate===f.rotate ? f.rotate :
 					Math.PI/2 + Math.atan2(d.vy, d.vx);
 				DC.translate(d.x, d.y);
 				DC.rotate(t);
@@ -742,7 +741,7 @@ SPRITE.newCls('Player', {
 		if (d.slowMode) {
 			DC.fillStyle = 'black';
 			DC.beginPath();
-			DC.arc(d.x, d.y, d.h, 0, 2*Math.PI);
+			DC.arc(d.x, d.y, d.h+1, 0, 2*Math.PI);
 			DC.closePath();
 			DC.fill();
 		}
@@ -776,7 +775,7 @@ SPRITE.newCls('Player', {
 		// FIRE!
 		if (GAME.keyste[d.conf.key_fire]) {
 			if (d.firetick.run(dt) || !d.fire_on) {
-				d.firetick.tc = d.fire_on ? 80 : 0;
+				d.firetick.c = d.fire_on ? 80 : 0;
 				STORY.on(STORY.events.PLAYER_FIRE, this);
 			}
 		}
@@ -1060,7 +1059,7 @@ setInterval(function() {
 		ieach(e.attributes, function(i, attr) {
 			var n = attr.name,
 				t = attr.textContent,
-				k = 'exec-'+n+t,
+				k = 'exec:'+n+':'+t,
 				f = fns[attr.name];
 			if (f) (e[k] = e[k] || f(e, t)).apply(e);
 		});
@@ -1189,7 +1188,7 @@ function newBoss() {
 			UTIL.newFrameTick(150, fs),
 			UTIL.newPathTick(30, ps)
 		]
-	}, function() {
+	}, function(d) {
 		var ds = this.drawStatic;
 		this.drawStatic = function(d) {
 			ds.apply(this, [d]);
