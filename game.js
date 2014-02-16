@@ -461,7 +461,7 @@ var UTIL = {
 		return ls;
 	},
 	// fs should be array of objects like
-	// { res:'', sx:0, sy:0, sw:10, sh:10, w:10, h:10, [rot:1] }
+	// { res:'', sx:0, sy:0, sw:10, sh:10, w:10, h:10, [rotate:1] }
 	newFrameTick: function(t, fs) {
 		return {
 			t: newTicker(t),
@@ -599,8 +599,9 @@ SPRITE.newCls('Base', {
 	drawStatic: function(d) {
 		if (d.frame) {
 			var f = d.frame;
-			if (f.rot) {
-				var t = Math.PI/2 + Math.atan2(d.vy, d.vx);
+			if (f.rotate) {
+				var t = +f.rotate==f.rotate ? f.rotate :
+					Math.PI/2 + Math.atan2(d.vy, d.vx);
 				DC.translate(d.x, d.y);
 				DC.rotate(t);
 				DC.drawImage(RES[f.res],
@@ -1148,7 +1149,7 @@ function newDannmaku(v, type) {
 			vx: 0.3*dx,
 			vy: 0.3*dy,
 			r: 3,
-			frame: { res:'etama3', sx:0, sy:64, sw:16, sh:16, w:16, h:16, rot:1 },
+			frame: { res:'etama3', sx:0, sy:64, sw:16, sh:16, w:16, h:16, rotate:true },
 			from: this,
 			type: type
 		});
