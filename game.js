@@ -158,11 +158,12 @@ function newState(stes) {
 }
 function newTicker(t) {
 	var _t = {
-		tc: 0,
+		t: t,
+		c: 0,
 		run: function(dt) {
-			_t.tc += dt;
-			if (_t.tc > t) {
-				_t.tc -= t;
+			_t.c += dt;
+			if (_t.c > _t.t) {
+				_t.c -= _t.t;
 				return true;
 			}
 		}
@@ -534,6 +535,9 @@ SPRITE.newCls('Static', {
 		d.run(dt);
 		if (!d.state.life)
 			this.isAlive = false;
+
+		if (this.runStatic)
+			this.runStatic(dt, d);
 	},
 	draw: function() {
 		var d = this.data;
@@ -566,13 +570,7 @@ SPRITE.newCls('Static', {
 });
 
 SPRITE.newCls('Base', {
-	run: function(dt) {
-		var d = this.data;
-
-		d.run(dt);
-		if (!d.state.life)
-			this.isAlive = false;
-
+	runStatic: function(dt, d) {
 		d.x0 = d.x;
 		d.y0 = d.y;
 		d.x += d.vx * dt;
