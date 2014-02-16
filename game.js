@@ -169,6 +169,33 @@ function newTicker(t) {
 	}
 	return _t;
 }
+function newStateMachine(tl, hook) {
+	var _t = {
+		n: undefined,
+		s: undefined, // object like { run:fn(dt,d), [init:fn(d)], [quit:fn(d,n)] }
+		d: {},
+		run: function(dt) {
+			if (hook && hook.before_run)
+				hook.before_run(dt, _t.d, _t.s);
+			if (_t.s) {
+				var n = _t.s.run(dt, _t.d);
+				if (n) _t.set(n);
+			}
+			if (hook && hook.after_run)
+				hook.after_run(dt, _t.d, _t.s);
+		},
+		set: function(n) {
+			_t.n = n;
+			if (_t.s && _t.s.quit)
+				_t.s.quit(_t.d, n)
+			_t.s = tl[n];
+			_t.d = {};
+			if (_t.s && _t.s.init)
+				_t.s.init(_t.d);
+		}
+	}
+	return _t;
+}
 
 var DC = (function() {
 	var canv = $e('canv'),
@@ -313,43 +340,22 @@ var STORY = (function() {
 		'DROP_COLLECTED',
 		'ENEMY_KILL'
 	]);
-	_t.load = function() {
-		// to be finished
+	_t.state = {};
+	_t.hook = {};
+	_t.load = function(tl, hook) {
+		_t.state = newStateMachine(tl, hook);
+		_t.hook = hook;
 	}
-	_t.timeline = { },
-	_t.current = { },
-	_t.start = function(s) {
-		_t.current = {
-			scene: s,
-			data: {}
-		};
-		var p = _t.timeline[s];
-		if (p && p.init) {
-			p.init(_t.current.data);
-		}
-	};
-	_t.timeouts = [];
-	_t.timeoffs = [];
+
+	var timeouts = [], timeoffs = [];
 	_t.timeout = function(fn, t, d, n) {
-		var id = _t.timeoffs.length ? _t.timeoffs.pop() : _t.timeouts.length;
-		_t.timeouts[id] = {f:fn, t:t, c:0, d:d, n:n};
+		var id = timeoffs.length ? timeoffs.pop() : timeouts.length;
+		timeouts[id] = {f:fn, t:t, c:0, d:d, n:n};
 		return id;
 	};
 	_t.run = function(dt) {
-		var t = _t.timeline,
-			s = _t.current.scene,
-			d = _t.current.data,
-			p = t[s];
-		if (t.all && t.all.before_run)
-			t.all.before_run(dt, d, s);
-		if (p) {
-			var n = p.run(dt, d);
-			if (n) _t.start(n);
-		}
-		if (t.all && t.all.after_run)
-			t.all.after_run(dt, d, s);
-
-		ieach(_t.timeouts, function(i, v) {
+		_t.state.run(dt);
+		ieach(timeouts, function(i, v) {
 			if (!v) return;
 			v.c += dt;
 			if (v.c >= v.t) {
@@ -363,23 +369,20 @@ var STORY = (function() {
 					v.c = 0;
 				}
 				else {
-					_t.timeouts[i] = undefined;
-					_t.timeoffs.push(i);
+					timeouts[i] = undefined;
+					timeoffs.push(i);
 				}
 			}
 		});
 	};
 	_t.on = function(e, v) {
-		var t = _t.timeline,
-			s = _t.current.scene,
-			d = _t.current.data,
-			p = t[s];
-		if (t.all && t.all.before_on)
-			t.all.before_on(e, v, d, s);
-		if (p && p.on)
-			p.on(e, v, d);
-		if (t.all && t.all.after_on)
-			t.all.after_on(e, v, d, s);
+		var sm = _t.state;
+		if (_t.hook.before_on)
+			_t.hook.before_on(e, v, sm.d, sm.s);
+		if (sm.s && sm.s.on)
+			sm.s.on(e, v, sm.d);
+		if (_t.hook.after_on)
+			_t.hook.after_on(e, v, sm.d, sm.s);
 	};
 	return _t;
 })();
@@ -410,9 +413,9 @@ var GAME = (function() {
 		r: DC.canv.width,
 		b: DC.canv.height
 	};
-	_t.init = function() {
-		STORY.load();
-		STORY.start('init');
+	_t.init = function(tl) {
+		STORY.load(tl, tl.all);
+		STORY.state.set('init');
 	};
 	_t.run = function(dt) {
 		SPRITE.eachCls(function(c1) {
@@ -1442,8 +1445,7 @@ tl.end = {
 	run: function(dt, d) {
 	}
 };
-STORY.timeline = tl;
 
 document.addEventListener('res.loaded', function(e) {
-	GAME.init();
+	GAME.init(tl);
 });
