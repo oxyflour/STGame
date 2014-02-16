@@ -340,6 +340,7 @@ var STORY = (function() {
 		'PLAYER_FIRE',
 		'PLAYER_BOMB',
 		'DROP_COLLECTED',
+		'BULLET_HIT',
 		'ENEMY_KILL'
 	]);
 	_t.state = {};
@@ -935,6 +936,7 @@ SPRITE.newCls('Enemy', {
 		if (circle_intersect(d, e)) {
 			v.state.setWith('dying');
 			d.damage ++;
+			STORY.on(STORY.events.BULLET_HIT, v);
 			if (d.damage >= d.life) {
 				this.state.setWith('dying');
 				STORY.on(STORY.events.ENEMY_KILL, this);
@@ -1231,6 +1233,27 @@ function newBoss() {
 		DC.closePath();
 	}
 }
+function newEffect(v) {
+	var fs = array(20, function(i) {
+		var r = [32,42,52,62,60,58,56,54,52,50,48,46,44,42,40,38,36,34,32,30,28,26][i]*0.5;
+		return extend({ res:'etama4', sx:64, sy:255-16-32, sw:32, sh:32 }, { w:r*2, h:r*2 });
+	});
+	var d = v.data;
+	var eff = SPRITE.newObj('Base', {
+		x: d.x,
+		y: d.y,
+		vx: d.vx*=0.1,
+		vy: d.vy*=0.1,
+		ticks: [
+			UTIL.newFrameTick(50, fs),
+		]
+	});
+	eff.state = UTIL.newAliveSM({
+		0: { creating: 1, life: 100, next:  1 },
+		1: { living:   1, life: 50, next:  2 },
+		2: { dying:    1, life: 850 },
+	});
+}
 function killObj(ls) {
 	ieach(ls, function(i, c) {
 		SPRITE.eachObj(function(v) {
@@ -1296,6 +1319,9 @@ tl.all = {
 		else if (e == STORY.events.PLAYER_BOMB) {
 			// to be finished
 		}
+		else if (e == STORY.events.ENEMY_KILL) {
+			newEffect(v);
+		}
 	}
 };
 tl.init = {
@@ -1360,11 +1386,11 @@ tl.sec1 = {
 		if (d.pass) {
 			SPRITE.eachObj(function(v) {
 				v.state.setWith('dying');
-				v.data.vx *= 0.01;
-				v.data.vy *= 0.01;
 				SPRITE.newObj('Drop', {
 					x: v.data.x,
 					y: v.data.y,
+					vx: v.data.vx *= 0.01,
+					vx: v.data.vy *= 0.01,
 					frame: { res:'etama3', sx:16, sy:0, sw:16, sh:16, w:20, h:20 },
 				});
 			}, 'Dannmaku');
