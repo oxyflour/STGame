@@ -253,12 +253,11 @@ var SPRITE = (function() {
 		_t.sort = keys(_t.cls).sort();
 		return cls;
 	};
-	_t.newObj = function(c, data, override) {
+	_t.newObj = function(c, data, mod) {
 		var ls = _t.obj[c],
 			cls = _t.cls[c],
 			obj = new _t.init[c](data, cls);
-		if (override)
-			extend(obj, override);
+		if (mod) mod.apply(obj);
 
 		var idx = ieach(ls, function(i, v) {
 			if (!v.isAlive) return i;
@@ -1189,9 +1188,10 @@ function newBoss() {
 			UTIL.newFrameTick(150, fs),
 			UTIL.newPathTick(30, ps)
 		]
-	}, {
-		drawStatic: function(d) {
-			SPRITE.cls[this.cls].drawStatic.apply(this, [d]);
+	}, function() {
+		var ds = this.drawStatic;
+		this.drawStatic = function(d) {
+			ds.apply(this, [d]);
 			DC.beginPath();
 			DC.arc(d.x, d.y, d.r*1.5, 0, (d.life-d.damage)/d.life*2*Math.PI);
 			DC.stroke();
