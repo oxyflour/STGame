@@ -1166,7 +1166,7 @@ function newBullet(v) {
 }
 function newDannmaku(v, type) {
 	STORY.timeout(function (tc, ts) {
-		if (!this.isAlive && !this.state.d.living)
+		if (!this.isAlive || !this.state.d.living)
 			return;
 		var e = this.data,
 			p = randin(UTIL.getAliveObjs('Player')).data;
