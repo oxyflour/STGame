@@ -875,12 +875,18 @@ SPRITE.newCls('Player', {
 	frames0: array(4, function(i) {
 		return extend({ res:'player0L', sy: 0, sw:32, sh:48, w:32, h:48 }, { sx:32*i });
 	}),
-	framesL: array(7, function(i) {
+	framesL: arrcat([
+		{ res:'player0L', sx: 0, sy:0, sw:32, sh:48, w:32, h:48 },
+		{ res:'player0L', sx:32, sy:0, sw:32, sh:48, w:32, h:48 },
+	], array(7, function(i) {
 		return extend({ res:'player0L', sy:48, sw:32, sh:48, w:32, h:48 }, { sx:32*i });
-	}),
-	framesR: array(7, function(i) {
+	})),
+	framesR: arrcat([
+		{ res:'player0L', sx: 0, sy:0, sw:32, sh:48, w:32, h:48 },
+		{ res:'player0L', sx:32, sy:0, sw:32, sh:48, w:32, h:48 },
+	], array(7, function(i) {
 		return extend({ res:'player0R', sy:48, sw:32, sh:48, w:32, h:48 }, { sx:255-32*(i+1) });
-	}),
+	})),
 }, function(d, c) {
 	this.init(d);
 }, 'Static');
@@ -1357,11 +1363,9 @@ tl.init = {
 tl.sec0 = {
 	init: function(d) {
 		killObj(['Static']);
-		STORY.timeout(function() {
-			STORY.timeout(function(c, n) {
-				newBall(n > 10 ? 0.05 : 0.25, n > 10 ? 0.6 : 0.2);
-			}, 20, null, 60);
-		}, 1000);
+		STORY.timeout(function(c, n) {
+			newBall(n > 10 ? 0.05 : 0.25, n > 10 ? 0.6 : 0.2);
+		}, 20, null, 60);
 	},
 	run: function(dt, d) {
 		d.age = (d.age || 0) + dt;
