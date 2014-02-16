@@ -1263,13 +1263,12 @@ function killObj(ls) {
 	})
 }
 
+GAME.statics = {
+	graze: 0,
+	miss: 0
+};
 var tl = {};
 tl.all = {
-	t: 0,
-	graze: 0,
-	after_run: function(dt, d, s) {
-		tl.all.t += dt;
-	},
 	after_on: function(e, v, d, s) {
 		if (e == STORY.events.GAME_INPUT) {
 			if (v.type == 'keyup' && v.which == 13) {
@@ -1288,7 +1287,7 @@ tl.all = {
 			}, 'Drop');
 		}
 		else if (e == STORY.events.PLAYER_HIT) {
-			tl.all.graze --;
+			GAME.statics.graze --;
 			v.state.setWith('juesi');
 			/*
 			STORY.timeout(function() {
@@ -1307,9 +1306,10 @@ tl.all = {
 			}, 200);
 		}
 		else if (e == STORY.events.PLAYER_GRAZE) {
-			tl.all.graze ++;
+			GAME.statics.graze ++;
 		}
 		else if (e == STORY.events.PLAYER_DEAD) {
+			GAME.statics.miss ++;
 			SPRITE.newObj('Player');
 		}
 		else if (e == STORY.events.PLAYER_FIRE) {
@@ -1384,26 +1384,28 @@ tl.sec1 = {
 	},
 	run: function(dt, d) {
 		if (d.pass) {
-			SPRITE.eachObj(function(v) {
-				v.state.setWith('dying');
-				SPRITE.newObj('Drop', {
-					x: v.data.x,
-					y: v.data.y,
-					vx: v.data.vx *= 0.01,
-					vx: v.data.vy *= 0.01,
-					frame: { res:'etama3', sx:16, sy:0, sw:16, sh:16, w:20, h:20 },
-				});
-			}, 'Dannmaku');
-			STORY.timeout(function() {
-				STORY.on(STORY.events.PLAYER_AUTOCOLLECT,
-					randin(UTIL.getAliveObjs('Player')));
-			}, 100);
 			tl.loop = (tl.loop || 0) + 1;
 			if (tl.loop >= 5)
 				return 'diag';
 			else
 				return 'sec1';
 		}
+	},
+	quit: function(d) {
+		SPRITE.eachObj(function(v) {
+			v.state.setWith('dying');
+			SPRITE.newObj('Drop', {
+				x: v.data.x,
+				y: v.data.y,
+				vx: v.data.vx *= 0.01,
+				vx: v.data.vy *= 0.01,
+				frame: { res:'etama3', sx:16, sy:0, sw:16, sh:16, w:20, h:20 },
+			});
+		}, 'Dannmaku');
+		STORY.timeout(function() {
+			STORY.on(STORY.events.PLAYER_AUTOCOLLECT,
+				randin(UTIL.getAliveObjs('Player')));
+		}, 100);
 	},
 	on: function(e, v, d) {
 		if (e == STORY.events.ENEMY_KILL) {
@@ -1416,7 +1418,7 @@ tl.sec1 = {
 			}, true);
 			if (pass) STORY.timeout(function() {
 				this.pass = true;
-			}, 1000, d);
+			}, 100, d);
 		}
 		else if (e == STORY.events.OBJECT_OUT) {
 			if (v.cls == 'Enemy' && !v.state.d.dying)
