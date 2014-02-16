@@ -204,7 +204,7 @@ var DC = (function() {
 	_t.clear = function() {
 		DC.clearRect(0, 0, canv.width, canv.height);
 	}
-	_t.font = '30px Arial';
+	_t.font = '20px Arial';
 	_t.textAlign = 'center';
 	_t.strokeStyle = 'rgba(255,128,0,0.5)';
 	_t.fillStyle = 'white';
@@ -582,8 +582,10 @@ SPRITE.newCls('Static', {
 
 		if (this.drawStatic)
 			this.drawStatic(d, s);
-		else if (d.t)
+		else if (d.t) {
+			if (d.font) DC.font = d.font;
 			DC.fillText(d.t, d.x, d.y);
+		}
 
 		DC.restore();
 	},
@@ -1347,9 +1349,9 @@ tl.all = {
 tl.init = {
 	run: UTIL.newTimeRunner(5000, 'sec0'),
 	init: function(d) {
+		SPRITE.clearObj();
 		// start the game!
 		GAME.state = GAME.states.RUNNING;
-		SPRITE.clearObj();
 		/*
 		SPRITE.newObj('Player', {
 			x: 100,
@@ -1364,7 +1366,8 @@ tl.init = {
 		SPRITE.newObj('Player');
 
 		d.title = SPRITE.newObj('Static', {
-			t: 'Dannmaku Demo!'
+			t: 'Dannmaku Demo!',
+			font: '30px Arial'
 		});
 	},
 	quit: function(d) {
@@ -1441,16 +1444,17 @@ tl.sec1 = {
 	}
 };
 ieach([
-	{ t: 'x0aabbcc', x: GAME.rect.l+50 },
-	{ t: 'y0aabbcc', x: GAME.rect.r-50 },
-	{ t: 'x0aabbcc', x: GAME.rect.l+50 },
-	{ t: 'y0aabbcc', x: GAME.rect.r-50 },
-	{ t: 'x0aabbcc', x: GAME.rect.l+50 },
-	{ t: 'y0aabbcc', x: GAME.rect.r-50, next:'boss' },
+	{ t:'x0aabbcc', x:GAME.rect.l+50, y:GAME.rect.t*0.2+GAME.rect.b*0.8 },
+	{ t:'y0aabbcc', x:GAME.rect.r-50, y:GAME.rect.t*0.2+GAME.rect.b*0.8 },
+	{ t:'x0aabbcc', x:GAME.rect.l+50, y:GAME.rect.t*0.2+GAME.rect.b*0.8 },
+	{ t:'y0aabbcc', x:GAME.rect.r-50, y:GAME.rect.t*0.2+GAME.rect.b*0.8 },
+	{ t:'x0aabbcc', x:GAME.rect.l+50, y:GAME.rect.t*0.2+GAME.rect.b*0.8 },
+	{ t:'y0aabbcc', x:GAME.rect.r-50, y:GAME.rect.t*0.2+GAME.rect.b*0.8, next:'boss' },
 ], function(i, v, tl) {
 	var c = 'diag'+i, n = v.next || 'diag'+(i+1);
 	tl[c] = {
 		init: function(d) {
+			d.disable_fire = true;
 			d.text = SPRITE.newObj('Static', v);
 		},
 		run: function(dt, d) {
