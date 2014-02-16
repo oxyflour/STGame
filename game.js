@@ -189,7 +189,7 @@ function newStateMachine(tl, hook) {
 			if (_t.s && _t.s.quit)
 				_t.s.quit(_t.d, n)
 			_t.s = tl[n];
-			_t.d = {};
+			_t.d = _t.s && _t.s.data || {};
 			if (_t.s && _t.s.init)
 				_t.s.init(_t.d);
 		}
@@ -526,30 +526,52 @@ var UTIL = {
 			}
 		}
 	},
+	newAliveSM: function(stes) {
+		function init(d) {
+			d.age = 0;
+		}
+		function run(dt, d) {
+			d.age += dt;
+			if (d.age > d.life)
+				return d.next !== undefined ? d.next : -1;
+		}
+		stes = each(stes, function(k, v, d) {
+			d[k] = { run:run, init:init, data:extend({}, v) }
+		}, []);
+		var s = newStateMachine(stes);
+		s.setWith = function(k) {
+			var i = ieach(stes, function(i, v, d) {
+				if (v.data[k]) return i;
+			});
+			this.set(i);
+		}
+		s.set(0);
+		return s;
+	}
 };
 
 SPRITE.newCls('Static', {
 	run: function(dt) {
-		var d = this.data;
+		var d = this.data, s = this.state;
 
-		d.run(dt);
-		if (!d.state.life)
+		s.run(dt);
+		if (!s.d.life)
 			this.isAlive = false;
 
 		if (this.runStatic)
-			this.runStatic(dt, d);
+			this.runStatic(dt, d, s);
 	},
 	draw: function() {
-		var d = this.data;
+		var d = this.data, s = this.state;
 		DC.save();
 
-		if (d.state.creating)
-			DC.globalAlpha = d.age / d.state.life;
-		else if (d.state.dying)
-			DC.globalAlpha = 1 - d.age / d.state.life;
+		if (s.d.creating)
+			DC.globalAlpha = s.d.age / s.d.life;
+		else if (s.d.dying)
+			DC.globalAlpha = 1 - s.d.age / s.d.life;
 
 		if (this.drawStatic)
-			this.drawStatic(d);
+			this.drawStatic(d, s);
 		else if (d.t)
 			DC.fillText(d.t, d.x, d.y);
 
@@ -562,7 +584,8 @@ SPRITE.newCls('Static', {
 		2: { dying:    1, life: 500 }
 	},
 }, function(o, c) {
-	this.data = extend(newState(this.states), {
+	this.state = UTIL.newAliveSM(this.states);
+	this.data = extend({
 		x: (GAME.rect.l+GAME.rect.r)/2,
 		y: (GAME.rect.t+GAME.rect.b)/2,
 		t: 'Static Text',
@@ -570,13 +593,13 @@ SPRITE.newCls('Static', {
 });
 
 SPRITE.newCls('Base', {
-	runStatic: function(dt, d) {
+	runStatic: function(dt, d, s) {
 		d.x0 = d.x;
 		d.y0 = d.y;
 		d.x += d.vx * dt;
 		d.y += d.vy * dt;
 		if (this.runBase)
-			this.runBase(dt, d);
+			this.runBase(dt, d, s);
 
 		if (d.ticks) ieach(d.ticks, function(i, v, d) {
 			if (v.t.run(dt)) v.f(d, v.d);
@@ -627,8 +650,9 @@ SPRITE.newCls('Base', {
 		t: 40,
 		b: 20
 	},
-	newdata: function(d, e) {
-		return extend(newState(this.states), {
+	init: function(d, e) {
+		this.state = UTIL.newAliveSM(this.states);
+		this.data = extend({
 			r: 10,
 			x: (GAME.rect.l+GAME.rect.r)/2,
 			y: (GAME.rect.t+GAME.rect.b)/2,
@@ -644,7 +668,7 @@ SPRITE.newCls('Base', {
 		}, d, e);
 	},
 }, function(d, c) {
-	this.data = c.newdata(d);
+	this.init(d);
 }, 'Static');
 
 SPRITE.newCls('Player', {
@@ -656,11 +680,11 @@ SPRITE.newCls('Player', {
 		'Drop',
 	],
 	hit: function(v) {
-		var d = this.data,
-			e = v.data;
-		if (e.state.mkDamage) {
-			if (!d.state.isInvinc && circle_intersect({x: d.x, y: d.y, r: d.h}, e)) {
-				e.set('dying');
+		var d = this.data, s = this.state,
+			e = v.data, k = v.state;
+		if (k.d.mkDamage) {
+			if (!s.d.isInvinc && circle_intersect({x: d.x, y: d.y, r: d.h}, e)) {
+				k.setWith('dying');
 				STORY.on(STORY.events.PLAYER_HIT, this);
 			}
 			else if (circle_intersect(d, e) && !e.grazed) {
@@ -669,8 +693,8 @@ SPRITE.newCls('Player', {
 			}
 		}
 		else if (v.cls == 'Drop') {
-			if (e.state.living && circle_intersect(d, {x: e.x, y: e.y, r: e.h})) {
-				e.set('dying');
+			if (k.d.living && circle_intersect(d, {x: e.x, y: e.y, r: e.h})) {
+				k.setWith('dying');
 				STORY.on(STORY.events.PLAYER_GETDROP, this);
 				STORY.on(STORY.events.DROP_COLLECTED, v);
 			}
@@ -692,12 +716,10 @@ SPRITE.newCls('Player', {
 	},
 	
 	run: function(dt) {
-		var d = this.data;
-			m = GAME.keyste.shiftKey,
-			v = m ? 0.14 : 0.35;
+		var d = this.data, s = this.state;
 
-		d.run(dt);
-		if (!d.state.life) {
+		s.run(dt);
+		if (!s.d.life) {
 			this.isAlive = false;
 			STORY.on(STORY.events.PLAYER_DEAD, this);
 		}
@@ -706,8 +728,8 @@ SPRITE.newCls('Player', {
 			if (v.t.run(dt)) v.f(d, v.d);
 		}, this);
 
-		if (!d.state.dying)
-			this.update(dt, d);
+		if (!s.d.dying)
+			this.update(dt, d, s);
 
 		// limit player move inside boundary
 		if (d.x-d.r < GAME.rect.l)
@@ -726,10 +748,10 @@ SPRITE.newCls('Player', {
 		this.rect.b = d.y + d.r*1.1;
 	},
 	draw: function() {
-		var d = this.data;
+		var d = this.data, s = this.state;
 		DC.save();
 
-		if (d.state.isInvinc) {
+		if (s.d.isInvinc) {
 			DC.globalAlpha = 0.5;
 		}
 
@@ -741,16 +763,18 @@ SPRITE.newCls('Player', {
 		}
 
 		if (d.slowMode) {
-			DC.fillStyle = 'black';
+			DC.strokeStyle = 'black';
 			DC.beginPath();
 			DC.arc(d.x, d.y, d.h+1, 0, 2*Math.PI);
 			DC.closePath();
-			DC.fill();
+			DC.stroke();
 		}
 
 		DC.restore();
 	},
-	update: function(dt, d) {
+	update: function(dt, d, s) {
+		var m = GAME.keyste.shiftKey,
+			v = m ? 0.14 : 0.35;
 		d.slowMode = m;
 		d.x0 = d.x;
 		d.y0 = d.y;
@@ -784,8 +808,8 @@ SPRITE.newCls('Player', {
 		d.fire_on = GAME.keyste[d.conf.key_fire];
 
 		// BOMB!
-		if (GAME.keyste[d.conf.key_bomb] && !d.state.bomb) {
-			d.set('bomb');
+		if (GAME.keyste[d.conf.key_bomb] && !s.d.bomb) {
+			s.setWith('bomb');
 			STORY.on(STORY.events.PLAYER_BOMB, this);
 		}
 
@@ -794,8 +818,9 @@ SPRITE.newCls('Player', {
 			STORY.on(STORY.events.PLAYER_AUTOCOLLECT, this);
 		}
 	},
-	newdata: function(d) {
-		return extend(newState(this.states), {
+	init: function(d, e) {
+		this.state = UTIL.newAliveSM(this.states);
+		this.data = extend({
 			r: 15,
 			h: 3,
 
@@ -824,7 +849,15 @@ SPRITE.newCls('Player', {
 					return fs;
 				}),
 			]
-		}, d);
+		}, d, e);
+		this.data.conf = extend({
+			key_left: 37,
+			key_up: 38,
+			key_right: 39,
+			key_down: 40,
+			key_fire: GAME.keychars.Z,
+			key_bomb: GAME.keychars.X,
+		}, this.data.conf);
 	},
 
 	states: {
@@ -845,15 +878,7 @@ SPRITE.newCls('Player', {
 		return extend({ res:'player0R', sy:48, sw:32, sh:48, w:32, h:48 }, { sx:255-32*(i+1) });
 	}),
 }, function(d, c) {
-	this.data = c.newdata(d);
-	this.data.conf = extend({
-		key_left: 37,
-		key_up: 38,
-		key_right: 39,
-		key_down: 40,
-		key_fire: GAME.keychars.Z,
-		key_bomb: GAME.keychars.X,
-	}, this.data.conf);
+	this.init(d);
 }, 'Static');
 
 SPRITE.newCls('Ball', {
@@ -891,7 +916,7 @@ SPRITE.newCls('Ball', {
 		2: { dying:    1, life: 500 }
 	},
 }, function(d, c) {
-	this.data = c.newdata(d);
+	this.init(d);
 }, 'Base');
 
 SPRITE.newCls('Enemy', {
@@ -901,13 +926,13 @@ SPRITE.newCls('Enemy', {
 	hit: function(v) {
 		var d = this.data,
 			e = v.data;
-		if (d.state.dying || e.state.dying)
+		if (this.state.d.dying || v.state.d.dying)
 			return;
 		if (circle_intersect(d, e)) {
-			e.set('dying');
+			v.state.setWith('dying');
 			d.damage ++;
 			if (d.damage >= d.life) {
-				d.set('dying');
+				this.state.setWith('dying');
 				STORY.on(STORY.events.ENEMY_KILL, this);
 			}
 		}
@@ -919,7 +944,7 @@ SPRITE.newCls('Enemy', {
 		2: { dying:    1, life: 500 }
 	},
 }, function(d, c) {
-	this.data = c.newdata({
+	this.init({
 		r: 20,
 		y: GAME.rect.t*0.9+GAME.rect.b*0.1,
 		life: 10,
@@ -928,10 +953,10 @@ SPRITE.newCls('Enemy', {
 }, 'Base');
 
 SPRITE.newCls('Bullet', {
-	runBase: function(dt, d) {
+	runBase: function(dt, d, s) {
 		var u = d.to,
 			e = u && u.data;
-		if (!u || !u.isAlive || !e.state.mkDamage)
+		if (!u || !u.isAlive || !u.state.d.mkDamage)
 			return;
 		if (d.type == 1) {
 			var r = sqrt_sum(d.x - e.x, d.y - e.y),
@@ -946,7 +971,7 @@ SPRITE.newCls('Bullet', {
 		2: { dying:    1, life: 10 }	
 	},
 }, function(d, c) {
-	this.data = c.newdata({
+	this.init({
 		r: 5,
 		vy: -0.5,
 		from: null
@@ -954,7 +979,7 @@ SPRITE.newCls('Bullet', {
 }, 'Base');
 
 SPRITE.newCls('Drop', {
-	runBase: function(dt, d) {
+	runBase: function(dt, d, s) {
 		if (d.collected) {
 			var e = d.collected.data,
 				v = d.collected_auto ? 0.8 : sqrt_sum(d.vx, d.vy),
@@ -981,7 +1006,7 @@ SPRITE.newCls('Drop', {
 		2: { dying:    1, life: 100 }
 	},
 }, function(d, c) {
-	this.data = c.newdata({
+	this.init({
 		r: 60,
 		vy: -0.4,
 		h: 20, // used for player hit test
@@ -990,10 +1015,10 @@ SPRITE.newCls('Drop', {
 }, 'Base');
 
 SPRITE.newCls('Dannmaku', {
-	runBase: function(dt, d) {
+	runBase: function(dt, d, s) {
 		var u = d.from,
 			e = u && u.data;
-		if (!u || !u.isAlive || !e.state.living)
+		if (!u || !u.isAlive || !u.state.d.living)
 			return;
 		if (d.type == 1) {
 			if (d.age < 1000) {
@@ -1030,7 +1055,7 @@ SPRITE.newCls('Dannmaku', {
 		2: { dying:    1, life: 100 },
 	},
 }, function(d, c) {
-	this.data = c.newdata({
+	this.init({
 		r: 5,
 		vy: 0.3,
 		from: null
@@ -1088,7 +1113,7 @@ function newBall(v, fy) {
 function newBullet(v) {
 	var e = null, r = Math.Inf;
 	SPRITE.eachObj(function(u) {
-		if (u.data.state.mkDamage) {
+		if (u.state.d.mkDamage) {
 			var r0 = squa_sum(u.data.x-v.data.x, u.data.y-v.data.y);
 			if (r0 < r) {
 				r = r0;
@@ -1133,7 +1158,7 @@ function newBullet(v) {
 }
 function newDannmaku(v, type) {
 	STORY.timeout(function (tc, ts) {
-		if (!this.isAlive && !this.data.state.living)
+		if (!this.isAlive && !this.state.d.living)
 			return;
 		var e = this.data,
 			p = randin(UTIL.getAliveObjs('Player')).data;
@@ -1203,8 +1228,8 @@ function newBoss() {
 function killObj(ls) {
 	ieach(ls, function(i, c) {
 		SPRITE.eachObj(function(v) {
-			if (!v.data.state.dying)
-				v.data.set('dying');
+			if (!v.state.d.dying)
+				v.state.setWith('dying');
 		}, c);
 	})
 }
@@ -1235,14 +1260,14 @@ tl.all = {
 		}
 		else if (e == STORY.events.PLAYER_HIT) {
 			tl.all.graze --;
-			v.data.set('juesi');
+			v.state.setWith('juesi');
 			/*
 			STORY.timeout(function() {
 				killObj(['Dannmaku']);
 			}, 10, null, 80);
 			*/
 			STORY.timeout(function() {
-				if (v.data.state.dying) {
+				if (v.state.d.dying) {
 					var x = v.data.x,
 						y = GAME.rect.t*0.8+GAME.rect.b*0.2;
 					SPRITE.newObj('Drop', { x:x+90, y:y+10 });
@@ -1292,7 +1317,7 @@ tl.init = {
 	run: function(dt, d) {
 		d.age = (d.age || 0) + dt;
 		if (d.age > 5000) {
-			d.title.data.set('dying');
+			d.title.state.setWith('dying');
 			return 'sec0';
 		}
 	}
@@ -1328,7 +1353,7 @@ tl.sec1 = {
 	run: function(dt, d) {
 		if (d.pass) {
 			SPRITE.eachObj(function(v) {
-				v.data.set('dying');
+				v.state.setWith('dying');
 				v.data.vx *= 0.01;
 				v.data.vy *= 0.01;
 				SPRITE.newObj('Drop', {
@@ -1355,14 +1380,14 @@ tl.sec1 = {
 				y: v.data.y
 			});
 			var pass = reduce(SPRITE.obj.Enemy, function(i, v, r) {
-				return v.isAlive ? (r && v.data.state.dying) : r;
+				return v.isAlive ? (r && v.state.d.dying) : r;
 			}, true);
 			if (pass) STORY.timeout(function() {
 				this.pass = true;
 			}, 1000, d);
 		}
 		else if (e == STORY.events.OBJECT_OUT) {
-			if (v.cls == 'Enemy' && !v.data.state.dying)
+			if (v.cls == 'Enemy' && !v.state.d.dying)
 				newEnemy(tl.loop);
 		}
 	}
@@ -1399,7 +1424,7 @@ tl.diag = {
 		if (!d.obj)
 			return;
 		d.ste.run(1);
-		d.obj.data.set('dying');
+		d.obj.state.setWith('dying');
 		var n = d.ste.state.data;
 		if (n)
 			d.obj = SPRITE.newObj('Static', n);
