@@ -276,7 +276,9 @@ var SPRITE = (function() {
 		if (!_t.obj[c])
 			_t.obj[c] = [];
 
-		_t.sort = keys(_t.cls).sort();
+		_t.sort = keach(_t.cls, function(k, v, d) {
+			d.push([v.layer || v.cls, v.cls]);
+		}, []).sort();
 		return cls;
 	};
 	_t.newObj = function(c, data) {
@@ -294,8 +296,8 @@ var SPRITE = (function() {
 		return obj;
 	};
 	_t.eachCls = function(fn) {
-		ieach(_t.sort, function(i, c) {
-			fn(c);
+		ieach(_t.sort, function(i, v) {
+			fn(v[1]);
 		});
 	};
 	_t.eachObj = function(fn, c) {
@@ -551,6 +553,7 @@ var UTIL = {
 };
 
 SPRITE.newCls('Static', {
+	layer: 'L10',
 	run: function(dt) {
 		var d = this.data, s = this.state;
 
@@ -882,6 +885,7 @@ SPRITE.newCls('Player', {
 }, 'Static');
 
 SPRITE.newCls('Ball', {
+	layer: 'L20',
 	hits: [
 		'Ball',
 	],
@@ -953,6 +957,7 @@ SPRITE.newCls('Enemy', {
 }, 'Base');
 
 SPRITE.newCls('Bullet', {
+	layer: 'L20',
 	runBase: function(dt, d, s) {
 		var u = d.to,
 			e = u && u.data;
@@ -1015,6 +1020,7 @@ SPRITE.newCls('Drop', {
 }, 'Base');
 
 SPRITE.newCls('Dannmaku', {
+	layer: 'L20',
 	runBase: function(dt, d, s) {
 		var u = d.from,
 			e = u && u.data;
