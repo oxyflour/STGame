@@ -179,7 +179,7 @@ function newStateMachine(tl, hook) {
 				hook.before_run(dt, _t.d, _t.s);
 			if (_t.s) {
 				var n = _t.s.run(dt, _t.d);
-				if (n) _t.set(n);
+				if (n !== undefined) _t.set(n);
 			}
 			if (hook && hook.after_run)
 				hook.after_run(dt, _t.d, _t.s);
@@ -874,7 +874,7 @@ SPRITE.newCls('Player', {
 		{ creating: 1, life: 1000, next:  1, isInvinc: 1 },
 		{ living:   1, life: Math.Inf, next:  2 },
 		{ dying:    1, life: 1000, isInvinc: 1 },
-		{ bomb:     1, life: 5000, next:  1, isInvinc: 1 },
+		{ bomb:     1, life: 5000, next:  2, isInvinc: 1 },
 		{ juesi:    1, life:  100, next:  2, isInvinc: 1 },
 	],
 
