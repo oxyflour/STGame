@@ -1270,11 +1270,16 @@ function killObj(ls) {
 }
 
 GAME.statics = {
+	time: 0,
 	graze: 0,
+	point: 0,
 	miss: 0
 };
 var tl = {};
 tl.all = {
+	after_run: function(dt) {
+		GAME.statics.time += dt;
+	},
 	after_on: function(e, v, d, s) {
 		if (e == STORY.events.GAME_INPUT) {
 			if (v.type == 'keyup' && v.which == 13) {
@@ -1328,6 +1333,9 @@ tl.all = {
 		else if (e == STORY.events.ENEMY_KILL) {
 			newEffect(v);
 		}
+		else if (e == STORY.events.DROP_COLLECTED) {
+			GAME.statics.point += 10;
+		}
 	}
 };
 tl.init = {
@@ -1374,8 +1382,10 @@ tl.sec0 = {
 	},
 	on: function(e, v, d) {
 		if (e == STORY.events.OBJECT_OUT) {
-			if (v.cls == 'Ball')
-				newBall(0.25, 0.2);
+			if (v.cls == 'Ball') {
+				var fy = random(0.2, 0.6);
+				newBall(0.6-fy, fy);
+			}
 		}
 	}
 };
