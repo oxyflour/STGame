@@ -1260,11 +1260,11 @@ function newEffect(v) {
 			UTIL.newFrameTick(50, fs),
 		]
 	});
-	eff.state = UTIL.newAliveSM({
-		0: { creating: 1, life: 100, next:  1 },
-		1: { living:   1, life: 50, next:  2 },
-		2: { dying:    1, life: 850 },
-	});
+	eff.state = UTIL.newAliveSM([
+		{ creating: 1, life: 100, next:  1 },
+		{ living:   1, life: 50, next:  2 },
+		{ dying:    1, life: 850 },
+	]);
 }
 function killObj(ls) {
 	ieach(ls, function(i, c) {
