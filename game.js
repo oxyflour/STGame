@@ -117,18 +117,16 @@ function newCounter() {
 		return dt;
 	}
 }
-function TimeCounter() {
-	var _t = TimeCounter;
-	return (_t.counter || (_t.counter = newCounter()))();
-}
-function FPSCounter() {
-	var _t = FPSCounter,
-		dt = (_t.counter || (_t.counter = newCounter()))();
-	var arr = _t.arr || (_t.arr=Array(20)),
-		idx = ((arr.idx || 0) + 1) % arr.length;
-	arr[idx] = dt;
-	arr.idx = idx;
-	return 1000.0 / (sum(arr) / arr.length);
+function newFPSCounter() {
+	var tc = newCounter(),
+		arr = Array(20),
+		idx = 0;
+	return function() {
+		var dt = tc();
+		idx = (idx + 1) % arr.length;
+		arr[idx] = dt;
+		return 1000.0 / (sum(arr) / arr.length);
+	}
 }
 function newTicker(t) {
 	var _t = {
@@ -1060,14 +1058,16 @@ SPRITE.newCls('Dannmaku', {
 	}, d);
 }, 'Base');
 
+GAME.timeCounter = newCounter();
 setInterval(function() {
-	var dt = TimeCounter();
+	var dt = GAME.timeCounter();
 	if (GAME.state == GAME.states.RUNNING)
 		GAME.run(Math.min(dt, 15));
 }, 10);
 
+GAME.fpsCounter = newFPSCounter();
 setInterval(function() {
-	GAME.fps = FPSCounter();
+	GAME.fps = GAME.fpsCounter();
 	GAME.draw();
 }, 16.6);
 
