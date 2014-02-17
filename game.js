@@ -415,7 +415,8 @@ var GAME = (function() {
 		})
 	};
 	_t.keyste = {};
-	_t.keychars = ieach('0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ', function(i, v, d) {
+	var chars = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+	_t.keychars = ieach(chars, function(i, v, d) {
 		d[v] = v.charCodeAt(0);
 	}, {});
 	_t.input = function(e) {
@@ -1382,7 +1383,7 @@ tl.sec1 = {
 		if (d.pass) {
 			tl.loop = (tl.loop || 0) + 1;
 			if (tl.loop >= 5)
-				return 'diag0';
+				return 'diag';
 			else
 				return 'sec1';
 		}
@@ -1423,14 +1424,14 @@ tl.sec1 = {
 	}
 };
 ieach([
-	{ t:'x0aabbcc', x:GAME.rect.l+50, y:GAME.rect.t*0.2+GAME.rect.b*0.8 },
+	{ t:'x0aabbcc', x:GAME.rect.l+50, y:GAME.rect.t*0.2+GAME.rect.b*0.8, name:'diag' },
 	{ t:'y0aabbcc', x:GAME.rect.r-50, y:GAME.rect.t*0.2+GAME.rect.b*0.8 },
 	{ t:'x0aabbcc', x:GAME.rect.l+50, y:GAME.rect.t*0.2+GAME.rect.b*0.8 },
 	{ t:'y0aabbcc', x:GAME.rect.r-50, y:GAME.rect.t*0.2+GAME.rect.b*0.8 },
 	{ t:'x0aabbcc', x:GAME.rect.l+50, y:GAME.rect.t*0.2+GAME.rect.b*0.8 },
 	{ t:'y0aabbcc', x:GAME.rect.r-50, y:GAME.rect.t*0.2+GAME.rect.b*0.8, next:'boss' },
 ], function(i, v, tl) {
-	var c = 'diag'+i, n = v.next || 'diag'+(i+1);
+	var c = v.name || 'diag'+i, n = v.next || 'diag'+(i+1);
 	tl[c] = {
 		init: function(d) {
 			d.disable_fire = true;
