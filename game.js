@@ -1130,7 +1130,7 @@ function newBall(v, fy) {
 		vy: v*Math.cos(t),
 		r: r,
 		frame: { res:'etama3', sx:randin(range(8))*32, sy:128,
-			sw:32, sh:32, w:r/14*32, h:r/14*32 }
+			sw:32, sh:32, w:r*2.5, h:r*2.5 }
 	});
 }
 function newBullet(v) {
