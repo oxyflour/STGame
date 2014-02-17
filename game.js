@@ -130,31 +130,6 @@ function FPSCounter() {
 	arr.idx = idx;
 	return 1000.0 / (sum(arr) / arr.length);
 }
-function newState(stes) {
-	var _t = {
-		state: stes[0],
-		age: 0,
-		ste: 0,
-		set: function(s, a) {
-			if (!stes[s]) s = each(stes, function(k, v) {
-				if (v[s]) return k;
-			});
-			if (a === undefined)
-				_t.age = _t.ste == s ? _t.age : 0;
-			else
-				_t.age = a;
-			_t.ste = s;
-			_t.state = stes[s] || {};
-		},
-		run: function(dt) {
-			var d = _t.state;
-			_t.age = (_t.age || 0) + dt;
-			if (d && _t.age > d.life)
-				_t.set(d.next, _t.age - d.life);
-		}
-	};
-	return _t;
-}
 function newTicker(t) {
 	var _t = {
 		t: t,
