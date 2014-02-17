@@ -1251,7 +1251,7 @@ function newBoss() {
 function newEffect(v) {
 	var fs = array(20, function(i) {
 		var r = [32,42,52,62,60,58,56,54,52,50,48,46,44,42,40,38,36,34,32,30,28,26][i]*0.5;
-		return extend({ res:'etama4', sx:64, sy:255-16-32, sw:32, sh:32 }, { w:r*2, h:r*2 });
+		return extend({ res:'eff00', sx:0, sy:0, sw:32, sh:32 }, { w:r*2, h:r*2 });
 	});
 	var d = v.data;
 	var eff = SPRITE.newObj('Base', {
