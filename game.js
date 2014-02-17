@@ -208,7 +208,9 @@ var RES = (function() {
 			}
 			d[v.id] = v;
 		}, _t);
-		document.dispatchEvent(new CustomEvent('res.loaded'));
+		var e = document.createEvent('CustomEvent');
+		e.initCustomEvent('res.loaded', false, false, {});
+		document.dispatchEvent(e);
 	}
 	function check() {
 		var ls = ieach(res.children, function(i, v, d) {
