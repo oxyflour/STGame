@@ -1068,10 +1068,11 @@ setInterval(function() {
 }, 10);
 
 GAME.fpsCounter = newFPSCounter();
-setInterval(function() {
+requestAnimationFrame(function render() {
 	GAME.fps = GAME.fpsCounter();
 	GAME.draw();
-}, 16.6);
+	requestAnimationFrame(render);
+});
 
 setInterval(function() {
 	var fns = {
