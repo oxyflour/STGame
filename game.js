@@ -118,14 +118,14 @@ function newCounter() {
 	}
 }
 function newFPSCounter() {
-	var tc = newCounter(),
-		arr = Array(20),
-		idx = 0;
-	return function() {
-		var dt = tc();
-		idx = (idx + 1) % arr.length;
-		arr[idx] = dt;
-		return 1000.0 / (sum(arr) / arr.length);
+	var idx = 0,
+		len = 100,
+		arr = Array(len);
+	return function(t) {
+		var dt = (t - arr[idx]) / len;
+		arr[idx] = t;
+		idx = (idx + 1) % len;
+		return 1000.0 / dt;
 	}
 }
 function newTicker(t) {
@@ -1069,8 +1069,8 @@ setInterval(function() {
 }, 10);
 
 GAME.fpsCounter = newFPSCounter();
-requestAnimationFrame(function render() {
-	GAME.fps = GAME.fpsCounter();
+requestAnimationFrame(function render(t) {
+	GAME.fps = GAME.fpsCounter(t);
 	GAME.draw();
 	requestAnimationFrame(render);
 });
@@ -1198,7 +1198,7 @@ function newEnemy(type) {
 			UTIL.newFrameTick(150, fs)
 		]
 	});
-	STORY.timeout(function () {
+	STORY.timeout(function() {
 		newDannmaku(this, type);
 	}, 1000, v);
 }
@@ -1375,9 +1375,9 @@ tl.sec0 = {
 };
 tl.sec1 = {
 	init: function(d) {
-		STORY.timeout(function () {
-			newEnemy(tl.loop || 0);
-		}, 300, null, 5);
+		STORY.timeout(function(c, n) {
+			if (n < 5) newEnemy(tl.loop || 0);
+		}, 300, null, 8);
 	},
 	run: function(dt, d) {
 		if (d.pass) {
@@ -1455,7 +1455,7 @@ ieach([
 tl.boss = {
 	init: function(d) {
 		killObj(['Static', 'Enemy', 'Dannmaku']);
-		STORY.timeout(function () {
+		STORY.timeout(function() {
 			newBoss();
 		}, 1000);
 	},
