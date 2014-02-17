@@ -169,20 +169,16 @@ function newTicker(t) {
 	}
 	return _t;
 }
-function newStateMachine(tl, hook) {
+function newStateMachine(tl) {
 	var _t = {
 		n: undefined,
 		s: undefined, // object like { run:fn(dt,d), [init:fn(d)], [quit:fn(d,n)] }
 		d: {},
 		run: function(dt) {
-			if (hook && hook.before_run)
-				hook.before_run(dt, _t.d, _t.s);
 			if (_t.s) {
 				var n = _t.s.run(dt, _t.d);
 				if (n !== undefined) _t.set(n);
 			}
-			if (hook && hook.after_run)
-				hook.after_run(dt, _t.d, _t.s);
 		},
 		set: function(n) {
 			_t.n = n;
@@ -346,7 +342,7 @@ var STORY = (function() {
 	_t.state = {};
 	_t.hook = {};
 	_t.load = function(tl, hook) {
-		_t.state = newStateMachine(tl, hook);
+		_t.state = newStateMachine(tl);
 		_t.hook = hook;
 	}
 
@@ -357,7 +353,12 @@ var STORY = (function() {
 		return id;
 	};
 	_t.run = function(dt) {
+		if (_t.hook.before_run)
+			_t.hook.before_run(dt, _t.state.d, _t.state.s);
 		_t.state.run(dt);
+		if (_t.hook.after_run)
+			_t.hook.after_run(dt, _t.state.d, _t.state.s);
+
 		ieach(timeouts, function(i, v) {
 			if (!v) return;
 			v.c += dt;
