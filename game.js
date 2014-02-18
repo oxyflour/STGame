@@ -1075,18 +1075,29 @@ SPRITE.newCls('Dannmaku', {
 	}, d);
 }, 'Base');
 
-GAME.timeCounter = newCounter();
-setInterval(function() {
-	var dt = GAME.timeCounter();
-	if (GAME.state == GAME.states.RUNNING)
-		GAME.run(Math.min(dt, 15));
-}, 10);
+document.addEventListener('res.loaded', function(e) {
+	var timeCounter = newCounter();
+	setInterval(function tick() {
+		var dt = timeCounter();
+		if (GAME.state == GAME.states.RUNNING)
+			GAME.run(Math.min(dt, 15));
+	}, 10);
 
-GAME.fpsCounter = newFPSCounter();
-requestAnimationFrame(function render(t) {
-	GAME.fps = GAME.fpsCounter(t);
-	GAME.draw();
-	requestAnimationFrame(render);
+	var fpsCounter = newFPSCounter();
+	requestAnimationFrame(function render(t) {
+		GAME.fps = fpsCounter(t);
+		GAME.draw();
+		requestAnimationFrame(render);
+	});
+
+	var input = function(e) {
+		GAME.input(e);
+		tick();
+	}
+	window.addEventListener('keydown', input);
+	window.addEventListener('keyup', input);
+
+	GAME.init(tl);
 });
 
 setInterval(function() {
@@ -1109,8 +1120,6 @@ setInterval(function() {
 	});
 }, 80);
 
-window.addEventListener('keydown', GAME.input);
-window.addEventListener('keyup', GAME.input);
 
 // for test only
 function newBall(v, fy) {
@@ -1505,7 +1514,3 @@ tl.end = {
 	run: function(dt, d) {
 	}
 };
-
-document.addEventListener('res.loaded', function(e) {
-	GAME.init(tl);
-});
