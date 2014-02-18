@@ -522,7 +522,7 @@ var UTIL = {
 			if (d.age > t) return n;
 		}
 	},
-	newAliveSM: function(stes) {
+	newAliveState: function(stes) {
 		function init(d) {
 			d.age = 0;
 		}
@@ -585,7 +585,7 @@ SPRITE.newCls('Static', {
 		{ dying:    1, life: 500 }
 	],
 }, function(o, c) {
-	this.state = UTIL.newAliveSM(this.states);
+	this.state = UTIL.newAliveState(this.states);
 	this.data = extend({
 		x: (GAME.rect.l+GAME.rect.r)/2,
 		y: (GAME.rect.t+GAME.rect.b)/2,
@@ -653,7 +653,7 @@ SPRITE.newCls('Base', {
 	},
 	init: function(d, e) {
 		this.rect = { l:0, t:0, r:0, b:0 };
-		this.state = UTIL.newAliveSM(this.states);
+		this.state = UTIL.newAliveState(this.states);
 		this.data = extend({
 			r: 10,
 			x: (GAME.rect.l+GAME.rect.r)/2,
@@ -820,7 +820,7 @@ SPRITE.newCls('Player', {
 	},
 	init: function(d, e) {
 		this.rect = { l:0, t:0, r:0, b:0 };
-		this.state = UTIL.newAliveSM(this.states);
+		this.state = UTIL.newAliveState(this.states);
 		this.data = extend({
 			r: 15,
 			h: 3,
@@ -1254,7 +1254,7 @@ function newEffect(v) {
 			UTIL.newFrameTick(50, fs),
 		]
 	});
-	eff.state = UTIL.newAliveSM([
+	eff.state = UTIL.newAliveState([
 		{ creating: 1, life: 100, next:  1 },
 		{ living:   1, life: 50, next:  2 },
 		{ dying:    1, life: 850 },
