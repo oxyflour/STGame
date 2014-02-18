@@ -347,13 +347,14 @@ var STORY = (function() {
 		}, hook);
 	}
 	_t.timeout = function(f, t, d, n) {
-		n = n || 0;
+		n = n>=0 ? n : 1;
 		_t.anim.add({
 			d: d,
 			t: newTicker(t),
 			f: function(d) {
-				f.apply(d, [n]);
-				return n-- <= 0;
+				if (n-->=0)
+					f.apply(d, [n]);
+				return n <= 0;
 			},
 		});
 	}
