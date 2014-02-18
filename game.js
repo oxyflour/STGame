@@ -1034,7 +1034,7 @@ SPRITE.newCls('Dannmaku', {
 		if (!u || !u.isAlive || !u.state.d.living)
 			return;
 		if (d.type == 1) {
-			if (d.age < 1000) {
+			if (this.state.d.age < 1000) {
 				d.vx -= 30e-7 * dt * (d.x - e.x);
 				d.vy -= 30e-7 * dt * (d.y - e.y);
 			}
@@ -1044,7 +1044,7 @@ SPRITE.newCls('Dannmaku', {
 			if (Math.abs(d.vy) > 0.03) d.vy *= 0.992;
 		}
 		else if (d.type == 3) {
-			if (d.age < 1000) {
+			if (this.state.d.age < 1000) {
 				d.vx *= 0.98;
 				d.vy *= 0.98;
 			}
