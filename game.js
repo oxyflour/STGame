@@ -703,7 +703,6 @@ SPRITE.newCls('Player', {
 		}
 		else if (v.clsId == SPRITE.clsIds.Drop) {
 			if (v.state.d.living && circle_intersect(d, {x: e.x, y: e.y, r: e.h})) {
-				v.state.setWith('dying');
 				STORY.on(STORY.events.PLAYER_GETDROP, this);
 				STORY.on(STORY.events.DROP_COLLECTED, v);
 			}
@@ -815,7 +814,6 @@ SPRITE.newCls('Player', {
 
 		// BOMB!
 		if (GAME.keyste[d.conf.key_bomb] && !s.d.bomb) {
-			s.setWith('bomb');
 			STORY.on(STORY.events.PLAYER_BOMB, this);
 		}
 
@@ -943,11 +941,9 @@ SPRITE.newCls('Enemy', {
 		if (this.state.d.dying || v.state.d.dying)
 			return;
 		if (circle_intersect(d, e)) {
-			v.state.setWith('dying');
 			d.damage ++;
 			STORY.on(STORY.events.BULLET_HIT, v);
 			if (d.damage >= d.life) {
-				this.state.setWith('dying');
 				STORY.on(STORY.events.ENEMY_KILL, this);
 			}
 		}
@@ -1260,12 +1256,16 @@ function newEffect(v) {
 		{ dying:    1, life: 850 },
 	]);
 }
-function killObj() {
+function killCls() {
 	ieach(arguments, function(i, c) {
 		SPRITE.eachObj(function(v) {
-			if (!v.state.d.dying)
-				v.state.setWith('dying');
+			v.state.setWith('dying');
 		}, c);
+	})
+}
+function killObj() {
+	ieach(arguments, function(i, v) {
+		v.state.setWith('dying');
 	})
 }
 
@@ -1280,7 +1280,7 @@ tl.all = {
 	after_run: function(dt) {
 		GAME.statics.time += dt;
 	},
-	after_on: function(e, v, d, s) {
+	before_on: function(e, v, d) {
 		if (e == STORY.events.GAME_INPUT) {
 			if (v.type == 'keyup' && v.which == 13) {
 				var s = GAME.state,
@@ -1302,7 +1302,7 @@ tl.all = {
 			v.state.setWith('juesi');
 			/*
 			STORY.timeout(function() {
-				killObj('Dannmaku');
+				killCls('Dannmaku');
 			}, 10, null, 80);
 			*/
 			STORY.timeout(function() {
@@ -1328,13 +1328,18 @@ tl.all = {
 				newBullet(v);
 		}
 		else if (e == STORY.events.PLAYER_BOMB) {
-			// to be finished
+			v.state.setWith('bomb');
 		}
 		else if (e == STORY.events.ENEMY_KILL) {
+			v.state.setWith('dying');
 			newEffect(v);
 		}
 		else if (e == STORY.events.DROP_COLLECTED) {
+			v.state.setWith('dying');
 			GAME.statics.point += 10;
+		}
+		else if (e == STORY.events.BULLET_HIT) {
+			v.state.setWith('dying');
 		}
 	}
 };
@@ -1372,7 +1377,7 @@ tl.sec0 = {
 		}, 20, null, 60);
 	},
 	quit: function(d) {
-		killObj('Ball');
+		killCls('Ball');
 	},
 	on: function(e, v, d) {
 		if (e == STORY.events.OBJECT_OUT) {
@@ -1468,7 +1473,7 @@ ieach([
 }, tl);
 tl.boss = {
 	init: function(d) {
-		killObj('Static', 'Enemy', 'Dannmaku');
+		killCls('Static', 'Enemy', 'Dannmaku');
 		STORY.timeout(function() {
 			newBoss();
 		}, 1000);
