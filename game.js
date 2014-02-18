@@ -1268,13 +1268,15 @@ function newEffect(v) {
 function killCls() {
 	ieach(arguments, function(i, c) {
 		SPRITE.eachObj(function(v) {
-			v.state.setWith('dying');
+			if (!v.state.d.dying)
+				v.state.setWith('dying');
 		}, c);
 	})
 }
 function killObj() {
 	ieach(arguments, function(i, v) {
-		v.state.setWith('dying');
+		if (!v.state.d.dying)
+			v.state.setWith('dying');
 	})
 }
 
