@@ -1430,7 +1430,7 @@ tl.sec1 = {
 	}
 };
 ieach([
-	{ t:'x0aabbcc', x:GAME.rect.l+50, y:GAME.rect.t*0.2+GAME.rect.b*0.8 },
+	{ t:'x0aabbcc', x:GAME.rect.l+50, y:GAME.rect.t*0.2+GAME.rect.b*0.8, name:'diag' },
 	{ t:'y0aabbcc', x:GAME.rect.r-50, y:GAME.rect.t*0.2+GAME.rect.b*0.8 },
 	{ t:'x0aabbcc', x:GAME.rect.l+50, y:GAME.rect.t*0.2+GAME.rect.b*0.8 },
 	{ t:'y0aabbcc', x:GAME.rect.r-50, y:GAME.rect.t*0.2+GAME.rect.b*0.8 },
