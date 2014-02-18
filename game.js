@@ -145,19 +145,17 @@ function newTicker(t) {
 function newAnimateList() {
 	var _t = [], unused = [];
 	_t.add = function(a) {
+		// a should be object like { t:newTicker(20), f:fn, d:{} }
 		_t[unused.length ? unused.pop() : _t.length] = a;
 	};
-	_t.run = function(dt) {
+	_t.run = function(dt, e) {
 		ieach(_t, function(i, v) {
-			if (v && v.t.run(dt) && v.f(dt, v.d)) {
+			if (v && v.t.run(dt) && v.f(v.d, e)) {
 				_t[i] = undefined;
 				unused.push(i);
 			}
 		});
 	};
-	ieach(arguments, function(i, v) {
-		_t.add(v);
-	});
 	return _t;
 }
 function newStateMachine(tl) {
@@ -351,8 +349,8 @@ var STORY = (function() {
 		_t.anim.add({
 			d: d,
 			t: newTicker(t),
-			f: function(dt, d) {
-				f.apply(d, [t, n]);
+			f: function(d) {
+				f.apply(d, [n]);
 				return n-- <= 0;
 			},
 		});
@@ -459,27 +457,27 @@ var UTIL = {
 	},
 	// fs should be array of objects like
 	// { res:'', sx:0, sy:0, sw:10, sh:10, w:10, h:10, [rotate:1] }
-	newFrameTick: function(t, fs) {
+	newFrameAnim: function(t, fs) {
 		return {
 			t: newTicker(t),
 			d: {
 				frames: fs,
 				index: 0
 			},
-			run: function(v, d) {
+			f: function(d, v) {
 				d.index = (d.index + 1) % d.frames.length;
 				v.data.frame = d.frames[d.index];
 			},
 		}
 	},
-	newFrameGroupTick: function(t, fgs, fn) {
+	newFrameGroupAnim: function(t, fgs, fn) {
 		return {
 			t: newTicker(t),
 			d: {
 				frames: fgs[0],
 				index: 0
 			},
-			run: function(v, d) {
+			f: function(d, v) {
 				d.frames = fn(v, d, fgs);
 				d.index = (d.index + 1) % d.frames.length;
 				v.data.frame = d.frames[d.index];
@@ -489,14 +487,14 @@ var UTIL = {
 	// ps should be array of objects like
 	// { x/fx:0, y/fy:0, v:10 }
 	// x and y should be between 0 and 1
-	newPathTick: function(t, ps) {
+	newPathAnim: function(t, ps) {
 		return {
 			t: newTicker(t),
 			d: {
 				pathnodes: ps,
 				index: 0
 			},
-			run: function(v, d) {
+			f: function(d, v) {
 				var t = v.data,
 					n = d.pathnodes[d.index];
 				if (n) {
@@ -519,6 +517,8 @@ var UTIL = {
 							d.index ++;
 					}
 				}
+				else
+					return true;
 			},
 		}
 	},
@@ -549,7 +549,7 @@ var UTIL = {
 		}
 		s.set(0);
 		return s;
-	}
+	},
 };
 
 SPRITE.newCls('Static', {
@@ -609,9 +609,7 @@ SPRITE.newCls('Base', {
 		d.x += d.vx * dt;
 		d.y += d.vy * dt;
 
-		ieach(d.ticks, function(i, v, t) {
-			if (v.t.run(dt)) v.run(t, v.d);
-		}, this);
+		this.anim.run(dt, this);
 
 		var s = this.space;
 		if (d.x+d.r+s.l < GAME.rect.l ||
@@ -660,6 +658,7 @@ SPRITE.newCls('Base', {
 	init: function(d, e) {
 		this.rect = { l:0, t:0, r:0, b:0 };
 		this.state = UTIL.newAliveState(this.states);
+		this.anim = newAnimateList();
 		this.data = extend({
 			r: 10,
 			x: (GAME.rect.l+GAME.rect.r)/2,
@@ -671,8 +670,6 @@ SPRITE.newCls('Base', {
 
 			color: undefined,
 			frame: undefined, // i.e. {res:'player0L', sx:0, sy:0, sw:10, sh:10, w:10, h:10}
-
-			ticks: [], // arrays of { t:newTicker(150), f:fn, d:{} }
 		}, d, e);
 	},
 }, function(d, c) {
@@ -731,12 +728,10 @@ SPRITE.newCls('Player', {
 			STORY.on(STORY.events.PLAYER_DEAD, this);
 		}
 
+		this.anim.run(dt, this);
+
 		if (!s.d.dying)
 			this.update(dt, d, s);
-
-		ieach(d.ticks, function(i, v, t) {
-			if (v.t.run(dt)) v.run(t, v.d);
-		}, this);
 
 		// limit player move inside boundary
 		if (d.x-d.r < GAME.rect.l)
@@ -827,6 +822,23 @@ SPRITE.newCls('Player', {
 	init: function(d, e) {
 		this.rect = { l:0, t:0, r:0, b:0 };
 		this.state = UTIL.newAliveState(this.states);
+
+		this.anim = newAnimateList();
+		this.anim.add(UTIL.newFrameGroupAnim(120, [
+			this.frames0,
+			this.framesL,
+			this.framesR
+		], function(v, d, fgs) {
+			if (v.data.vx == 0)
+				return fgs[0];
+			var fs = fgs[v.data.vx < 0 ? 1 : 2];
+			if (d.frames != fs)
+				d.index = 0;
+			if (d.index + 1 > fs.length - 1)
+				d.index = 2;
+			return fs;
+		})),
+			
 		this.data = extend({
 			r: 15,
 			h: 3,
@@ -839,23 +851,6 @@ SPRITE.newCls('Player', {
 			y0: 0,
 
 			firetick: newTicker(180),
-
-			ticks: [
-				UTIL.newFrameGroupTick(120, [
-					this.frames0,
-					this.framesL,
-					this.framesR
-				], function(v, d, fgs) {
-					if (v.data.vx == 0)
-						return fgs[0];
-					var fs = fgs[v.data.vx < 0 ? 1 : 2];
-					if (d.frames != fs)
-						d.index = 0;
-					if (d.index + 1 > fs.length - 1)
-						d.index = 2;
-					return fs;
-				}),
-			]
 		}, d, e);
 		this.data.conf = extend({
 			key_left: 37,
@@ -1177,7 +1172,7 @@ function newBullet(v) {
 	});
 }
 function newDannmaku(v, type) {
-	STORY.timeout(function (tc, ts) {
+	STORY.timeout(function (ts) {
 		if (!this.isAlive || !this.state.d.living)
 			return;
 		var e = this.data,
@@ -1212,10 +1207,8 @@ function newEnemy(type) {
 		vx: random(-0.05, 0.05),
 		vy: random(0.01, 0.1),
 		r: 16,
-		ticks: [
-			UTIL.newFrameTick(150, fs)
-		]
 	});
+	v.anim.add(UTIL.newFrameAnim(150, fs));
 	STORY.timeout(function() {
 		newDannmaku(this, type);
 	}, 1000, v);
@@ -1231,11 +1224,9 @@ function newBoss() {
 	var boss = SPRITE.newObj('Enemy', {
 		r: 24,
 		life: 300,
-		ticks: [
-			UTIL.newFrameTick(150, fs),
-			UTIL.newPathTick(30, ps)
-		]
 	});
+	boss.anim.add(UTIL.newFrameAnim(150, fs));
+	boss.anim.add(UTIL.newPathAnim(30, ps));
 	boss.drawOld = boss.drawStatic;
 	boss.drawStatic = function(d) {
 		boss.drawOld(d);
@@ -1256,10 +1247,8 @@ function newEffect(v) {
 		y: d.y,
 		vx: d.vx*=0.1,
 		vy: d.vy*=0.1,
-		ticks: [
-			UTIL.newFrameTick(50, fs),
-		]
 	});
+	eff.anim.add(UTIL.newFrameAnim(50, fs));
 	eff.state = UTIL.newAliveState([
 		{ creating: 1, life: 100, next:  1 },
 		{ living:   1, life: 50, next:  2 },
@@ -1373,7 +1362,7 @@ tl.init = {
 tl.sec0 = {
 	run: UTIL.newTimeRunner(20000, 'sec1'),
 	init: function(d) {
-		STORY.timeout(function(c, n) {
+		STORY.timeout(function(n) {
 			newBall(n > 10 ? 0.05 : 0.25, n > 10 ? 0.6 : 0.2);
 		}, 20, null, 60);
 	},
@@ -1391,7 +1380,7 @@ tl.sec0 = {
 };
 tl.sec1 = {
 	init: function(d) {
-		STORY.timeout(function(c, n) {
+		STORY.timeout(function(n) {
 			if (n < 5) newEnemy(tl.loop || 0);
 		}, 300, null, 8);
 	},
