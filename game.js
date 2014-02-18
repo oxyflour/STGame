@@ -318,7 +318,12 @@ var STORY = (function() {
 	_t.hook = {};
 	_t.load = function(tl, hook) {
 		_t.state = newStateMachine(tl);
-		_t.hook = hook;
+		_t.hook = extend({
+			before_run: undefined,
+			after_run: undefined,
+			before_on: undefined,
+			after_on: undefined,
+		}, hook);
 	}
 
 	var timeouts = [], timeoffs = [];
@@ -537,6 +542,7 @@ var UTIL = {
 
 SPRITE.newCls('Static', {
 	layer: 'L10',
+	runStatic: undefined,
 	run: function(dt) {
 		var d = this.data, s = this.state;
 
@@ -547,6 +553,7 @@ SPRITE.newCls('Static', {
 		if (this.runStatic)
 			this.runStatic(dt, d, s);
 	},
+	drawStatic: undefined,
 	draw: function() {
 		var d = this.data, s = this.state;
 		DC.save();
@@ -581,6 +588,7 @@ SPRITE.newCls('Static', {
 });
 
 SPRITE.newCls('Base', {
+	runBase: undefined,
 	runStatic: function(dt, d, s) {
 		d.x0 = d.x;
 		d.y0 = d.y;
@@ -589,7 +597,7 @@ SPRITE.newCls('Base', {
 		if (this.runBase)
 			this.runBase(dt, d, s);
 
-		if (d.ticks) ieach(d.ticks, function(i, v, d) {
+		ieach(d.ticks, function(i, v, d) {
 			if (v.t.run(dt)) v.f(d, v.d);
 		}, this);
 
@@ -711,7 +719,7 @@ SPRITE.newCls('Player', {
 			STORY.on(STORY.events.PLAYER_DEAD, this);
 		}
 
-		if (d.ticks) ieach(d.ticks, function(i, v, d) {
+		ieach(d.ticks, function(i, v, d) {
 			if (v.t.run(dt)) v.f(d, v.d);
 		}, this);
 
@@ -734,10 +742,10 @@ SPRITE.newCls('Player', {
 		this.rect.b = d.y + d.r*1.1;
 	},
 	draw: function() {
-		var d = this.data, s = this.state;
+		var d = this.data;
 		DC.save();
 
-		if (s.d.isInvinc) {
+		if (this.state.d.isInvinc) {
 			DC.globalAlpha = 0.5;
 		}
 
