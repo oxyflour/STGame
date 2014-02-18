@@ -232,14 +232,18 @@ var SPRITE = (function() {
 		cls: {},
 		obj: {},
 		init: {},
-		sort: []
+		sort: [],
+		clsIds: {},
 	};
 	_t.newCls = function(c, cls, init, from) {
 		if (from) {
 			cls.from = _t.cls[from];
 			cls = extend({}, cls.from, cls)
 		}
-		cls.cls = c;
+		if (!(_t.clsIds[c] >= 0))
+			_t.clsIds[c] = _t.sort.length;
+		cls.clsName = c;
+		cls.clsId = _t.clsIds[c];
 		init.prototype = cls;
 
 		_t.cls[c] = cls;
@@ -248,7 +252,7 @@ var SPRITE = (function() {
 			_t.obj[c] = [];
 
 		_t.sort = keach(_t.cls, function(k, v, d) {
-			d.push([v.layer || v.cls, v.cls]);
+			d.push([v.layer || v.clsName, v.clsName]);
 		}, []).sort();
 		return cls;
 	};
@@ -398,7 +402,7 @@ var GAME = (function() {
 	};
 	_t.init = function(tl) {
 		STORY.load(tl, tl.all);
-		STORY.state.set('diag');
+		STORY.state.set('init');
 		// start the game!
 		_t.state = _t.states.RUNNING;
 	};
@@ -689,7 +693,7 @@ SPRITE.newCls('Player', {
 				STORY.on(STORY.events.PLAYER_GRAZE, this);
 			}
 		}
-		else if (v.cls == 'Drop') {
+		else if (v.clsId == SPRITE.clsIds.Drop) {
 			if (v.state.d.living && circle_intersect(d, {x: e.x, y: e.y, r: e.h})) {
 				v.state.setWith('dying');
 				STORY.on(STORY.events.PLAYER_GETDROP, this);
@@ -698,7 +702,7 @@ SPRITE.newCls('Player', {
 			else
 				e.collected = this;
 		}
-		else if (v.cls == 'Player') {
+		else if (v.clsId == SPRITE.clsIds.Player) {
 			if (circle_intersect(d, e)) {
 				var r = sqrt_sum(d.x - e.x, d.y - e.y),
 					sin = (d.y - e.y) / r,
@@ -1372,7 +1376,7 @@ tl.sec0 = {
 	},
 	on: function(e, v, d) {
 		if (e == STORY.events.OBJECT_OUT) {
-			if (v.cls == 'Ball') {
+			if (v.clsId == SPRITE.clsIds.Ball) {
 				var fy = random(0.2, 0.6);
 				newBall(0.6-fy, fy);
 			}
@@ -1424,7 +1428,7 @@ tl.sec1 = {
 			}, 100, d);
 		}
 		else if (e == STORY.events.OBJECT_OUT) {
-			if (v.cls == 'Enemy' && !v.state.d.dying)
+			if (v.clsId == SPRITE.clsIds.Enemy && !v.state.d.dying)
 				newEnemy(tl.loop);
 		}
 	}
