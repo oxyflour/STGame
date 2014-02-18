@@ -158,11 +158,12 @@ function newAnimateList() {
 	};
 	return _t;
 }
-function newStateMachine(tl) {
+function newStateMachine(stes) {
 	var _t = {
 		n: undefined,
 		s: undefined, // object like { run:fn(dt,d), [init:fn(d)], [quit:fn(d,n)] }
 		d: {},
+		stes: stes,
 		run: function(dt) {
 			if (_t.s) {
 				var n = _t.s.run(dt, _t.d);
@@ -173,7 +174,7 @@ function newStateMachine(tl) {
 			_t.n = n;
 			if (_t.s && _t.s.quit)
 				_t.s.quit(_t.d, n)
-			_t.s = tl[n];
+			_t.s = _t.stes[n];
 			_t.d = _t.s && _t.s.data || {};
 			if (_t.s && _t.s.init)
 				_t.s.init(_t.d);
@@ -470,6 +471,7 @@ var UTIL = {
 			},
 		}
 	},
+	// fgs: array of fs in newFrameAnim
 	newFrameGroupAnim: function(t, fgs, fn) {
 		return {
 			t: newTicker(t),
@@ -495,30 +497,29 @@ var UTIL = {
 				index: 0
 			},
 			f: function(d, v) {
-				var t = v.data,
+				var e = v.data,
 					n = d.pathnodes[d.index];
-				if (n) {
-					if (+n.fx === n.fx)
-						n.x = GAME.rect.l * (1-n.fx) + GAME.rect.r * n.fx;
-					if (+n.fy === n.fy)
-						n.y = GAME.rect.t * (1-n.fy) + GAME.rect.b * n.fy;
-					if (d.index == 0) {
-						t.x = n.x;
-						t.y = n.y;
+				if (!n) return true;
+
+				if (+n.fx === n.fx)
+					n.x = GAME.rect.l * (1-n.fx) + GAME.rect.r * n.fx;
+				if (+n.fy === n.fy)
+					n.y = GAME.rect.t * (1-n.fy) + GAME.rect.b * n.fy;
+
+				if (d.index == 0) {
+					e.x = n.x;
+					e.y = n.y;
+					d.index ++;
+				} else {
+					var dx = n.x - e.x,
+						dy = n.y - e.y,
+						r = sqrt_sum(dx, dy),
+						f = n.v / r;
+					e.x = e.x * (1-f) + n.x * f;
+					e.y = e.y * (1-f) + n.y * f;
+					if (f >= 1) // to next node
 						d.index ++;
-					} else {
-						var dx = n.x - t.x,
-							dy = n.y - t.y,
-							r = sqrt_sum(dx, dy),
-							f = n.v / r;
-						t.x = t.x * (1-f) + n.x * f;
-						t.y = t.y * (1-f) + n.y * f;
-						if (f >= 1) // to next node
-							d.index ++;
-					}
 				}
-				else
-					return true;
 			},
 		}
 	},
@@ -528,6 +529,8 @@ var UTIL = {
 			if (d.age > t) return n;
 		}
 	},
+	// stes: array of objects like
+	// { life:1000, [next:1] }
 	newAliveState: function(stes) {
 		function init(d) {
 			d.age = 0;
@@ -540,12 +543,13 @@ var UTIL = {
 		stes = ieach(stes, function(k, v, d) {
 			d[k] = { run:run, init:init, data:extend({}, v) }
 		}, []);
+
 		var s = newStateMachine(stes);
 		s.setWith = function(k) {
-			var i = ieach(stes, function(i, v, d) {
+			var i = ieach(s.stes, function(i, v, d) {
 				if (v.data[k]) return i;
 			});
-			this.set(i);
+			s.set(i);
 		}
 		s.set(0);
 		return s;
