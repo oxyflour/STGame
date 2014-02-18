@@ -668,11 +668,10 @@ SPRITE.newCls('Player', {
 		'Drop',
 	],
 	hit: function(v) {
-		var d = this.data, s = this.state,
-			e = v.data, k = v.state;
-		if (k.d.mkDamage) {
-			if (!s.d.isInvinc && circle_intersect({x: d.x, y: d.y, r: d.h}, e)) {
-				k.setWith('dying');
+		var d = this.data,
+			e = v.data;
+		if (v.state.d.mkDamage) {
+			if (!this.state.d.isInvinc && circle_intersect({x: d.x, y: d.y, r: d.h}, e)) {
 				STORY.on(STORY.events.PLAYER_HIT, this);
 			}
 			else if (circle_intersect(d, e) && !e.grazed) {
@@ -681,8 +680,8 @@ SPRITE.newCls('Player', {
 			}
 		}
 		else if (v.cls == 'Drop') {
-			if (k.d.living && circle_intersect(d, {x: e.x, y: e.y, r: e.h})) {
-				k.setWith('dying');
+			if (v.state.d.living && circle_intersect(d, {x: e.x, y: e.y, r: e.h})) {
+				v.state.setWith('dying');
 				STORY.on(STORY.events.PLAYER_GETDROP, this);
 				STORY.on(STORY.events.DROP_COLLECTED, v);
 			}
