@@ -601,10 +601,10 @@ SPRITE.newCls('Base', {
 	runStatic: function(dt, d, s) {
 		d.x0 = d.x;
 		d.y0 = d.y;
-		d.x += d.vx * dt;
-		d.y += d.vy * dt;
 		if (this.runBase)
 			this.runBase(dt, d, s);
+		d.x += d.vx * dt;
+		d.y += d.vy * dt;
 
 		ieach(d.ticks, function(i, v, t) {
 			if (v.t.run(dt)) v.run(t, v.d);
@@ -728,12 +728,12 @@ SPRITE.newCls('Player', {
 			STORY.on(STORY.events.PLAYER_DEAD, this);
 		}
 
+		if (!s.d.dying)
+			this.update(dt, d, s);
+
 		ieach(d.ticks, function(i, v, t) {
 			if (v.t.run(dt)) v.run(t, v.d);
 		}, this);
-
-		if (!s.d.dying)
-			this.update(dt, d, s);
 
 		// limit player move inside boundary
 		if (d.x-d.r < GAME.rect.l)
