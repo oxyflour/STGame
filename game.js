@@ -398,7 +398,9 @@ var GAME = (function() {
 	};
 	_t.init = function(tl) {
 		STORY.load(tl, tl.all);
-		STORY.state.set('init');
+		STORY.state.set('diag');
+		// start the game!
+		_t.state = _t.states.RUNNING;
 	};
 	_t.run = function(dt) {
 		SPRITE.eachCls(function(c1) {
@@ -1336,8 +1338,6 @@ tl.init = {
 	run: UTIL.newTimeRunner(5000, 'sec0'),
 	init: function(d) {
 		SPRITE.clearObj();
-		// start the game!
-		GAME.state = GAME.states.RUNNING;
 		/*
 		SPRITE.newObj('Player', {
 			x: 100,
