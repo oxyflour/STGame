@@ -372,8 +372,7 @@ var GAME = (function() {
 			SPRITE.eachObj(function(v2) {
 				if (c1 == c2 && v2.idx >= v1.idx)
 					return;
-				if (v1.rect && v2.rect &&
-						rect_intersect(v1.rect, v2.rect))
+				if (rect_intersect(v1.rect, v2.rect))
 					v1.hit(v2, dt)
 			}, c2);
 		}, c1);
@@ -603,7 +602,6 @@ SPRITE.newCls('Base', {
 			STORY.on(STORY.events.OBJECT_OUT, this);
 		}
 
-		if (!this.rect) this.rect = {};
 		this.rect.l = Math.min(d.x0, d.x) - d.r*1.1;
 		this.rect.t = Math.min(d.y0, d.y) - d.r*1.1;
 		this.rect.r = Math.max(d.x0, d.x) + d.r*1.1;
@@ -640,6 +638,7 @@ SPRITE.newCls('Base', {
 		b: 20
 	},
 	init: function(d, e) {
+		this.rect = { l:0, t:0, r:0, b:0 };
 		this.state = UTIL.newAliveSM(this.states);
 		this.data = extend({
 			r: 10,
@@ -730,7 +729,6 @@ SPRITE.newCls('Player', {
 		if (d.y+d.r > GAME.rect.b)
 			d.y = GAME.rect.b - d.r;
 
-		if (!this.rect) this.rect = {};
 		this.rect.l = d.x - d.r*1.1;
 		this.rect.t = d.y - d.r*1.1;
 		this.rect.r = d.x + d.r*1.1;
@@ -808,6 +806,7 @@ SPRITE.newCls('Player', {
 		}
 	},
 	init: function(d, e) {
+		this.rect = { l:0, t:0, r:0, b:0 };
 		this.state = UTIL.newAliveSM(this.states);
 		this.data = extend({
 			r: 15,
@@ -1424,7 +1423,7 @@ tl.sec1 = {
 	}
 };
 ieach([
-	{ t:'x0aabbcc', x:GAME.rect.l+50, y:GAME.rect.t*0.2+GAME.rect.b*0.8, name:'diag' },
+	{ t:'x0aabbcc', x:GAME.rect.l+50, y:GAME.rect.t*0.2+GAME.rect.b*0.8 },
 	{ t:'y0aabbcc', x:GAME.rect.r-50, y:GAME.rect.t*0.2+GAME.rect.b*0.8 },
 	{ t:'x0aabbcc', x:GAME.rect.l+50, y:GAME.rect.t*0.2+GAME.rect.b*0.8 },
 	{ t:'y0aabbcc', x:GAME.rect.r-50, y:GAME.rect.t*0.2+GAME.rect.b*0.8 },
