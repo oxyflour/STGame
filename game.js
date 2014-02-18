@@ -1459,8 +1459,12 @@ ieach([
 		},
 		on: function(e, v, d) {
 			if (e == STORY.events.GAME_INPUT) {
-				if (v.type == 'keydown' && v.which == GAME.keychars.Z)
-					d.pass = true;
+				if (v.which == GAME.keychars.Z) {
+					if (v.type == 'keydown')
+						d.pass = 0;
+					else if (v.type == 'keyup' && d.pass === 0)
+						d.pass = 1;
+				}
 			}
 		},
 	}
