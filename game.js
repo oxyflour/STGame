@@ -144,9 +144,8 @@ function newTicker(t) {
 }
 function newAnimateList() {
 	var _t = [], unused = [];
-	_t.add = function(t, f, d, n) {
-		var i = unused.length ? unused.pop() : _t.length;
-		_t[i] = { t:newTicker(t), f:f, d:d };
+	_t.add = function(a) {
+		_t[unused.length ? unused.pop() : _t.length] = a;
 	};
 	_t.run = function(dt) {
 		ieach(_t, function(i, v) {
@@ -156,6 +155,9 @@ function newAnimateList() {
 			}
 		});
 	};
+	ieach(arguments, function(i, v) {
+		_t.add(v);
+	});
 	return _t;
 }
 function newStateMachine(tl) {
@@ -346,10 +348,14 @@ var STORY = (function() {
 	}
 	_t.timeout = function(f, t, d, n) {
 		n = n || 0;
-		_t.anim.add(t, function(dt, d) {
-			f.apply(d, [t, n]);
-			return n-- <= 0;
-		}, d);
+		_t.anim.add({
+			d: d,
+			t: newTicker(t),
+			f: function(dt, d) {
+				f.apply(d, [t, n]);
+				return n-- <= 0;
+			},
+		});
 	}
 	_t.run = function(dt) {
 		if (_t.hook.before_run)
