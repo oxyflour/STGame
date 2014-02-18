@@ -1040,8 +1040,8 @@ SPRITE.newCls('Dannmaku', {
 			}
 		}
 		else if (d.type == 2) {
-			if (Math.abs(d.vx) > 0.03) d.vx *= 0.992;
-			if (Math.abs(d.vy) > 0.03) d.vy *= 0.992;
+			if (Math.abs(d.vx) > 0.02) d.vx *= 0.992;
+			if (Math.abs(d.vy) > 0.02) d.vy *= 0.992;
 		}
 		else if (d.type == 3) {
 			if (this.state.d.age < 1000) {
@@ -1204,7 +1204,7 @@ function newDannmaku(v, type) {
 			from: this,
 			type: type
 		});
-	}, 20, v, 80);
+	}, 20, v, 60);
 }
 function newEnemy(type) {
 	var bx = randin([0, 1]) * 32*4,
@@ -1400,7 +1400,7 @@ tl.sec0 = {
 tl.sec1 = {
 	init: function(d) {
 		STORY.timeout(function(n) {
-			if (n < 5) newEnemy(tl.loop || 0);
+			if (n < 3) newEnemy(tl.loop || 0);
 		}, 300, null, 8);
 	},
 	run: function(dt, d) {
