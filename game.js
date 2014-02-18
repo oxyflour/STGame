@@ -13,8 +13,8 @@ function range(n) {
 	});
 }
 function ieach(ls, fn, d) {
-	var r = undefined;
-	for (var i = 0, n = ls.length; i < n && r === undefined; i ++) {
+	var n = ls.length, r = undefined;
+	for (var i = 0; i < n && r === undefined; i ++) {
 		r = fn(i, ls[i], d);
 	}
 	return r === undefined ? d : r;
@@ -140,6 +140,22 @@ function newTicker(t) {
 			}
 		}
 	}
+	return _t;
+}
+function newAnimateList() {
+	var _t = [], unused = [];
+	_t.add = function(t, f, d, n) {
+		var i = unused.length ? unused.pop() : _t.length;
+		_t[i] = { t:newTicker(t), f:f, d:d };
+	};
+	_t.run = function(dt) {
+		ieach(_t, function(i, v) {
+			if (v && v.t.run(dt) && v.f(dt, v.d)) {
+				_t[i] = undefined;
+				unused.push(i);
+			}
+		});
+	};
 	return _t;
 }
 function newStateMachine(tl) {
@@ -318,10 +334,9 @@ var STORY = (function() {
 		'BULLET_HIT',
 		'ENEMY_KILL'
 	]);
-	_t.state = {};
-	_t.hook = {};
 	_t.load = function(tl, hook) {
 		_t.state = newStateMachine(tl);
+		_t.anim = newAnimateList();
 		_t.hook = extend({
 			before_run: undefined,
 			after_run: undefined,
@@ -329,13 +344,13 @@ var STORY = (function() {
 			after_on: undefined,
 		}, hook);
 	}
-
-	var timeouts = [], timeoffs = [];
-	_t.timeout = function(fn, t, d, n) {
-		var id = timeoffs.length ? timeoffs.pop() : timeouts.length;
-		timeouts[id] = {f:fn, t:t, c:0, d:d, n:n};
-		return id;
-	};
+	_t.timeout = function(f, t, d, n) {
+		n = n || 0;
+		_t.anim.add(t, function(dt, d) {
+			f.apply(d, [t, n]);
+			return n-- <= 0;
+		}, d);
+	}
 	_t.run = function(dt) {
 		if (_t.hook.before_run)
 			_t.hook.before_run(dt, _t.state.d, _t.state.s);
@@ -343,25 +358,7 @@ var STORY = (function() {
 		if (_t.hook.after_run)
 			_t.hook.after_run(dt, _t.state.d, _t.state.s);
 
-		ieach(timeouts, function(i, v) {
-			if (!v) return;
-			v.c += dt;
-			if (v.c >= v.t) {
-				if (v.n !== 0) // do at least once
-					v.f.apply(v.d, [v.c, v.n]);
-				if (v.n > 0) {
-					v.c = 0;
-					v.n --;
-				}
-				else if (v.n && v.n.apply(v.d)) {
-					v.c = 0;
-				}
-				else {
-					timeouts[i] = undefined;
-					timeoffs.push(i);
-				}
-			}
-		});
+		_t.anim.run(dt);
 	};
 	_t.on = function(e, v) {
 		var sm = _t.state;
