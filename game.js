@@ -433,6 +433,9 @@ var GAME = (function() {
 		_t.keyste.shiftKey = e.shiftKey;
 		_t.keyste.ctrlKey = e.ctrlKey;
 		if (e.type == 'keydown') {
+			// to supress repeated keydown event
+			if (_t.keyste[e.which])
+				return;
 			_t.keyste[e.which] = 1;
 		}
 		else if (e.type == 'keyup') {
