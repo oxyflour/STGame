@@ -1263,8 +1263,8 @@ function newEffect(v) {
 		{ dying:    1, life: 850 },
 	]);
 }
-function killObj(ls) {
-	ieach(ls, function(i, c) {
+function killObj() {
+	ieach(arguments, function(i, c) {
 		SPRITE.eachObj(function(v) {
 			if (!v.state.d.dying)
 				v.state.setWith('dying');
@@ -1305,7 +1305,7 @@ tl.all = {
 			v.state.setWith('juesi');
 			/*
 			STORY.timeout(function() {
-				killObj(['Dannmaku']);
+				killObj('Dannmaku');
 			}, 10, null, 80);
 			*/
 			STORY.timeout(function() {
@@ -1375,7 +1375,7 @@ tl.sec0 = {
 		}, 20, null, 60);
 	},
 	quit: function(d) {
-		killObj(['Ball']);
+		killObj('Ball');
 	},
 	on: function(e, v, d) {
 		if (e == STORY.events.OBJECT_OUT) {
@@ -1471,7 +1471,7 @@ ieach([
 }, tl);
 tl.boss = {
 	init: function(d) {
-		killObj(['Static', 'Enemy', 'Dannmaku']);
+		killObj('Static', 'Enemy', 'Dannmaku');
 		STORY.timeout(function() {
 			newBoss();
 		}, 1000);
