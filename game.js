@@ -459,28 +459,28 @@ var UTIL = {
 	newFrameTick: function(t, fs) {
 		return {
 			t: newTicker(t),
-			f: function(v, d) {
-				d.index = (d.index + 1) % d.frames.length;
-				v.data.frame = d.frames[d.index];
-			},
 			d: {
 				frames: fs,
 				index: 0
-			}
+			},
+			run: function(v, d) {
+				d.index = (d.index + 1) % d.frames.length;
+				v.data.frame = d.frames[d.index];
+			},
 		}
 	},
 	newFrameGroupTick: function(t, fgs, fn) {
 		return {
 			t: newTicker(t),
-			f: function(v, d) {
+			d: {
+				frames: fgs[0],
+				index: 0
+			},
+			run: function(v, d) {
 				d.frames = fn(v, d, fgs);
 				d.index = (d.index + 1) % d.frames.length;
 				v.data.frame = d.frames[d.index];
 			},
-			d: {
-				frames: fgs[0],
-				index: 0
-			}
 		}
 	},
 	// ps should be array of objects like
@@ -489,7 +489,11 @@ var UTIL = {
 	newPathTick: function(t, ps) {
 		return {
 			t: newTicker(t),
-			f: function(v, d) {
+			d: {
+				pathnodes: ps,
+				index: 0
+			},
+			run: function(v, d) {
 				var t = v.data,
 					n = d.pathnodes[d.index];
 				if (n) {
@@ -513,10 +517,6 @@ var UTIL = {
 					}
 				}
 			},
-			d: {
-				pathnodes: ps,
-				index: 0
-			}
 		}
 	},
 	newTimeRunner: function(t, n) {
@@ -606,8 +606,8 @@ SPRITE.newCls('Base', {
 		if (this.runBase)
 			this.runBase(dt, d, s);
 
-		ieach(d.ticks, function(i, v, d) {
-			if (v.t.run(dt)) v.f(d, v.d);
+		ieach(d.ticks, function(i, v, t) {
+			if (v.t.run(dt)) v.run(t, v.d);
 		}, this);
 
 		var s = this.space;
@@ -728,8 +728,8 @@ SPRITE.newCls('Player', {
 			STORY.on(STORY.events.PLAYER_DEAD, this);
 		}
 
-		ieach(d.ticks, function(i, v, d) {
-			if (v.t.run(dt)) v.f(d, v.d);
+		ieach(d.ticks, function(i, v, t) {
+			if (v.t.run(dt)) v.run(t, v.d);
 		}, this);
 
 		if (!s.d.dying)
