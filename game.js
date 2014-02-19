@@ -622,9 +622,11 @@ SPRITE.newCls('Static', {
 		DC.save();
 
 		if (s.d.creating)
-			DC.globalAlpha = s.d.age / s.d.life;
+			d.max_opacity = DC.globalAlpha = s.d.age / s.d.life;
 		else if (s.d.dying)
-			DC.globalAlpha = 1 - s.d.age / s.d.life;
+			DC.globalAlpha = Math.min(d.max_opacity, 1 - s.d.age / s.d.life);
+		else
+			d.max_opacity = 1;
 
 		if (this.drawStatic)
 			this.drawStatic(d, s);
