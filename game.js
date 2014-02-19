@@ -800,7 +800,7 @@ SPRITE.newCls('Player', {
 		var d = this.data,
 			e = v.data;
 		if (v.state.d.mkDamage) {
-			if (!this.state.d.isInvinc && circle_intersect({x: d.x, y: d.y, r: d.h}, e)) {
+			if (!this.state.d.isInvinc && circle_intersect({ x:d.x, y:d.y, r:d.h }, e)) {
 				STORY.on(STORY.events.PLAYER_HIT, this);
 			}
 			else if (circle_intersect(d, e) && !e.grazed) {
@@ -809,7 +809,7 @@ SPRITE.newCls('Player', {
 			}
 		}
 		else if (v.clsId == SPRITE.clsIds.Drop) {
-			if (v.state.d.living && circle_intersect(d, {x: e.x, y: e.y, r: e.h})) {
+			if (v.state.d.living && circle_intersect(d, { x:e.x, y:e.y, r:20 })) {
 				STORY.on(STORY.events.PLAYER_GETDROP, this);
 				STORY.on(STORY.events.DROP_COLLECTED, v);
 			}
