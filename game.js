@@ -113,13 +113,10 @@ function $attr(e, a) {
 	return attr && attr.textContent;
 }
 
-function getTick() {
-	return (new Date()).getTime();
-}
 function newCounter() {
-	var t0 = getTick();
+	var t0 = Date.now();
 	return function() {
-		var t = getTick(),
+		var t = Date.now(),
 			dt = t - t0;
 		t0 = t;
 		return dt;
