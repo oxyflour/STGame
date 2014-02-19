@@ -335,6 +335,7 @@ var STORY = (function() {
 		'BULLET_HIT',
 		'ENEMY_KILL'
 	]);
+	_t.state = _t.anim = _t.hook = {};
 	_t.load = function(tl, hook) {
 		_t.state = newStateMachine(tl);
 		_t.state.set('init');
@@ -556,6 +557,51 @@ var UTIL = {
 		return s;
 	},
 };
+
+(function() {
+	var timeCounter = newCounter();
+	var tick = function() {
+		var dt = timeCounter();
+		if (GAME.state == GAME.states.RUNNING)
+			GAME.run(Math.min(dt, 15));
+	}
+	setInterval(tick, 10);
+
+	GAME.fps = 0;
+	var fpsCounter = newFPSCounter();
+	requestAnimationFrame(function render(t) {
+		GAME.fps = fpsCounter(t);
+		GAME.draw();
+		requestAnimationFrame(render);
+	});
+
+	setInterval(function() {
+		var fns = {
+			'ui-bind': function(e, t) {
+				return Function(($attr(e, 'ui-bind-attr') || 'this.innerHTML')+'='+t);
+			},
+			'ui-show': function(e, t) {
+				return Function('this.style.display=('+t+')?"block":"none"');
+			}
+		};
+		ieach($('.ui'), function(i, e) {
+			ieach(e.attributes, function(i, attr) {
+				var n = attr.name,
+					t = attr.textContent,
+					k = 'exec:'+n+':'+t,
+					f = fns[attr.name];
+				if (f) (e[k] = e[k] || f(e, t)).apply(e);
+			});
+		});
+	}, 80);
+	
+	ieach(['keydown', 'keyup'], function(i, v) {
+		window.addEventListener(v, function(e) {
+			GAME.input(e);
+			tick();
+		});
+	});
+})();
 
 SPRITE.newCls('Static', {
 	layer: 'L10',
@@ -1075,52 +1121,6 @@ SPRITE.newCls('Dannmaku', {
 	}, d);
 }, 'Base');
 
-document.addEventListener('res.loaded', function(e) {
-	var timeCounter = newCounter();
-	setInterval(function tick() {
-		var dt = timeCounter();
-		if (GAME.state == GAME.states.RUNNING)
-			GAME.run(Math.min(dt, 15));
-	}, 10);
-
-	var fpsCounter = newFPSCounter();
-	requestAnimationFrame(function render(t) {
-		GAME.fps = fpsCounter(t);
-		GAME.draw();
-		requestAnimationFrame(render);
-	});
-
-	var input = function(e) {
-		GAME.input(e);
-		tick();
-	}
-	window.addEventListener('keydown', input);
-	window.addEventListener('keyup', input);
-
-	GAME.init(tl);
-});
-
-setInterval(function() {
-	var fns = {
-		'ui-bind': function(e, t) {
-			return Function(($attr(e, 'ui-bind-attr') || 'this.innerHTML')+'='+t);
-		},
-		'ui-show': function(e, t) {
-			return Function('this.style.display=('+t+')?"block":"none"');
-		}
-	};
-	ieach($('.ui'), function(i, e) {
-		ieach(e.attributes, function(i, attr) {
-			var n = attr.name,
-				t = attr.textContent,
-				k = 'exec:'+n+':'+t,
-				f = fns[attr.name];
-			if (f) (e[k] = e[k] || f(e, t)).apply(e);
-		});
-	});
-}, 80);
-
-
 // for test only
 function newBall(v, fy) {
 	var t = random(-0.6, 0.6) * Math.PI / 2,
@@ -1516,3 +1516,7 @@ tl.end = {
 	run: function(dt, d) {
 	}
 };
+
+document.addEventListener('res.loaded', function(e) {
+	GAME.init(tl);
+});
