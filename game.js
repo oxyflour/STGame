@@ -358,7 +358,6 @@ var STORY = (function() {
 	_t.state = _t.anim = _t.hook = {};
 	_t.load = function(tl, hook) {
 		_t.state = newStateMachine(tl);
-		_t.state.set('init');
 		_t.anim = newAnimateList();
 		_t.hook = extend({
 			before_run: undefined,
@@ -428,6 +427,7 @@ var GAME = (function() {
 	_t.init = function(tl) {
 		STORY.load(tl, tl.all);
 		// start the game!
+		STORY.state.set('init');
 		_t.state = _t.states.RUNNING;
 	};
 	_t.run = function(dt) {
