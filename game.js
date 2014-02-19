@@ -307,22 +307,23 @@ var SPRITE = (function() {
 		return obj;
 	};
 	_t.eachCls = function(fn) {
-		ieach(_t.sort, function(i, v) {
-			fn(v[1]);
-		});
+		for (var ls =_t.sort, i = 0, n = ls.length; i < n; i ++)
+			fn(ls[i][1]);
 	};
 	_t.eachObj = function(fn, c) {
 		function loopAlive(c) {
-			var n = 0,
-				ls = _t.obj[c];
-			ieach(ls, function(i, v) {
-				if (!v.isAlive)
-					return;
-				fn(v);
-				n ++;
-			});
+			var ls = _t.obj[c],
+				n = ls.length,
+				a = 0;
+			for (var i = 0; i < n; i ++) {
+				var v = ls[i];
+				if (v.isAlive) {
+					fn(v);
+					a ++;
+				}
+			}
 			// no one alive? clear the array then
-			if (n == 0 && ls.length)
+			if (a == 0 && n > 0)
 				_t.obj[c] = [];
 		}
 		if (c)
