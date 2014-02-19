@@ -93,6 +93,14 @@ function circle_intersect(cr1, cr2) {
 	return squa_sum(cr1.x - cr2.x, cr1.y - cr2.y) < 
 		squa_sum(cr1.r + cr2.r, 0)
 }
+function line_circle_intersect(x1, y1, x2, y2, cr) {
+	var dx = x2 - x1, dy = y2 - y1,
+		dx1 = cr.x - x1, dy1 = cr.y - y1, t1 = dx1*dx + dy1*dy,
+		dx2 = cr.x - y2, dy2 = cr.y - y2, t2 = dx2*dx + dy2*dy;
+	return (t1 > 0 && t2 < 0 && squa_sum(dy*dx1 - dx*dy1, 0) / squa_sum(dx, dy) < squa_sum(cr.r, 0)) ||
+		(t1 <= 0 && squa_sum(dx1, dy1) < squa_sum(cr.r, 0)) ||
+		(t2 >= 0 && squa_sum(dx2, dy2) < squa_sum(cr.r, 0));
+}
 
 function $(s, p) {
 	return (p || document).querySelectorAll(s);
