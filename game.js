@@ -462,12 +462,15 @@ var GAME = (function() {
 })();
 
 var UTIL = {
+	getAliveObj: function(c) {
+		return ieach(SPRITE.obj[c], function(i, v) {
+			if (v.isAlive) return v;
+		});
+	},
 	getAliveObjs: function(c) {
-		var ls = [];
-		SPRITE.eachObj(function(v) {
-			ls.push(v);
-		}, c);
-		return ls;
+		return ieach(SPRITE.obj[c], function(i, v, d) {
+			if (v.isAlive) d.push(v);
+		}, []);
 	},
 	// fs should be array of objects like
 	// { res:'', sx:0, sy:0, sw:10, sh:10, w:10, h:10, [rotate:1] }
@@ -1106,9 +1109,12 @@ SPRITE.newCls('Dannmaku', {
 				d.vy *= 0.98;
 			}
 			else {
-				var p = SPRITE.obj.Player[0].data;
-				d.vx -= 10e-7 * dt * (d.x - p.x);
-				d.vy -= 10e-7 * dt * (d.y - p.y);
+				if (!d.to || !d.to.isAlive)
+					d.to = UTIL.getAliveObj('Player');
+				if (d.to) {
+					d.vx -= 10e-7 * dt * (d.x - d.to.data.x);
+					d.vy -= 10e-7 * dt * (d.y - d.to.data.y);
+				}
 			}
 		}
 		else if (d.type == 4) {
@@ -1195,7 +1201,7 @@ function newBullet(v) {
 }
 function newDannmaku(v, type, ts) {
 	var e = v.data,
-		p = randin(UTIL.getAliveObjs('Player')).data;
+		p = UTIL.getAliveObj('Player').data;
 	var r = sqrt_sum(e.x-p.x, e.y-p.y),
 		t = Math.asin((p.x - e.x) / r),
 		n = 15, p = Math.PI*1.5,
@@ -1362,20 +1368,7 @@ tl.all = {
 tl.init = {
 	run: UTIL.newTimeRunner(5000, 'sec0'),
 	init: function(d) {
-		SPRITE.clearObj();
-		/*
-		SPRITE.newObj('Player', {
-			x: 100,
-			conf: {
-				key_up: GAME.keychars.W,
-				key_down: GAME.keychars.S,
-				key_left: GAME.keychars.A,
-				key_right: GAME.keychars.D,
-			}
-		});
-		*/
 		SPRITE.newObj('Player');
-
 		d.title = SPRITE.newObj('Static', {
 			t: 'Dannmaku Demo!',
 			font: '30px Arial'
@@ -1432,7 +1425,7 @@ tl.sec1 = {
 		}, 'Dannmaku');
 		STORY.timeout(function() {
 			STORY.on(STORY.events.PLAYER_AUTOCOLLECT,
-				randin(UTIL.getAliveObjs('Player')));
+				UTIL.getAliveObj('Player'));
 		}, 100);
 	},
 	on: function(e, v, d) {
