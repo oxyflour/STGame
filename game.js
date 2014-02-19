@@ -1482,7 +1482,7 @@ ieach([
 				return n;
 		},
 		quit: function(d) {
-			d.text.state.set('dying');
+			d.text.state.setWith('dying');
 		},
 		on: function(e, v, d) {
 			if (e == STORY.events.GAME_INPUT) {
