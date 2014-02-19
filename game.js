@@ -1048,7 +1048,8 @@ SPRITE.newCls('Bullet', {
 	this.init({
 		r: 5,
 		vy: -0.5,
-		from: null
+		from: null, // from which player
+		to: null,	// to which enemy
 	}, d);
 }, 'Base');
 
@@ -1085,6 +1086,8 @@ SPRITE.newCls('Drop', {
 		r: 60,
 		vy: -0.4,
 		h: 20, // used for player hit test
+		collected: undefined,
+		collected_auto: false,
 		frame: { res:'etama3', sx:32, sy:0, sw:16, sh:16, w:20, h:20 }
 	}, d);
 }, 'Base');
@@ -1112,7 +1115,7 @@ SPRITE.newCls('Dannmaku', {
 				d.vy *= 0.98;
 			}
 			else {
-				var p = randin(UTIL.getAliveObjs('Player')).data;
+				var p = SPRITE.obj.Player[0].data;
 				d.vx -= 10e-7 * dt * (d.x - p.x);
 				d.vy -= 10e-7 * dt * (d.y - p.y);
 			}
@@ -1134,7 +1137,8 @@ SPRITE.newCls('Dannmaku', {
 	this.init({
 		r: 5,
 		vy: 0.3,
-		from: null
+		from: null,
+		type: 0
 	}, d);
 }, 'Base');
 
@@ -1198,64 +1202,62 @@ function newBullet(v) {
 		to: e
 	});
 }
-function newDannmaku(v, type) {
-	STORY.timeout(function (ts) {
-		if (!this.isAlive || !this.state.d.living)
-			return;
-		var e = this.data,
-			p = randin(UTIL.getAliveObjs('Player')).data;
-		var r = sqrt_sum(e.x-p.x, e.y-p.y),
-			t = Math.asin((p.x - e.x) / r),
-			n = 15, p = Math.PI*1.5,
-			i = (ts % n - (n-1) / 2) * p/n,
-			c = t + i*random(0.8, 1.2),
-			dx = Math.sin(c),
-			dy = Math.cos(c);
-		SPRITE.newObj('Dannmaku', {
-			x: e.x + 20*dx,
-			y: e.y + 20*dy,
-			vx: 0.3*dx,
-			vy: 0.3*dy,
-			r: 3,
-			frame: { res:'etama3', sx:0, sy:64, sw:16, sh:16, w:16, h:16, rotate:true },
-			from: this,
-			type: type
-		});
-	}, 20, v, 60);
+function newDannmaku(v, type, ts) {
+	var e = v.data,
+		p = randin(UTIL.getAliveObjs('Player')).data;
+	var r = sqrt_sum(e.x-p.x, e.y-p.y),
+		t = Math.asin((p.x - e.x) / r),
+		n = 15, p = Math.PI*1.5,
+		i = (ts % n - (n-1) / 2) * p/n,
+		c = t + i*random(0.8, 1.2),
+		dx = Math.sin(c),
+		dy = Math.cos(c);
+	var dann = SPRITE.newObj('Dannmaku', {
+		x: e.x + 20*dx,
+		y: e.y + 20*dy,
+		vx: 0.3*dx,
+		vy: 0.3*dy,
+		r: 3,
+		frame: { res:'etama3', sx:0, sy:64, sw:16, sh:16, w:16, h:16, rotate:true },
+		from: v,
+		type: type
+	});
 }
 function newEnemy(type) {
 	var bx = randin([0, 1]) * 32*4,
 		by = randin([0, 1, 2]) * 32;
-	var fs = array(4, function(i) {
-		return extend({ res:'stg1enm', sy:by, sw:32, sh:32, w:32, h:32 }, { sx:bx+32*i });
-	});
-	var v = SPRITE.newObj('Enemy', {
+	var enm = SPRITE.newObj('Enemy', {
 		x: random(GAME.rect.l+100, GAME.rect.r-100),
 		vx: random(-0.05, 0.05),
 		vy: random(0.01, 0.1),
 		r: 16,
 	});
-	v.anim.add(UTIL.newFrameAnim(150, fs));
+	enm.anim.add(UTIL.newFrameAnim(150, array(4, function(i) {
+		return extend({ res:'stg1enm', sy:by, sw:32, sh:32, w:32, h:32 }, { sx:bx+32*i });
+	})));
 	STORY.timeout(function() {
-		newDannmaku(this, type);
-	}, 1000, v);
+		STORY.timeout(function(n) {
+			if (enm.isAlive && enm.state.d.living)
+				newDannmaku(enm, type, n);
+		}, 20, null, 60);
+	}, 1000);
 }
 function newBoss() {
-	var fs = array(8, function(i) {
-		return extend({ res:'stg1enm', sy:255-48, sw:32, sh:48, w:32, h:48 }, { sx:32*i });
-	}), ps = [
-		{ fx:0.0, fy:0.0, v:3 },
-		{ fx:0.1, fy:0.1, v:3 },
-		{ fx:0.5, fy:0.1, v:3 },
-	];
 	var boss = SPRITE.newObj('Enemy', {
 		r: 24,
 		life: 300,
 	});
-	boss.anim.add(UTIL.newFrameAnim(150, fs));
-	boss.anim.add(UTIL.newPathAnim(30, ps));
+	boss.anim.add(UTIL.newFrameAnim(150, array(8, function(i) {
+		return extend({ res:'stg1enm', sy:255-48, sw:32, sh:48, w:32, h:48 }, { sx:32*i });
+	})));
+	boss.anim.add(UTIL.newPathAnim(30, [
+		{ fx:0.0, fy:0.0, v:3 },
+		{ fx:0.1, fy:0.1, v:3 },
+		{ fx:0.5, fy:0.1, v:3 },
+	]));
 	boss.drawStatic = function(d, s) {
-		this.drawFrame(d, s);
+		if (d.frame)
+			this.drawFrame(d, s);
 		DC.beginPath();
 		DC.arc(d.x, d.y, d.r*1.5, 0, (d.life-d.damage)/d.life*2*Math.PI);
 		DC.stroke();
@@ -1263,18 +1265,16 @@ function newBoss() {
 	}
 }
 function newEffect(v) {
-	var fs = array(20, function(i) {
+	var eff = SPRITE.newObj('Base', {
+		x: v.data.x,
+		y: v.data.y,
+		vx: v.data.vx*=0.1,
+		vy: v.data.vy*=0.1,
+	});
+	eff.anim.add(UTIL.newFrameAnim(50, array(20, function(i) {
 		var r = [32,42,52,62,60,58,56,54,52,50,48,46,44,42,40,38,36,34,32,30,28,26][i]*0.5;
 		return extend({ res:'eff00', sx:0, sy:0, sw:32, sh:32 }, { w:r*2, h:r*2 });
-	});
-	var d = v.data;
-	var eff = SPRITE.newObj('Base', {
-		x: d.x,
-		y: d.y,
-		vx: d.vx*=0.1,
-		vy: d.vy*=0.1,
-	});
-	eff.anim.add(UTIL.newFrameAnim(50, fs));
+	})));
 	eff.state = UTIL.newAliveState([
 		{ creating: 1, life: 100, next:  1 },
 		{ living:   1, life: 50, next:  2 },
