@@ -637,6 +637,28 @@ SPRITE.newCls('Static', {
 			this.runStatic(dt, d, s);
 	},
 	drawStatic: undefined,
+	drawText: function(d, s) {
+		if (d.font)
+			DC.font = d.font;
+		if (d.color)
+			DC.fillStyle = d.color;
+		DC.fillText(d.t, d.x, d.y);
+	},
+	drawFrame: function(d, s) {
+		var f = d.frame;
+		if (f.rotate) {
+			var t = +f.rotate===f.rotate ? f.rotate :
+				Math.PI/2 + Math.atan2(d.vy, d.vx);
+			DC.translate(d.x, d.y);
+			DC.rotate(t);
+			DC.drawImageInt(RES[f.res],
+				f.sx, f.sy, f.sw, f.sh,
+				-f.w/2, -f.h/2, f.w, f.h);
+		}
+		else DC.drawImageInt(RES[f.res],
+			f.sx, f.sy, f.sw, f.sh,
+			d.x-f.w/2, d.y-f.h/2, f.w, f.h);
+	},
 	draw: function() {
 		var d = this.data, s = this.state;
 		DC.save();
@@ -650,10 +672,10 @@ SPRITE.newCls('Static', {
 
 		if (this.drawStatic)
 			this.drawStatic(d, s);
-		else if (d.t) {
-			if (d.font) DC.font = d.font;
-			DC.fillText(d.t, d.x, d.y);
-		}
+		else if (d.frame)
+			this.drawFrame(d, s);
+		else if (d.t)
+			this.drawText(d, s);
 
 		DC.restore();
 	},
@@ -669,6 +691,9 @@ SPRITE.newCls('Static', {
 		x: (GAME.rect.l+GAME.rect.r)/2,
 		y: (GAME.rect.t+GAME.rect.b)/2,
 		t: 'Static Text',
+		color: undefined,
+		font: undefined,
+		frame: undefined, // i.e. {res:'player0L', sx:0, sy:0, sw:10, sh:10, w:10, h:10}
 	}, o);
 });
 
@@ -698,22 +723,9 @@ SPRITE.newCls('Base', {
 		this.rect.r = Math.max(d.x0, d.x) + d.r*1.1;
 		this.rect.b = Math.max(d.y0, d.y) + d.r*1.1;
 	},
-	drawStatic: function(d) {
-		if (d.frame) {
-			var f = d.frame;
-			if (f.rotate) {
-				var t = +f.rotate===f.rotate ? f.rotate :
-					Math.PI/2 + Math.atan2(d.vy, d.vx);
-				DC.translate(d.x, d.y);
-				DC.rotate(t);
-				DC.drawImageInt(RES[f.res],
-					f.sx, f.sy, f.sw, f.sh,
-					-f.w/2, -f.h/2, f.w, f.h);
-			}
-			else DC.drawImageInt(RES[f.res],
-				f.sx, f.sy, f.sw, f.sh,
-				d.x-f.w/2, d.y-f.h/2, f.w, f.h);
-		}
+	drawStatic: function(d, s) {
+		if (d.frame)
+			this.drawFrame(d, s);
 		else if (d.color) {
 			DC.fillStyle = d.color;
 			DC.beginPath();
@@ -740,9 +752,6 @@ SPRITE.newCls('Base', {
 			vy: 0,
 			x0: 0,
 			y0: 0,
-
-			color: undefined,
-			frame: undefined, // i.e. {res:'player0L', sx:0, sy:0, sw:10, sh:10, w:10, h:10}
 		}, d, e);
 	},
 }, function(d, c) {
@@ -791,61 +800,7 @@ SPRITE.newCls('Player', {
 		}
 	},
 	
-	run: function(dt) {
-		var d = this.data, s = this.state;
-
-		s.run(dt);
-		if (!s.d.life) {
-			this.isAlive = false;
-			STORY.on(STORY.events.PLAYER_DEAD, this);
-		}
-
-		this.anim.run(dt, this);
-
-		if (!s.d.dying)
-			this.update(dt, d, s);
-
-		// limit player move inside boundary
-		if (d.x-d.r < GAME.rect.l)
-			d.x = GAME.rect.l + d.r;
-		if (d.x+d.r > GAME.rect.r)
-			d.x = GAME.rect.r - d.r;
-		if (d.y-d.r < GAME.rect.t)
-			d.y = GAME.rect.t + d.r;
-		if (d.y+d.r > GAME.rect.b)
-			d.y = GAME.rect.b - d.r;
-
-		this.rect.l = d.x - d.r*1.1;
-		this.rect.t = d.y - d.r*1.1;
-		this.rect.r = d.x + d.r*1.1;
-		this.rect.b = d.y + d.r*1.1;
-	},
-	draw: function() {
-		var d = this.data;
-		DC.save();
-
-		if (this.state.d.isInvinc) {
-			DC.globalAlpha = 0.5;
-		}
-
-		if (d.frame) {
-			var f = d.frame;
-			DC.drawImageInt(RES[f.res],
-				f.sx, f.sy, f.sw, f.sh,
-				d.x-f.w/2, d.y-f.h/2, f.w, f.h);
-		}
-
-		if (d.slowMode) {
-			DC.strokeStyle = 'black';
-			DC.beginPath();
-			DC.arc(d.x, d.y, d.h+1, 0, 2*Math.PI);
-			DC.closePath();
-			DC.stroke();
-		}
-
-		DC.restore();
-	},
-	update: function(dt, d, s) {
+	runPlayer: function(dt, d, s) {
 		var m = GAME.keyste.shiftKey,
 			v = m ? 0.14 : 0.35;
 		d.slowMode = m;
@@ -888,6 +843,45 @@ SPRITE.newCls('Player', {
 		// AUTO COLLECT!
 		if (d.y < GAME.rect.t*0.7 + GAME.rect.b*0.3) {
 			STORY.on(STORY.events.PLAYER_AUTOCOLLECT, this);
+		}
+	},
+	runStatic: function(dt, d, s) {
+		if (!this.isAlive)
+			STORY.on(STORY.events.PLAYER_DEAD, this);
+
+		if (!s.d.dying)
+			this.runPlayer(dt, d, s);
+
+		this.anim.run(dt, this);
+
+		// limit player move inside boundary
+		if (d.x-d.r < GAME.rect.l)
+			d.x = GAME.rect.l + d.r;
+		if (d.x+d.r > GAME.rect.r)
+			d.x = GAME.rect.r - d.r;
+		if (d.y-d.r < GAME.rect.t)
+			d.y = GAME.rect.t + d.r;
+		if (d.y+d.r > GAME.rect.b)
+			d.y = GAME.rect.b - d.r;
+
+		this.rect.l = d.x - d.r*1.1;
+		this.rect.t = d.y - d.r*1.1;
+		this.rect.r = d.x + d.r*1.1;
+		this.rect.b = d.y + d.r*1.1;
+	},
+	drawStatic: function(d, s) {
+		if (this.state.d.isInvinc)
+			DC.globalAlpha = 0.5;
+
+		if (d.frame)
+			this.drawFrame(d, s);
+
+		if (d.slowMode) {
+			DC.strokeStyle = 'black';
+			DC.beginPath();
+			DC.arc(d.x, d.y, d.h+1, 0, 2*Math.PI);
+			DC.closePath();
+			DC.stroke();
 		}
 	},
 	init: function(d, e) {
@@ -1259,9 +1253,8 @@ function newBoss() {
 	});
 	boss.anim.add(UTIL.newFrameAnim(150, fs));
 	boss.anim.add(UTIL.newPathAnim(30, ps));
-	boss.drawOld = boss.drawStatic;
-	boss.drawStatic = function(d) {
-		boss.drawOld(d);
+	boss.drawStatic = function(d, s) {
+		this.drawFrame(d, s);
 		DC.beginPath();
 		DC.arc(d.x, d.y, d.r*1.5, 0, (d.life-d.damage)/d.life*2*Math.PI);
 		DC.stroke();
