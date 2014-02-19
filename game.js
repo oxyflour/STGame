@@ -188,23 +188,23 @@ function newStateMachine(stes) {
 	return _t;
 }
 
-var DC = (function() {
-	var canv = $e('canv'),
-		_t = canv.getContext('2d');
+var DC = (function(canv) {
+	var _t = canv.getContext('2d');
 	_t.canv = canv;
 	_t.clear = function() {
 		_t.clearRect(0, 0, canv.width, canv.height);
 	}
-	_t.drawImageInt = function(i, sx, sy, sw, sh, x, y, w, h) {
-		sx = Math.floor(sx);
-		sy = Math.floor(sy);
-		sw = Math.floor(sw);
-		sh = Math.floor(sh);
-		x = Math.floor(x);
-		y = Math.floor(y);
-		w = Math.floor(w);
-		h = Math.floor(h);
-		_t.drawImage(i, sx, sy, sw, sh, x, y, w, h);
+	_t.drawImageInt = function(i, sx, sy, sw, sh, dx, dy, dw, dh) {
+		var f = Math.floor;
+		sx = f(sx);
+		sy = f(sy);
+		sw = f(sw);
+		sh = f(sh);
+		dx = f(dx);
+		dy = f(dy);
+		dw = f(dw);
+		dh = f(dh);
+		_t.drawImage(i, sx, sy, sw, sh, dx, dy, dw, dh);
 	}
 	_t.font = '20px Arial';
 	_t.textAlign = 'center';
@@ -212,11 +212,10 @@ var DC = (function() {
 	_t.fillStyle = 'white';
 	_t.lineWidth = 3;
 	return _t;
-})();
+})($e('canv'));
 
-var RES = (function() {
-	var res = $e('res'),
-		_t = {};
+var RES = (function(res) {
+	var _t = {};
 	_t.process = 0;
 	function loaded() {
 		ieach(res.children, function(i, v, d) {
@@ -258,7 +257,7 @@ var RES = (function() {
 	};
 	setTimeout(check, 10);
 	return _t;
-})();
+})($e('res'));
 
 var SPRITE = (function() {
 	var _t = {
@@ -308,7 +307,7 @@ var SPRITE = (function() {
 			fn(ls[i][1]);
 	};
 	_t.eachObj = function(fn, c) {
-		function loopAlive(c) {
+		function loop(c) {
 			var ls = _t.obj[c],
 				n = ls.length,
 				a = 0;
@@ -323,10 +322,7 @@ var SPRITE = (function() {
 			if (a == 0 && n > 0)
 				_t.obj[c] = [];
 		}
-		if (c)
-			loopAlive(c);
-		else
-			_t.eachCls(loopAlive);
+		c ? loop(c) : _t.eachCls(loop);
 	};
 	_t.clearObj = function(c) {
 		_t.eachObj(function(v) {
