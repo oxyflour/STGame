@@ -1053,6 +1053,7 @@ SPRITE.newCls('Bullet', {
 }, 'Base');
 
 SPRITE.newCls('Drop', {
+	layer: 'L20',
 	runBase: function(dt, d, s) {
 		if (d.collected) {
 			var e = d.collected.data,
