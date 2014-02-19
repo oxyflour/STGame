@@ -674,7 +674,7 @@ SPRITE.newCls('Static', {
 			this.drawStatic(d, s);
 		else if (d.frame)
 			this.drawFrame(d, s);
-		else if (d.t)
+		else if (d.text)
 			this.drawText(d, s);
 
 		DC.restore();
@@ -690,7 +690,7 @@ SPRITE.newCls('Static', {
 	this.data = extend({
 		x: (GAME.rect.l+GAME.rect.r)/2,
 		y: (GAME.rect.t+GAME.rect.b)/2,
-		t: 'Static Text',
+		text: 'Static Text',
 		color: undefined,
 		font: undefined,
 		frame: undefined, // i.e. {res:'player0L', sx:0, sy:0, sw:10, sh:10, w:10, h:10}
