@@ -814,7 +814,7 @@ SPRITE.newCls('Player', {
 				STORY.on(STORY.events.DROP_COLLECTED, v);
 			}
 			else
-				e.collected = this;
+				e.collected = true;
 		}
 		else if (v.clsId == SPRITE.clsIds.Player) {
 			if (circle_intersect(d, e)) {
@@ -1063,10 +1063,12 @@ SPRITE.newCls('Bullet', {
 		if (!u || !u.isAlive || !u.state.d.mkDamage)
 			return;
 		if (d.type == 1) {
-			var r = sqrt_sum(d.x - e.x, d.y - e.y),
+			var dx = e.x - d.x,
+				dy = e.y - d.y,
+				r = sqrt_sum(dx, dy),
 				v = sqrt_sum(d.vx, d.vy);
-			d.vx = v * (e.x - d.x)/r;
-			d.vy = v * (e.y - d.y)/r;
+			d.vx = v * dx / r;
+			d.vy = v * dy / r;
 		}
 	},
 	states: [
@@ -1086,16 +1088,19 @@ SPRITE.newCls('Bullet', {
 SPRITE.newCls('Drop', {
 	layer: 'L20',
 	runBase: function(dt, d, s) {
-		if (d.collected) {
-			var e = d.collected.data,
+		var v = d.collected;
+		if (v && !v.isAlive)
+			v = d.collected = UTIL.getAliveObj('Player');
+		if (v && v.isAlive && !v.state.d.dying) {
+			var e = v.data,
 				v = d.collected_auto ? 0.8 : sqrt_sum(d.vx, d.vy),
-				r = sqrt_sum(d.x - e.x, d.y - e.y),
-				sin = (e.x - d.x) / r,
-				cos = (e.y - d.y) / r;
-			d.vx = v * sin;
-			d.vy = v * cos;
-			d.collected = d.collected_auto ? d.collected : undefined;
-			d.collected_auto = false;
+				dx = e.x - d.x,
+				dy = e.y - d.y,
+				r = sqrt_sum(dx, dy);
+			d.vx = v * dx / r;
+			d.vy = v * dy / r;
+			if (!d.collected_auto)
+				d.collected = undefined;
 		}
 		else if (d.vy < 0.15)
 			d.vy += 0.001 * dt;
@@ -1115,7 +1120,6 @@ SPRITE.newCls('Drop', {
 	this.init({
 		r: 60,
 		vy: -0.4,
-		h: 20, // used for player hit test
 		collected: undefined,
 		collected_auto: false,
 		frame: { res:'etama3', sx:32, sy:0, sw:16, sh:16, w:20, h:20 }
@@ -1219,7 +1223,7 @@ function newBullet(v) {
 			from: v,
 			to: e
 		});
-		b.anim.add(UTIL.newFrameAnim(30, array(5, function(i) {
+		b.anim.add(UTIL.newFrameAnim(50, array(5, function(i) {
 			return extend({ res:'bullet1', sy:0, sw:16, sh:16, w:16, h:16 }, { sx:16*i });
 		})), b);
 	});
@@ -1340,7 +1344,7 @@ tl.all = {
 		}
 		else if (e == STORY.events.PLAYER_AUTOCOLLECT) {
 			SPRITE.eachObj(function(u) {
-				u.data.collected = v;
+				u.data.collected = true;
 				u.data.collected_auto = true;
 			}, 'Drop');
 		}
