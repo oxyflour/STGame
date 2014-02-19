@@ -1233,12 +1233,10 @@ function newEnemy(type) {
 	enm.anim.add(UTIL.newFrameAnim(150, array(4, function(i) {
 		return extend({ res:'stg1enm', sy:by, sw:32, sh:32, w:32, h:32 }, { sx:bx+32*i });
 	})));
-	STORY.timeout(function() {
-		STORY.timeout(function(n) {
-			if (enm.isAlive && enm.state.d.living)
-				newDannmaku(enm, type, n);
-		}, 20, null, 60);
-	}, 1000);
+	STORY.timeout(function(n) {
+		if (n < 60 && enm.isAlive && enm.state.d.living)
+			newDannmaku(enm, type, n);
+	}, 20, null, 100);
 }
 function newBoss() {
 	var boss = SPRITE.newObj('Enemy', {
