@@ -149,9 +149,10 @@ function newTicker(t) {
 }
 function newAnimateList() {
 	var _t = [], unused = [];
-	_t.add = function(a) {
+	_t.add = function(v, e) {
 		// a should be object like { t:newTicker(20), f:fn, d:{} }
-		_t[unused.length ? unused.pop() : _t.length] = a;
+		_t[unused.length ? unused.pop() : _t.length] = v;
+		if (e) v.f(v.d, e);
 	};
 	_t.run = function(dt, e) {
 		ieach(_t, function(i, v) {
@@ -1199,39 +1200,28 @@ function newBullet(v) {
 			}
 		}
 	}, 'Enemy');
-	SPRITE.newObj('Bullet', {
-		x: v.data.x + 10,
-		y: v.data.y,
-		vy: -0.5,
-		from: v,
-		frame: { res:'player0L', sx:128, sy:0, sw:16, sh:16, w:16, h:16 },
-	});
-	SPRITE.newObj('Bullet', {
-		x: v.data.x - 10,
-		y: v.data.y,
-		vy: -0.5,
-		from: v,
-		frame: { res:'player0L', sx:128, sy:0, sw:16, sh:16, w:16, h:16 },
-	});
-	SPRITE.newObj('Bullet', {
-		x: v.data.x + 20,
-		y: v.data.y,
-		vy: -0.45,
-		vx: 0.1,
-		frame: { res:'player0L', sx:128+16, sy:0, sw:16, sh:16, w:16, h:16 },
-		type: 1,
-		from: v,
-		to: e
-	});
-	SPRITE.newObj('Bullet', {
-		x: v.data.x - 20,
-		y: v.data.y,
-		vy: -0.45,
-		vx: -0.1,
-		frame: { res:'player0L', sx:128+16, sy:0, sw:16, sh:16, w:16, h:16 },
-		type: 1,
-		from: v,
-		to: e
+	ieach([1, -1], function(i, x) {
+		var v0 = 0.7, v1 = 0.5,
+			t = random(10, 20) * Math.PI / 180;
+		var a = SPRITE.newObj('Bullet', {
+			x: v.data.x + 10*x,
+			y: v.data.y,
+			vy: -v0,
+			from: v,
+			frame: { res:'bullet0', sx:0, sy:0, sw:16, sh:16, w:16, h:16 },
+		});
+		var b = SPRITE.newObj('Bullet', {
+			x: v.data.x + 20*x,
+			y: v.data.y,
+			vy: -v1*Math.cos(t),
+			vx: v1*x*Math.sin(t),
+			type: 1,
+			from: v,
+			to: e
+		});
+		b.anim.add(UTIL.newFrameAnim(30, array(5, function(i) {
+			return extend({ res:'bullet1', sy:0, sw:16, sh:16, w:16, h:16 }, { sx:16*i });
+		})), b);
 	});
 }
 function newDannmaku(v, type, ts) {
