@@ -424,10 +424,8 @@ var GAME = (function() {
 		r: DC.canv.width,
 		b: DC.canv.height
 	};
-	_t.init = function(tl) {
-		STORY.load(tl, tl.all);
-		// start the game!
-		STORY.state.set('init');
+	_t.start = function(n) {
+		STORY.state.set(n);
 		_t.state = _t.states.RUNNING;
 	};
 	_t.run = function(dt) {
@@ -1534,5 +1532,6 @@ tl.end = {
 };
 
 document.addEventListener('res.loaded', function(e) {
-	GAME.init(tl);
+	STORY.load(tl, tl.all);
+	GAME.start('init');
 });
