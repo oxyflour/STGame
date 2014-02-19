@@ -196,7 +196,18 @@ var DC = (function() {
 		_t = canv.getContext('2d');
 	_t.canv = canv;
 	_t.clear = function() {
-		DC.clearRect(0, 0, canv.width, canv.height);
+		_t.clearRect(0, 0, canv.width, canv.height);
+	}
+	_t.drawImageInt = function(i, sx, sy, sw, sh, x, y, w, h) {
+		sx = Math.floor(sx);
+		sy = Math.floor(sy);
+		sw = Math.floor(sw);
+		sh = Math.floor(sh);
+		x = Math.floor(x);
+		y = Math.floor(y);
+		w = Math.floor(w);
+		h = Math.floor(h);
+		_t.drawImage(i, sx, sy, sw, sh, x, y, w, h);
 	}
 	_t.font = '20px Arial';
 	_t.textAlign = 'center';
@@ -694,11 +705,11 @@ SPRITE.newCls('Base', {
 					Math.PI/2 + Math.atan2(d.vy, d.vx);
 				DC.translate(d.x, d.y);
 				DC.rotate(t);
-				DC.drawImage(RES[f.res],
+				DC.drawImageInt(RES[f.res],
 					f.sx, f.sy, f.sw, f.sh,
 					-f.w/2, -f.h/2, f.w, f.h);
 			}
-			else DC.drawImage(RES[f.res],
+			else DC.drawImageInt(RES[f.res],
 				f.sx, f.sy, f.sw, f.sh,
 				d.x-f.w/2, d.y-f.h/2, f.w, f.h);
 		}
@@ -818,7 +829,7 @@ SPRITE.newCls('Player', {
 
 		if (d.frame) {
 			var f = d.frame;
-			DC.drawImage(RES[f.res],
+			DC.drawImageInt(RES[f.res],
 				f.sx, f.sy, f.sw, f.sh,
 				d.x-f.w/2, d.y-f.h/2, f.w, f.h);
 		}
