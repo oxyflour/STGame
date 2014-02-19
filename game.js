@@ -217,25 +217,60 @@ var DC = (function(canv) {
 var RES = (function(res) {
 	var _t = {};
 	_t.process = 0;
+	function getSrc(from) {
+		var st = from.split(' '),
+			im = $e(st[0]);
+		if (st.length == 5) return {
+			s: im,
+			x: parseInt(st[1]),
+			y: parseInt(st[2]),
+			w: parseInt(st[3]),
+			h: parseInt(st[4]),
+		}
+		else return {
+			s: im,
+			x: 0,
+			y: 0,
+			w: im.naturalWidth,
+			h: im.naturalHeight,
+		}
+	}
+	function getTrans(trans) {
+		return trans ? trans.split(' ') : [];
+	}
 	function loaded() {
 		ieach(res.children, function(i, v, d) {
 			if (v.tagName == 'CANVAS') {
 				var from = $attr(v, 'from'),
 					trans = $attr(v, 'transform');
 				if (from) {
-					var im = $e(from),
+					var sc = getSrc(from),
+						ts = getTrans($attr(v, 'transform')),
 						dc = v.getContext('2d');
-					v.width = im.naturalWidth;
-					v.height = im.naturalHeight;
-					if (trans == 'mirror-x') {
-						dc.translate(v.width, 0);
-						dc.scale(-1, 1);
-					}
-					else if (trans == 'mirror-y') {
-						dc.translate(0, v.height);
-						dc.scale(1, -1);
-					}
-					dc.drawImage(im, 0, 0);
+					v.width = sc.w * ts.length;
+					v.height = sc.h;
+					ieach(ts, function(i, t) {
+						dc.save();
+						var st = t.split(':');
+						if (st[0] == 'mirror') {
+							if (st[1] == 'x') {
+								dc.translate(v.width, 0);
+								dc.scale(-1, 1);
+							}
+							else if (st[1] == 'y') {
+								dc.translate(0, v.height);
+								dc.scale(1, -1);
+							}
+							dc.drawImage(sc.s, 0, 0);
+						}
+						else if (st[0] == 'rotate') {
+							dc.translate(sc.w*i + sc.w/2, sc.h/2);
+							dc.rotate(parseInt(st[1])*Math.PI/180);
+							dc.drawImage(sc.s, sc.x, sc.y, sc.w, sc.h,
+								-sc.w/2, -sc.h/2, sc.w, sc.h);
+						}
+						dc.restore();
+					});
 				}
 			}
 			d[v.id] = v;

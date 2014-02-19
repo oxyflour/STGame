@@ -28,7 +28,11 @@ body {
 <body>
 <div id="res" class="hidden">
 	<img id="player0L" src="res/player0.png" />
-	<canvas id="player0R" from="player0L" transform="mirror-x"></canvas>
+	<canvas id="player0R" from="player0L" transform="mirror:x"></canvas>
+	<canvas id="bullet0" from="player0L 128 0 16 16"
+		transform="rotate:30deg"></canvas>
+	<canvas id="bullet1" from="player0L 144 0 16 16"
+		transform="rotate:15deg rotate:30deg rotate:45deg rotate:60deg rotate:75deg"></canvas>
 	<img id="etama3" src="res/etama3.png" />
 	<img id="etama4" src="res/etama4.png" />
 	<img id="eff00" src="res/eff00.png" />
