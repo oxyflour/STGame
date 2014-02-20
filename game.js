@@ -246,59 +246,59 @@ var RES = (function(res) {
 			});
 		}, []);
 	}
+	function updateCanvas(canv, from, trans) {
+		var sc = getSrc(from),
+			ts = getTrans(trans),
+			dc = canv.getContext('2d');
+		canv.width = sc.w * ts.length;
+		canv.height = sc.h;
+		ieach(ts, function(i, t) {
+			dc.save();
+			if (t.k == 'mirror') {
+				if (t.v == 'x') {
+					dc.translate(canv.width, 0);
+					dc.scale(-1, 1);
+				}
+				else if (t.v == 'y') {
+					dc.translate(0, canv.height);
+					dc.scale(1, -1);
+				}
+				dc.drawImage(sc.s, sc.x, sc.y, sc.w, sc.h,
+					0, 0, sc.w, sc.h);
+			}
+			else if (t.k == 'rotate') {
+				dc.translate(sc.w*i + sc.w/2, sc.h/2);
+				dc.rotate(parseInt(t.v)*Math.PI/180);
+				dc.drawImage(sc.s, sc.x, sc.y, sc.w, sc.h,
+					-sc.w/2, -sc.h/2, sc.w, sc.h);
+			}
+			dc.restore();
+		});
+	}
 	function loaded() {
 		ieach(res.children, function(i, v, d) {
 			if (v.tagName == 'CANVAS') {
 				var from = $attr(v, 'from'),
 					trans = $attr(v, 'transform');
-				if (from) {
-					var sc = getSrc(from),
-						ts = getTrans(trans),
-						dc = v.getContext('2d');
-					v.width = sc.w * ts.length;
-					v.height = sc.h;
-					ieach(ts, function(i, t) {
-						dc.save();
-						if (t.k == 'mirror') {
-							if (t.v == 'x') {
-								dc.translate(v.width, 0);
-								dc.scale(-1, 1);
-							}
-							else if (t.v == 'y') {
-								dc.translate(0, v.height);
-								dc.scale(1, -1);
-							}
-							dc.drawImage(sc.s, sc.x, sc.y, sc.w, sc.h,
-								0, 0, sc.w, sc.h);
-						}
-						else if (t.k == 'rotate') {
-							dc.translate(sc.w*i + sc.w/2, sc.h/2);
-							dc.rotate(parseInt(t.v)*Math.PI/180);
-							dc.drawImage(sc.s, sc.x, sc.y, sc.w, sc.h,
-								-sc.w/2, -sc.h/2, sc.w, sc.h);
-						}
-						dc.restore();
-					});
-				}
+				if (from)
+					updateCanvas(v, from, trans);
 			}
 			d[v.id] = v;
 		}, _t);
-		var e = document.createEvent('CustomEvent');
-		e.initCustomEvent('res.loaded', false, false, {});
-		document.dispatchEvent(e);
 	}
-	function check() {
+	_t.check = function check(fn) {
 		var ls = ieach(res.children, function(i, v, d) {
 			if (v.tagName == 'IMG')
 				d.push(v.complete ? 1 : 0);
 		}, []);
 		_t.process = sum(ls) / ls.length;
-		if (_t.process == 1) 
+		if (_t.process == 1) {
 			loaded();
+			fn();
+		}
 		else
 			setTimeout(check, 500);
 	};
-	setTimeout(check, 10);
 	return _t;
 })($e('res'));
 
@@ -1207,7 +1207,6 @@ SPRITE.newCls('Dannmaku', {
 
 SPRITE.newCls('ByAnother', {
 	from: 'Static',
-	layer: 'L30',
 	runByAnother: undefined,
 	runStatic: function(dt, d, s) {
 		var p = d.by;
@@ -1609,7 +1608,7 @@ tl.end = {
 	}
 };
 
-document.addEventListener('res.loaded', function(e) {
+RES.check(function() {
 	STORY.load(tl, tl.all);
 	GAME.start('init');
 });
