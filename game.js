@@ -152,7 +152,6 @@ function newAnimateList() {
 	_t.add = function(v, e) {
 		// a should be object like { t:newTicker(20), f:fn, d:{} }
 		_t[unused.length ? unused.pop() : _t.length] = v;
-		if (e) v.f(v.d, e);
 	};
 	_t.run = function(dt, e) {
 		ieach(_t, function(i, v) {
@@ -500,47 +499,51 @@ var UTIL = {
 			if (v.isAlive) d.push(v);
 		}, []);
 	},
+	addAnimate: function(v, a) {
+		v.anim.add(a);
+		a.f(a.d);
+	},
 	// fs should be array of objects like
 	// { res:'', sx:0, sy:0, sw:10, sh:10, w:10, h:10, [rotate:1] }
-	newFrameAnim: function(t, fs) {
-		return {
+	addFrameAnim: function(v, t, fs) {
+		UTIL.addAnimate(v, {
 			t: newTicker(t),
 			d: {
 				frames: fs,
 				index: 0
 			},
-			f: function(d, v) {
+			f: function(d) {
 				d.index = (d.index + 1) % d.frames.length;
 				v.data.frame = d.frames[d.index];
 			},
-		}
+		});
 	},
 	// fgs: array of fs in newFrameAnim
-	newFrameGroupAnim: function(t, fgs, fn) {
-		return {
+	addFrameGroupAnim: function(v, t, fgs, fn) {
+		UTIL.addAnimate(v, {
 			t: newTicker(t),
 			d: {
 				frames: fgs[0],
 				index: 0
 			},
-			f: function(d, v) {
+			f: function(d) {
 				d.frames = fn(v, d, fgs);
 				d.index = (d.index + 1) % d.frames.length;
 				v.data.frame = d.frames[d.index];
 			},
-		}
+		});
 	},
 	// ps should be array of objects like
 	// { x/fx:0, y/fy:0, v:10 }
 	// x and y should be between 0 and 1
-	newPathAnim: function(t, ps) {
-		return {
+	addPathAnim: function(v, t, ps) {
+		UTIL.addAnimate(v, {
 			t: newTicker(t),
 			d: {
 				pathnodes: ps,
 				index: 0
 			},
-			f: function(d, v) {
+			f: function(d) {
 				var e = v.data,
 					n = d.pathnodes[d.index];
 				if (!n) return true;
@@ -565,7 +568,7 @@ var UTIL = {
 						d.index ++;
 				}
 			},
-		}
+		});
 	},
 	newTimeRunner: function(t, n) {
 		return function(dt, d) {
@@ -956,7 +959,7 @@ SPRITE.newCls('Player', {
 		this.initStatic(d);
 		this.rect = { l:0, t:0, r:0, b:0 };
 
-		this.anim.add(UTIL.newFrameGroupAnim(120, [
+		UTIL.addFrameGroupAnim(this, 120, [
 			this.frames0,
 			this.framesL,
 			this.framesR
@@ -969,7 +972,7 @@ SPRITE.newCls('Player', {
 			if (d.index + 1 > fs.length - 1)
 				d.index = 2;
 			return fs;
-		})),
+		}),
 		this.data.conf = extend({
 			key_left: 37,
 			key_up: 38,
@@ -1189,6 +1192,22 @@ SPRITE.newCls('Dannmaku', {
 });
 
 // for test only
+function newPlayer() {
+	var p = SPRITE.newObj('Player'),
+		sl = SPRITE.newObj('Static', { dx:-20, dy:10 }),
+		sr = SPRITE.newObj('Static', { dx:+20, dy:10 });
+	ieach([sl, sr], function(i, s) {
+		s.runStatic = function(dt, d, s) {
+			d.x = p.data.x + d.dx;
+			d.y = p.data.y - d.dy;
+			if (p.state.d.dying && !s.d.dying)
+				s.setWith('dying');
+		};
+		UTIL.addFrameAnim(s, 50, array(5, function(i) {
+			return extend({ res:'bullet1', sy:0, sw:16, sh:16, w:16, h:16 }, { sx:16*i });
+		}));
+	});
+}
 function newBall(v, fy) {
 	var t = random(-0.6, 0.6) * Math.PI / 2,
 		r = random(10) + 5;
@@ -1232,9 +1251,9 @@ function newBullet(v) {
 			from: v,
 			to: e
 		});
-		b.anim.add(UTIL.newFrameAnim(50, array(5, function(i) {
+		UTIL.addFrameAnim(b, 50, array(5, function(i) {
 			return extend({ res:'bullet1', sy:0, sw:16, sh:16, w:16, h:16 }, { sx:16*i });
-		})), b);
+		}));
 	});
 }
 function newDannmaku(v, type, ts) {
@@ -1267,9 +1286,9 @@ function newEnemy(type) {
 		vy: random(0.01, 0.1),
 		r: 16,
 	});
-	enm.anim.add(UTIL.newFrameAnim(150, array(4, function(i) {
+	UTIL.addFrameAnim(enm, 150, array(4, function(i) {
 		return extend({ res:'stg1enm', sy:by, sw:32, sh:32, w:32, h:32 }, { sx:bx+32*i });
-	})));
+	}));
 	STORY.timeout(function(n) {
 		if (n < 60 && enm.isAlive && enm.state.d.living)
 			newDannmaku(enm, type, n);
@@ -1280,14 +1299,14 @@ function newBoss() {
 		r: 24,
 		life: 300,
 	});
-	boss.anim.add(UTIL.newFrameAnim(150, array(8, function(i) {
+	UTIL.addFrameAnim(boss, 150, array(8, function(i) {
 		return extend({ res:'stg1enm', sy:255-48, sw:32, sh:48, w:32, h:48 }, { sx:32*i });
-	})));
-	boss.anim.add(UTIL.newPathAnim(30, [
+	}));
+	UTIL.addPathAnim(boss, 30, [
 		{ fx:0.0, fy:0.0, v:3 },
 		{ fx:0.1, fy:0.1, v:3 },
 		{ fx:0.5, fy:0.1, v:3 },
-	]));
+	]);
 	boss.drawStatic = function(d, s) {
 		if (d.frame)
 			this.drawFrame(d, s);
@@ -1304,15 +1323,15 @@ function newEffect(v) {
 		vx: v.data.vx*=0.1,
 		vy: v.data.vy*=0.1,
 	});
-	eff.anim.add(UTIL.newFrameAnim(50, array(20, function(i) {
-		var r = [32,42,52,62,60,58,56,54,52,50,48,46,44,42,40,38,36,34,32,30,28,26][i]*0.5;
-		return extend({ res:'eff00', sx:0, sy:0, sw:32, sh:32 }, { w:r*2, h:r*2 });
-	})));
 	eff.state = UTIL.newAliveState([
 		{ creating: 1, life: 100, next:  1 },
 		{ living:   1, life: 50, next:  2 },
 		{ dying:    1, life: 850 },
 	]);
+	UTIL.addFrameAnim(eff, 50, array(20, function(i) {
+		var r = [32,42,52,62,60,58,56,54,52,50,48,46,44,42,40,38,36,34,32,30,28,26][i]*0.5;
+		return extend({ res:'eff00', sx:0, sy:0, sw:32, sh:32 }, { w:r*2, h:r*2 });
+	}));
 }
 function killCls() {
 	ieach(arguments, function(i, c) {
@@ -1381,7 +1400,7 @@ tl.all = {
 		}
 		else if (e == STORY.events.PLAYER_DEAD) {
 			GAME.statics.miss ++;
-			SPRITE.newObj('Player');
+			newPlayer();
 		}
 		else if (e == STORY.events.PLAYER_FIRE) {
 			if (!d.disable_fire)
@@ -1406,7 +1425,7 @@ tl.all = {
 tl.init = {
 	run: UTIL.newTimeRunner(5000, 'sec0'),
 	init: function(d) {
-		SPRITE.newObj('Player');
+		newPlayer();
 		d.title = SPRITE.newObj('Static', {
 			t: 'Dannmaku Demo!',
 			font: '30px Arial'
