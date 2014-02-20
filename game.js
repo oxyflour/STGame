@@ -1199,19 +1199,40 @@ SPRITE.newCls('Dannmaku', {
 	this.initBase(d);
 });
 
+SPRITE.newCls('ByAnother', {
+	from: 'Static',
+	layer: 'L30',
+	runByAnother: undefined,
+	runStatic: function(dt, d, s) {
+		var p = d.by;
+		if (this.runByAnother)
+			this.runByAnother(dt, d, s, p);
+		if ((!p || !p.isAlive || p.state.d.dying) && !s.d.dying)
+			s.setWith('dying');
+	},
+}, function(d) {
+	this.initStatic(d);
+});
+
 // for test only
 function newPlayer() {
 	var p = SPRITE.newObj('Player'),
-		sl = SPRITE.newObj('Static', { d:25, t:Math.PI*0.9 }),
-		sr = SPRITE.newObj('Static', { d:25, t:Math.PI*0.1 });
+		sl = SPRITE.newObj('ByAnother',
+			{ by:p, t:Math.PI*0.9, tMax:Math.PI*0.9, tMin:Math.PI*0.6, vt:-0.005 }),
+		sr = SPRITE.newObj('ByAnother',
+			{ by:p, t:Math.PI*0.1, tMax:Math.PI*0.4, tMin:Math.PI*0.1, vt:+0.005 });
+	p.data.onmyouLeft = sl;
+	p.data.onmyouRight = sr;
 	ieach([sl, sr], function(i, s) {
-		s.runStatic = function(dt, d, s) {
-			var dx = d.d * Math.cos(d.t),
-				dy = d.d * Math.sin(d.t);
+		s.runByAnother = function(dt, d, s, p) {
+			var dist = 25,
+				dx = dist * Math.cos(d.t),
+				dy = dist * Math.sin(d.t);
 			d.x = p.data.x + dx;
 			d.y = p.data.y - dy;
-			if (p.state.d.dying && !s.d.dying)
-				s.setWith('dying');
+			d.t += dt * (p.data.slowMode ? d.vt : -d.vt);
+			if (d.t > d.tMax) d.t = d.tMax;
+			if (d.t < d.tMin) d.t = d.tMin;
 		};
 		UTIL.addFrameAnim(s, 50, array(16, function(i) {
 			return extend({ res:'onmyou', sy:0, sw:16, sh:16, w:16, h:16 }, { sx:16*i });
@@ -1252,9 +1273,10 @@ function newBullet(v) {
 			from: v,
 			frame: { res:'bullet0', sx:0, sy:0, sw:16, sh:16, w:16, h:16 },
 		});
+		var onmyou = x > 0 ? v.data.onmyouRight : v.data.onmyouLeft;
 		var b = SPRITE.newObj('Bullet', {
-			x: v.data.x + 20*x,
-			y: v.data.y,
+			x: onmyou.data.x,
+			y: onmyou.data.y,
 			vy: -v1*Math.cos(t),
 			vx: v1*x*Math.sin(t),
 			type: 1,
