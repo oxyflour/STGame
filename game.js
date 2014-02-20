@@ -236,7 +236,15 @@ var RES = (function(res) {
 		}
 	}
 	function getTrans(trans) {
-		return trans ? trans.split(' ') : [];
+		var st = trans ? trans.split(' ') : [];
+		return ieach(st, function(i, v, d) {
+			var st = v.split(':'),
+				k = st[0],
+				vs = st[1].split(',');
+			ieach(vs, function(i, v) {
+				d.push({ k:k, v:v });
+			});
+		}, []);
 	}
 	function loaded() {
 		ieach(res.children, function(i, v, d) {
@@ -245,27 +253,27 @@ var RES = (function(res) {
 					trans = $attr(v, 'transform');
 				if (from) {
 					var sc = getSrc(from),
-						ts = getTrans($attr(v, 'transform')),
+						ts = getTrans(trans),
 						dc = v.getContext('2d');
 					v.width = sc.w * ts.length;
 					v.height = sc.h;
 					ieach(ts, function(i, t) {
 						dc.save();
-						var st = t.split(':');
-						if (st[0] == 'mirror') {
-							if (st[1] == 'x') {
+						if (t.k == 'mirror') {
+							if (t.v == 'x') {
 								dc.translate(v.width, 0);
 								dc.scale(-1, 1);
 							}
-							else if (st[1] == 'y') {
+							else if (t.v == 'y') {
 								dc.translate(0, v.height);
 								dc.scale(1, -1);
 							}
-							dc.drawImage(sc.s, 0, 0);
+							dc.drawImage(sc.s, sc.x, sc.y, sc.w, sc.h,
+								0, 0, sc.w, sc.h);
 						}
-						else if (st[0] == 'rotate') {
+						else if (t.k == 'rotate') {
 							dc.translate(sc.w*i + sc.w/2, sc.h/2);
-							dc.rotate(parseInt(st[1])*Math.PI/180);
+							dc.rotate(parseInt(t.v)*Math.PI/180);
 							dc.drawImage(sc.s, sc.x, sc.y, sc.w, sc.h,
 								-sc.w/2, -sc.h/2, sc.w, sc.h);
 						}
@@ -939,7 +947,7 @@ SPRITE.newCls('Player', {
 		{ res:'player0L', sx: 0, sy:0, sw:32, sh:48, w:32, h:48 },
 		{ res:'player0L', sx:32, sy:0, sw:32, sh:48, w:32, h:48 },
 	], array(7, function(i) {
-		return extend({ res:'player0R', sy:48, sw:32, sh:48, w:32, h:48 }, { sx:255-32*(i+1) });
+		return extend({ res:'player0R', sy:0, sw:32, sh:48, w:32, h:48 }, { sx:255-32*(i+1) });
 	})),
 
 	initPlayer: function(d) {
@@ -1194,17 +1202,19 @@ SPRITE.newCls('Dannmaku', {
 // for test only
 function newPlayer() {
 	var p = SPRITE.newObj('Player'),
-		sl = SPRITE.newObj('Static', { dx:-20, dy:10 }),
-		sr = SPRITE.newObj('Static', { dx:+20, dy:10 });
+		sl = SPRITE.newObj('Static', { d:25, t:Math.PI*0.9 }),
+		sr = SPRITE.newObj('Static', { d:25, t:Math.PI*0.1 });
 	ieach([sl, sr], function(i, s) {
 		s.runStatic = function(dt, d, s) {
-			d.x = p.data.x + d.dx;
-			d.y = p.data.y - d.dy;
+			var dx = d.d * Math.cos(d.t),
+				dy = d.d * Math.sin(d.t);
+			d.x = p.data.x + dx;
+			d.y = p.data.y - dy;
 			if (p.state.d.dying && !s.d.dying)
 				s.setWith('dying');
 		};
-		UTIL.addFrameAnim(s, 50, array(5, function(i) {
-			return extend({ res:'bullet1', sy:0, sw:16, sh:16, w:16, h:16 }, { sx:16*i });
+		UTIL.addFrameAnim(s, 50, array(16, function(i) {
+			return extend({ res:'onmyou', sy:0, sw:16, sh:16, w:16, h:16 }, { sx:16*i });
 		}));
 	});
 }
@@ -1251,7 +1261,7 @@ function newBullet(v) {
 			from: v,
 			to: e
 		});
-		UTIL.addFrameAnim(b, 50, array(5, function(i) {
+		UTIL.addFrameAnim(b, 50, array(6, function(i) {
 			return extend({ res:'bullet1', sy:0, sw:16, sh:16, w:16, h:16 }, { sx:16*i });
 		}));
 	});
