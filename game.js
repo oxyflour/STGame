@@ -822,8 +822,8 @@ SPRITE.newCls('Player', {
 				STORY.on(STORY.events.PLAYER_GRAZE, this);
 			}
 		}
-		else if (v.clsId == SPRITE.proto.Drop.clsId) {
-			if (v.state.d.living && circle_intersect(d, { x:e.x, y:e.y, r:20 })) {
+		else if (v.clsId == SPRITE.proto.Drop.clsId && v.state.d.living) {
+			if (circle_intersect(d, { x:e.x, y:e.y, r:20 })) {
 				STORY.on(STORY.events.PLAYER_GETDROP, this);
 				STORY.on(STORY.events.DROP_COLLECTED, v);
 			}
@@ -1122,13 +1122,15 @@ SPRITE.newCls('Drop', {
 			if (!d.collected_auto)
 				d.collected = undefined;
 		}
-		else if (d.vy < 0.15)
+		else if (d.vy < 0.15) {
 			d.vy += 0.001 * dt;
+			d.vx *= 0.9;
+		}
 	},
 	space: {
-		l: 200,
+		l: 40,
 		r: 40,
-		t: 40,
+		t: 300,
 		b: 20
 	},
 	states: [
@@ -1425,12 +1427,13 @@ tl.all = {
 			GAME.statics.graze ++;
 		}
 		else if (e == STORY.events.PLAYER_DYING) {
-			var x = v.data.x,
-				y = GAME.rect.t*0.8+GAME.rect.b*0.2;
-			SPRITE.newObj('Drop', { x:x+90, y:y+10 });
-			SPRITE.newObj('Drop', { x:x+30, y:y });
-			SPRITE.newObj('Drop', { x:x-30, y:y });
-			SPRITE.newObj('Drop', { x:x-90, y:y+10 });
+			var vy = -0.8,
+				x = v.data.x,
+				y = v.data.y;
+			SPRITE.newObj('Drop', { vy:vy, x:x+90, y:y-50 });
+			SPRITE.newObj('Drop', { vy:vy, x:x+30, y:y-60 });
+			SPRITE.newObj('Drop', { vy:vy, x:x-30, y:y-60 });
+			SPRITE.newObj('Drop', { vy:vy, x:x-90, y:y-50 });
 		}
 		else if (e == STORY.events.PLAYER_DEAD) {
 			GAME.statics.miss ++;
