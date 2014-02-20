@@ -814,7 +814,7 @@ SPRITE.newCls('Player', {
 				STORY.on(STORY.events.DROP_COLLECTED, v);
 			}
 			else
-				e.collected = true;
+				e.collected = this;
 		}
 		else if (v.clsId == SPRITE.clsIds.Player) {
 			if (circle_intersect(d, e)) {
@@ -1344,7 +1344,7 @@ tl.all = {
 		}
 		else if (e == STORY.events.PLAYER_AUTOCOLLECT) {
 			SPRITE.eachObj(function(u) {
-				u.data.collected = true;
+				u.data.collected = v;
 				u.data.collected_auto = true;
 			}, 'Drop');
 		}
