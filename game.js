@@ -373,6 +373,7 @@ var STORY = (function() {
 		'GAME_INPUT',
 		'OBJECT_OUT',
 		'PLAYER_HIT',
+		'PLAYER_DYING',
 		'PLAYER_DEAD',
 		'PLAYER_AUTOCOLLECT',
 		'PLAYER_GETDROP',
@@ -894,6 +895,9 @@ SPRITE.newCls('Player', {
 
 		if (!s.d.dying)
 			this.runPlayer(dt, d, s);
+		else if (!d.is_dying)
+			STORY.on(STORY.events.PLAYER_DYING, this);
+		d.is_dying = s.d.dying;
 
 		// limit player move inside boundary
 		if (d.x-d.r < GAME.rect.l)
@@ -1348,7 +1352,7 @@ function newBoss() {
 		DC.closePath();
 	}
 }
-function newEffect(v) {
+function newEffect(v, scale) {
 	var eff = SPRITE.newObj('Base', {
 		x: v.data.x,
 		y: v.data.y,
@@ -1361,7 +1365,7 @@ function newEffect(v) {
 		{ dying:    1, life: 850 },
 	]);
 	UTIL.addFrameAnim(eff, 50, array(20, function(i) {
-		var r = [32,42,52,62,60,58,56,54,52,50,48,46,44,42,40,38,36,34,32,30,28,26][i]*0.5;
+		var r = [32,42,52,62,60,58,56,54,52,50,48,46,44,42,40,38,36,34,32,30,28,26][i]*(scale || 0.5);
 		return extend({ res:'eff00', sx:0, sy:0, sw:32, sh:32 }, { w:r*2, h:r*2 });
 	}));
 }
@@ -1416,19 +1420,17 @@ tl.all = {
 				killCls('Dannmaku');
 			}, 10, null, 80);
 			*/
-			STORY.timeout(function() {
-				if (v.state.d.dying) {
-					var x = v.data.x,
-						y = GAME.rect.t*0.8+GAME.rect.b*0.2;
-					SPRITE.newObj('Drop', { x:x+90, y:y+10 });
-					SPRITE.newObj('Drop', { x:x+30, y:y });
-					SPRITE.newObj('Drop', { x:x-30, y:y });
-					SPRITE.newObj('Drop', { x:x-90, y:y+10 });
-				}
-			}, 200);
 		}
 		else if (e == STORY.events.PLAYER_GRAZE) {
 			GAME.statics.graze ++;
+		}
+		else if (e == STORY.events.PLAYER_DYING) {
+			var x = v.data.x,
+				y = GAME.rect.t*0.8+GAME.rect.b*0.2;
+			SPRITE.newObj('Drop', { x:x+90, y:y+10 });
+			SPRITE.newObj('Drop', { x:x+30, y:y });
+			SPRITE.newObj('Drop', { x:x-30, y:y });
+			SPRITE.newObj('Drop', { x:x-90, y:y+10 });
 		}
 		else if (e == STORY.events.PLAYER_DEAD) {
 			GAME.statics.miss ++;
