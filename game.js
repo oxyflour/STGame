@@ -138,46 +138,36 @@ function newFPSCounter() {
 		return 1000.0 / dt;
 	}
 }
-function newTicker(t) {
+function newTicker(t, f, d) {
 	var _t = {
 		t: t,
 		c: 0,
-		run: function(dt) {
-			_t.c += dt;
-			if (_t.c > _t.t) {
-				_t.c -= _t.t;
-				return true;
-			}
-		}
-	}
-	return _t;
-}
-function newTick(t, f, d) {
-	var _t = {
-		t: t,
 		d: d,
-		c: 0,
+		f: f,
 		run: function(dt) {
 			for (_t.c += dt; _t.c >= 0; _t.c -= _t.t)
-				f(_t.d);
+				_t.f(_t.d);
 		},
 	}
 	return _t;
 }
 function newAnimateList() {
 	var _t = [], unused = [];
-	_t.add = function(v, e) {
-		// a should be object like { t:newTicker(20), f:fn, d:{} }
-		_t[unused.length ? unused.pop() : _t.length] = v;
+	_t.add = function(t) { // t should be object returned from newTicker()
+		t.finished = false;
+		_t[unused.length ? unused.pop() : _t.length] = t;
 	};
-	_t.run = function(dt, e) {
-		ieach(_t, function(i, v) {
-			if (v && v.t.run(dt) && v.f(v.d, e)) {
+	_t.run = function(dt) {
+		for (var i = 0, n = _t.length; i < n; i ++) {
+			var t = _t[i];
+			if (t)
+				t.run(dt);
+			if (t && t.finished) {
 				_t[i] = undefined;
 				unused.push(i);
 			}
-		});
-	};
+		}
+	}
 	return _t;
 }
 function newStateMachine(stes) {
@@ -414,15 +404,11 @@ var STORY = (function() {
 	}
 	_t.timeout = function(f, t, d, n) {
 		n = n>=0 ? n : 1;
-		_t.anim.add({
-			d: d,
-			t: newTicker(t),
-			f: function(d) {
-				if (n-->=0)
-					f.apply(d, [n]);
-				return n <= 0;
-			},
-		});
+		_t.anim.add(newTicker(t, function(d) {
+			if (n-->=0)
+				f.call(d, n);
+			this.finished = (n <= 0);
+		}, d));
 	}
 	_t.run = function(dt) {
 		if (_t.hook.before_run)
@@ -525,75 +511,65 @@ var UTIL = {
 			if (v.isAlive) d.push(v);
 		}, []);
 	},
-	addAnimate: function(v, a) {
-		v.anim.add(a);
-		a.f(a.d);
+	addAnimate: function(v, t, f, d) {
+		var t = newTicker(t, f, d);
+		v.anim.add(t);
+		t.f(t.d);
 	},
 	// fs should be array of objects like
 	// { res:'', sx:0, sy:0, sw:10, sh:10, w:10, h:10, [rotate:1] }
 	addFrameAnim: function(v, t, fs) {
-		UTIL.addAnimate(v, {
-			t: newTicker(t),
-			d: {
-				frames: fs,
-				index: 0
-			},
-			f: function(d) {
-				d.index = (d.index + 1) % d.frames.length;
-				v.data.frame = d.frames[d.index];
-			},
+		UTIL.addAnimate(v, t, function(d) {
+			d.index = (d.index + 1) % d.frames.length;
+			v.data.frame = d.frames[d.index];
+		}, {
+			frames: fs,
+			index: 0
 		});
 	},
 	// fgs: array of fs in newFrameAnim
+	// fn should return frames to display
 	addFrameGroupAnim: function(v, t, fgs, fn) {
-		UTIL.addAnimate(v, {
-			t: newTicker(t),
-			d: {
-				frames: fgs[0],
-				index: 0
-			},
-			f: function(d) {
-				d.frames = fn(v, d, fgs);
-				d.index = (d.index + 1) % d.frames.length;
-				v.data.frame = d.frames[d.index];
-			},
+		UTIL.addAnimate(v, t, function(d) {
+			d.frames = fn(v, d, fgs);
+			d.index = (d.index + 1) % d.frames.length;
+			v.data.frame = d.frames[d.index];
+		}, {
+			frames: fgs[0],
+			index: 0
 		});
 	},
 	// ps should be array of objects like
 	// { x/fx:0, y/fy:0, v:10 }
 	// x and y should be between 0 and 1
 	addPathAnim: function(v, t, ps) {
-		UTIL.addAnimate(v, {
-			t: newTicker(t),
-			d: {
-				pathnodes: ps,
-				index: 0
-			},
-			f: function(d) {
-				var e = v.data,
-					n = d.pathnodes[d.index];
-				if (!n) return true;
+		UTIL.addAnimate(v, t, function(d) {
+			var e = v.data,
+				n = d.pathnodes[d.index];
+			if (!n) return true;
 
-				if (+n.fx === n.fx)
-					n.x = GAME.rect.l * (1-n.fx) + GAME.rect.r * n.fx;
-				if (+n.fy === n.fy)
-					n.y = GAME.rect.t * (1-n.fy) + GAME.rect.b * n.fy;
+			if (+n.fx === n.fx)
+				n.x = GAME.rect.l * (1-n.fx) + GAME.rect.r * n.fx;
+			if (+n.fy === n.fy)
+				n.y = GAME.rect.t * (1-n.fy) + GAME.rect.b * n.fy;
 
-				if (d.index == 0) {
-					e.x = n.x;
-					e.y = n.y;
+			if (d.index == 0) {
+				e.x = n.x;
+				e.y = n.y;
+				d.index ++;
+			} else {
+				var dx = n.x - e.x,
+					dy = n.y - e.y,
+					r = sqrt_sum(dx, dy),
+					f = n.v / r;
+				e.x = e.x * (1-f) + n.x * f;
+				e.y = e.y * (1-f) + n.y * f;
+				if (f >= 1) // to next node
 					d.index ++;
-				} else {
-					var dx = n.x - e.x,
-						dy = n.y - e.y,
-						r = sqrt_sum(dx, dy),
-						f = n.v / r;
-					e.x = e.x * (1-f) + n.x * f;
-					e.y = e.y * (1-f) + n.y * f;
-					if (f >= 1) // to next node
-						d.index ++;
-				}
-			},
+			}
+		}, {
+			pathnodes: ps,
+			index: 0
 		});
 	},
 	newTimeRunner: function(t, n) {
@@ -631,7 +607,7 @@ var UTIL = {
 
 (function() {
 	var dt = newCounter();
-	var gameTick = newTick(10, function() {
+	var gameTick = newTicker(10, function() {
 		if (GAME.state == GAME.states.RUNNING)
 			GAME.run(10);
 	});
@@ -889,13 +865,15 @@ SPRITE.newCls('Player', {
 		d.y += d.vy * dt;
 
 		// FIRE!
-		if (GAME.keyste[d.conf.key_fire]) {
-			if (d.firetick.run(dt) || !d.fire_on) {
-				d.firetick.c = d.fire_on ? 80 : 0;
-				STORY.on(STORY.events.PLAYER_FIRE, this);
-			}
+		if (!d.firetick) d.firetick = newTicker(80, function(v) {
+			v.data.fires --;
+			STORY.on(STORY.events.PLAYER_FIRE, v);
+		}, this);
+		if (GAME.keyste[d.conf.key_fire] && d.fires !== 10) {
+			d.fires = 10;
 		}
-		d.fire_on = GAME.keyste[d.conf.key_fire];
+		if (d.fires > 0)
+			d.firetick.run(dt);
 
 		// BOMB!
 		if (GAME.keyste[d.conf.key_bomb] && !s.d.bomb) {
@@ -983,11 +961,12 @@ SPRITE.newCls('Player', {
 			vy: 0,
 			x0: 0,
 			y0: 0,
-
-			firetick: newTicker(180),
 		}, d);
 		this.initStatic(d);
 		this.rect = { l:0, t:0, r:0, b:0 };
+		this.fire = newTicker(180, function(d) {
+			STORY.on(STORY.events.PLAYER_FIRE, d);
+		}, this);
 
 		UTIL.addFrameGroupAnim(this, 120, [
 			this.frames0,
@@ -1363,29 +1342,25 @@ function newBoss() {
 	]);
 	boss.data.ext = Array(2);
 	ieach(boss.data.ext, function(i, v) {
-		UTIL.addAnimate(boss, {
-			t: newTicker(50),
-			d: {
-				i: 0,
-				t: 0,
-				vt: random(0.05, 0.15),
-				p: random(1),
-				vp: random(0.01, 0.03),
-				a: 20,
-				b: 15,
-			},
-			f: function(d) {
-				d.t += d.vt;
-				d.p += d.vp;
-				d.i = (d.i + 1) % 16;
-				boss.data.ext[i] = {
-					x: d.a*Math.cos(d.t)*Math.cos(d.p) - d.b*Math.sin(d.t)*Math.sin(d.p),
-					y: d.a*Math.cos(d.t)*Math.sin(d.p) + d.b*Math.sin(d.t)*Math.cos(d.p),
-					z: Math.sin(d.t),
-					s: 1.0,
-					frame: { res:'effboss', sx:d.i*16, sy:0, sw:16, sh:16, w:16, h:16 },
-				}
+		UTIL.addAnimate(boss, 50, function(d) {
+			d.t += d.vt;
+			d.p += d.vp;
+			d.i = (d.i + 1) % 16;
+			boss.data.ext[i] = {
+				x: d.a*Math.cos(d.t)*Math.cos(d.p) - d.b*Math.sin(d.t)*Math.sin(d.p),
+				y: d.a*Math.cos(d.t)*Math.sin(d.p) + d.b*Math.sin(d.t)*Math.cos(d.p),
+				z: Math.sin(d.t),
+				s: 1.0,
+				frame: { res:'effboss', sx:d.i*16, sy:0, sw:16, sh:16, w:16, h:16 },
 			}
+		}, {
+			i: 0,
+			t: 0,
+			vt: random(0.05, 0.15),
+			p: random(1),
+			vp: random(0.01, 0.03),
+			a: 20,
+			b: 15,
 		});
 	});
 	boss.drawStatic = function(d, s) {
