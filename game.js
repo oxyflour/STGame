@@ -694,7 +694,7 @@ SPRITE.newCls('Static', {
 		DC.save();
 
 		if (s.d.creating)
-			d.max_opacity = DC.globalAlpha = s.d.age / s.d.life;
+			DC.globalAlpha = d.max_opacity = s.d.age / s.d.life;
 		else if (s.d.dying)
 			DC.globalAlpha = Math.min(d.max_opacity, 1 - s.d.age / s.d.life);
 		else
@@ -714,20 +714,17 @@ SPRITE.newCls('Static', {
 		{ living:   1, life: Math.Inf, next: 2 },
 		{ dying:    1, life: 500 }
 	],
-	initStatic: function(d) {
-		this.state = UTIL.newAliveState(this.states);
-		this.anim = newAnimateList();
-		this.data = extend({
-			x: (GAME.rect.l+GAME.rect.r)/2,
-			y: (GAME.rect.t+GAME.rect.b)/2,
-			text: 'Static Text',
-			color: undefined,
-			font: undefined,
-			frame: undefined, // i.e. {res:'player0L', sx:0, sy:0, sw:10, sh:10, w:10, h:10}
-		}, d);
-	},
 }, function(d) {
-	this.initStatic(d);
+	this.state = UTIL.newAliveState(this.states);
+	this.anim = newAnimateList();
+	this.data = extend({
+		x: (GAME.rect.l+GAME.rect.r)/2,
+		y: (GAME.rect.t+GAME.rect.b)/2,
+		frame: undefined, // i.e. {res:'player0L', sx:0, sy:0, sw:10, sh:10, w:10, h:10}
+		text: 'Static Text',
+		color: undefined,
+		font: undefined,
+	}, d);
 });
 
 SPRITE.newCls('Base', {
@@ -780,19 +777,16 @@ SPRITE.newCls('Base', {
 		t: 40,
 		b: 20
 	},
-	initBase: function(d) {
-		d = extend({
-			r: 10,
-			vx: 0,
-			vy: 0,
-			x0: 0,
-			y0: 0,
-		}, d);
-		this.initStatic(d);
-		this.rect = { l:0, t:0, r:0, b:0 };
-	},
 }, function(d) {
-	this.initBase(d);
+	d = extend({
+		r: 10,
+		vx: 0,
+		vy: 0,
+		x0: 0,
+		y0: 0,
+	}, d);
+	SPRITE.init.Static.call(this, d);
+	this.rect = { l:0, t:0, r:0, b:0 };
 });
 
 SPRITE.newCls('Player', {
@@ -951,52 +945,48 @@ SPRITE.newCls('Player', {
 	], array(7, function(i) {
 		return extend({ res:'player0R', sy:0, sw:32, sh:48, w:32, h:48 }, { sx:255-32*(i+1) });
 	})),
-
-	initPlayer: function(d) {
-		d = extend({
-			r: 15,
-			h: 3,
-
-			x: (GAME.rect.l+GAME.rect.r)/2,
-			y: GAME.rect.t*0.2 + GAME.rect.b*0.8,
-			vx: 0,
-			vy: 0,
-			x0: 0,
-			y0: 0,
-		}, d);
-		this.initStatic(d);
-		this.rect = { l:0, t:0, r:0, b:0 };
-		this.fire = newTicker(180, function(d) {
-			STORY.on(STORY.events.PLAYER_FIRE, d);
-		}, this);
-
-		UTIL.addFrameGroupAnim(this, 120, [
-			this.frames0,
-			this.framesL,
-			this.framesR
-		], function(v, d, fgs) {
-			if (v.data.vx == 0)
-				return fgs[0];
-			var fs = fgs[v.data.vx < 0 ? 1 : 2];
-			if (d.frames != fs)
-				d.index = 0;
-			if (d.index + 1 > fs.length - 1)
-				d.index = 2;
-			return fs;
-		}),
-		this.data.conf = extend({
-			key_left: 37,
-			key_up: 38,
-			key_right: 39,
-			key_down: 40,
-			key_fire: GAME.keychars.Z,
-			key_bomb: GAME.keychars.X,
-			fire_interval: 80,
-			fire_count: 8,
-		}, this.data.conf);
-	},
 }, function(d) {
-	this.initPlayer(d);
+	d = extend({
+		r: 15,
+		h: 3,
+
+		x: (GAME.rect.l+GAME.rect.r)/2,
+		y: GAME.rect.t*0.2 + GAME.rect.b*0.8,
+		vx: 0,
+		vy: 0,
+		x0: 0,
+		y0: 0,
+	}, d);
+	SPRITE.init.Static.call(this, d);
+	this.rect = { l:0, t:0, r:0, b:0 };
+	this.fire = newTicker(180, function(d) {
+		STORY.on(STORY.events.PLAYER_FIRE, d);
+	}, this);
+
+	UTIL.addFrameGroupAnim(this, 120, [
+		this.frames0,
+		this.framesL,
+		this.framesR
+	], function(v, d, fgs) {
+		if (v.data.vx == 0)
+			return fgs[0];
+		var fs = fgs[v.data.vx < 0 ? 1 : 2];
+		if (d.frames != fs)
+			d.index = 0;
+		if (d.index + 1 > fs.length - 1)
+			d.index = 2;
+		return fs;
+	}),
+	this.data.conf = extend({
+		key_left: 37,
+		key_up: 38,
+		key_right: 39,
+		key_down: 40,
+		key_fire: GAME.keychars.Z,
+		key_bomb: GAME.keychars.X,
+		fire_interval: 80,
+		fire_count: 8,
+	}, this.data.conf);
 });
 
 SPRITE.newCls('Ball', {
@@ -1036,7 +1026,7 @@ SPRITE.newCls('Ball', {
 		{ dying:    1, life: 500 }
 	],
 }, function(d) {
-	this.initBase(d);
+	SPRITE.init.Base.call(this, d);
 });
 
 SPRITE.newCls('Enemy', {
@@ -1070,7 +1060,7 @@ SPRITE.newCls('Enemy', {
 		life: 10,
 		damage: 0
 	}, d);
-	this.initBase(d);
+	SPRITE.init.Base.call(this, d);
 });
 
 SPRITE.newCls('Bullet', {
@@ -1102,7 +1092,7 @@ SPRITE.newCls('Bullet', {
 		from: null, // from which player
 		to: null,	// to which enemy
 	}, d);
-	this.initBase(d);
+	SPRITE.init.Base.call(this, d);
 });
 
 SPRITE.newCls('Drop', {
@@ -1147,7 +1137,7 @@ SPRITE.newCls('Drop', {
 		collected_auto: false,
 		frame: { res:'etama3', sx:32, sy:0, sw:16, sh:16, w:20, h:20 }
 	}, d);
-	this.initBase(d);
+	SPRITE.init.Base.call(this, d);
 });
 
 SPRITE.newCls('Dannmaku', {
@@ -1203,7 +1193,7 @@ SPRITE.newCls('Dannmaku', {
 		from: null,
 		type: 0
 	}, d);
-	this.initBase(d);
+	SPRITE.init.Base.call(this, d);
 });
 
 SPRITE.newCls('ByAnother', {
@@ -1217,7 +1207,7 @@ SPRITE.newCls('ByAnother', {
 			s.setWith('dying');
 	},
 }, function(d) {
-	this.initStatic(d);
+	SPRITE.init.Static.call(this, d);
 });
 
 // for test only
@@ -1344,7 +1334,7 @@ function newBoss() {
 		{ fx:0.1, fy:0.1, v:3 },
 		{ fx:0.5, fy:0.1, v:3 },
 	]);
-	boss.data.ext = Array(2);
+	boss.data.ext = Array(3);
 	ieach(boss.data.ext, function(i, v) {
 		UTIL.addAnimate(boss, 50, function(d) {
 			d.t += d.vt;
