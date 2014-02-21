@@ -886,8 +886,10 @@ SPRITE.newCls('Player', {
 		}
 	},
 	runStatic: function(dt, d, s) {
-		if (!this.isAlive)
+		if (!this.isAlive) {
 			STORY.on(STORY.events.PLAYER_DEAD, this);
+			return;
+		}
 
 		if (!s.d.dying)
 			this.runPlayer(dt, d, s);
