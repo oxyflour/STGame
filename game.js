@@ -366,6 +366,16 @@ var SPRITE = (function() {
 		}
 		c ? loop(c) : _t.eachCls(loop);
 	};
+	_t.getAliveOne = function(c) {
+		for (var ls = _t.obj[c], i = 0, n = ls.length; i < n; i ++)
+			if (ls[i].isAlive) return ls[i];
+	},
+	_t.getAliveAll = function(c) {
+		var ret = [];
+		for (var ls = _t.obj[c], i = 0, n = ls.length; i < n; i ++)
+			if (ls[i].isAlive) ret.push(ls[i]);
+		return ret;
+	},
 	_t.clearObj = function(c) {
 		_t.eachObj(function(v) {
 			v.isAlive = false;
@@ -501,16 +511,6 @@ var GAME = (function() {
 })();
 
 var UTIL = {
-	getAliveObj: function(c) {
-		return ieach(SPRITE.obj[c], function(i, v) {
-			if (v.isAlive) return v;
-		});
-	},
-	getAliveObjs: function(c) {
-		return ieach(SPRITE.obj[c], function(i, v, d) {
-			if (v.isAlive) d.push(v);
-		}, []);
-	},
 	addAnimate: function(v, t, f, d) {
 		var t = newTicker(t, f, d);
 		v.anim.add(t);
@@ -1111,7 +1111,7 @@ SPRITE.newCls('Drop', {
 	runBase: function(dt, d, s) {
 		var v = d.collected;
 		if (v && !v.isAlive)
-			v = d.collected = UTIL.getAliveObj('Player');
+			v = d.collected = SPRITE.getAliveOne('Player');
 		if (v && v.isAlive && !v.state.d.dying) {
 			var e = v.data,
 				v = d.collected_auto ? 0.8 : sqrt_sum(d.vx, d.vy),
@@ -1176,7 +1176,7 @@ SPRITE.newCls('Dannmaku', {
 			}
 			else {
 				if (!d.to || !d.to.isAlive)
-					d.to = UTIL.getAliveObj('Player');
+					d.to = SPRITE.getAliveOne('Player');
 				if (d.to) {
 					d.vx -= 10e-7 * dt * (d.x - d.to.data.x);
 					d.vy -= 10e-7 * dt * (d.y - d.to.data.y);
@@ -1295,7 +1295,7 @@ function newBullet(v) {
 }
 function newDannmaku(v, type, ts) {
 	var e = v.data,
-		p = UTIL.getAliveObj('Player').data;
+		p = SPRITE.getAliveOne('Player').data;
 	var r = sqrt_sum(e.x-p.x, e.y-p.y),
 		t = Math.asin((p.x - e.x) / r),
 		n = 15, p = Math.PI*1.5,
@@ -1546,7 +1546,7 @@ tl.sec1 = {
 		}, 'Dannmaku');
 		STORY.timeout(function() {
 			STORY.on(STORY.events.PLAYER_AUTOCOLLECT,
-				UTIL.getAliveObj('Player'));
+				SPRITE.getAliveOne('Player'));
 		}, 100);
 	},
 	on: function(e, v, d) {
