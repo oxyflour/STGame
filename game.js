@@ -1344,7 +1344,39 @@ function newBoss() {
 		{ fx:0.1, fy:0.1, v:3 },
 		{ fx:0.5, fy:0.1, v:3 },
 	]);
+	boss.data.ext = Array(2);
+	ieach(boss.data.ext, function(i, v) {
+		UTIL.addAnimate(boss, {
+			t: newTicker(50),
+			d: {
+				i: 0,
+				t: 0,
+				vt: random(0.05, 0.15),
+				p: random(1),
+				vp: random(0.01, 0.03),
+				a: 20,
+				b: 15,
+			},
+			f: function(d) {
+				d.t += d.vt;
+				d.p += d.vp;
+				d.i = (d.i + 1) % 16;
+				boss.data.ext[i] = {
+					x: d.a*Math.cos(d.t)*Math.cos(d.p) - d.b*Math.sin(d.t)*Math.sin(d.p),
+					y: d.a*Math.cos(d.t)*Math.sin(d.p) + d.b*Math.sin(d.t)*Math.cos(d.p),
+					z: Math.sin(d.t),
+					s: 1.0,
+					frame: { res:'effboss', sx:d.i*16, sy:0, sw:16, sh:16, w:16, h:16 },
+				}
+			}
+		});
+	});
 	boss.drawStatic = function(d, s) {
+		ieach(boss.data.ext, function(i, e) {
+			var f = e.frame;
+			DC.drawImageInt(RES[f.res], f.sx, f.sy, f.sw, f.sh,
+				d.x+e.x-f.sw/2, d.y+e.y-f.sh/2, f.sw*e.s, f.sh*e.s);
+		});
 		if (d.frame)
 			this.drawFrame(d, s);
 		DC.beginPath();
