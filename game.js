@@ -79,6 +79,11 @@ function random(b, e) {
 function randin(ls) {
 	return ls[Math.floor(Math.random()*ls.length)];
 }
+function limit_between(x, min, max) {
+	if (x > max) x = max;
+	if (x < min) x = min;
+	return x;
+}
 function squa_sum(x, y) {
 	return x*x + y*y;
 }
@@ -1233,11 +1238,10 @@ function newPlayer() {
 			var dist = 25,
 				dx = dist * Math.cos(d.t),
 				dy = dist * Math.sin(d.t);
+				dv = p.data.slowMode ? d.vt : -d.vt;
 			d.x = p.data.x + dx;
 			d.y = p.data.y - dy;
-			d.t += dt * (p.data.slowMode ? d.vt : -d.vt);
-			if (d.t > d.tMax) d.t = d.tMax;
-			if (d.t < d.tMin) d.t = d.tMin;
+			d.t = limit_between(d.t + dt * dv, d.tMin, d.tMax);
 		};
 		UTIL.addFrameAnim(s, 50, array(16, function(i) {
 			return extend({ res:'onmyou', sy:0, sw:16, sh:16, w:16, h:16 }, { sx:16*i });
