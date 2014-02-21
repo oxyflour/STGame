@@ -152,6 +152,18 @@ function newTicker(t) {
 	}
 	return _t;
 }
+function newTick(t, f, d) {
+	var _t = {
+		t: t,
+		d: d,
+		c: 0,
+		run: function(dt) {
+			for (_t.c += dt; _t.c >= 0; _t.c -= _t.t)
+				f(_t.d);
+		},
+	}
+	return _t;
+}
 function newAnimateList() {
 	var _t = [], unused = [];
 	_t.add = function(v, e) {
@@ -618,13 +630,14 @@ var UTIL = {
 };
 
 (function() {
-	var timeCounter = newCounter();
-	var tick = function() {
-		var dt = timeCounter();
+	var dt = newCounter();
+	var gameTick = newTick(10, function() {
 		if (GAME.state == GAME.states.RUNNING)
-			GAME.run(Math.min(dt, 15));
-	}
-	setInterval(tick, 10);
+			GAME.run(10);
+	});
+	setInterval(function() {
+		gameTick.run(dt());
+	}, 10);
 
 	GAME.fps = 0;
 	var fpsCounter = newFPSCounter();
@@ -657,7 +670,7 @@ var UTIL = {
 	ieach(['keydown', 'keyup'], function(i, v) {
 		window.addEventListener(v, function(e) {
 			GAME.input(e);
-			tick();
+			gameTick.run(dt());
 		});
 	});
 })();
