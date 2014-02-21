@@ -403,7 +403,7 @@ var STORY = (function() {
 		}, hook);
 	}
 	_t.timeout = function(f, t, d, n) {
-		n = n>=0 ? n : 1;
+		n = (n >= 0) ? n : 1;
 		_t.anim.add(newTicker(t, function(d) {
 			if (n-->=0)
 				f.call(d, n);
@@ -865,12 +865,12 @@ SPRITE.newCls('Player', {
 		d.y += d.vy * dt;
 
 		// FIRE!
-		if (!d.firetick) d.firetick = newTicker(80, function(v) {
+		if (!d.firetick) d.firetick = newTicker(d.conf.fire_interval, function(v) {
 			v.data.fires --;
 			STORY.on(STORY.events.PLAYER_FIRE, v);
 		}, this);
-		if (GAME.keyste[d.conf.key_fire] && d.fires !== 10) {
-			d.fires = 10;
+		if (GAME.keyste[d.conf.key_fire] && d.fires !== d.conf.fire_count) {
+			d.fires = d.conf.fire_count;
 		}
 		if (d.fires > 0)
 			d.firetick.run(dt);
@@ -991,6 +991,8 @@ SPRITE.newCls('Player', {
 			key_down: 40,
 			key_fire: GAME.keychars.Z,
 			key_bomb: GAME.keychars.X,
+			fire_interval: 80,
+			fire_count: 8,
 		}, this.data.conf);
 	},
 }, function(d) {
