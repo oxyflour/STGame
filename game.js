@@ -1094,14 +1094,12 @@ SPRITE.newCls('Bullet', {
 			e = u && u.data;
 		if (!u || !u.isAlive || !u.state.d.mkDamage)
 			return;
-		if (d.type == 1) {
-			var dx = e.x - d.x,
-				dy = e.y - d.y,
-				r = sqrt_sum(dx, dy),
-				v = sqrt_sum(d.vx, d.vy);
-			d.vx = v * dx / r;
-			d.vy = v * dy / r;
-		}
+		var dx = e.x - d.x,
+			dy = e.y - d.y,
+			r = sqrt_sum(dx, dy),
+			v = sqrt_sum(d.vx, d.vy);
+		d.vx = v * dx / r;
+		d.vy = v * dy / r;
 	},
 	states: [
 		{ creating: 1, life: 50, next: 1 },
@@ -1112,8 +1110,8 @@ SPRITE.newCls('Bullet', {
 	d = extend({
 		r: 5,
 		vy: -0.5,
-		from: null, // from which player
-		to: null,	// to which enemy
+		from: undefined, // from which player
+		to: undefined,	// to which enemy
 	}, d);
 	SPRITE.init.Base.call(this, d);
 });
@@ -1285,7 +1283,6 @@ function newBullet(v) {
 			y: onmyou.data.y,
 			vy: -v1*Math.cos(t),
 			vx: v1*x*Math.sin(t),
-			type: 1,
 			from: v,
 			to: e,
 			frames: array(6, function(i) {
