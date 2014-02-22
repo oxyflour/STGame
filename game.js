@@ -1200,32 +1200,19 @@ SPRITE.newCls('Dannmaku', {
 	SPRITE.init.Base.call(this, d);
 });
 
-SPRITE.newCls('ByAnother', {
-	from: 'Static',
-	runByAnother: undefined,
-	runStatic: function(dt, d, s) {
-		var p = d.by;
-		if (this.runByAnother)
-			this.runByAnother(dt, d, s, p);
-		if ((!p || !p.isAlive || p.state.d.dying) && !s.d.dying)
-			s.setWith('dying');
-	},
-}, function(d) {
-	SPRITE.init.Static.call(this, d);
-});
-
 // for test only
 function newPlayer() {
 	var p = SPRITE.newObj('Player'),
-		sl = SPRITE.newObj('ByAnother',
-			{ by:p, t:Math.PI*0.9, tMax:Math.PI*0.9, tMin:Math.PI*0.6, vt:-0.005 }),
-		sr = SPRITE.newObj('ByAnother',
-			{ by:p, t:Math.PI*0.1, tMax:Math.PI*0.4, tMin:Math.PI*0.1, vt:+0.005 });
+		sl = SPRITE.newObj('Static',
+			{ parent:p, t:Math.PI*0.9, tMax:Math.PI*0.9, tMin:Math.PI*0.6, vt:-0.005 }),
+		sr = SPRITE.newObj('Static',
+			{ parent:p, t:Math.PI*0.1, tMax:Math.PI*0.4, tMin:Math.PI*0.1, vt:+0.005 });
 	p.data.onmyouLeft = sl;
 	p.data.onmyouRight = sr;
 	ieach([sl, sr], function(i, s) {
-		s.runByAnother = function(dt, d, s, p) {
-			var dist = 25,
+		s.runStatic = function(dt, d, s) {
+			var p = d.parent,
+				dist = 25,
 				dx = dist * Math.cos(d.t),
 				dy = dist * Math.sin(d.t);
 				dv = p.data.slowMode ? d.vt : -d.vt;
@@ -1597,7 +1584,7 @@ ieach([
 }, tl);
 tl.boss = {
 	init: function(d) {
-		killCls('Static', 'Enemy', 'Dannmaku');
+		killCls('Enemy', 'Dannmaku');
 		STORY.timeout(function() {
 			newBoss();
 		}, 1000);
