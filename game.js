@@ -156,7 +156,19 @@ function newTicker(t, f, d) {
 }
 function newAnimateList() {
 	var _t = [], unused = [];
+	_t.clean = function() {
+		var ls = [];
+		for (var i = 0, n = _t.length; i < n; i ++)
+			if (_t[i]) ls.push(_t[i]);
+		_t.length = 0;
+		for (var i = 0, n = ls.length; i < n; i ++)
+			_t.push(ls[i]);
+		unused = [];
+	};
 	_t.add = function(t) { // t should be object returned from newTicker()
+		var n = _t.length;
+		if (n > 40 && unused.length > n/2)
+			_t.clean();
 		t.finished = false;
 		_t[unused.length ? unused.pop() : _t.length] = t;
 	};
