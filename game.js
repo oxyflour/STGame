@@ -1297,17 +1297,18 @@ function genDannmaku(d, v) {
 	else {
 		d = extend({
 			theta: 0,
-			theta_rand_min: 0.9,
-			theta_rand_max: 1.1,
-			theta_step: 0.1,
+			theta_rand: 0.05,
+			theta_rand_min: 0.8,
+			theta_rand_max: 1.2,
+			theta_step: 0.15,
 			theta_count: 9,
 			theta_velocity: 0.0,
 			theta_velocity_flip: false,
-			count: 8,
+			count: 9,
 			times: 10,
 			interval: 200,
 			radius: 20,
-			velocity: 0.25,
+			velocity: 0.2,
 			from: v,
 			x: undefined,
 			y: undefined,
@@ -1321,7 +1322,7 @@ function genDannmaku(d, v) {
 			}
 		}[d && d.preset], d);
 		var idx = 0, cnt = d.theta_count-1;
-		STORY.timeout(function(d) {
+		STORY.timeout(function(d, n) {
 			if (v && v.state.d.living) {
 				for(var i = 0; i < d.count; i ++) {
 					if (idx ++ >= cnt)
@@ -1330,13 +1331,13 @@ function genDannmaku(d, v) {
 					if (d.theta_velocity_flip)
 						d.theta_velocity = -d.theta_velocity;
 
-					var p = d.to ? d.to.data : SPRITE.getAliveOne('Player').data,
-						x = +d.x === d.x ? d.x : d.from.data.x,
-						y = +d.y === d.y ? d.y : d.from.data.y,
-						t = Math.atan2(p.y-y, p.x-x) + d.theta*random(d.theta_rand_min, d.theta_rand_max);
+					var to = d.to ? d.to.data : SPRITE.getAliveOne('Player').data,
+						from = +d.x === d.x ? { x:d.x, y:d.y } : d.from.data,
+						t = Math.atan2(to.y-from.y, to.x-from.x) +
+							d.theta*random(d.theta_rand_min, d.theta_rand_max)+random(d.theta_rand);
 					SPRITE.newObj('Dannmaku', extend({
-						x: x + d.radius*Math.cos(t),
-						y: y + d.radius*Math.sin(t),
+						x: from.x + d.radius*Math.cos(t),
+						y: from.y + d.radius*Math.sin(t),
 						vx: d.velocity*Math.cos(t+d.theta_velocity),
 						vy: d.velocity*Math.sin(t+d.theta_velocity),
 						r: 3,
@@ -1532,7 +1533,7 @@ tl.all = {
 	}
 };
 tl.init = {
-	run: UTIL.newTimeRunner(5000, 'sec1'),
+	run: UTIL.newTimeRunner(5000, 'sec0'),
 	init: function(d) {
 		newPlayer();
 		d.title = SPRITE.newObj('Static', {
@@ -1684,4 +1685,5 @@ tl.end = {
 RES.check(function() {
 	STORY.load(tl, tl.all);
 	GAME.start('init');
+	STORY.state.set('sec1');
 });
