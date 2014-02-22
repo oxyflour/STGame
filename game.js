@@ -1294,51 +1294,74 @@ function newBullet(v) {
 		});
 	});
 }
-function newDannmaku1(x, y, r, v, t) {
-	var p = SPRITE.getAliveOne('Player').data,
-		t0 = -Math.atan(y-p.y, x-p.x),
-		tc = t0 + t*random(0.8, 1.2),
-		sin = Math.sin(tc),
-		cos = Math.cos(tc);
-	SPRITE.newObj('Dannmaku', {
-		x: x + r*cos,
-		y: y + r*sin,
-		vx: v*cos,
-		vy: v*sin,
-		r: 3,
-		frame: { res:'etama3', sx:0, sy:64, sw:16, sh:16, w:16, h:16, rotate:true },
-		from: v,
-	});
-}
-function fireDannmaku(v, d) {
-	if (d == 1) {
-		var n = 100, min = -7, max = 7, i = min, dt = 0.2;
-		var ts = array(n, function() {
-			i = ++i > max ? min : i;
-			return i * dt;
-		});
-		UTIL.addAnimate(v, 50, function() {
-			if (v.state.d.living && ts.length)
-				newDannmaku1(v.data.x, v.data.y, 20, 0.2, ts.pop());
+function genDannmaku(d, v) {
+	if (d.type == 'any') {
+	}
+	else {
+		d = extend({
+			theta: 0,
+			theta_rand_min: 1,
+			theta_rand_max: 1,
+			theta_step: 0.2,
+			theta_max_abs: 0,
+			theta_reverse: false,
+			theta_velocity: 0.0,
+			theta_velocity_flip: false,
+			count: 8,
+			radius: 20,
+			velocity: 0.25,
+			interval: 200,
+			times: 10,
+			from: v,
+			x: undefined,
+			y: undefined,
+			to: undefined,
+			dannmaku: undefined,
+		}, {
+			'com1': {
+				count: 1,
+				times: 50,
+				interval: 50,
+			}
+		}[d && d.preset], d);
+		d.theta = 0;
+		STORY.timeout(function(d) {
+			if (v && v.state.d.living) {
+				for(var i = 0; i < d.count; i ++) {
+					if (Math.abs(d.theta / d.theta_max_abs) > 1) {
+						if (d.theta_reverse)
+							d.theta_step = -d.theta_step;
+						else
+							d.theta = -d.theta;
+					}
+					d.theta += d.theta_step;
+					if (d.theta_velocity_flip)
+						d.theta_velocity = -d.theta_velocity;
+
+					var p = d.to ? d.to.data : SPRITE.getAliveOne('Player').data,
+						x = +d.x === d.x ? d.x : d.from.data.x,
+						y = +d.y === d.y ? d.y : d.from.data.y,
+						t = -Math.atan(y-p.y, x-p.x) + d.theta*random(d.theta_rand_min, d.theta_rand_max);
+					SPRITE.newObj('Dannmaku', extend({
+						x: x + d.radius*Math.cos(t),
+						y: y + d.radius*Math.sin(t),
+						vx: d.velocity*Math.cos(t+d.theta_velocity),
+						vy: d.velocity*Math.sin(t+d.theta_velocity),
+						r: 3,
+						from: v,
+						frame: { res:'etama3', sx:0, sy:64, sw:16, sh:16, w:16, h:16, rotate:true },
+					}, d.dannmaku));
+				};
+			}
 			else
 				this.finished = true;
-		});
-	}
-	else if (1) {
-		var n = 10, m = 7;
-		UTIL.addAnimate(v, 250, function() {
-			if (v.state.d.living) array(m, function(i) {
-				var t = (i - (m-1) / 2) * 0.3;
-				newDannmaku1(v.data.x, v.data.y, 20, 0.2, t);
-			});
-			this.finished = (--n < 0);
-		});
+		}, d.interval, d, d.times);
 	}
 }
-function newEnemy(type) {
+function newEnemy(d, f) {
 	var bx = randin([0, 1]) * 32*4,
 		by = randin([0, 1, 2]) * 32;
-	var enm = SPRITE.newObj('Enemy', {
+	d = extend({
 		x: random(GAME.rect.l+100, GAME.rect.r-100),
 		vx: random(-0.05, 0.05),
 		vy: random(0.01, 0.1),
@@ -1346,11 +1369,19 @@ function newEnemy(type) {
 		frtick: 150,
 		frames: array(4, function(i) {
 			return extend({ res:'stg1enm', sy:by, sw:32, sh:32, w:32, h:32 }, { sx:bx+32*i });
-		})
-	});
-	STORY.timeout(function(v) {
-		fireDannmaku(v, type);
-	}, random(1000, 2000), enm);
+		}),
+	}, {
+		'com1': {
+			// example
+		}
+	}[d && d.preset], d);
+	f = f || {
+		delay: 1000,
+	};
+	var enm = SPRITE.newObj('Enemy', d);
+	if (f) STORY.timeout(function(enm) {
+		genDannmaku(f, enm);
+	}, f.delay || 0, enm);
 }
 function newBoss() {
 	var boss = SPRITE.newObj('Enemy', {
@@ -1509,7 +1540,7 @@ tl.all = {
 	}
 };
 tl.init = {
-	run: UTIL.newTimeRunner(5000, 'sec0'),
+	run: UTIL.newTimeRunner(5000, 'sec1'),
 	init: function(d) {
 		newPlayer();
 		d.title = SPRITE.newObj('Static', {
@@ -1543,7 +1574,7 @@ tl.sec0 = {
 tl.sec1 = {
 	init: function(d) {
 		STORY.timeout(function(d, n) {
-			if (n < 3) newEnemy(tl.loop || 0);
+			if (n < 3) newEnemy();
 		}, 300, null, 8);
 	},
 	run: function(dt, d) {
@@ -1586,7 +1617,7 @@ tl.sec1 = {
 		}
 		else if (e == STORY.events.OBJECT_OUT) {
 			if (v.clsId == SPRITE.proto.Enemy.clsId && !v.state.d.dying)
-				newEnemy(tl.loop);
+				newEnemy();
 		}
 	}
 };
