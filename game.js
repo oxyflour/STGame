@@ -1300,18 +1300,17 @@ function genDannmaku(d, v) {
 	else {
 		d = extend({
 			theta: 0,
-			theta_rand_min: 1,
-			theta_rand_max: 1,
-			theta_step: 0.2,
-			theta_max_abs: 0,
-			theta_reverse: false,
+			theta_rand_min: 0.9,
+			theta_rand_max: 1.1,
+			theta_step: 0.1,
+			theta_count: 9,
 			theta_velocity: 0.0,
 			theta_velocity_flip: false,
 			count: 8,
+			times: 10,
+			interval: 200,
 			radius: 20,
 			velocity: 0.25,
-			interval: 200,
-			times: 10,
 			from: v,
 			x: undefined,
 			y: undefined,
@@ -1324,24 +1323,20 @@ function genDannmaku(d, v) {
 				interval: 50,
 			}
 		}[d && d.preset], d);
-		d.theta = 0;
+		var idx = 0, cnt = d.theta_count-1;
 		STORY.timeout(function(d) {
 			if (v && v.state.d.living) {
 				for(var i = 0; i < d.count; i ++) {
-					if (Math.abs(d.theta / d.theta_max_abs) > 1) {
-						if (d.theta_reverse)
-							d.theta_step = -d.theta_step;
-						else
-							d.theta = -d.theta;
-					}
-					d.theta += d.theta_step;
+					if (idx ++ >= cnt)
+						idx = 0;
+					d.theta = (idx - cnt/2) * d.theta_step;
 					if (d.theta_velocity_flip)
 						d.theta_velocity = -d.theta_velocity;
 
 					var p = d.to ? d.to.data : SPRITE.getAliveOne('Player').data,
 						x = +d.x === d.x ? d.x : d.from.data.x,
 						y = +d.y === d.y ? d.y : d.from.data.y,
-						t = -Math.atan(y-p.y, x-p.x) + d.theta*random(d.theta_rand_min, d.theta_rand_max);
+						t = Math.atan2(p.y-y, p.x-x) + d.theta*random(d.theta_rand_min, d.theta_rand_max);
 					SPRITE.newObj('Dannmaku', extend({
 						x: x + d.radius*Math.cos(t),
 						y: y + d.radius*Math.sin(t),
