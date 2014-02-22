@@ -314,8 +314,9 @@ var RES = (function(res) {
 			loaded();
 			fn();
 		}
-		else
-			setTimeout(check, 500);
+		else setTimeout(function() {
+			check(fn);
+		}, 500);
 	};
 	return _t;
 })($e('res'));
