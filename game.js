@@ -655,16 +655,18 @@ SPRITE.newCls('Static', {
 	layer: 'L10',
 	runStatic: undefined,
 	run: function(dt) {
-		var d = this.data, s = this.state;
+		var d = this.data, s = this.state, a = this.anim;
 
 		s.run(dt);
 		if (!s.d.life)
 			this.isAlive = false;
+		if (d.parent && d.parent.state.d.dying)
+			s.setWith('dying');
 
 		if (this.runStatic)
 			this.runStatic(dt, d, s);
 
-		this.anim.run(dt, this);
+		a.run(dt);
 	},
 	drawStatic: undefined,
 	drawText: function(d, s) {
@@ -724,6 +726,8 @@ SPRITE.newCls('Static', {
 		text: 'Static Text',
 		color: undefined,
 		font: undefined,
+
+		parent: undefined,
 	}, d);
 });
 
