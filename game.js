@@ -415,8 +415,7 @@ var STORY = (function() {
 	_t.timeout = function(f, t, d, n) {
 		n = (n >= 0) ? n : 1;
 		_t.anim.add(newTicker(t, function(d) {
-			if (n-->=0)
-				f.call(d, n);
+			if (n-->=0) f(d, n);
 			this.finished = (n <= 0);
 		}, d));
 	}
@@ -1316,6 +1315,12 @@ function newDannmaku(v, type, ts) {
 		type: type
 	});
 }
+function fireDannmaku(v, d) {
+	STORY.timeout(function(v, n) {
+		if (v.isAlive && v.state.d.living)
+			newDannmaku(v, d, n);
+	}, 20, v, 100);
+}
 function newEnemy(type) {
 	var bx = randin([0, 1]) * 32*4,
 		by = randin([0, 1, 2]) * 32;
@@ -1329,10 +1334,9 @@ function newEnemy(type) {
 			return extend({ res:'stg1enm', sy:by, sw:32, sh:32, w:32, h:32 }, { sx:bx+32*i });
 		})
 	});
-	STORY.timeout(function(n) {
-		if (n < 60 && enm.isAlive && enm.state.d.living)
-			newDannmaku(enm, type, n);
-	}, 20, null, 100);
+	STORY.timeout(function(v) {
+		fireDannmaku(v, type);
+	}, random(1000, 2000), enm);
 }
 function newBoss() {
 	var boss = SPRITE.newObj('Enemy', {
@@ -1506,7 +1510,7 @@ tl.init = {
 tl.sec0 = {
 	run: UTIL.newTimeRunner(20000, 'sec1'),
 	init: function(d) {
-		STORY.timeout(function(n) {
+		STORY.timeout(function(d, n) {
 			newBall(n > 10 ? 0.05 : 0.25, n > 10 ? 0.6 : 0.2);
 		}, 20, null, 60);
 	},
@@ -1524,7 +1528,7 @@ tl.sec0 = {
 };
 tl.sec1 = {
 	init: function(d) {
-		STORY.timeout(function(n) {
+		STORY.timeout(function(d, n) {
 			if (n < 3) newEnemy(tl.loop || 0);
 		}, 300, null, 8);
 	},
@@ -1562,8 +1566,8 @@ tl.sec1 = {
 			var pass = reduce(SPRITE.obj.Enemy, function(i, v, r) {
 				return v.isAlive ? (r && v.state.d.dying) : r;
 			}, true);
-			if (pass) STORY.timeout(function() {
-				this.pass = true;
+			if (pass) STORY.timeout(function(d) {
+				d.pass = true;
 			}, 100, d);
 		}
 		else if (e == STORY.events.OBJECT_OUT) {
