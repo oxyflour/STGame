@@ -877,25 +877,31 @@ SPRITE.newCls('Player', {
 		d.y += d.vy * dt;
 
 		// FIRE!
-		if (!d.firetick) d.firetick = newTicker(d.conf.fire_interval, function(v) {
-			v.data.fires --;
-			STORY.on(STORY.events.PLAYER_FIRE, v);
-		}, this);
-		if (GAME.keyste[d.conf.key_fire] && d.fires !== d.conf.fire_count) {
-			d.fires = d.conf.fire_count;
+		if (GAME.keyste[d.conf.key_fire]) {
+			if (!d.is_firing) {
+				d.fire_tick = newTicker(d.conf.fire_interval, function(v) {
+					STORY.on(STORY.events.PLAYER_FIRE, v);
+				}, this);
+				d.fire_tick.f(this);
+			}
+			d.is_firing = true;
+			d.fire_count = d.conf.fire_count;
 		}
-		if (d.fires > 0)
-			d.firetick.run(dt);
+		else if (d.is_firing) {
+			d.fire_count -= dt;
+			if (d.fire_count <= 0)
+				d.is_firing = false;
+		}
+		if (d.is_firing)
+			d.fire_tick.run(dt);
 
 		// BOMB!
-		if (GAME.keyste[d.conf.key_bomb] && !s.d.bomb) {
+		if (GAME.keyste[d.conf.key_bomb] && !s.d.bomb)
 			STORY.on(STORY.events.PLAYER_BOMB, this);
-		}
 
 		// AUTO COLLECT!
-		if (d.y < GAME.rect.t*0.7 + GAME.rect.b*0.3) {
-			STORY.on(STORY.events.PLAYER_AUTOCOLLECT, this);
-		}
+		if (d.y < GAME.rect.t*0.7 + GAME.rect.b*0.3)
+			STORY.on(STORY.events.PLAYER_AUTOCOLLECT, v);
 	},
 	runStatic: function(dt, d, s) {
 		if (!this.isAlive) {
@@ -1003,7 +1009,7 @@ SPRITE.newCls('Player', {
 		key_fire: GAME.keychars.Z,
 		key_bomb: GAME.keychars.X,
 		fire_interval: 80,
-		fire_count: 8,
+		fire_count: 500,
 	}, this.data.conf);
 });
 
