@@ -546,7 +546,8 @@ var UTIL = {
 		UTIL.addAnimate(v, t, function(d) {
 			var e = v.data,
 				n = d.pathnodes[d.index];
-			if (!n) return true;
+			if (!n)
+				return this.finished = true;
 
 			if (+n.fx === n.fx)
 				n.x = GAME.rect.l * (1-n.fx) + GAME.rect.r * n.fx;
@@ -727,8 +728,21 @@ SPRITE.newCls('Static', {
 		color: undefined,
 		font: undefined,
 
-		parent: undefined,
+		parent: undefined, // if parent is dead, it will kill self too
+
+		frtick: 50,
+		frames: undefined, // array of frames
 	}, d);
+	if (this.data.frames)
+		UTIL.addFrameAnim(this, this.data.frtick, this.data.frames);
+});
+ieach([10, 20, 99], function(i, v) {
+	SPRITE.newCls('StaticL'+v, {
+		from: 'Static',
+		layer: 'L'+v,
+	}, function(d) {
+		SPRITE.init.Static.call(this, d);
+	});
 });
 
 SPRITE.newCls('Base', {
@@ -1085,7 +1099,7 @@ SPRITE.newCls('Bullet', {
 		}
 	},
 	states: [
-		{ creating: 1, life: 100, next: 1 },
+		{ creating: 1, life: 50, next: 1 },
 		{ living:   1, life: Math.Inf, next: 2 },
 		{ dying:    1, life: 10 }	
 	],
@@ -1202,23 +1216,18 @@ SPRITE.newCls('Dannmaku', {
 
 // for test only
 function newPlayer() {
-	var p = SPRITE.newObj('Player'),
-		sl = SPRITE.newObj('Static',
-			{ parent:p, t:Math.PI*0.9, tMax:Math.PI*0.9, tMin:Math.PI*0.6, vt:-0.005 }),
-		sr = SPRITE.newObj('Static',
-			{ parent:p, t:Math.PI*0.1, tMax:Math.PI*0.4, tMin:Math.PI*0.1, vt:+0.005 });
-	p.data.onmyouLeft = sl;
-	p.data.onmyouRight = sr;
-	ieach([sl, sr], function(i, s) {
+	var p = SPRITE.newObj('Player');
+	p.data.onmyous = {
+		left:  SPRITE.newObj('Static', { parent:p, anim:{ r:25, t:0.9, max:0.9, min:0.6, v:-0.002 } }),
+		right: SPRITE.newObj('Static', { parent:p, anim:{ r:25, t:0.1, max:0.4, min:0.1, v:+0.002 } }),
+	};
+	keach(p.data.onmyous, function(k, s) {
 		s.runStatic = function(dt, d, s) {
-			var p = d.parent,
-				dist = 25,
-				dx = dist * Math.cos(d.t),
-				dy = dist * Math.sin(d.t);
-				dv = p.data.slowMode ? d.vt : -d.vt;
-			d.x = p.data.x + dx;
-			d.y = p.data.y - dy;
-			d.t = limit_between(d.t + dt * dv, d.tMin, d.tMax);
+			var a = d.anim,
+				dv = p.data.slowMode ? a.v : -a.v;
+			a.t = limit_between(a.t + dt * dv, a.min, a.max);
+			d.x = d.parent.data.x + a.r * Math.cos(a.t * Math.PI);
+			d.y = d.parent.data.y - a.r * Math.sin(a.t * Math.PI);
 		};
 		UTIL.addFrameAnim(s, 50, array(16, function(i) {
 			return extend({ res:'onmyou', sy:0, sw:16, sh:16, w:16, h:16 }, { sx:16*i });
@@ -1251,7 +1260,8 @@ function newBullet(v) {
 	}, 'Enemy');
 	ieach([1, -1], function(i, x) {
 		var v0 = 0.7, v1 = 0.5,
-			t = random(10, 20) * Math.PI / 180;
+			t = (v.data.slowMode ? random(-5, 5) : random(10, 20)) * Math.PI / 180,
+			onmyou = x > 0 ? v.data.onmyous.right : v.data.onmyous.left;
 		var a = SPRITE.newObj('Bullet', {
 			x: v.data.x + 10*x,
 			y: v.data.y,
@@ -1259,7 +1269,6 @@ function newBullet(v) {
 			from: v,
 			frame: { res:'bullet0', sx:0, sy:0, sw:16, sh:16, w:16, h:16 },
 		});
-		var onmyou = x > 0 ? v.data.onmyouRight : v.data.onmyouLeft;
 		var b = SPRITE.newObj('Bullet', {
 			x: onmyou.data.x,
 			y: onmyou.data.y,
