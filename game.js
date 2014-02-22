@@ -985,9 +985,6 @@ SPRITE.newCls('Player', {
 	}, d);
 	SPRITE.init.Static.call(this, d);
 	this.rect = { l:0, t:0, r:0, b:0 };
-	this.fire = newTicker(180, function(d) {
-		STORY.on(STORY.events.PLAYER_FIRE, d);
-	}, this);
 
 	UTIL.addFrameGroupAnim(this, 120, [
 		this.frames0,
@@ -1297,32 +1294,46 @@ function newBullet(v) {
 		});
 	});
 }
-function newDannmaku(v, type, ts) {
-	var e = v.data,
-		p = SPRITE.getAliveOne('Player').data;
-	var r = sqrt_sum(e.x-p.x, e.y-p.y),
-		t = Math.asin((p.x - e.x) / r),
-		n = 15, p = Math.PI*1.5,
-		i = (ts % n - (n-1) / 2) * p/n,
-		c = t + i*random(0.8, 1.2),
-		dx = Math.sin(c),
-		dy = Math.cos(c);
-	var dann = SPRITE.newObj('Dannmaku', {
-		x: e.x + 20*dx,
-		y: e.y + 20*dy,
-		vx: 0.3*dx,
-		vy: 0.3*dy,
+function newDannmaku1(x, y, r, v, t) {
+	var p = SPRITE.getAliveOne('Player').data,
+		t0 = -Math.atan(y-p.y, x-p.x),
+		tc = t0 + t*random(0.8, 1.2),
+		sin = Math.sin(tc),
+		cos = Math.cos(tc);
+	SPRITE.newObj('Dannmaku', {
+		x: x + r*cos,
+		y: y + r*sin,
+		vx: v*cos,
+		vy: v*sin,
 		r: 3,
 		frame: { res:'etama3', sx:0, sy:64, sw:16, sh:16, w:16, h:16, rotate:true },
 		from: v,
-		type: type
 	});
 }
 function fireDannmaku(v, d) {
-	STORY.timeout(function(v, n) {
-		if (v.isAlive && v.state.d.living)
-			newDannmaku(v, d, n);
-	}, 20, v, 100);
+	if (d == 1) {
+		var n = 100, min = -7, max = 7, i = min, dt = 0.2;
+		var ts = array(n, function() {
+			i = ++i > max ? min : i;
+			return i * dt;
+		});
+		UTIL.addAnimate(v, 50, function() {
+			if (v.state.d.living && ts.length)
+				newDannmaku1(v.data.x, v.data.y, 20, 0.2, ts.pop());
+			else
+				this.finished = true;
+		});
+	}
+	else if (1) {
+		var n = 10, m = 7;
+		UTIL.addAnimate(v, 250, function() {
+			if (v.state.d.living) array(m, function(i) {
+				var t = (i - (m-1) / 2) * 0.3;
+				newDannmaku1(v.data.x, v.data.y, 20, 0.2, t);
+			});
+			this.finished = (--n < 0);
+		});
+	}
 }
 function newEnemy(type) {
 	var bx = randin([0, 1]) * 32*4,
