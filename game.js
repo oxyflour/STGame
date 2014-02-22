@@ -862,7 +862,7 @@ SPRITE.newCls('Player', {
 	
 	runPlayer: function(dt, d, s) {
 		var m = GAME.keyste.shiftKey,
-			v = m ? 0.14 : 0.35;
+			v = m ? 0.12 : 0.35;
 		d.slowMode = m;
 		d.x0 = d.x;
 		d.y0 = d.y;
@@ -999,7 +999,7 @@ SPRITE.newCls('Player', {
 		this.framesL,
 		this.framesR
 	], function(v, d, fgs) {
-		if (v.data.vx == 0)
+		if (Math.abs(v.data.vx) < 0.1)
 			return fgs[0];
 		var fs = fgs[v.data.vx < 0 ? 1 : 2];
 		if (d.frames != fs)
