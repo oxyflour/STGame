@@ -615,7 +615,7 @@ var UTIL = {
 			GAME.run(10);
 	});
 	setInterval(function() {
-		gameTick.run(dt());
+		gameTick.run(Math.min(dt(), 100));
 	}, 10);
 
 	GAME.fps = 0;
@@ -649,7 +649,7 @@ var UTIL = {
 	ieach(['keydown', 'keyup'], function(i, v) {
 		window.addEventListener(v, function(e) {
 			GAME.input(e);
-			gameTick.run(dt());
+			gameTick.run(Math.min(dt(), 100));
 		});
 	});
 })();
