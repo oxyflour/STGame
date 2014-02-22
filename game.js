@@ -1216,10 +1216,19 @@ SPRITE.newCls('Dannmaku', {
 
 // for test only
 function newPlayer() {
+	var fs = array(16, function(i) {
+		return extend({ res:'onmyou', sy:0, sw:16, sh:16, w:16, h:16 }, { sx:16*i });
+	});
 	var p = SPRITE.newObj('Player');
 	p.data.onmyous = {
-		left:  SPRITE.newObj('Static', { parent:p, anim:{ r:25, t:0.9, max:0.9, min:0.6, v:-0.002 } }),
-		right: SPRITE.newObj('Static', { parent:p, anim:{ r:25, t:0.1, max:0.4, min:0.1, v:+0.002 } }),
+		left:  SPRITE.newObj('Static', {
+			parent: p, frames: fs,
+			anim: { r:25, t:0.9, max:0.9, min:0.6, v:-0.002 }
+		}),
+		right: SPRITE.newObj('Static', {
+			parent: p, frames: fs,
+			anim: { r:25, t:0.1, max:0.4, min:0.1, v:+0.002 }
+		}),
 	};
 	keach(p.data.onmyous, function(k, s) {
 		s.runStatic = function(dt, d, s) {
@@ -1229,9 +1238,6 @@ function newPlayer() {
 			d.x = d.parent.data.x + a.r * Math.cos(a.t * Math.PI);
 			d.y = d.parent.data.y - a.r * Math.sin(a.t * Math.PI);
 		};
-		UTIL.addFrameAnim(s, 50, array(16, function(i) {
-			return extend({ res:'onmyou', sy:0, sw:16, sh:16, w:16, h:16 }, { sx:16*i });
-		}));
 	});
 }
 function newBall(v, fy) {
@@ -1276,11 +1282,11 @@ function newBullet(v) {
 			vx: v1*x*Math.sin(t),
 			type: 1,
 			from: v,
-			to: e
+			to: e,
+			frames: array(6, function(i) {
+				return extend({ res:'bullet1', sy:0, sw:16, sh:16, w:16, h:16 }, { sx:16*i });
+			})
 		});
-		UTIL.addFrameAnim(b, 50, array(6, function(i) {
-			return extend({ res:'bullet1', sy:0, sw:16, sh:16, w:16, h:16 }, { sx:16*i });
-		}));
 	});
 }
 function newDannmaku(v, type, ts) {
@@ -1312,10 +1318,11 @@ function newEnemy(type) {
 		vx: random(-0.05, 0.05),
 		vy: random(0.01, 0.1),
 		r: 16,
+		frtick: 150,
+		frames: array(4, function(i) {
+			return extend({ res:'stg1enm', sy:by, sw:32, sh:32, w:32, h:32 }, { sx:bx+32*i });
+		})
 	});
-	UTIL.addFrameAnim(enm, 150, array(4, function(i) {
-		return extend({ res:'stg1enm', sy:by, sw:32, sh:32, w:32, h:32 }, { sx:bx+32*i });
-	}));
 	STORY.timeout(function(n) {
 		if (n < 60 && enm.isAlive && enm.state.d.living)
 			newDannmaku(enm, type, n);
@@ -1325,10 +1332,11 @@ function newBoss() {
 	var boss = SPRITE.newObj('Enemy', {
 		r: 24,
 		life: 300,
+		frtick: 150,
+		frames: array(8, function(i) {
+			return extend({ res:'stg1enm', sy:255-48, sw:32, sh:48, w:32, h:48 }, { sx:32*i });
+		})
 	});
-	UTIL.addFrameAnim(boss, 150, array(8, function(i) {
-		return extend({ res:'stg1enm', sy:255-48, sw:32, sh:48, w:32, h:48 }, { sx:32*i });
-	}));
 	UTIL.addPathAnim(boss, 30, [
 		{ fx:0.0, fy:0.0, v:3 },
 		{ fx:0.1, fy:0.1, v:3 },
@@ -1371,22 +1379,22 @@ function newBoss() {
 		DC.closePath();
 	}
 }
-function newEffect(v, scale) {
+function newEffect(v) {
 	var eff = SPRITE.newObj('Base', {
 		x: v.data.x,
 		y: v.data.y,
 		vx: v.data.vx*=0.1,
 		vy: v.data.vy*=0.1,
+		frames: array(20, function(i) {
+			var r = [32,42,52,62,60,58,56,54,52,50,48,46,44,42,40,38,36,34,32,30,28,26][i]*0.5;
+			return extend({ res:'eff00', sx:0, sy:0, sw:32, sh:32 }, { w:r*2, h:r*2 });
+		})
 	});
 	eff.state = UTIL.newAliveState([
 		{ creating: 1, life: 100, next:  1 },
 		{ living:   1, life: 50, next:  2 },
 		{ dying:    1, life: 850 },
 	]);
-	UTIL.addFrameAnim(eff, 50, array(20, function(i) {
-		var r = [32,42,52,62,60,58,56,54,52,50,48,46,44,42,40,38,36,34,32,30,28,26][i]*(scale || 0.5);
-		return extend({ res:'eff00', sx:0, sy:0, sw:32, sh:32 }, { w:r*2, h:r*2 });
-	}));
 }
 function killCls() {
 	ieach(arguments, function(i, c) {
