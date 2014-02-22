@@ -148,7 +148,7 @@ function newTicker(t, f, d) {
 		d: d,
 		f: f,
 		run: function(dt) {
-			for (_t.c += dt; _t.c >= 0; _t.c -= _t.t)
+			for (_t.c += dt; _t.c >= _t.t; _t.c -= _t.t)
 				_t.f(_t.d);
 		},
 	}
