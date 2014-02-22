@@ -342,7 +342,6 @@ var SPRITE = (function() {
 			if (!v.isAlive) return i;
 		}, ls.length);
 		obj.idx = idx;
-		obj.isAlive = true;
 		ls[idx] = obj;
 
 		return obj;
@@ -418,8 +417,7 @@ var STORY = (function() {
 	_t.timeout = function(f, t, d, n) {
 		n = (n >= 0) ? n : 1;
 		_t.anim.add(newTicker(t, function(d) {
-			if (n-->=0) f(d, n);
-			this.finished = (n <= 0);
+			this.finished = f(d, --n) || n <= 0;
 		}, d));
 	}
 	_t.run = function(dt) {
@@ -514,8 +512,11 @@ var GAME = (function() {
 
 var UTIL = {
 	addAnimate: function(v, t, f, d) {
-		var t = newTicker(t, f, d);
-		v.anim.add(t);
+		var t = newTicker(t, function() {
+			this.finished = f(d, v) || !v.isAlive;
+		});
+		STORY.anim.add(t);
+		// execute once after added
 		t.f(t.d);
 	},
 	// fs should be array of objects like
@@ -549,7 +550,7 @@ var UTIL = {
 			var e = v.data,
 				n = d.pathnodes[d.index];
 			if (!n)
-				return this.finished = true;
+				return true;
 
 			if (+n.fx === n.fx)
 				n.x = interp(GAME.rect.l, GAME.rect.r, n.fx);
@@ -658,7 +659,7 @@ SPRITE.newCls('Static', {
 	layer: 'L10',
 	runStatic: undefined,
 	run: function(dt) {
-		var d = this.data, s = this.state, a = this.anim;
+		var d = this.data, s = this.state;
 
 		s.run(dt);
 		if (!s.d.life)
@@ -668,8 +669,6 @@ SPRITE.newCls('Static', {
 
 		if (this.runStatic)
 			this.runStatic(dt, d, s);
-
-		a.run(dt);
 	},
 	drawStatic: undefined,
 	drawText: function(d, s) {
@@ -720,8 +719,8 @@ SPRITE.newCls('Static', {
 		{ dying:    1, life: 500 }
 	],
 }, function(d) {
+	this.isAlive = true;
 	this.state = UTIL.newAliveState(this.states);
-	this.anim = newAnimateList();
 	this.data = extend({
 		x: interp(GAME.rect.l, GAME.rect.r, 0.5),
 		y: interp(GAME.rect.t, GAME.rect.b, 0.5),
