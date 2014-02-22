@@ -1,5 +1,8 @@
 Math.Inf = parseFloat('Infinity');
 
+function return_self(x) {
+	return x;
+}
 function array(n, fn) {
 	var ls = [];
 	for (var i = 0; i < n; i ++) {
@@ -8,9 +11,7 @@ function array(n, fn) {
 	return ls;
 }
 function range(n) {
-	return array(n, function(i) {
-		return i;
-	});
+	return array(n, return_self);
 }
 function ieach(ls, fn, d) {
 	var n = ls.length, r = undefined;
@@ -157,17 +158,12 @@ function newTicker(t, f, d) {
 function newAnimateList() {
 	var _t = [], unused = [];
 	_t.clean = function() {
-		var ls = [];
-		for (var i = 0, n = _t.length; i < n; i ++)
-			if (_t[i]) ls.push(_t[i]);
-		_t.length = 0;
-		for (var i = 0, n = ls.length; i < n; i ++)
-			_t.push(ls[i]);
-		unused = [];
+		var ls = _t.filter(return_self);
+		_t.length = unused.length = 0;
+		_t.push.apply(_t, ls);
 	};
 	_t.add = function(t) { // t should be object returned from newTicker()
-		var n = _t.length;
-		if (n > 40 && unused.length > n/2)
+		if (unused.length > 30)
 			_t.clean();
 		t.finished = false;
 		_t[unused.length ? unused.pop() : _t.length] = t;
