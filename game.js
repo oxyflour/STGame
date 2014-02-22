@@ -84,6 +84,9 @@ function limit_between(x, min, max) {
 	if (x < min) x = min;
 	return x;
 }
+function interp(x0, x1, f) {
+	return x0 * (1-f) + x1 * f;
+}
 function squa_sum(x, y) {
 	return x*x + y*y;
 }
@@ -549,9 +552,9 @@ var UTIL = {
 				return this.finished = true;
 
 			if (+n.fx === n.fx)
-				n.x = GAME.rect.l * (1-n.fx) + GAME.rect.r * n.fx;
+				n.x = interp(GAME.rect.l, GAME.rect.r, n.fx);
 			if (+n.fy === n.fy)
-				n.y = GAME.rect.t * (1-n.fy) + GAME.rect.b * n.fy;
+				n.y = interp(GAME.rect.t, GAME.rect.b, n.fy);
 
 			if (d.index == 0) {
 				e.x = n.x;
@@ -720,8 +723,8 @@ SPRITE.newCls('Static', {
 	this.state = UTIL.newAliveState(this.states);
 	this.anim = newAnimateList();
 	this.data = extend({
-		x: (GAME.rect.l+GAME.rect.r)/2,
-		y: (GAME.rect.t+GAME.rect.b)/2,
+		x: interp(GAME.rect.l, GAME.rect.r, 0.5),
+		y: interp(GAME.rect.t, GAME.rect.b, 0.5),
 		frame: undefined, // i.e. {res:'player0L', sx:0, sy:0, sw:10, sh:10, w:10, h:10}
 		text: 'Static Text',
 		color: undefined,
@@ -899,7 +902,7 @@ SPRITE.newCls('Player', {
 			STORY.on(STORY.events.PLAYER_BOMB, this);
 
 		// AUTO COLLECT!
-		if (d.y < GAME.rect.t*0.7 + GAME.rect.b*0.3)
+		if (d.y < interp(GAME.rect.t, GAME.rect.b, 0.3))
 			STORY.on(STORY.events.PLAYER_AUTOCOLLECT, v);
 	},
 	runStatic: function(dt, d, s) {
@@ -973,8 +976,8 @@ SPRITE.newCls('Player', {
 		r: 15,
 		h: 3,
 
-		x: (GAME.rect.l+GAME.rect.r)/2,
-		y: GAME.rect.t*0.2 + GAME.rect.b*0.8,
+		x: interp(GAME.rect.l, GAME.rect.r, 0.5),
+		y: interp(GAME.rect.t, GAME.rect.b, 0.8),
 		vx: 0,
 		vy: 0,
 		x0: 0,
@@ -1079,7 +1082,7 @@ SPRITE.newCls('Enemy', {
 }, function(d) {
 	d = extend({
 		r: 20,
-		y: GAME.rect.t*0.9+GAME.rect.b*0.1,
+		y: interp(GAME.rect.t, GAME.rect.b, 0.1),
 		life: 10,
 		damage: 0
 	}, d);
@@ -1250,7 +1253,7 @@ function newBall(v, fy) {
 		r = random(10) + 5;
 	SPRITE.newObj('Ball', {
 		x: random(GAME.rect.l, GAME.rect.r),
-		y: random(GAME.rect.t, GAME.rect.t*(1-fy)+GAME.rect.b*fy),
+		y: random(GAME.rect.t, interp(GAME.rect.t, GAME.rect.b, fy)),
 		vx: v*Math.sin(t),
 		vy: v*Math.cos(t),
 		r: r,
@@ -1577,12 +1580,12 @@ tl.sec1 = {
 	}
 };
 ieach([
-	{ t:'x0aabbcc', x:GAME.rect.l+50, y:GAME.rect.t*0.2+GAME.rect.b*0.8, name:'diag' },
-	{ t:'y0aabbcc', x:GAME.rect.r-50, y:GAME.rect.t*0.2+GAME.rect.b*0.8 },
-	{ t:'x0aabbcc', x:GAME.rect.l+50, y:GAME.rect.t*0.2+GAME.rect.b*0.8 },
-	{ t:'y0aabbcc', x:GAME.rect.r-50, y:GAME.rect.t*0.2+GAME.rect.b*0.8 },
-	{ t:'x0aabbcc', x:GAME.rect.l+50, y:GAME.rect.t*0.2+GAME.rect.b*0.8 },
-	{ t:'y0aabbcc', x:GAME.rect.r-50, y:GAME.rect.t*0.2+GAME.rect.b*0.8, next:'boss' },
+	{ t:'x0aabbcc', x:GAME.rect.l+50, y:interp(GAME.rect.t, GAME.rect.b, 0.8), name:'diag' },
+	{ t:'y0aabbcc', x:GAME.rect.r-50, y:interp(GAME.rect.t, GAME.rect.b, 0.8) },
+	{ t:'x0aabbcc', x:GAME.rect.l+50, y:interp(GAME.rect.t, GAME.rect.b, 0.8) },
+	{ t:'y0aabbcc', x:GAME.rect.r-50, y:interp(GAME.rect.t, GAME.rect.b, 0.8) },
+	{ t:'x0aabbcc', x:GAME.rect.l+50, y:interp(GAME.rect.t, GAME.rect.b, 0.8) },
+	{ t:'y0aabbcc', x:GAME.rect.r-50, y:interp(GAME.rect.t, GAME.rect.b, 0.8), next:'boss' },
 ], function(i, v, tl) {
 	var c = v.name || 'diag'+i, n = v.next || 'diag'+(i+1);
 	tl[c] = {
