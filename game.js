@@ -1225,17 +1225,14 @@ SPRITE.newCls('Dannmaku', {
 
 // for test only
 function newPlayer() {
-	var fs = array(16, function(i) {
-		return extend({ res:'onmyou', sy:0, sw:16, sh:16, w:16, h:16 }, { sx:16*i });
-	});
 	var p = SPRITE.newObj('Player');
 	p.data.onmyous = {
 		left:  SPRITE.newObj('Static', {
-			parent: p, frames: fs,
+			parent: p, frames: RES.frames.Onmyou,
 			anim: { r:25, t:0.9, max:0.9, min:0.6, v:-0.002 }
 		}),
 		right: SPRITE.newObj('Static', {
-			parent: p, frames: fs,
+			parent: p, frames: RES.frames.Onmyou,
 			anim: { r:25, t:0.1, max:0.4, min:0.1, v:+0.002 }
 		}),
 	};
@@ -1277,14 +1274,14 @@ function newBullet(v) {
 		var v0 = 0.7, v1 = 0.5,
 			t = (v.data.slowMode ? random(-5, 5) : random(10, 20)) * Math.PI / 180,
 			onmyou = x > 0 ? v.data.onmyous.right : v.data.onmyous.left;
-		var a = SPRITE.newObj('Bullet', {
+		SPRITE.newObj('Bullet', {
 			x: v.data.x + 10*x,
 			y: v.data.y,
 			vy: -v0,
 			from: v,
 			frames: RES.frames.Bullet0,
 		});
-		var b = SPRITE.newObj('Bullet', {
+		SPRITE.newObj('Bullet', {
 			x: onmyou.data.x,
 			y: onmyou.data.y,
 			vy: -v1*Math.cos(t),
