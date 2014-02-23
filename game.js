@@ -1310,6 +1310,7 @@ function genDannmaku(d, v) {
 			theta_rand_max: 1.2,
 			theta_step: 0.15,
 			theta_count: 9,
+			theta_reverse: false,
 			theta_velocity: 0.0,
 			theta_velocity_flip: false,
 			count: 9,
@@ -1327,15 +1328,21 @@ function genDannmaku(d, v) {
 				count: 1,
 				times: 50,
 				interval: 50,
-			}
+			},
+			'com2': {
+				count: 1,
+				times: 50,
+				interval: 50,
+				theta_reverse: true,
+			},
 		}[d && d.preset], d);
 		var idx = 0, cnt = d.theta_count-1;
 		STORY.timeout(function(d, n) {
 			if (v && v.state.d.living) {
 				for(var i = 0; i < d.count; i ++) {
 					if (idx ++ >= cnt)
-						idx = 0;
-					d.theta = (idx - cnt/2) * d.theta_step;
+						idx = d.theta_reverse ? -cnt : 0;
+					d.theta = (Math.abs(idx) - cnt/2) * d.theta_step;
 					if (d.theta_velocity_flip)
 						d.theta_velocity = -d.theta_velocity;
 
