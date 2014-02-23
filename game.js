@@ -1315,7 +1315,7 @@ function genDannmaku(d, v) {
 			theta_velocity: 0.0,
 			theta_velocity_flip: false,
 			count: 9,
-			times: 10,
+			layers: 10,
 			interval: 200,
 			radius: 20,
 			velocity: 0.2,
@@ -1327,20 +1327,20 @@ function genDannmaku(d, v) {
 		}, {
 			'com1': {
 				count: 1,
-				times: 50,
+				layers: 50,
 				interval: 50,
 			},
 			'com2': {
 				count: 1,
-				times: 50,
+				layers: 50,
 				interval: 50,
 				theta_reverse: true,
 			},
 		}[d && d.preset], d);
 		var idx = 0, cnt = d.theta_count-1;
-		STORY.timeout(function(d, n) {
+		STORY.timeout(function(d, layer) {
 			if (v && v.state.d.living) {
-				for(var i = 0; i < d.count; i ++) {
+				for(var count = 0; count < d.count; count ++) {
 					if (idx ++ >= cnt)
 						idx = d.theta_reverse ? -cnt : 0;
 					d.theta = (Math.abs(idx) - cnt/2) * d.theta_step;
@@ -1358,13 +1358,14 @@ function genDannmaku(d, v) {
 						vy: d.velocity*Math.sin(t+d.theta_velocity),
 						r: 3,
 						from: v,
-						frames: RES.frames.LongB,
+						frames: RES.frames.LongA,
+						generator: { layer:layer, count:count }
 					}, d.dannmaku));
 				};
 			}
 			else
 				this.finished = true;
-		}, d.interval, d, d.times);
+		}, d.interval, d, d.layers);
 	}
 }
 function newEnemy(d, f) {
@@ -1410,27 +1411,36 @@ function newBoss() {
 				x: d.a*Math.cos(d.t)*Math.cos(d.p) - d.b*Math.sin(d.t)*Math.sin(d.p),
 				y: d.a*Math.cos(d.t)*Math.sin(d.p) + d.b*Math.sin(d.t)*Math.cos(d.p),
 				z: Math.sin(d.t),
-				s: 1.0,
+				s: 1.0 + 0.4*Math.sin(d.t),
 				frame: RES.frames.EffBoss[d.i],
 			}
 		}, {
 			i: 0,
 			t: 0,
-			vt: random(0.05, 0.15),
+			vt: random(0.05, 0.10),
 			p: random(1),
-			vp: random(0.01, 0.03),
-			a: 20,
-			b: 15,
+			vp: random(0.01, 0.05),
+			a: 30,
+			b: 10,
 		});
 	});
 	boss.drawStatic = function(d, s) {
 		ieach(boss.data.ext, function(i, e) {
-			var f = e.frame;
-			DC.drawImageInt(RES[f.res], f.sx, f.sy, f.sw, f.sh,
-				d.x+e.x-f.sw/2, d.y+e.y-f.sh/2, f.sw*e.s, f.sh*e.s);
+			if (e.z < 0) {
+				var f = e.frame;
+				DC.drawImageInt(RES[f.res], f.sx, f.sy, f.sw, f.sh,
+					d.x+e.x-f.sw/2, d.y+e.y-f.sh/2, f.sw*e.s, f.sh*e.s);
+			}
 		});
 		if (d.frame)
 			this.drawFrame(d, s);
+		ieach(boss.data.ext, function(i, e) {
+			if (e.z > 0) {
+				var f = e.frame;
+				DC.drawImageInt(RES[f.res], f.sx, f.sy, f.sw, f.sh,
+					d.x+e.x-f.sw/2, d.y+e.y-f.sh/2, f.sw*e.s, f.sh*e.s);
+			}
+		});
 		DC.beginPath();
 		DC.arc(d.x, d.y, d.r*1.5, 0, (d.life-d.damage)/d.life*2*Math.PI);
 		DC.stroke();

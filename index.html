@@ -106,7 +106,7 @@ body {
 				return { res:'effboss', sx:i*16, sy:0, sw:16, sh:16, w:16, h:16 };
 			});
 			_t.EffEnemy = ieach([32,42,52,62,60,58,56,54,52,50,48,46,44,42,40,38,36,34,32,30,28,26], function(i, d, ls) {
-				ls.push(extend({ res:'eff00', sx:32, sy:0, sw:32, sh:32, rotate:-i*0.2 }, { w:d, h:d }));
+				ls.push(extend({ res:'eff00', sx:32, sy:0, sw:32, sh:32, rotate:-i*0.3 }, { w:d, h:d }));
 			}, []);
 			_t.EffPlayer = ieach([32,42,52,62,67,72,76,80,83,86,89,92,95,98,101,104,107,110,113,116,119,122], function(i, d, ls) {
 				ls.push(extend({ res:'eff00', sx:0, sy:0, sw:32, sh:32 }, { w:d*1.5, h:d*1.5 }));
