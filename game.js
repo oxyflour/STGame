@@ -350,13 +350,10 @@ var SPRITE = (function() {
 		proto: {},
 		sort: [],
 	};
-	var clsId = 0;
 	_t.newCls = function(c, proto, init) {
 		var from = proto.from ? new _t.init[proto.from]() : {};
-		proto = extend(from, proto, {
-			clsName: c,
-			clsId: clsId++,
-		});
+		proto = extend(from, proto);
+		proto.clsName = c;
 
 		_t.obj[c] = [];
 		_t.init[c] = init;
@@ -868,7 +865,7 @@ SPRITE.newCls('Player', {
 				STORY.on(STORY.events.PLAYER_GRAZE, this);
 			}
 		}
-		else if (v.clsId == SPRITE.proto.Drop.clsId && v.state.d.living) {
+		else if (v.clsName == SPRITE.proto.Drop.clsName && v.state.d.living) {
 			if (circle_intersect(d, { x:e.x, y:e.y, r:20 })) {
 				STORY.on(STORY.events.PLAYER_GETDROP, this);
 				STORY.on(STORY.events.DROP_COLLECTED, v);
@@ -876,7 +873,7 @@ SPRITE.newCls('Player', {
 			else
 				e.collected = this;
 		}
-		else if (v.clsId == SPRITE.proto.Player.clsId) {
+		else if (v.clsName == SPRITE.proto.Player.clsName) {
 			if (circle_intersect(d, e)) {
 				var r = sqrt_sum(d.x - e.x, d.y - e.y),
 					sin = (d.y - e.y) / r,
@@ -1635,7 +1632,7 @@ tl.sec0 = {
 	},
 	on: function(e, v, d) {
 		if (e == STORY.events.OBJECT_OUT) {
-			if (v.clsId == SPRITE.proto.Ball.clsId) {
+			if (v.clsName == SPRITE.proto.Ball.clsName) {
 				var fy = random(0.2, 0.6);
 				newBall(0.6-fy, fy);
 			}
@@ -1687,7 +1684,7 @@ tl.sec1 = {
 			}, 100, d);
 		}
 		else if (e == STORY.events.OBJECT_OUT) {
-			if (v.clsId == SPRITE.proto.Enemy.clsId && !v.state.d.dying)
+			if (v.clsName == SPRITE.proto.Enemy.clsName && !v.state.d.dying)
 				newEnemy();
 		}
 	}
