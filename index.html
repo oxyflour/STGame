@@ -87,10 +87,9 @@ body {
 				{ res:'etama3', sx:16, sy:0, sw:16, sh:16, w:20, h:20 },
 			];
 
-			var j = 0;
 			ieach([0, 128], function(i, x) {
-				ieach([0, 32, 64], function(i, y) {
-					_t['Enemy'+(j++)] = array(4, function(i) {
+				ieach([0, 32, 64], function(j, y) {
+					_t['Enemy'+i+j] = array(4, function(i) {
 						return extend({ res:'stg1enm', sy:y, sw:32, sh:32, w:32, h:32 }, { sx:x+32*i });
 					});
 				});
@@ -102,8 +101,11 @@ body {
 			_t.EffBoss = array(16, function(i) {
 				return { res:'effboss', sx:i*16, sy:0, sw:16, sh:16, w:16, h:16 };
 			});
-			_t.EffEnm = ieach([32,42,52,62,60,58,56,54,52,50,48,46,44,42,40,38,36,34,32,30,28,26], function(i, d, ls) {
-				ls.push(extend({ res:'eff00', sx:0, sy:0, sw:32, sh:32 }, { w:d, h:d }));
+			_t.EffEnemy = ieach([32,42,52,62,60,58,56,54,52,50,48,46,44,42,40,38,36,34,32,30,28,26], function(i, d, ls) {
+				ls.push(extend({ res:'eff00', sx:32, sy:0, sw:32, sh:32, rotate:-i*0.2 }, { w:d, h:d }));
+			}, []);
+			_t.EffPlayer = ieach([32,42,52,62,67,72,76,80,83,86,89,92,95,98,101,104,107,110,113,116,119,122], function(i, d, ls) {
+				ls.push(extend({ res:'eff00', sx:0, sy:0, sw:32, sh:32 }, { w:d*1.5, h:d*1.5 }));
 			}, []);
 
 			return _t;

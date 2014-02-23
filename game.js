@@ -1366,7 +1366,7 @@ function newEnemy(d, f) {
 		vy: random(0.01, 0.1),
 		r: 16,
 		frtick: 150,
-		frames: RES.frames['Enemy'+randin(range(6))],
+		frames: RES.frames['Enemy'+randin([0,1])+randin([0,1,2])],
 	}, {
 		'com1': {
 			// example
@@ -1435,7 +1435,10 @@ function newEffect(v) {
 		y: v.data.y,
 		vx: v.data.vx*=0.1,
 		vy: v.data.vy*=0.1,
-		frames: RES.frames.EffEnm,
+		frames: {
+			Enemy: RES.frames.EffEnemy,
+			Player: RES.frames.EffPlayer,
+		}[v.clsName],
 	});
 	eff.state = UTIL.newAliveState([
 		{ creating: 1, life: 100, next:  1 },
@@ -1506,6 +1509,7 @@ tl.all = {
 			SPRITE.newObj('Drop', { vy:vy, x:x+30, y:y-60 });
 			SPRITE.newObj('Drop', { vy:vy, x:x-30, y:y-60 });
 			SPRITE.newObj('Drop', { vy:vy, x:x-90, y:y-50 });
+			newEffect(v);
 		}
 		else if (e == STORY.events.PLAYER_DEAD) {
 			GAME.statics.miss ++;
