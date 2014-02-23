@@ -300,8 +300,14 @@ var RES = (function(res) {
 					trans = $attr(v, 'transform');
 				if (from)
 					updateCanvas(v, from, trans);
+				d[v.id] = v;
 			}
-			d[v.id] = v;
+			else if (v.tagName == 'IMG') {
+				d[v.id] = v;
+			}
+			else if (v.tagName == 'SCRIPT') {
+				d[v.id] = eval(v.innerHTML)();
+			}
 		}, _t);
 	}
 	_t.check = function check(fn) {
@@ -688,7 +694,9 @@ SPRITE.newCls('Static', {
 		DC.fillText(d.t, d.x, d.y);
 	},
 	drawFrame: function(d, s) {
-		var f = d.frame;
+		var f = d.frame,
+			w = (f.w || f.sw) * d.scale,
+			h = (f.h || f.sh) * d.scale;
 		if (f.rotate) {
 			var t = +f.rotate===f.rotate ? f.rotate :
 				Math.PI/2 + Math.atan2(d.vy, d.vx);
@@ -696,11 +704,11 @@ SPRITE.newCls('Static', {
 			DC.rotate(t);
 			DC.drawImageInt(RES[f.res],
 				f.sx, f.sy, f.sw, f.sh,
-				-f.w/2, -f.h/2, f.w, f.h);
+				-w/2, -h/2, w, h);
 		}
 		else DC.drawImageInt(RES[f.res],
 			f.sx, f.sy, f.sw, f.sh,
-			d.x-f.w/2, d.y-f.h/2, f.w, f.h);
+			d.x-w/2, d.y-h/2, w, h);
 	},
 	draw: function() {
 		var d = this.data, s = this.state;
@@ -733,18 +741,24 @@ SPRITE.newCls('Static', {
 	this.data = extend({
 		x: interp(GAME.rect.l, GAME.rect.r, 0.5),
 		y: interp(GAME.rect.t, GAME.rect.b, 0.5),
-		frame: undefined, // i.e. {res:'player0L', sx:0, sy:0, sw:10, sh:10, w:10, h:10}
 		text: 'Static Text',
 		color: undefined,
 		font: undefined,
 
 		parent: undefined, // if parent is dead, it will kill self too
 
+		frame: undefined, // i.e. {res:'player0L', sx:0, sy:0, sw:10, sh:10, w:10, h:10}
+		scale: 1,
+
 		frtick: 50,
 		frames: undefined, // array of frames
 	}, d);
-	if (this.data.frames)
-		UTIL.addFrameAnim(this, this.data.frtick, this.data.frames);
+	if (this.data.frames) {
+		if (this.data.frames.length > 1)
+			UTIL.addFrameAnim(this, this.data.frtick, this.data.frames);
+		else
+			this.data.frame = this.data.frames[0];
+	}
 });
 ieach([10, 20, 99], function(i, v) {
 	SPRITE.newCls('StaticL'+v, {
@@ -963,22 +977,6 @@ SPRITE.newCls('Player', {
 		{ bomb:     1, life: 5000, next:  2, isInvinc: 1 },
 		{ juesi:    1, life:  100, next:  2, isInvinc: 1 },
 	],
-
-	frames0: array(4, function(i) {
-		return extend({ res:'player0L', sy: 0, sw:32, sh:48, w:32, h:48 }, { sx:32*i });
-	}),
-	framesL: arrcat([
-		{ res:'player0L', sx: 0, sy:0, sw:32, sh:48, w:32, h:48 },
-		{ res:'player0L', sx:32, sy:0, sw:32, sh:48, w:32, h:48 },
-	], array(7, function(i) {
-		return extend({ res:'player0L', sy:48, sw:32, sh:48, w:32, h:48 }, { sx:32*i });
-	})),
-	framesR: arrcat([
-		{ res:'player0L', sx: 0, sy:0, sw:32, sh:48, w:32, h:48 },
-		{ res:'player0L', sx:32, sy:0, sw:32, sh:48, w:32, h:48 },
-	], array(7, function(i) {
-		return extend({ res:'player0R', sy:0, sw:32, sh:48, w:32, h:48 }, { sx:255-32*(i+1) });
-	})),
 }, function(d) {
 	d = extend({
 		r: 15,
@@ -995,9 +993,9 @@ SPRITE.newCls('Player', {
 	this.rect = { l:0, t:0, r:0, b:0 };
 
 	UTIL.addFrameGroupAnim(this, 120, [
-		this.frames0,
-		this.framesL,
-		this.framesR
+		RES.frames.Player0,
+		RES.frames.PlayerL,
+		RES.frames.PlayerR,
 	], function(v, d, fgs) {
 		if (Math.abs(v.data.vx) < 0.1)
 			return fgs[0];
@@ -1164,7 +1162,7 @@ SPRITE.newCls('Drop', {
 		vy: -0.4,
 		collected: undefined,
 		collected_auto: false,
-		frame: { res:'etama3', sx:32, sy:0, sw:16, sh:16, w:20, h:20 }
+		frames: RES.frames.Drop,
 	}, d);
 	SPRITE.init.Base.call(this, d);
 });
@@ -1260,8 +1258,8 @@ function newBall(v, fy) {
 		vx: v*Math.sin(t),
 		vy: v*Math.cos(t),
 		r: r,
-		frame: { res:'etama3', sx:randin(range(8))*32, sy:128,
-			sw:32, sh:32, w:r*2.5, h:r*2.5 }
+		scale: 2.5*r / 32,
+		frames: RES.frames['TamaL'+randin(range(8))],
 	});
 }
 function newBullet(v) {
@@ -1284,7 +1282,7 @@ function newBullet(v) {
 			y: v.data.y,
 			vy: -v0,
 			from: v,
-			frame: { res:'bullet0', sx:0, sy:0, sw:16, sh:16, w:16, h:16 },
+			frames: RES.frames.Bullet0,
 		});
 		var b = SPRITE.newObj('Bullet', {
 			x: onmyou.data.x,
@@ -1293,9 +1291,7 @@ function newBullet(v) {
 			vx: v1*x*Math.sin(t),
 			from: v,
 			to: e,
-			frames: array(6, function(i) {
-				return extend({ res:'bullet1', sy:0, sw:16, sh:16, w:16, h:16 }, { sx:16*i });
-			})
+			frames: RES.frames.Bullet1,
 		});
 	});
 }
@@ -1357,7 +1353,7 @@ function genDannmaku(d, v) {
 						vy: d.velocity*Math.sin(t+d.theta_velocity),
 						r: 3,
 						from: v,
-						frame: { res:'etama3', sx:0, sy:64, sw:16, sh:16, w:16, h:16, rotate:true },
+						frames: RES.frames.Tama3,
 					}, d.dannmaku));
 				};
 			}
@@ -1367,17 +1363,13 @@ function genDannmaku(d, v) {
 	}
 }
 function newEnemy(d, f) {
-	var bx = randin([0, 1]) * 32*4,
-		by = randin([0, 1, 2]) * 32;
 	d = extend({
 		x: random(GAME.rect.l+100, GAME.rect.r-100),
 		vx: random(-0.05, 0.05),
 		vy: random(0.01, 0.1),
 		r: 16,
 		frtick: 150,
-		frames: array(4, function(i) {
-			return extend({ res:'stg1enm', sy:by, sw:32, sh:32, w:32, h:32 }, { sx:bx+32*i });
-		}),
+		frames: RES.frames['Enemy'+randin(range(6))],
 	}, {
 		'com1': {
 			// example
@@ -1396,9 +1388,7 @@ function newBoss() {
 		r: 24,
 		life: 300,
 		frtick: 150,
-		frames: array(8, function(i) {
-			return extend({ res:'stg1enm', sy:255-48, sw:32, sh:48, w:32, h:48 }, { sx:32*i });
-		})
+		frames: RES.frames.EnemyX,
 	});
 	UTIL.addPathAnim(boss, 30, [
 		{ fx:0.0, fy:0.0, v:3 },
@@ -1416,7 +1406,7 @@ function newBoss() {
 				y: d.a*Math.cos(d.t)*Math.sin(d.p) + d.b*Math.sin(d.t)*Math.cos(d.p),
 				z: Math.sin(d.t),
 				s: 1.0,
-				frame: { res:'effboss', sx:d.i*16, sy:0, sw:16, sh:16, w:16, h:16 },
+				frames: RES.frames.EffBoss,
 			}
 		}, {
 			i: 0,
@@ -1448,10 +1438,7 @@ function newEffect(v) {
 		y: v.data.y,
 		vx: v.data.vx*=0.1,
 		vy: v.data.vy*=0.1,
-		frames: array(20, function(i) {
-			var r = [32,42,52,62,60,58,56,54,52,50,48,46,44,42,40,38,36,34,32,30,28,26][i]*0.5;
-			return extend({ res:'eff00', sx:0, sy:0, sw:32, sh:32 }, { w:r*2, h:r*2 });
-		})
+		frames: RES.frames.EffEnm,
 	});
 	eff.state = UTIL.newAliveState([
 		{ creating: 1, life: 100, next:  1 },
@@ -1602,7 +1589,7 @@ tl.sec1 = {
 				y: v.data.y,
 				vx: v.data.vx *= 0.01,
 				vx: v.data.vy *= 0.01,
-				frame: { res:'etama3', sx:16, sy:0, sw:16, sh:16, w:20, h:20 },
+				frames: RES.frames.DrapSmall,
 			});
 		}, 'Dannmaku');
 		STORY.timeout(function() {
@@ -1700,5 +1687,5 @@ tl.end = {
 RES.check(function() {
 	STORY.load(tl, tl.all);
 	GAME.start('init');
-	STORY.state.set('sec1');
+//	STORY.state.set('sec1');
 });

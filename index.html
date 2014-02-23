@@ -37,11 +37,75 @@ body {
 	<canvas id="onmyou" from="player0L 128 16 16 16"
 		transform="rotate:0,20,40,80,100,120,140,160,180,200,220,240,260,280,300,320,340"></canvas>
 	<img id="etama3" src="res/etama3.png" />
-	<canvas id="effboss" from="eff00 16 48 16 16"
-		transform="rotate:0,10,20,40,50,60,70,80,90,100,110,120,130,140,150,160,170"></canvas>
 	<img id="etama4" src="res/etama4.png" />
 	<img id="eff00" src="res/eff00.png" />
+	<canvas id="effboss" from="eff00 16 48 16 16"
+		transform="rotate:0,10,20,40,50,60,70,80,90,100,110,120,130,140,150,160,170"></canvas>
 	<img id="stg1enm" src="res/stg1enm.png" />
+	<script id="frames">
+		(function(RES) {
+			var _t = {};
+
+			_t.Player0 = array(4, function(i) {
+				return extend({ res:'player0L', sy: 0, sw:32, sh:48, w:32, h:48 }, { sx:32*i });
+			});
+			_t.PlayerL = arrcat([
+				{ res:'player0L', sx: 0, sy:0, sw:32, sh:48, w:32, h:48 },
+				{ res:'player0L', sx:32, sy:0, sw:32, sh:48, w:32, h:48 },
+			], array(7, function(i) {
+				return extend({ res:'player0L', sy:48, sw:32, sh:48, w:32, h:48 }, { sx:32*i });
+			}));
+			_t.PlayerR = arrcat([
+				{ res:'player0L', sx: 0, sy:0, sw:32, sh:48, w:32, h:48 },
+				{ res:'player0L', sx:32, sy:0, sw:32, sh:48, w:32, h:48 },
+			], array(7, function(i) {
+				return extend({ res:'player0R', sy:0, sw:32, sh:48, w:32, h:48 }, { sx:255-32*(i+1) });
+			}));
+
+			_t.Bullet0 = [
+				{ res:'bullet0', sx:0, sy:0, sw:16, sh:16, w:16, h:16 },
+			];
+			_t.Bullet1 = array(6, function(i) {
+				return extend({ res:'bullet1', sy:0, sw:16, sh:16, w:16, h:16 }, { sx:16*i });
+			});
+
+			array(8, function(i) {
+				_t['TamaL'+i] = [
+					{ res:'etama3', sx:i*32, sy:128, sw:32, sh:32, w:32, h:32 }
+				]
+			});
+			_t.Tama3 = [
+				{ res:'etama3', sx:0, sy:64, sw:16, sh:16, w:16, h:16, rotate:true },
+			];
+			_t.Drop = [
+				{ res:'etama3', sx:32, sy:0, sw:16, sh:16, w:20, h:20 },
+			];
+			_t.DropSmall = [
+				{ res:'etama3', sx:16, sy:0, sw:16, sh:16, w:20, h:20 },
+			];
+
+			var j = 0;
+			ieach([0, 128], function(i, x) {
+				ieach([0, 32, 64], function(i, y) {
+					_t['Enemy'+(j++)] = array(4, function(i) {
+						return extend({ res:'stg1enm', sy:y, sw:32, sh:32, w:32, h:32 }, { sx:x+32*i });
+					});
+				});
+			});
+			_t.EnemyX = array(8, function(i) {
+				return extend({ res:'stg1enm', sy:255-48, sw:32, sh:48, w:32, h:48 }, { sx:32*i });
+			});
+
+			_t.EffBoss = [
+				{ res:'effboss', sx:d.i*16, sy:0, sw:16, sh:16, w:16, h:16 },
+			];
+			_t.EffEnm = ieach([32,42,52,62,60,58,56,54,52,50,48,46,44,42,40,38,36,34,32,30,28,26], function(i, d) {
+				return extend({ res:'eff00', sx:0, sy:0, sw:32, sh:32 }, { w:d, h:d });
+			});
+
+			return _t;
+		})
+	</script>
 </div>
 <div class="absolute full-width">
 	<div>fps: <span class="ui" ui-bind="GAME.fps.toFixed(3)"></span></div>
