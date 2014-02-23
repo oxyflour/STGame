@@ -157,14 +157,19 @@ function newTicker(t, f, d) {
 }
 function newAnimateList() {
 	var _t = [], unused = [];
+	var cleaner = newTicker(1000, function() {
+		var len = unused.length;
+		if (len > 100 || (len > 30 && unused.last_len > 30))
+			_t.clean();
+		unused.last_len = len;
+	});
+
 	_t.clean = function() {
 		var ls = _t.filter(return_self);
 		_t.length = unused.length = 0;
 		_t.push.apply(_t, ls);
 	};
 	_t.add = function(t) { // t should be object returned from newTicker()
-		if (unused.length > 30)
-			_t.clean();
 		t.finished = false;
 		_t[unused.length ? unused.pop() : _t.length] = t;
 	};
@@ -178,6 +183,7 @@ function newAnimateList() {
 				unused.push(i);
 			}
 		}
+		cleaner.run(dt);
 	}
 	return _t;
 }
