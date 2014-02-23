@@ -553,13 +553,13 @@ var UTIL = {
 	},
 	// fgs: array of fs in newFrameAnim
 	// fn should return frames to display
-	addFrameGroupAnim: function(v, t, fgs, fn) {
+	addFrameGroupAnim: function(v, t, fn) {
 		UTIL.addAnimate(v, t, function(d) {
-			d.frames = fn(v, d, fgs);
+			d.frames = fn(v, d);
 			d.index = (d.index + 1) % d.frames.length;
 			v.data.frame = d.frames[d.index];
 		}, {
-			frames: fgs[0],
+			frames: undefined,
 			index: 0
 		});
 	},
@@ -685,7 +685,7 @@ SPRITE.newCls('Static', {
 		s.run(dt);
 		if (!s.d.life)
 			this.isAlive = false;
-		if (d.parent && d.parent.state.d.dying)
+		if (d.parent && d.parent.state.d.dying && !s.d.dying)
 			s.setWith('dying');
 
 		if (this.runStatic)
@@ -998,18 +998,20 @@ SPRITE.newCls('Player', {
 	SPRITE.init.Static.call(this, d);
 	this.rect = { l:0, t:0, r:0, b:0 };
 
-	UTIL.addFrameGroupAnim(this, 120, [
-		RES.frames.Player0,
-		RES.frames.PlayerL,
-		RES.frames.PlayerR,
-	], function(v, d, fgs) {
-		if (Math.abs(v.data.vx) < 0.1)
-			return fgs[0];
-		var fs = fgs[v.data.vx < 0 ? 1 : 2];
-		if (d.frames != fs)
-			d.index = 0;
-		if (d.index + 1 > fs.length - 1)
-			d.index = 2;
+	UTIL.addFrameGroupAnim(this, 120, function(v, d) {
+		var fs = RES.frames.Player0;
+		if (v.state.d.dying) {
+			fs = RES.frames.PlayerD;
+			if (d.index + 1 > fs.length - 1)
+				d.index = fs.length - 2;
+		}
+		else if (Math.abs(v.data.vx) > 0.1) {
+			fs = v.data.vx < 0 ? RES.frames.PlayerL : RES.frames.PlayerR;
+			if (d.frames != fs)
+				d.index = 0;
+			if (d.index + 1 > fs.length - 1)
+				d.index = 2;
+		}
 		return fs;
 	}),
 	this.data.conf = extend({
