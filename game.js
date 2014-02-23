@@ -1333,6 +1333,28 @@ function updateDannmaku(d, v) {
 			}
 		};
 	}
+	else if (d.type == 'ZigZag') {
+		fill(d, {
+			delay: 500,
+			interval: 5000,
+			theta_delta: 0.8,
+			flip_each_count: true,
+			flip_each_layer: true,
+		});
+		if (d.flip_each_count && d.generator)
+			d.theta_delta *= d.generator.count % 2 ? 1 : -1;
+		if (d.flip_each_layer && d.generator)
+			d.theta_delta *= d.generator.layer % 2 ? 1 : -1;
+		STORY.timeout(function() {
+			UTIL.addAnimate(v, d.interval, function(d, v) {
+				var vr = sqrt_sum(d.vx, d.vy),
+					t = Math.atan2(d.vy, d.vx) + d.theta_delta;
+				d.vx = Math.cos(t) * vr;
+				d.vy = Math.sin(t) * vr;
+				d.theta_delta = -d.theta_delta;
+			}, d);
+		}, d.delay);
+	}
 }
 function genDannmaku(d, v) {
 	if (d.type == 'any') {
