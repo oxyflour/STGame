@@ -1188,44 +1188,6 @@ SPRITE.newCls('Drop', {
 SPRITE.newCls('Dannmaku', {
 	from: 'Base',
 	layer: 'L20',
-	runDannmaku: undefined,
-	runBase: function(dt, d, s) {
-		var u = d.from,
-			e = u && u.data;
-		if (!u || !u.isAlive || !u.state.d.living)
-			return;
-		if (d.type == 1) {
-			if (this.state.d.age < 1000) {
-				d.vx -= 30e-7 * dt * (d.x - e.x);
-				d.vy -= 30e-7 * dt * (d.y - e.y);
-			}
-		}
-		else if (d.type == 2) {
-			if (Math.abs(d.vx) > 0.02) d.vx *= 0.992;
-			if (Math.abs(d.vy) > 0.02) d.vy *= 0.992;
-		}
-		else if (d.type == 3) {
-			if (this.state.d.age < 1000) {
-				d.vx *= 0.98;
-				d.vy *= 0.98;
-			}
-			else {
-				if (!d.to || !d.to.isAlive)
-					d.to = SPRITE.getAliveOne('Player');
-				if (d.to) {
-					d.vx -= 10e-7 * dt * (d.x - d.to.data.x);
-					d.vy -= 10e-7 * dt * (d.y - d.to.data.y);
-				}
-			}
-		}
-		else if (d.type == 4) {
-			if (!d.pos) d.pos = {x: e.x, y: e.y, t: 0};
-			if (!e.dir) e.dir = randin([-1, 1]);
-			d.pos.t += dt;
-			d.x = 100*Math.sin(e.dir*d.pos.t/250) + d.pos.x;
-			d.y = 100*Math.cos(e.dir*d.pos.t/250) + d.pos.y;
-		}
-	},
 	states: [
 		{ creating: 1, life: 100, next: 1 },
 		{ living:   1, life: Math.Inf, next: 2, mkDamage: 1 },
@@ -1310,6 +1272,68 @@ function newBullet(v) {
 		});
 	});
 }
+function updateDannmaku(d, v) {
+	if (d.type == 'FollowSource') {
+		fill(d, {
+			duration: 1500,
+			gravity: 20e-7,
+		});
+		v.runBase = function(dt, d, s) {
+			if (this.state.d.age < d.duration && d.from) {
+				var e = d.from.data;
+				d.vx -= d.gravity * dt * (d.x - e.x);
+				d.vy -= d.gravity * dt * (d.y - e.y);
+			}
+		};
+	}
+	else if (d.type == 'SlowingDown') {
+		fill(d, {
+			min_velocity: 0.02,
+			decrease_by: 0.992,
+		});
+		v.runBase = function(dt, d, s) {
+			if (Math.abs(d.vx) > d.min_velocity) d.vx *= d.decrease_by;
+			if (Math.abs(d.vy) > d.min_velocity) d.vy *= d.decrease_by;
+		};
+	}
+	else if (d.type == 'FollowTarget') {
+		fill(d, {
+			duration: 1000,
+			gravity: 10e-7,
+			decrease_by: 0.98,
+		});
+		v.runBase = function(dt, d, s) {
+			if (this.state.d.age < d.duration) {
+				d.vx *= d.decrease_by;
+				d.vy *= d.decrease_by;
+			}
+			else {
+				if (!d.to || !d.to.isAlive)
+					d.to = SPRITE.getAliveOne('Player');
+				if (d.to) {
+					var e = d.to.data;
+					d.vx -= d.gravity * dt * (d.x - e.x);
+					d.vy -= d.gravity * dt * (d.y - e.y);
+				}
+			}
+		};
+	}
+	else if (d.type == 'OrbAround') {
+		fill(d, {
+			pos: { x:d.from.data.x, y:d.from.data.y, t:0 },
+			dir: undefined,
+			speed: 1/300,
+		});
+		v.runBase = function(dt, d, s) {
+			var f = d.from;
+			if (f && f.isAlive && !f.state.d.dying) {
+				d.pos.t += dt;
+				d.x = 100*Math.sin(d.pos.t*d.speed) + d.pos.x;
+				d.y = 100*Math.cos(d.pos.t*d.speed) + d.pos.y;
+			}
+		};
+	}
+}
 function genDannmaku(d, v) {
 	if (d.type == 'any') {
 	}
@@ -1361,7 +1385,7 @@ function genDannmaku(d, v) {
 						from = +d.x === d.x ? { x:d.x, y:d.y } : d.from.data,
 						t = Math.atan2(to.y-from.y, to.x-from.x) +
 							d.theta*random(d.theta_rand_min, d.theta_rand_max)+random(d.theta_rand);
-					SPRITE.newObj('Dannmaku', extend({
+					var dmk = SPRITE.newObj('Dannmaku', extend({
 						x: from.x + d.radius*Math.cos(t),
 						y: from.y + d.radius*Math.sin(t),
 						vx: d.velocity*Math.cos(t+d.theta_velocity),
@@ -1369,8 +1393,9 @@ function genDannmaku(d, v) {
 						r: 3,
 						from: v,
 						frames: RES.frames.LongA,
-						generator: { layer:layer, count:count }
+						generator: { layer:layer, count:count },
 					}, d.dannmaku));
+					updateDannmaku(dmk.data, dmk);
 				};
 			}
 			else
