@@ -72,20 +72,14 @@ body {
 				return extend({ res:'onmyou', sy:0, sw:16, sh:16, w:16, h:16 }, { sx:16*i });
 			});
 
-			array(8, function(i) {
-				_t['TamaL'+i] = [
-					{ res:'etama3', sx:i*32, sy:128, sw:32, sh:32, w:32, h:32 }
-				]
+			ieach(['Drops', 'Lasers', 'TamaA', 'TamaB', 'LongA', 'LongB', 'LongC'], function(i, k) {
+				_t[k] = array(16, function(j) {
+					return { res:'etama3', sx:16*j, sy:i*16, sw:16, sh:16, w:16, h:16, rotate:k.indexOf('Long')==0 }
+				});
 			});
-			_t.Tama3 = [
-				{ res:'etama3', sx:0, sy:64, sw:16, sh:16, w:16, h:16, rotate:true },
-			];
-			_t.Drop = [
-				{ res:'etama3', sx:32, sy:0, sw:16, sh:16, w:20, h:20 },
-			];
-			_t.DropSmall = [
-				{ res:'etama3', sx:16, sy:0, sw:16, sh:16, w:20, h:20 },
-			];
+			_t.TamaLarge = array(8, function(i) {
+				return { res:'etama3', sx:32*i, sy:128, sw:32, sh:32, w:32, h:32 }
+			});
 
 			ieach([0, 128], function(i, x) {
 				ieach([0, 32, 64], function(j, y) {

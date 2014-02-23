@@ -699,7 +699,7 @@ SPRITE.newCls('Static', {
 			h = (f.h || f.sh) * d.scale;
 		if (f.rotate) {
 			var t = +f.rotate===f.rotate ? f.rotate :
-				Math.PI/2 + Math.atan2(d.vy, d.vx);
+				Math.PI*1.5 + Math.atan2(d.vy, d.vx);
 			DC.translate(d.x, d.y);
 			DC.rotate(t);
 			DC.drawImageInt(RES[f.res],
@@ -1162,7 +1162,7 @@ SPRITE.newCls('Drop', {
 		vy: -0.4,
 		collected: undefined,
 		collected_auto: false,
-		frames: RES.frames.Drop,
+		frames: [ RES.frames.Drops[2] ],
 	}, d);
 	SPRITE.init.Base.call(this, d);
 });
@@ -1256,7 +1256,7 @@ function newBall(v, fy) {
 		vy: v*Math.cos(t),
 		r: r,
 		scale: 2.5*r / 32,
-		frames: RES.frames['TamaL'+randin(range(8))],
+		frames: [ RES.frames.TamaLarge[randin(range(8))] ],
 	});
 }
 function newBullet(v) {
@@ -1350,7 +1350,7 @@ function genDannmaku(d, v) {
 						vy: d.velocity*Math.sin(t+d.theta_velocity),
 						r: 3,
 						from: v,
-						frames: RES.frames.Tama3,
+						frames: RES.frames.LongB,
 					}, d.dannmaku));
 				};
 			}
@@ -1590,7 +1590,7 @@ tl.sec1 = {
 				y: v.data.y,
 				vx: v.data.vx *= 0.01,
 				vx: v.data.vy *= 0.01,
-				frames: RES.frames.DropSmall,
+				frames: [ RES.frames.Drops[1] ],
 			});
 		}, 'Dannmaku');
 		STORY.timeout(function() {
