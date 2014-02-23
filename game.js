@@ -61,6 +61,16 @@ function extend(c) {
 		return i == 0 ? r : ext(r, v);
 	}, c);
 }
+function fill(c) {
+	function fil(d, s) {
+		return keach(s || {}, function(k, v, d) {
+			if (d[k] === undefined) d[k] = v;
+		}, d || {});
+	}
+	return reduce(arguments, function(i, v, r) {
+		return i == 0 ? r : fil(r, v);
+	}, c);
+}
 function arrcat() {
 	return ieach(arguments, function(i, v, d) {
 		each(v, function(j, u, d) {
