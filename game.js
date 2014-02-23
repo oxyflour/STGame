@@ -1403,7 +1403,7 @@ function newBoss() {
 				y: d.a*Math.cos(d.t)*Math.sin(d.p) + d.b*Math.sin(d.t)*Math.cos(d.p),
 				z: Math.sin(d.t),
 				s: 1.0,
-				frames: RES.frames.EffBoss,
+				frame: RES.frames.EffBoss[d.i],
 			}
 		}, {
 			i: 0,
@@ -1586,7 +1586,7 @@ tl.sec1 = {
 				y: v.data.y,
 				vx: v.data.vx *= 0.01,
 				vx: v.data.vy *= 0.01,
-				frames: RES.frames.DrapSmall,
+				frames: RES.frames.DropSmall,
 			});
 		}, 'Dannmaku');
 		STORY.timeout(function() {

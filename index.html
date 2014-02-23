@@ -43,7 +43,7 @@ body {
 		transform="rotate:0,10,20,40,50,60,70,80,90,100,110,120,130,140,150,160,170"></canvas>
 	<img id="stg1enm" src="res/stg1enm.png" />
 	<script id="frames">
-		(function(RES) {
+		(function() {
 			var _t = {};
 
 			_t.Player0 = array(4, function(i) {
@@ -99,12 +99,12 @@ body {
 				return extend({ res:'stg1enm', sy:255-48, sw:32, sh:48, w:32, h:48 }, { sx:32*i });
 			});
 
-			_t.EffBoss = [
-				{ res:'effboss', sx:d.i*16, sy:0, sw:16, sh:16, w:16, h:16 },
-			];
-			_t.EffEnm = ieach([32,42,52,62,60,58,56,54,52,50,48,46,44,42,40,38,36,34,32,30,28,26], function(i, d) {
-				return extend({ res:'eff00', sx:0, sy:0, sw:32, sh:32 }, { w:d, h:d });
+			_t.EffBoss = array(16, function(i) {
+				return { res:'effboss', sx:i*16, sy:0, sw:16, sh:16, w:16, h:16 };
 			});
+			_t.EffEnm = ieach([32,42,52,62,60,58,56,54,52,50,48,46,44,42,40,38,36,34,32,30,28,26], function(i, d, ls) {
+				ls.push(extend({ res:'eff00', sx:0, sy:0, sw:32, sh:32 }, { w:d, h:d }));
+			}, []);
 
 			return _t;
 		})
