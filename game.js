@@ -447,6 +447,7 @@ var STORY = (function() {
 		'PLAYER_GRAZE',
 		'PLAYER_FIRE',
 		'PLAYER_BOMB',
+		'PLAYER_BOMBEND',
 		'DROP_COLLECTED',
 		'BULLET_HIT',
 		'ENEMY_KILL'
@@ -953,6 +954,12 @@ SPRITE.newCls('Player', {
 		if (d.y < interp(GAME.rect.t, GAME.rect.b, 0.3))
 			STORY.on(STORY.events.PLAYER_AUTOCOLLECT, v);
 	},
+	onStateChange: function(d0, d) {
+		if (d && d.dying)
+			STORY.on(STORY.events.PLAYER_DYING, this);
+		if (d0 && d0.bomb && !d.bomb)
+			STORY.on(STORY.events.PLAYER_BOMBEND, this);
+	},
 	runStatic: function(dt, d, s) {
 		if (!this.isAlive) {
 			STORY.on(STORY.events.PLAYER_DEAD, this);
@@ -961,9 +968,6 @@ SPRITE.newCls('Player', {
 
 		if (!s.d.dying)
 			this.runPlayer(dt, d, s);
-		else if (!d.is_dying)
-			STORY.on(STORY.events.PLAYER_DYING, this);
-		d.is_dying = s.d.dying;
 
 		// limit player move inside boundary
 		if (d.x-d.r < GAME.rect.l)
@@ -979,6 +983,10 @@ SPRITE.newCls('Player', {
 		this.rect.t = d.y - d.r*1.1;
 		this.rect.r = d.x + d.r*1.1;
 		this.rect.b = d.y + d.r*1.1;
+
+		if (this.last_state != s.d)
+			this.onStateChange(this.last_state, s.d);
+		this.last_state = s.d;
 	},
 	drawStatic: function(d, s) {
 		if (this.state.d.isInvinc)
