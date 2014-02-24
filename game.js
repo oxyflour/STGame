@@ -644,9 +644,9 @@ var UTIL = {
 		}, []);
 
 		var s = newStateMachine(stes);
-		s.setWith = function(k) {
+		s.setName = function(k) {
 			var i = ieach(s.stes, function(i, v, d) {
-				if (v.data[k]) return i;
+				if (v.data.name==k) return i;
 			});
 			s.set(i);
 		}
@@ -710,8 +710,8 @@ SPRITE.newCls('Static', {
 		s.run(dt);
 		if (!s.d.life)
 			this.isAlive = false;
-		if (d.parent && d.parent.state.d.dying && !s.d.dying)
-			s.setWith('dying');
+		if (d.parent && d.parent.state.d.name=='dying' && s.d.name!='dying')
+			s.setName('dying');
 
 		if (this.runStatic)
 			this.runStatic(dt, d, s);
@@ -745,9 +745,9 @@ SPRITE.newCls('Static', {
 		var d = this.data, s = this.state;
 		DC.save();
 
-		if (s.d.creating)
+		if (s.d.name=='creating')
 			DC.globalAlpha = d.max_opacity = s.d.age / s.d.life;
-		else if (s.d.dying)
+		else if (s.d.name=='dying')
 			DC.globalAlpha = Math.min(d.max_opacity, 1 - s.d.age / s.d.life);
 		else
 			d.max_opacity = 1;
@@ -762,9 +762,9 @@ SPRITE.newCls('Static', {
 		DC.restore();
 	},
 	states: [
-		{ creating: 1, life: 500, next: 1 },
-		{ living:   1, life: Math.Inf, next: 2 },
-		{ dying:    1, life: 500 }
+		{ name:'creating',	life: 500,		next: 1 },
+		{ name:'living',	life: Math.Inf, next: 2 },
+		{ name:'dying',		life: 500,		next:-1 }
 	],
 }, function(d) {
 	this.isAlive = true;
@@ -879,7 +879,7 @@ SPRITE.newCls('Player', {
 				STORY.on(STORY.events.PLAYER_GRAZE, this);
 			}
 		}
-		else if (v.clsName == SPRITE.proto.Drop.clsName && v.state.d.living) {
+		else if (v.clsName == SPRITE.proto.Drop.clsName && v.state.d.name=='living') {
 			if (circle_intersect(d, { x:e.x, y:e.y, r:20 })) {
 				STORY.on(STORY.events.PLAYER_GETDROP, this);
 				STORY.on(STORY.events.DROP_COLLECTED, v);
@@ -947,7 +947,7 @@ SPRITE.newCls('Player', {
 			d.fire_tick.run(dt);
 
 		// BOMB!
-		if (GAME.keyste[d.conf.key_bomb] && (s.d.living || s.d.juesi) &&!s.d.bomb)
+		if (GAME.keyste[d.conf.key_bomb] && (s.d.name=='living' || s.d.juesi) &&!s.d.bomb)
 			STORY.on(STORY.events.PLAYER_BOMB, this);
 
 		// AUTO COLLECT!
@@ -955,7 +955,7 @@ SPRITE.newCls('Player', {
 			STORY.on(STORY.events.PLAYER_AUTOCOLLECT, v);
 	},
 	onStateChange: function(d0, d) {
-		if (d && d.dying)
+		if (d && d.name=='dying')
 			STORY.on(STORY.events.PLAYER_DYING, this);
 		if (d0 && d0.bomb && !d.bomb)
 			STORY.on(STORY.events.PLAYER_BOMBEND, this);
@@ -966,7 +966,7 @@ SPRITE.newCls('Player', {
 			return;
 		}
 
-		if (!s.d.dying)
+		if (s.d.name!='dying')
 			this.runPlayer(dt, d, s);
 
 		// limit player move inside boundary
@@ -1005,11 +1005,11 @@ SPRITE.newCls('Player', {
 	},
 
 	states: [
-		{ creating: 1, life: 1000, next:  1, isInvinc: 1 },
-		{ living:   1, life: Math.Inf, next:  2 },
-		{ dying:    1, life: 1000, isInvinc: 1 },
-		{ bomb:     1, life: 5000, next:  1, isInvinc: 1 },
-		{ juesi:    1, life:  100, next:  2, isInvinc: 1 },
+		{ name:'creating',	life: 1000,		next: 1, isInvinc:1 },
+		{ name:'living',	life: Math.Inf, next: 2, isInvinc:0 },
+		{ name:'dying',		life: 1000,		next:-1, isInvinc:1 },
+		{ name:'bomb',		life: 5000,		next: 1, isInvinc:1 },
+		{ name:'juesi',		life: 100,		next: 2, isInvinc:1 },
 	],
 }, function(d) {
 	d = extend({
@@ -1028,7 +1028,7 @@ SPRITE.newCls('Player', {
 
 	UTIL.addFrameGroupAnim(this, 120, function(v, d) {
 		var fs = RES.frames.Player0;
-		if (v.state.d.dying) {
+		if (v.state.d.name=='dying') {
 			fs = RES.frames.PlayerD;
 			if (d.index + 1 > fs.length - 1)
 				d.index = fs.length - 2;
@@ -1086,9 +1086,9 @@ SPRITE.newCls('Ball', {
 	},
 
 	states: [
-		{ creating: 1, life:	200, next: 1 },
-		{ living:   1, life:	Math.Inf, next: 2, mkDamage: 1 },
-		{ dying:    1, life: 500 }
+		{ name:'creating',	life: 200,		next: 1, mkDamage:0 },
+		{ name:'living',	life: Math.Inf, next: 2, mkDamage:1 },
+		{ name:'dying',		life: 500,		next:-1, mkDamage:0 },
 	],
 }, function(d) {
 	SPRITE.init.Base.call(this, d);
@@ -1102,7 +1102,7 @@ SPRITE.newCls('Enemy', {
 	hit: function(v) {
 		var d = this.data,
 			e = v.data;
-		if (this.state.d.dying || v.state.d.dying)
+		if (this.state.d.name=='dying' || v.state.d.name=='dying')
 			return;
 		if (circle_intersect(d, e)) {
 			d.damage ++;
@@ -1114,9 +1114,9 @@ SPRITE.newCls('Enemy', {
 	},
 	
 	states: [
-		{ creating: 1, life:	500, next: 1 },
-		{ living:   1, life:	Math.Inf, next: 2, mkDamage: 1 },
-		{ dying:    1, life: 500 }
+		{ name:'creating',	life: 500,		next: 1, mkDamage:0 },
+		{ name:'living',	life: Math.Inf, next: 2, mkDamage:1 },
+		{ name:'dying',		life: 500,		next:-1, mkDamage:0 },
 	],
 }, function(d) {
 	d = extend({
@@ -1144,9 +1144,9 @@ SPRITE.newCls('Bullet', {
 		d.vy = v * dy / r;
 	},
 	states: [
-		{ creating: 1, life: 50, next: 1 },
-		{ living:   1, life: Math.Inf, next: 2 },
-		{ dying:    1, life: 10 }	
+		{ name:'creating',	life: 50,		next: 1 },
+		{ name:'living',	life: Math.Inf, next: 2 },
+		{ name:'dying',		life: 10,		next:-1 },
 	],
 }, function(d) {
 	d = extend({
@@ -1165,7 +1165,7 @@ SPRITE.newCls('Drop', {
 		var v = d.collected;
 		if (v && !v.isAlive)
 			v = d.collected = SPRITE.getAliveOne('Player');
-		if (v && v.isAlive && !v.state.d.dying) {
+		if (v && v.isAlive && v.state.d.name!='dying') {
 			var e = v.data,
 				v = d.collected_auto ? 0.8 : sqrt_sum(d.vx, d.vy),
 				dx = e.x - d.x,
@@ -1188,9 +1188,9 @@ SPRITE.newCls('Drop', {
 		b: 20
 	},
 	states: [
-		{ creating: 1, life: 300, next: 1 },
-		{ living:   1, life: Math.Inf, next: 2 },
-		{ dying:    1, life: 100 }
+		{ name:'creating',	life: 300,		next: 1 },
+		{ name:'living',	life: Math.Inf, next: 2 },
+		{ name:'dying',		life: 100,		next:-1 },
 	],
 }, function(d) {
 	d = extend({
@@ -1207,9 +1207,9 @@ SPRITE.newCls('Dannmaku', {
 	from: 'Base',
 	layer: 'L20',
 	states: [
-		{ creating: 1, life: 100, next: 1 },
-		{ living:   1, life: Math.Inf, next: 2, mkDamage: 1 },
-		{ dying:    1, life: 100 },
+		{ name:'creating',	life: 100,		next: 1, mkDamage:0 },
+		{ name:'living',	life: Math.Inf, next: 2, mkDamage:1 },
+		{ name:'dying',		life: 100,		next:-1, mkDamage:0 },
 	],
 }, function(d) {
 	d = extend({
@@ -1344,7 +1344,7 @@ function updateDannmaku(d, v) {
 		});
 		v.runBase = function(dt, d, s) {
 			var f = d.from;
-			if (f && f.isAlive && !f.state.d.dying) {
+			if (f && f.isAlive && f.state.d.name!='dying') {
 				d.pos.t += dt;
 				d.x = 100*Math.sin(d.pos.t*d.speed) + d.pos.x;
 				d.y = 100*Math.cos(d.pos.t*d.speed) + d.pos.y;
@@ -1413,7 +1413,7 @@ function genDannmaku(d, v) {
 		}[d && d.preset], d);
 		var idx = 0, cnt = d.theta_count-1;
 		STORY.timeout(function(d, layer) {
-			if (v && v.state.d.living) {
+			if (v && v.state.d.name=='living') {
 				for(var count = 0; count < d.count; count ++) {
 					if (idx ++ >= cnt)
 						idx = d.theta_reverse ? -cnt : 0;
@@ -1534,23 +1534,23 @@ function newEffect(v) {
 		}[v.clsName],
 	});
 	eff.state = UTIL.newAliveState([
-		{ creating: 1, life: 100, next:  1 },
-		{ living:   1, life: 50, next:  2 },
-		{ dying:    1, life: 850 },
+		{ name:'creating',	life: 100,	next: 1 },
+		{ name:'living',	life: 50,	next: 2 },
+		{ name:'dying',		life: 850,	next:-1 },
 	]);
 }
 function killCls() {
 	ieach(arguments, function(i, c) {
 		SPRITE.eachObj(function(i, v) {
-			if (!v.state.d.dying)
-				v.state.setWith('dying');
+			if (v.state.d.name!='dying')
+				v.state.setName('dying');
 		}, c);
 	})
 }
 function killObj() {
 	ieach(arguments, function(i, v) {
-		if (!v.state.d.dying)
-			v.state.setWith('dying');
+		if (v.state.d.name!='dying')
+			v.state.setName('dying');
 	})
 }
 
@@ -1584,7 +1584,7 @@ tl.all = {
 		}
 		else if (e == STORY.events.PLAYER_HIT) {
 			GAME.statics.graze --;
-			v.state.setWith('juesi');
+			v.state.setName('juesi');
 			/*
 			STORY.timeout(function() {
 				killCls('Dannmaku');
@@ -1613,18 +1613,18 @@ tl.all = {
 				newBullet(v);
 		}
 		else if (e == STORY.events.PLAYER_BOMB) {
-			v.state.setWith('bomb');
+			v.state.setName('bomb');
 		}
 		else if (e == STORY.events.ENEMY_KILL) {
-			v.state.setWith('dying');
+			v.state.setName('dying');
 			newEffect(v);
 		}
 		else if (e == STORY.events.DROP_COLLECTED) {
-			v.state.setWith('dying');
+			v.state.setName('dying');
 			GAME.statics.point += 10;
 		}
 		else if (e == STORY.events.BULLET_HIT) {
-			v.state.setWith('dying');
+			v.state.setName('dying');
 		}
 	}
 };
@@ -1638,7 +1638,7 @@ tl.init = {
 		});
 	},
 	quit: function(d) {
-		d.title.state.setWith('dying');
+		d.title.state.setName('dying');
 	}
 };
 tl.sec0 = {
@@ -1677,7 +1677,7 @@ tl.sec1 = {
 	},
 	quit: function(d) {
 		SPRITE.eachObj(function(i, v) {
-			v.state.setWith('dying');
+			v.state.setName('dying');
 			SPRITE.newObj('Drop', {
 				x: v.data.x,
 				y: v.data.y,
@@ -1698,14 +1698,14 @@ tl.sec1 = {
 				y: v.data.y
 			});
 			var pass = reduce(SPRITE.objs.Enemy, function(i, v, r) {
-				return v.isAlive ? (r && v.state.d.dying) : r;
+				return v.isAlive ? (r && v.state.d.name=='dying') : r;
 			}, true);
 			if (pass) STORY.timeout(function(d) {
 				d.pass = true;
 			}, 100, d);
 		}
 		else if (e == STORY.events.OBJECT_OUT) {
-			if (v.clsName == SPRITE.proto.Enemy.clsName && !v.state.d.dying)
+			if (v.clsName == SPRITE.proto.Enemy.clsName && v.state.d.name!='dying')
 				newEnemy();
 		}
 	}
@@ -1729,7 +1729,7 @@ ieach([
 				return n;
 		},
 		quit: function(d) {
-			d.text.state.setWith('dying');
+			d.text.state.setName('dying');
 		},
 		on: function(e, v, d) {
 			if (e == STORY.events.GAME_INPUT) {
