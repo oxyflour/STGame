@@ -1721,11 +1721,12 @@ ieach([
 	var c = v.name || 'diag'+i, n = v.next || 'diag'+(i+1);
 	tl[c] = {
 		init: function(d) {
+			d.age = 0;
 			d.disable_fire = true;
 			d.text = SPRITE.newObj('Static', v);
 		},
 		run: function(dt, d) {
-			if (d.pass || GAME.keyste.ctrlKey)
+			if (d.pass || GAME.keyste.ctrlKey || (d.age+=dt) > 20000)
 				return n;
 		},
 		quit: function(d) {
