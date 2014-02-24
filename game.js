@@ -446,7 +446,7 @@ var STORY = (function() {
 		var s = _t.state.s;
 		n = (n >= 0) ? n : 1;
 		_t.anim.add(newTicker(t, function(d) {
-			this.finished = f(d, --n) || n <= 0 || _t.state.s != s;
+			this.finished = _t.state.s != s || f(d, --n) || n <= 0;
 		}, d));
 	}
 	_t.run = function(dt) {
