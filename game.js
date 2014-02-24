@@ -344,73 +344,88 @@ var RES = (function(res) {
 })($e('res'));
 
 var SPRITE = (function() {
+	function getIndex(ls, deadOrAlive) {
+		var n = ls.length;
+		for (var i = 0; i < n; i ++)
+			if (!ls[i].isAlive != !deadOrAlive) return i;
+		return n;
+	}
+	function insert(ls, v) {
+		var i = getIndex(ls, true);
+		ls[i] = v;
+	}
+	function loop(ls, fn, max) {
+		var a = 0,
+			n = max>=0 ? max : ls.length;
+		for (var i = 0; i < n; i ++) {
+			var v = ls[i];
+			if (v.isAlive) {
+				fn(i, v);
+				a ++;
+			}
+		}
+		// no one alive? clear the array then
+		if (a == 0 && n > 0)
+			ls.length = 0;
+	}
 	var _t = {
-		obj: {},
+		objs: {},
+		layer: {},
 		init: {},
 		proto: {},
-		sort: [],
+		objs_sort: [],
+		layer_sort: [],
 	};
 	_t.newCls = function(c, proto, init) {
 		var from = proto.from ? new _t.init[proto.from]() : {};
 		proto = extend(from, proto);
 		proto.clsName = c;
 
-		_t.obj[c] = [];
+		if (!_t.objs[c]) {
+			_t.objs[c] = [];
+			_t.objs_sort = keys(_t.objs).sort();
+		}
 		_t.init[c] = init;
 		_t.proto[c] = init.prototype = proto;
-		_t.sort.push([proto.layer || c, c]);
-		_t.sort.sort();
+
 		return proto;
 	};
 	_t.newObj = function(c, data) {
-		var ls = _t.obj[c],
-			obj = new _t.init[c](data);
+		var obj = new _t.init[c](data),
+			objs = _t.objs[c],
+			layer = _t.layer[obj.layer];
 
-		var idx = ieach(ls, function(i, v) {
-			if (!v.isAlive) return i;
-		}, ls.length);
-		obj.idx = idx;
-		ls[idx] = obj;
+		if (!layer) {
+			layer = _t.layer[obj.layer] = [];
+			_t.layer_sort = keys(_t.layer).sort();
+		}
+		insert(objs, obj);
+		insert(layer, obj);
 
 		return obj;
 	};
-	_t.eachCls = function(fn) {
-		for (var ls =_t.sort, i = 0, n = ls.length; i < n; i ++)
-			fn(ls[i][1]);
-	};
 	_t.eachObj = function(fn, c) {
-		function loop(c) {
-			var ls = _t.obj[c],
-				n = ls.length,
-				a = 0;
-			for (var i = 0; i < n; i ++) {
-				var v = ls[i];
-				if (v.isAlive) {
-					fn(v);
-					a ++;
-				}
-			}
-			// no one alive? clear the array then
-			if (a == 0 && n > 0)
-				_t.obj[c] = [];
-		}
-		c ? loop(c) : _t.eachCls(loop);
+		if (c)
+			loop(_t.objs[c], fn);
+		else if (c === 0) ieach(_t.layer_sort, function(i, c) {
+			loop(_t.layer[c], fn);
+		});
+		else ieach(_t.objs_sort, function(i, c) {
+			loop(_t.objs[c], fn);
+		});
+	};
+	_t.each2Obj = function(fn, c1, c2) {
+		loop(_t.objs[c1], function(i, v1) {
+			loop(_t.objs[c2], function(j, v2) {
+				fn(v1, v2);
+			}, c1 == c2 ? i : undefined);
+		});
 	};
 	_t.getAliveOne = function(c) {
-		for (var ls = _t.obj[c], i = 0, n = ls.length; i < n; i ++)
-			if (ls[i].isAlive) return ls[i];
-	},
-	_t.getAliveAll = function(c) {
-		var ret = [];
-		for (var ls = _t.obj[c], i = 0, n = ls.length; i < n; i ++)
-			if (ls[i].isAlive) ret.push(ls[i]);
-		return ret;
-	},
-	_t.clearObj = function(c) {
-		_t.eachObj(function(v) {
-			v.isAlive = false;
-		}, c);
-	}
+		var ls = _t.objs[c],
+			i = getIndex(ls, false);
+		return ls[i];
+	};
 	return _t;
 })();
 
@@ -472,14 +487,10 @@ var STORY = (function() {
 
 var GAME = (function() {
 	function testhit(c1, c2, dt) {
-		SPRITE.eachObj(function(v1) {
-			SPRITE.eachObj(function(v2) {
-				if (c1 == c2 && v2.idx >= v1.idx)
-					return;
-				if (rect_intersect(v1.rect, v2.rect))
-					v1.hit(v2, dt)
-			}, c2);
-		}, c1);
+		SPRITE.each2Obj(function(v1, v2) {
+			if (rect_intersect(v1.rect, v2.rect))
+				v1.hit(v2, dt)
+		}, c1, c2);
 	};
 	var _t = [];
 	_t.state = 0;
@@ -500,22 +511,22 @@ var GAME = (function() {
 		_t.state = _t.states.RUNNING;
 	};
 	_t.run = function(dt) {
-		SPRITE.eachCls(function(c1) {
+		ieach(SPRITE.objs_sort, function(i, c1) {
 			var hits = SPRITE.proto[c1].hits;
 			if (hits) ieach(hits, function(i, c2) {
 				testhit(c1, c2, dt);
 			});
 		});
-		SPRITE.eachObj(function(v) {
+		SPRITE.eachObj(function(i, v) {
 			v.run(dt);
 		});
 		STORY.run(dt);
 	};
 	_t.draw = function() {
 		DC.clear();
-		SPRITE.eachObj(function(v) {
+		SPRITE.eachObj(function(i, v) {
 			v.draw();
-		})
+		}, 0)
 	};
 	_t.keyste = {};
 	var chars = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
@@ -766,6 +777,8 @@ SPRITE.newCls('Static', {
 
 		frtick: 50,
 		frames: undefined, // array of frames
+
+		layer: undefined,
 	}, d);
 	if (this.data.frames) {
 		if (this.data.frames.length > 1)
@@ -773,14 +786,8 @@ SPRITE.newCls('Static', {
 		else
 			this.data.frame = this.data.frames[0];
 	}
-});
-ieach([10, 20, 99], function(i, v) {
-	SPRITE.newCls('StaticL'+v, {
-		from: 'Static',
-		layer: 'L'+v,
-	}, function(d) {
-		SPRITE.init.Static.call(this, d);
-	});
+	if (this.data.layer)
+		this.layer = this.data.layer;
 });
 
 SPRITE.newCls('Base', {
@@ -1239,7 +1246,7 @@ function newBall(v, fy) {
 }
 function newBullet(v) {
 	var e = null, r = Math.Inf;
-	SPRITE.eachObj(function(u) {
+	SPRITE.eachObj(function(i, u) {
 		if (u.state.d.mkDamage) {
 			var r0 = squa_sum(u.data.x-v.data.x, u.data.y-v.data.y);
 			if (r0 < r) {
@@ -1521,7 +1528,7 @@ function newEffect(v) {
 }
 function killCls() {
 	ieach(arguments, function(i, c) {
-		SPRITE.eachObj(function(v) {
+		SPRITE.eachObj(function(i, v) {
 			if (!v.state.d.dying)
 				v.state.setWith('dying');
 		}, c);
@@ -1557,7 +1564,7 @@ tl.all = {
 			}
 		}
 		else if (e == STORY.events.PLAYER_AUTOCOLLECT) {
-			SPRITE.eachObj(function(u) {
+			SPRITE.eachObj(function(i, u) {
 				u.data.collected = v;
 				u.data.collected_auto = true;
 			}, 'Drop');
@@ -1656,7 +1663,7 @@ tl.sec1 = {
 		}
 	},
 	quit: function(d) {
-		SPRITE.eachObj(function(v) {
+		SPRITE.eachObj(function(i, v) {
 			v.state.setWith('dying');
 			SPRITE.newObj('Drop', {
 				x: v.data.x,
@@ -1677,7 +1684,7 @@ tl.sec1 = {
 				x: v.data.x,
 				y: v.data.y
 			});
-			var pass = reduce(SPRITE.obj.Enemy, function(i, v, r) {
+			var pass = reduce(SPRITE.objs.Enemy, function(i, v, r) {
 				return v.isAlive ? (r && v.state.d.dying) : r;
 			}, true);
 			if (pass) STORY.timeout(function(d) {
