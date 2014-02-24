@@ -1224,7 +1224,7 @@ SPRITE.newCls('Dannmaku', {
 // for test only
 function newPlayer() {
 	var p = SPRITE.newObj('Player');
-	p.data.onmyous = {
+	p.onmyous = {
 		left:  SPRITE.newObj('Static', {
 			parent: p, frames: RES.frames.Onmyou,
 			anim: { r:25, t:0.9, max:0.9, min:0.6, v:-0.002 }
@@ -1234,7 +1234,7 @@ function newPlayer() {
 			anim: { r:25, t:0.1, max:0.4, min:0.1, v:+0.002 }
 		}),
 	};
-	keach(p.data.onmyous, function(k, s) {
+	keach(p.onmyous, function(k, s) {
 		s.runStatic = function(dt, d, s) {
 			var a = d.anim,
 				dv = p.data.slowMode ? a.v : -a.v;
@@ -1271,7 +1271,7 @@ function newBullet(v) {
 	ieach([1, -1], function(i, x) {
 		var v0 = 0.7, v1 = 0.5,
 			t = (v.data.slowMode ? random(-5, 5) : random(10, 20)) * Math.PI / 180,
-			onmyou = x > 0 ? v.data.onmyous.right : v.data.onmyous.left;
+			onmyou = x > 0 ? v.onmyous.right : v.onmyous.left;
 		SPRITE.newObj('Bullet', {
 			x: v.data.x + 10*x,
 			y: v.data.y,
@@ -1476,20 +1476,8 @@ function newBoss() {
 		{ fx:0.1, fy:0.1, v:3 },
 		{ fx:0.5, fy:0.1, v:3 },
 	]);
-	boss.data.ext = Array(3);
-	ieach(boss.data.ext, function(i, v) {
-		UTIL.addAnimate(boss, 50, function(d) {
-			d.t += d.vt;
-			d.p += d.vp;
-			d.i = (d.i + 1) % 16;
-			boss.data.ext[i] = {
-				x: d.a*Math.cos(d.t)*Math.cos(d.p) - d.b*Math.sin(d.t)*Math.sin(d.p),
-				y: d.a*Math.cos(d.t)*Math.sin(d.p) + d.b*Math.sin(d.t)*Math.cos(d.p),
-				z: Math.sin(d.t),
-				s: 1.0 + 0.4*Math.sin(d.t),
-				frame: RES.frames.EffBoss[d.i],
-			}
-		}, {
+	boss.effects = array(3, function(i) {
+		var d = {
 			i: 0,
 			t: 0,
 			vt: random(0.05, 0.10),
@@ -1497,24 +1485,32 @@ function newBoss() {
 			vp: random(0.01, 0.05),
 			a: 30,
 			b: 10,
-		});
+		};
+		UTIL.addAnimate(boss, 50, function(d) {
+			d.t += d.vt;
+			d.p += d.vp;
+			d.i = (d.i + 1) % 16;
+			d.x = d.a*Math.cos(d.t)*Math.cos(d.p) - d.b*Math.sin(d.t)*Math.sin(d.p);
+			d.y = d.a*Math.cos(d.t)*Math.sin(d.p) + d.b*Math.sin(d.t)*Math.cos(d.p);
+			d.z = Math.sin(d.t);
+			d.s = 1.0 + 0.4*Math.sin(d.t);
+			d.frame = RES.frames.EffBoss[d.i];
+		}, d);
+		return d;
 	});
 	boss.drawStatic = function(d, s) {
-		ieach(boss.data.ext, function(i, e) {
-			if (e.z < 0) {
-				var f = e.frame;
-				DC.drawImageInt(RES[f.res], f.sx, f.sy, f.sw, f.sh,
-					d.x+e.x-f.sw/2, d.y+e.y-f.sh/2, f.sw*e.s, f.sh*e.s);
-			}
+		function drawEff(e) {
+			var f = e.frame;
+			DC.drawImageInt(RES[f.res], f.sx, f.sy, f.sw, f.sh,
+				d.x+e.x-f.sw/2, d.y+e.y-f.sh/2, f.sw*e.s, f.sh*e.s);
+		}
+		ieach(boss.effects, function(i, e) {
+			if (e.z < 0) drawEff(e);
 		});
 		if (d.frame)
 			this.drawFrame(d, s);
-		ieach(boss.data.ext, function(i, e) {
-			if (e.z > 0) {
-				var f = e.frame;
-				DC.drawImageInt(RES[f.res], f.sx, f.sy, f.sw, f.sh,
-					d.x+e.x-f.sw/2, d.y+e.y-f.sh/2, f.sw*e.s, f.sh*e.s);
-			}
+		ieach(boss.effects, function(i, e) {
+			if (e.z >= 0) drawEff(e);
 		});
 		DC.beginPath();
 		DC.arc(d.x, d.y, d.r*1.5, 0, (d.life-d.damage)/d.life*2*Math.PI);
