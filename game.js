@@ -947,7 +947,7 @@ SPRITE.newCls('Player', {
 			d.fire_tick.run(dt);
 
 		// BOMB!
-		if (GAME.keyste[d.conf.key_bomb] && !s.d.bomb)
+		if (GAME.keyste[d.conf.key_bomb] && (s.d.living || s.d.juesi) &&!s.d.bomb)
 			STORY.on(STORY.events.PLAYER_BOMB, this);
 
 		// AUTO COLLECT!
@@ -1008,8 +1008,8 @@ SPRITE.newCls('Player', {
 		{ creating: 1, life: 1000, next:  1, isInvinc: 1 },
 		{ living:   1, life: Math.Inf, next:  2 },
 		{ dying:    1, life: 1000, isInvinc: 1 },
-		{ bomb:     1, life: 5000, next:  2, isInvinc: 1 },
-		{ juesi:    1, life:  100, next:  2, isInvinc: 1 },
+		{ bomb:     1, life: 5000, next:  1, isInvinc: 1 },
+		{ juesi:    1, life:  100, next:  1, isInvinc: 1 },
 	],
 }, function(d) {
 	d = extend({
