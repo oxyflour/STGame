@@ -354,9 +354,9 @@ var SPRITE = (function() {
 		var i = getIndex(ls, true);
 		ls[i] = v;
 	}
-	function loop(ls, fn, max) {
+	function loop(ls, fn) {
 		var a = 0,
-			n = max>=0 ? max : ls.length;
+			n = ls.length;
 		for (var i = 0; i < n; i ++) {
 			var v = ls[i];
 			if (v.isAlive) {
@@ -421,8 +421,9 @@ var SPRITE = (function() {
 	_t.each2Obj = function(fn, c1, c2) {
 		loop(_t.objs[c1], function(i, v1) {
 			loop(_t.objs[c2], function(j, v2) {
-				fn(v1, v2);
-			}, c1 == c2 ? i : undefined);
+				if (c1 != c2 || j < i)
+					fn(v1, v2);
+			});
 		});
 	};
 	_t.getAliveOne = function(c) {
