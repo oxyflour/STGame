@@ -407,13 +407,17 @@ var SPRITE = (function() {
 	_t.eachObj = function(fn, c) {
 		if (c)
 			loop(_t.objs[c], fn);
-		else if (c === 0) ieach(_t.layer_sort, function(i, c) {
-			loop(_t.layer[c], fn);
-		});
 		else ieach(_t.objs_sort, function(i, c) {
 			loop(_t.objs[c], fn);
 		});
 	};
+	_t.eachLayerObj = function(fn, c) {
+		if (c)
+			loop(_t.layer[c], fn);
+		else ieach(_t.layer_sort, function(i, c) {
+			loop(_t.layer[c], fn);
+		});
+	}
 	_t.each2Obj = function(fn, c1, c2) {
 		loop(_t.objs[c1], function(i, v1) {
 			loop(_t.objs[c2], function(j, v2) {
@@ -524,9 +528,9 @@ var GAME = (function() {
 	};
 	_t.draw = function() {
 		DC.clear();
-		SPRITE.eachObj(function(i, v) {
+		SPRITE.eachLayerObj(function(i, v) {
 			v.draw();
-		}, 0)
+		})
 	};
 	_t.keyste = {};
 	var chars = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
