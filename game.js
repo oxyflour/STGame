@@ -1009,7 +1009,7 @@ SPRITE.newCls('Player', {
 		{ living:   1, life: Math.Inf, next:  2 },
 		{ dying:    1, life: 1000, isInvinc: 1 },
 		{ bomb:     1, life: 5000, next:  1, isInvinc: 1 },
-		{ juesi:    1, life:  100, next:  1, isInvinc: 1 },
+		{ juesi:    1, life:  100, next:  2, isInvinc: 1 },
 	],
 }, function(d) {
 	d = extend({
