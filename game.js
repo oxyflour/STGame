@@ -1675,22 +1675,6 @@ tl.sec1 = {
 				return 'sec1';
 		}
 	},
-	quit: function(d) {
-		SPRITE.eachObj(function(i, v) {
-			v.state.setName('dying');
-			SPRITE.newObj('Drop', {
-				x: v.data.x,
-				y: v.data.y,
-				vx: v.data.vx *= 0.01,
-				vx: v.data.vy *= 0.01,
-				frames: [ RES.frames.Drops[1] ],
-			});
-		}, 'Dannmaku');
-		STORY.timeout(function() {
-			STORY.on(STORY.events.PLAYER_AUTOCOLLECT,
-				SPRITE.getAliveOne('Player'));
-		}, 100);
-	},
 	on: function(e, v, d) {
 		if (e == STORY.events.ENEMY_KILL) {
 			SPRITE.newObj('Drop', {
@@ -1700,9 +1684,23 @@ tl.sec1 = {
 			var pass = reduce(SPRITE.objs.Enemy, function(i, v, r) {
 				return v.isAlive ? (r && v.state.d.name=='dying') : r;
 			}, true);
-			if (pass) STORY.timeout(function(d) {
-				d.pass = true;
-			}, 100, d);
+			if (pass) {
+				SPRITE.eachObj(function(i, v) {
+					v.state.setName('dying');
+					SPRITE.newObj('Drop', {
+						x: v.data.x,
+						y: v.data.y,
+						vx: v.data.vx *= 0.01,
+						vx: v.data.vy *= 0.01,
+						frames: [ RES.frames.Drops[1] ],
+					});
+				}, 'Dannmaku');
+				STORY.timeout(function(d) {
+					STORY.on(STORY.events.PLAYER_AUTOCOLLECT,
+						SPRITE.getAliveOne('Player'));
+					d.pass = true;
+				}, 100, d);
+			}
 		}
 		else if (e == STORY.events.OBJECT_OUT) {
 			if (v.clsName == SPRITE.proto.Enemy.clsName && v.state.d.name!='dying')
