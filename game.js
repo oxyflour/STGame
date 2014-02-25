@@ -778,7 +778,7 @@ SPRITE.newCls('Static', {
 }, function(d) {
 	this.isAlive = true;
 	this.state = UTIL.newAliveState(this.states);
-	this.data = extend({
+	this.data = d = extend({
 		x: interp(GAME.rect.l, GAME.rect.r, 0.5),
 		y: interp(GAME.rect.t, GAME.rect.b, 0.5),
 		text: 'Static Text',
@@ -792,17 +792,21 @@ SPRITE.newCls('Static', {
 
 		frtick: 50,
 		frames: undefined, // array of frames
+		pathtick: 30,
+		pathnodes: undefined, // array of objects like { x/fx:0, y/fy:0, v:1}
 
 		layer: undefined,
 	}, d);
-	if (this.data.frames) {
-		if (this.data.frames.length > 1)
-			UTIL.addFrameAnim(this, this.data.frtick, this.data.frames);
+	if (d.frames) {
+		if (d.frames.length > 1)
+			UTIL.addFrameAnim(this, d.frtick, d.frames);
 		else
-			this.data.frame = this.data.frames[0];
+			d.frame = d.frames[0];
 	}
-	if (this.data.layer)
-		this.layer = this.data.layer;
+	if (d.pathnodes)
+		UTIL.addPathAnim(this, d.pathtick, d.pathnodes);
+	if (d.layer)
+		this.layer = d.layer;
 });
 
 SPRITE.newCls('Base', {
@@ -1479,12 +1483,12 @@ function newBoss() {
 		life: 300,
 		frtick: 150,
 		frames: RES.frames.EnemyX,
+		pathnodes: [
+			{ fx:0.0, fy:0.0, v:3 },
+			{ fx:0.1, fy:0.1, v:3 },
+			{ fx:0.5, fy:0.1, v:3 },
+		],
 	});
-	UTIL.addPathAnim(boss, 30, [
-		{ fx:0.0, fy:0.0, v:3 },
-		{ fx:0.1, fy:0.1, v:3 },
-		{ fx:0.5, fy:0.1, v:3 },
-	]);
 	boss.effects = array(3, function(i) {
 		var d = {
 			i: 0,
