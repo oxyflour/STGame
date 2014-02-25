@@ -566,42 +566,34 @@ var GAME = (function() {
 })();
 
 var UTIL = {
-	addAnimate: function(v, t, f, d) {
-		var t = newTicker(t, function() {
-			this.finished = f(d, v) || !v.isAlive;
-		});
-		STORY.anim.add(t);
-		// execute once after added
-		t.f(t.d);
-	},
 	// fs should be array of objects like
 	// { res:'', sx:0, sy:0, sw:10, sh:10, w:10, h:10, [rotate:1] }
 	addFrameAnim: function(v, t, fs) {
-		UTIL.addAnimate(v, t, function(d) {
+		v.anim(t, function(d) {
 			d.index = (d.index + 1) % d.frames.length;
 			v.data.frame = d.frames[d.index];
 		}, {
 			frames: fs,
 			index: 0
-		});
+		}, 'frame');
 	},
 	// fgs: array of fs in newFrameAnim
 	// fn should return frames to display
 	addFrameGroupAnim: function(v, t, fn) {
-		UTIL.addAnimate(v, t, function(d) {
+		v.anim(t, function(d) {
 			d.frames = fn(v, d);
 			d.index = (d.index + 1) % d.frames.length;
 			v.data.frame = d.frames[d.index];
 		}, {
 			frames: undefined,
 			index: 0
-		});
+		}, 'frames');
 	},
 	// ps should be array of objects like
 	// { x/fx:0, y/fy:0, v:10 }
 	// x and y should be between 0 and 1
 	addPathAnim: function(v, t, ps) {
-		UTIL.addAnimate(v, t, function(d) {
+		v.anim(t, function(d) {
 			var e = v.data,
 				n = d.pathnodes[d.index];
 			if (!n)
@@ -629,7 +621,7 @@ var UTIL = {
 		}, {
 			pathnodes: ps,
 			index: 0
-		});
+		}, 'path');
 	},
 	newTimeRunner: function(t, n) {
 		return function(dt, d) {
@@ -769,6 +761,22 @@ SPRITE.newCls('Static', {
 			this.drawText(d, s);
 
 		DC.restore();
+	},
+	anim: function(t, fn, d, id) {
+		var t = newTicker(t, function(obj) {
+			this.finished = fn(d, obj) || !obj.isAlive;
+		}, this);
+		STORY.anim.add(t);
+		t.f(t.d);
+
+		if (id) {
+			var dict = this.animations || (this.animations = {});
+			if (dict[id])
+				dict[id].finished = true;
+			dict[id] = t;
+		}
+
+		return t;
 	},
 	states: [
 		{ name:'creating',	life: 500,		next: 1 },
@@ -1377,7 +1385,7 @@ function updateDannmaku(d, v) {
 		if (d.flip_each_layer && d.generator)
 			d.theta_delta *= d.generator.layer % 2 ? 1 : -1;
 		STORY.timeout(function() {
-			UTIL.addAnimate(v, d.interval, function(d, v) {
+			v.anim(d.interval, function(d, v) {
 				var vr = sqrt_sum(d.vx, d.vy),
 					t = Math.atan2(d.vy, d.vx) + d.theta_delta;
 				d.vx = Math.cos(t) * vr;
@@ -1499,7 +1507,7 @@ function newBoss() {
 			a: 30,
 			b: 10,
 		};
-		UTIL.addAnimate(boss, 50, function(d) {
+		boss.anim(50, function(d) {
 			d.t += d.vt;
 			d.p += d.vp;
 			d.i = (d.i + 1) % 16;
