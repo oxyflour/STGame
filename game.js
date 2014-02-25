@@ -350,9 +350,10 @@ var SPRITE = (function() {
 			if (!ls[i].isAlive != !deadOrAlive) return i;
 		return n;
 	}
-	function insert(ls, v) {
+	function insertToList(ls, v) {
 		var i = getIndex(ls, true);
 		ls[i] = v;
+		return i;
 	}
 	function loop(ls, fn) {
 		var a = 0,
@@ -367,6 +368,14 @@ var SPRITE = (function() {
 		// no one alive? clear the array then
 		if (a == 0 && n > 0)
 			ls.length = 0;
+	}
+	function addToLayer(obj) {
+		var layer = _t.layer[obj.layer];
+		if (!layer) {
+			layer = _t.layer[obj.layer] = [];
+			_t.layer_sort = keys(_t.layer).sort();
+		}
+		return insertToList(layer, obj);
 	}
 	var _t = {
 		objs: {},
@@ -391,17 +400,9 @@ var SPRITE = (function() {
 		return proto;
 	};
 	_t.newObj = function(c, data) {
-		var obj = new _t.init[c](data),
-			objs = _t.objs[c],
-			layer = _t.layer[obj.layer];
-
-		if (!layer) {
-			layer = _t.layer[obj.layer] = [];
-			_t.layer_sort = keys(_t.layer).sort();
-		}
-		insert(objs, obj);
-		insert(layer, obj);
-
+		var obj = new _t.init[c](data);
+		obj.obj_idx = insertToList(_t.objs[c], obj);
+		obj.layer_idx = addToLayer(obj);
 		return obj;
 	};
 	_t.eachObj = function(fn, c) {
@@ -426,6 +427,14 @@ var SPRITE = (function() {
 			});
 		});
 	};
+	_t.moveToLayer = function(obj, layer) {
+		if (obj.layer != layer) {
+			if (_t.layer[obj.layer][obj.layer_idx] == obj)
+				_t.layer[obj.layer][obj.layer_idx] = { isAlive:false };
+			obj.layer = layer;
+			obj.layer_idx = addToLayer(obj);
+		}
+	}
 	_t.getAliveOne = function(c) {
 		var ls = _t.objs[c],
 			i = getIndex(ls, false);
