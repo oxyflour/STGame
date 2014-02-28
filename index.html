@@ -36,11 +36,14 @@ body {
 		transform="rotate:0,15,30,45,60,75"></canvas>
 	<canvas id="onmyou" from="player0L 128 16 16 16"
 		transform="rotate:0,20,40,60,80,100,120,140,160,180,200,220,240,260,280,300,320,340"></canvas>
+	<img id="etama2" src="res/etama2.png" />
 	<img id="etama3" src="res/etama3.png" />
 	<img id="etama4" src="res/etama4.png" />
 	<img id="eff00" src="res/eff00.png" />
 	<canvas id="effboss" from="eff00 16 48 16 16"
 		transform="rotate:0,10,20,30,40,50,60,70,80,90,100,110,120,130,140,150,160,170"></canvas>
+	<canvas id="pslow" from="etama2 0 112 64 64"
+		transform="rotate:0,10,20,30,40,50,60,70,80"></canvas>
 	<img id="stg1enm" src="res/stg1enm.png" />
 	<script id="frames">
 		(function() {
@@ -80,6 +83,9 @@ body {
 			});
 			_t.Onmyou = array(16, function(i) {
 				return extend({ res:'onmyou', sy:0, sw:16, sh:16, w:16, h:16 }, { sx:16*i });
+			});
+			_t.PSlow = array(9, function(i) {
+				return extend({ res:'pslow', sy:0, sw:64, sh:64, w:64, h:64 }, { sx:64*i });
 			});
 
 			ieach(['Drops', 'Lasers', 'TamaA', 'TamaB', 'LongA', 'LongB', 'LongC'], function(i, k) {
