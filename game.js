@@ -238,7 +238,8 @@ var DC = (function(canv) {
 		dy = f(dy);
 		dw = f(dw);
 		dh = f(dh);
-		_t.drawImage(i, sx, sy, sw, sh, dx, dy, dw, dh);
+		if (sw > 0 && sh > 0)
+			_t.drawImage(i, sx, sy, sw, sh, dx, dy, dw, dh);
 	}
 	_t.font = '20px Arial';
 	_t.textAlign = 'center';
