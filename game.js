@@ -1514,40 +1514,46 @@ function newBoss() {
 		],
 	});
 	boss.effects = array(3, function(i) {
-		var d = {
-			i: 0,
-			t: 0,
-			vt: random(0.05, 0.10),
-			p: random(1),
-			vp: random(0.01, 0.05),
-			a: 30,
-			b: 10,
+		var eff = SPRITE.newObj('Static', {
+			parent: boss,
+			frames: RES.frames.EffBoss,
+			rot: {
+				theta: 0,
+				dtheta: random(0.05, 0.10) / 50,
+				phi: random(1),
+				dphi: random(0.01, 0.05) / 50,
+				radius1: 30,
+				radius2: 10,
+			}
+		});
+		eff.runStatic = function(dt, d, s) {
+			var p = d.parent,
+				r = d.rot;
+			r.theta += r.dtheta * dt;
+			r.phi += r.dphi * dt;
+			d.x = p.data.x +
+				r.radius1*Math.cos(r.theta)*Math.cos(r.phi) -
+				r.radius2*Math.sin(r.theta)*Math.sin(r.phi);
+			d.y = p.data.y +
+				r.radius1*Math.cos(r.theta)*Math.sin(r.phi) +
+				r.radius2*Math.sin(r.theta)*Math.cos(r.phi);
+			d.z = Math.sin(r.theta);
+			d.scale = 1.0 + 0.4*Math.sin(r.theta);
 		};
-		boss.anim(50, function(d) {
-			d.t += d.vt;
-			d.p += d.vp;
-			d.i = (d.i + 1) % 16;
-			d.x = d.a*Math.cos(d.t)*Math.cos(d.p) - d.b*Math.sin(d.t)*Math.sin(d.p);
-			d.y = d.a*Math.cos(d.t)*Math.sin(d.p) + d.b*Math.sin(d.t)*Math.cos(d.p);
-			d.z = Math.sin(d.t);
-			d.s = 1.0 + 0.4*Math.sin(d.t);
-			d.frame = RES.frames.EffBoss[d.i];
-		}, d);
-		return d;
+		eff.drawEffects = eff.draw;
+		eff.draw = function() {};
+		return eff;
 	});
 	boss.drawStatic = function(d, s) {
-		function drawEff(e) {
-			var f = e.frame;
-			DC.drawImageInt(RES[f.res], f.sx, f.sy, f.sw, f.sh,
-				d.x+e.x-f.sw/2, d.y+e.y-f.sh/2, f.sw*e.s, f.sh*e.s);
-		}
-		ieach(boss.effects, function(i, e) {
-			if (e.z < 0) drawEff(e);
+		ieach(boss.effects, function(i, v) {
+			if (v.data.z < 0)
+				v.drawEffects();
 		});
 		if (d.frame)
 			this.drawFrame(d, s);
-		ieach(boss.effects, function(i, e) {
-			if (e.z >= 0) drawEff(e);
+		ieach(boss.effects, function(i, v) {
+			if (v.data.z >= 0)
+				v.drawEffects();
 		});
 		DC.beginPath();
 		DC.arc(d.x, d.y, d.r*1.5, 0, (d.life-d.damage)/d.life*2*Math.PI);
