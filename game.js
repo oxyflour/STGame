@@ -712,8 +712,16 @@ SPRITE.newCls('Static', {
 		s.run(dt);
 		if (!s.d.life)
 			this.isAlive = false;
+
 		if (d.parent && d.parent.state.d.name=='dying' && s.d.name!='dying')
 			s.setName('dying');
+
+		var delta = 1;
+		if (s.d.name=='creating')
+			delta = dt / s.d.life;
+		else if (s.d.name=='dying')
+			delta = - dt / s.d.life;
+		d.opacity = limit_between((+d.opacity || 0) + delta, 0, 1);
 
 		if (this.runStatic)
 			this.runStatic(dt, d, s);
@@ -745,23 +753,21 @@ SPRITE.newCls('Static', {
 	},
 	draw: function() {
 		var d = this.data, s = this.state;
-		DC.save();
+		if (d.opacity > 0) {
+			DC.save();
 
-		if (s.d.name=='creating')
-			DC.globalAlpha = d.max_opacity = s.d.age / s.d.life;
-		else if (s.d.name=='dying')
-			DC.globalAlpha = Math.min(d.max_opacity, 1 - s.d.age / s.d.life);
-		else
-			d.max_opacity = 1;
+			if (d.opacity < 1)
+				DC.globalAlpha = d.opacity;
 
-		if (this.drawStatic)
-			this.drawStatic(d, s);
-		else if (d.frame)
-			this.drawFrame(d, s);
-		else if (d.text)
-			this.drawText(d, s);
+			if (this.drawStatic)
+				this.drawStatic(d, s);
+			else if (d.frame)
+				this.drawFrame(d, s);
+			else if (d.text)
+				this.drawText(d, s);
 
-		DC.restore();
+			DC.restore();
+		}
 	},
 	anim: function(t, fn, d, id) {
 		var t = newTicker(t, function(obj) {
