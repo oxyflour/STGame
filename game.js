@@ -1018,14 +1018,6 @@ SPRITE.newCls('Player', {
 
 		if (d.frame)
 			this.drawFrame(d, s);
-
-		if (d.slowMode) {
-			DC.strokeStyle = 'black';
-			DC.beginPath();
-			DC.arc(d.x, d.y, d.h+1, 0, 2*Math.PI);
-			DC.closePath();
-			DC.stroke();
-		}
 	},
 
 	states: [
@@ -1248,23 +1240,44 @@ SPRITE.newCls('Dannmaku', {
 // for test only
 function newPlayer() {
 	var p = SPRITE.newObj('Player');
-	p.onmyous = {
-		left:  SPRITE.newObj('Static', {
-			parent: p, frames: RES.frames.Onmyou,
-			anim: { r:25, t:0.9, max:0.9, min:0.6, v:-0.002 }
-		}),
-		right: SPRITE.newObj('Static', {
-			parent: p, frames: RES.frames.Onmyou,
-			anim: { r:25, t:0.1, max:0.4, min:0.1, v:+0.002 }
-		}),
-	};
-	keach(p.onmyous, function(k, s) {
-		s.runStatic = function(dt, d, s) {
-			var a = d.anim,
-				dv = p.data.slowMode ? a.v : -a.v;
-			a.t = limit_between(a.t + dt * dv, a.min, a.max);
-			d.x = d.parent.data.x + a.r * Math.cos(a.t * Math.PI);
-			d.y = d.parent.data.y - a.r * Math.sin(a.t * Math.PI);
+	p.onmyous = {};
+	keach({
+		'left': { val:0.9, max:0.9, min:0.6, delta:-0.002 },
+		'right': { val:0.1, max:0.4, min:0.1, delta:+0.002 },
+	}, function(k, v) {
+		p.onmyous[k] = SPRITE.newObj('Static', {
+			parent: p,
+			frames: RES.frames.Onmyou,
+			offsetRadius: 25,
+			anim: v,
+		});
+		p.onmyous[k].runStatic = function(dt, d, s) {
+			var p = d.parent,
+				a = d.anim,
+				delta = p.data.slowMode ? a.delta : -a.delta;
+			a.val = limit_between(a.val + dt * delta, a.min, a.max);
+			d.x = p.data.x + d.offsetRadius * Math.cos(a.val * Math.PI);
+			d.y = p.data.y - d.offsetRadius * Math.sin(a.val * Math.PI);
+		};
+	});
+	p.pslow = {};
+	p.anim(100, function(d, p) {
+		p.showSlow = p.isAlive && p.state.d.name != 'dying' && p.data.slowMode;
+		if (!p.showSlow || p.pslow.isAlive)
+			return;
+		p.pslow = SPRITE.newObj('Static', {
+			layer: 'L99',
+			parent: p,
+			frames: RES.frames.PSlow,
+		});
+		p.pslow.runStatic = function(dt, d, s) {
+			var p = d.parent;
+			d.x = p.data.x;
+			d.y = p.data.y;
+			if (p.showSlow && s.d.name == 'dying')
+				s.setName('creating');
+			if (!p.showSlow && s.d.name != 'dying')
+				s.setName('dying');
 		};
 	});
 }
