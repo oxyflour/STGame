@@ -815,7 +815,9 @@ SPRITE.newCls('Static', {
 		layer: undefined,
 	}, d);
 	if (d.frames) {
-		if (d.frames.length > 1)
+		if (d.frames.call)
+			UTIL.addFrameGroupAnim(this, d.frtick, d.frames);
+		else if (d.frames.length > 1)
 			UTIL.addFrameAnim(this, d.frtick, d.frames);
 		else
 			d.frame = d.frames[0];
@@ -1044,26 +1046,28 @@ SPRITE.newCls('Player', {
 		vy: 0,
 		x0: 0,
 		y0: 0,
+
+		frtick: 120,
+	  	frames: function(v, d) {
+			var fs = RES.frames.Player0;
+			if (v.state.d.name=='dying') {
+				fs = RES.frames.PlayerD;
+				if (d.index + 1 > fs.length - 1)
+					d.index = fs.length - 2;
+			}
+			else if (Math.abs(v.data.vx) > 0.1) {
+				fs = v.data.vx < 0 ? RES.frames.PlayerL : RES.frames.PlayerR;
+				if (d.frames != fs)
+					d.index = 0;
+				if (d.index + 1 > fs.length - 1)
+					d.index = 2;
+			}
+			return fs;
+		},
 	}, d);
 	SPRITE.init.Static.call(this, d);
 	this.rect = { l:0, t:0, r:0, b:0 };
 
-	UTIL.addFrameGroupAnim(this, 120, function(v, d) {
-		var fs = RES.frames.Player0;
-		if (v.state.d.name=='dying') {
-			fs = RES.frames.PlayerD;
-			if (d.index + 1 > fs.length - 1)
-				d.index = fs.length - 2;
-		}
-		else if (Math.abs(v.data.vx) > 0.1) {
-			fs = v.data.vx < 0 ? RES.frames.PlayerL : RES.frames.PlayerR;
-			if (d.frames != fs)
-				d.index = 0;
-			if (d.index + 1 > fs.length - 1)
-				d.index = 2;
-		}
-		return fs;
-	}),
 	this.data.conf = extend({
 		key_left: 37,
 		key_up: 38,
