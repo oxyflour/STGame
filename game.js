@@ -1333,7 +1333,8 @@ function newBullet(v) {
 		};
 	});
 }
-function updateDannmaku(d, v) {
+function newDannmaku(d) {
+	var v = SPRITE.newObj('Dannmaku', d);
 	if (d.type == 'FollowSource') {
 		fill(d, {
 			duration: 1500,
@@ -1468,7 +1469,7 @@ function genDannmaku(d, v) {
 						from = +d.x === d.x ? { x:d.x, y:d.y } : d.from.data,
 						t = Math.atan2(to.y-from.y, to.x-from.x) +
 							d.theta*random(d.theta_rand_min, d.theta_rand_max)+random(d.theta_rand);
-					var dmk = SPRITE.newObj('Dannmaku', extend({
+					newDannmaku(extend({
 						x: from.x + d.radius*Math.cos(t),
 						y: from.y + d.radius*Math.sin(t),
 						vx: d.velocity*Math.cos(t+d.theta_velocity),
@@ -1478,7 +1479,6 @@ function genDannmaku(d, v) {
 						frames: RES.frames.LongA,
 						generator: { layer:layer, count:count },
 					}, d.dannmaku));
-					updateDannmaku(dmk.data, dmk);
 				};
 			}
 			else
