@@ -1,5 +1,7 @@
 Math.Inf = parseFloat('Infinity');
 
+function return_nothing() {
+}
 function return_self(x) {
 	return x;
 }
@@ -1547,7 +1549,7 @@ function newBoss() {
 			d.scale = 1.0 + 0.4*Math.sin(r.theta);
 		};
 		eff.drawEffects = eff.draw;
-		eff.draw = function() {};
+		eff.draw = return_nothing;
 		return eff;
 	});
 	boss.drawStatic = function(d, s) {
