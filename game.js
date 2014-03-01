@@ -1154,36 +1154,6 @@ SPRITE.newCls('Enemy', {
 	SPRITE.init.Base.call(this, d);
 });
 
-SPRITE.newCls('Bullet', {
-	from: 'Base',
-	layer: 'L20',
-	runBase: function(dt, d, s) {
-		var u = d.to,
-			e = u && u.data;
-		if (!u || !u.isAlive || !u.state.d.mkDamage)
-			return;
-		var dx = e.x - d.x,
-			dy = e.y - d.y,
-			r = sqrt_sum(dx, dy),
-			v = sqrt_sum(d.vx, d.vy);
-		d.vx = v * dx / r;
-		d.vy = v * dy / r;
-	},
-	states: [
-		{ name:'creating',	life: 50,		next: 1 },
-		{ name:'living',	life: Math.Inf, next: 2 },
-		{ name:'dying',		life: 10,		next:-1 },
-	],
-}, function(d) {
-	d = extend({
-		r: 5,
-		vy: -0.5,
-		from: undefined, // from which player
-		to: undefined,	// to which enemy
-	}, d);
-	SPRITE.init.Base.call(this, d);
-});
-
 SPRITE.newCls('Drop', {
 	from: 'Base',
 	layer: 'L20',
@@ -1229,6 +1199,22 @@ SPRITE.newCls('Drop', {
 	SPRITE.init.Base.call(this, d);
 });
 
+SPRITE.newCls('Bullet', {
+	from: 'Base',
+	layer: 'L20',
+	states: [
+		{ name:'creating',	life: 50,		next: 1 },
+		{ name:'living',	life: Math.Inf, next: 2 },
+		{ name:'dying',		life: 10,		next:-1 },
+	],
+}, function(d) {
+	d = extend({
+		r: 5,
+		vy: -0.5,
+	}, d);
+	SPRITE.init.Base.call(this, d);
+});
+
 SPRITE.newCls('Dannmaku', {
 	from: 'Base',
 	layer: 'L20',
@@ -1241,8 +1227,6 @@ SPRITE.newCls('Dannmaku', {
 	d = extend({
 		r: 5,
 		vy: 0.3,
-		from: null,
-		type: 0
 	}, d);
 	SPRITE.init.Base.call(this, d);
 });
@@ -1326,7 +1310,7 @@ function newBullet(v) {
 			from: v,
 			frames: RES.frames.Bullet0,
 		});
-		SPRITE.newObj('Bullet', {
+		var b = SPRITE.newObj('Bullet', {
 			x: onmyou.data.x,
 			y: onmyou.data.y,
 			vy: -v1*Math.cos(t),
@@ -1335,6 +1319,18 @@ function newBullet(v) {
 			to: e,
 			frames: RES.frames.Bullet1,
 		});
+		b.runBase = function(dt, d, s) {
+			var u = d.to,
+				e = u && u.data;
+			if (u && u.isAlive && u.state.d.mkDamage) {
+				var dx = e.x - d.x,
+					dy = e.y - d.y,
+					r = sqrt_sum(dx, dy),
+					v = sqrt_sum(d.vx, d.vy);
+				d.vx = v * dx / r;
+				d.vy = v * dy / r;
+			}
+		};
 	});
 }
 function updateDannmaku(d, v) {
