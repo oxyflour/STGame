@@ -1060,7 +1060,7 @@ SPRITE.newCls('Player', {
 				if (d.frames != fs)
 					d.index = 0;
 				if (d.index + 1 > fs.length - 1)
-					d.index = 2;
+					d.index = 4;
 			}
 			return fs;
 		},
