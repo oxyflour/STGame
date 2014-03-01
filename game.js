@@ -1240,12 +1240,12 @@ function newPlayer() {
 	keach({
 		'left': { val:0.9, max:0.9, min:0.6, delta:-0.002 },
 		'right': { val:0.1, max:0.4, min:0.1, delta:+0.002 },
-	}, function(k, v) {
+	}, function(k, a) {
 		p.onmyous[k] = SPRITE.newObj('Static', {
 			parent: p,
 			frames: RES.frames.Onmyou,
 			offsetRadius: 25,
-			anim: v,
+			anim: a,
 		});
 		p.onmyous[k].runStatic = function(dt, d, s) {
 			var p = d.parent,
@@ -1277,39 +1277,41 @@ function newPlayer() {
 		};
 	});
 }
-function newBall(v, fy) {
+function newBall(d) {
 	var t = random(-0.6, 0.6) * Math.PI / 2,
 		r = random(10) + 5;
 	SPRITE.newObj('Ball', {
 		x: random(GAME.rect.l, GAME.rect.r),
-		y: random(GAME.rect.t, interp(GAME.rect.t, GAME.rect.b, fy)),
-		vx: v*Math.sin(t),
-		vy: v*Math.cos(t),
+		y: random(GAME.rect.t, interp(GAME.rect.t, GAME.rect.b, d.fy)),
+		vx: d.speed*Math.sin(t),
+		vy: d.speed*Math.cos(t),
 		r: r,
 		scale: 2.5*r / 32,
 		frames: [ RES.frames.TamaLarge[randin(range(8))] ],
 	});
 }
-function newBullet(v) {
-	var e = null, r = Math.Inf;
-	SPRITE.eachObj(function(i, u) {
-		if (u.state.d.mkDamage) {
-			var r0 = squa_sum(u.data.x-v.data.x, u.data.y-v.data.y);
-			if (r0 < r) {
-				r = r0;
-				e = u;
+function newBullet(d) {
+	if (!d.to) {
+		var r = Math.Inf;
+		SPRITE.eachObj(function(i, u) {
+			if (u.state.d.mkDamage) {
+				var r0 = squa_sum(u.data.x-d.from.data.x, u.data.y-d.from.data.y);
+				if (r0 < r) {
+					r = r0;
+					d.to = u;
+				}
 			}
-		}
-	}, 'Enemy');
+		}, 'Enemy');
+	}
 	ieach([1, -1], function(i, x) {
 		var v0 = 0.7, v1 = 0.5,
-			t = (v.data.slowMode ? random(-5, 5) : random(10, 20)) * Math.PI / 180,
-			onmyou = x > 0 ? v.onmyous.right : v.onmyous.left;
+			t = (d.from.data.slowMode ? random(-5, 5) : random(10, 20)) * Math.PI / 180,
+			onmyou = x > 0 ? d.from.onmyous.right : d.from.onmyous.left;
 		SPRITE.newObj('Bullet', {
-			x: v.data.x + 10*x,
-			y: v.data.y,
+			x: d.from.data.x + 10*x,
+			y: d.from.data.y,
 			vy: -v0,
-			from: v,
+			from: d.from,
 			frames: RES.frames.Bullet0,
 		});
 		var b = SPRITE.newObj('Bullet', {
@@ -1317,8 +1319,8 @@ function newBullet(v) {
 			y: onmyou.data.y,
 			vy: -v1*Math.cos(t),
 			vx: v1*x*Math.sin(t),
-			from: v,
-			to: e,
+			from: d.from,
+			to: d.to,
 			frames: RES.frames.Bullet1,
 		});
 		b.runBase = function(dt, d, s) {
@@ -1420,7 +1422,7 @@ function newDannmaku(d) {
 		}, d.delay);
 	}
 }
-function genDannmaku(d, v) {
+function genDannmaku(d) {
 	if (d.type == 'any') {
 	}
 	else {
@@ -1439,7 +1441,6 @@ function genDannmaku(d, v) {
 			interval: 200,
 			radius: 20,
 			velocity: 0.2,
-			from: v,
 			x: undefined,
 			y: undefined,
 			to: undefined,
@@ -1459,7 +1460,7 @@ function genDannmaku(d, v) {
 		}[d && d.preset], d);
 		var idx = 0, cnt = d.theta_count-1;
 		STORY.timeout(function(d, layer) {
-			if (v && v.state.d.name=='living') {
+			if (d.from && d.from.state.d.name=='living') {
 				for(var count = 0; count < d.count; count ++) {
 					if (idx ++ >= cnt)
 						idx = d.theta_reverse ? -cnt : 0;
@@ -1477,7 +1478,7 @@ function genDannmaku(d, v) {
 						vx: d.velocity*Math.cos(t+d.theta_velocity),
 						vy: d.velocity*Math.sin(t+d.theta_velocity),
 						r: 3,
-						from: v,
+						from: d.from,
 						frames: RES.frames.LongA,
 						generator: { layer:layer, count:count },
 					}, d.dannmaku));
@@ -1505,9 +1506,11 @@ function newEnemy(d, f) {
 		delay: 1000,
 	};
 	var enm = SPRITE.newObj('Enemy', d);
-	if (f) STORY.timeout(function(enm) {
-		genDannmaku(f, enm);
-	}, f.delay || 0, enm);
+	if (f) STORY.timeout(function(d) {
+		genDannmaku(d);
+	}, f.delay || 0, fill(f, {
+		from: enm,
+	}));
 }
 function newBoss() {
 	var boss = SPRITE.newObj('Enemy', {
@@ -1657,7 +1660,9 @@ tl.all = {
 		}
 		else if (e == STORY.events.PLAYER_FIRE) {
 			if (!d.disable_fire)
-				newBullet(v);
+				newBullet({
+					from: v,
+				});
 		}
 		else if (e == STORY.events.PLAYER_BOMB) {
 			v.state.setName('bomb');
@@ -1692,7 +1697,10 @@ tl.sec0 = {
 	run: UTIL.newTimeRunner(20000, 'sec1'),
 	init: function(d) {
 		STORY.timeout(function(d, n) {
-			newBall(n > 10 ? 0.05 : 0.25, n > 10 ? 0.6 : 0.2);
+			newBall({
+				speed: n > 10 ? 0.05 : 0.25,
+				fy: n > 10 ? 0.6 : 0.2,
+			});
 		}, 20, null, 60);
 	},
 	quit: function(d) {
@@ -1702,7 +1710,10 @@ tl.sec0 = {
 		if (e == STORY.events.OBJECT_OUT) {
 			if (v.clsName == SPRITE.proto.Ball.clsName) {
 				var fy = random(0.2, 0.6);
-				newBall(0.6-fy, fy);
+				newBall({
+					speed: 0.6-fy,
+					fy: fy
+				});
 			}
 		}
 	}
