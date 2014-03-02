@@ -740,7 +740,7 @@ var UTIL = {
 	});
 })();
 
-SPRITE.newCls('Static', {
+SPRITE.newCls('Basic', {
 	layer: 'L10',
 	runStatic: undefined,
 	run: function(dt) {
@@ -865,8 +865,8 @@ SPRITE.newCls('Static', {
 		this.layer = d.layer;
 });
 
-SPRITE.newCls('Base', {
-	from: 'Static',
+SPRITE.newCls('Circle', {
+	from: 'Basic',
 	runBase: undefined,
 	mkRect: function(rt, d) {
 		rt.l = Math.min(d.x0, d.x) - d.r*1.1;
@@ -923,12 +923,12 @@ SPRITE.newCls('Base', {
 		x0: 0,
 		y0: 0,
 	}, d);
-	SPRITE.init.Static.call(this, d);
+	SPRITE.init.Basic.call(this, d);
 	this.rect = { l:0, t:0, r:0, b:0 };
 });
 
 SPRITE.newCls('Player', {
-	from: 'Static',
+	from: 'Basic',
 	hits: [
 		'Player',
 		'Ball',
@@ -1110,7 +1110,7 @@ SPRITE.newCls('Player', {
 			return fs;
 		},
 	}, d);
-	SPRITE.init.Static.call(this, d);
+	SPRITE.init.Basic.call(this, d);
 	this.rect = { l:0, t:0, r:0, b:0 };
 
 	this.data.conf = extend({
@@ -1126,7 +1126,7 @@ SPRITE.newCls('Player', {
 });
 
 SPRITE.newCls('Ball', {
-	from: 'Base',
+	from: 'Circle',
 	layer: 'L20',
 	hits: [
 		'Ball',
@@ -1144,12 +1144,12 @@ SPRITE.newCls('Ball', {
 		{ name:'dying',		life: 500,		next:-1, mkDamage:0 },
 	],
 }, function(d) {
-	SPRITE.init.Base.call(this, d);
+	SPRITE.init.Circle.call(this, d);
 	this.data.mass = this.data.r;
 });
 
 SPRITE.newCls('Stick', {
-	from: 'Base',
+	from: 'Circle',
 	layer: 'L20',
 	hits: [
 		'Ball',
@@ -1186,12 +1186,12 @@ SPRITE.newCls('Stick', {
 		x1: 0,
 		y1: 0,
 	}, d);
-	SPRITE.init.Base.call(this, d);
+	SPRITE.init.Circle.call(this, d);
 	this.data.mass = 100;
 });
 
 SPRITE.newCls('Enemy', {
-	from: 'Base',
+	from: 'Circle',
 	hits: [
 		'Bullet',
 	],
@@ -1221,11 +1221,11 @@ SPRITE.newCls('Enemy', {
 		life: 10,
 		damage: 0
 	}, d);
-	SPRITE.init.Base.call(this, d);
+	SPRITE.init.Circle.call(this, d);
 });
 
 SPRITE.newCls('Drop', {
-	from: 'Base',
+	from: 'Circle',
 	layer: 'L20',
 	runBase: function(dt, d, s) {
 		var v = d.collected;
@@ -1266,11 +1266,11 @@ SPRITE.newCls('Drop', {
 		collected_auto: false,
 		frames: [ RES.frames.Drops[2] ],
 	}, d);
-	SPRITE.init.Base.call(this, d);
+	SPRITE.init.Circle.call(this, d);
 });
 
 SPRITE.newCls('Bullet', {
-	from: 'Base',
+	from: 'Circle',
 	layer: 'L20',
 	states: [
 		{ name:'creating',	life: 50,		next: 1 },
@@ -1282,11 +1282,11 @@ SPRITE.newCls('Bullet', {
 		r: 5,
 		vy: -0.5,
 	}, d);
-	SPRITE.init.Base.call(this, d);
+	SPRITE.init.Circle.call(this, d);
 });
 
 SPRITE.newCls('Dannmaku', {
-	from: 'Base',
+	from: 'Circle',
 	layer: 'L20',
 	states: [
 		{ name:'creating',	life: 100,		next: 1, mkDamage:0 },
@@ -1298,7 +1298,7 @@ SPRITE.newCls('Dannmaku', {
 		r: 5,
 		vy: 0.3,
 	}, d);
-	SPRITE.init.Base.call(this, d);
+	SPRITE.init.Circle.call(this, d);
 });
 
 // for test only
@@ -1309,7 +1309,7 @@ function newPlayer() {
 		'left': { val:0.9, max:0.9, min:0.6, delta:-0.002 },
 		'right': { val:0.1, max:0.4, min:0.1, delta:+0.002 },
 	}, function(k, a) {
-		p.onmyous[k] = SPRITE.newObj('Static', {
+		p.onmyous[k] = SPRITE.newObj('Basic', {
 			parent: p,
 			frames: RES.frames.Onmyou,
 			offsetRadius: 25,
@@ -1329,7 +1329,7 @@ function newPlayer() {
 		p.showSlow = p.isAlive && p.state.d.name != 'dying' && p.data.slowMode;
 		if (!p.showSlow || p.pslow.isAlive)
 			return;
-		p.pslow = SPRITE.newObj('Static', {
+		p.pslow = SPRITE.newObj('Basic', {
 			layer: 'L99',
 			parent: p,
 			frames: RES.frames.PSlow,
@@ -1630,7 +1630,7 @@ function newBoss() {
 		],
 	});
 	boss.effects = array(3, function(i) {
-		var eff = SPRITE.newObj('Static', {
+		var eff = SPRITE.newObj('Basic', {
 			parent: boss,
 			frames: RES.frames.EffBoss,
 			rot: {
@@ -1678,7 +1678,7 @@ function newBoss() {
 	}
 }
 function newEffect(v) {
-	var eff = SPRITE.newObj('Base', {
+	var eff = SPRITE.newObj('Circle', {
 		x: v.data.x,
 		y: v.data.y,
 		vx: v.data.vx*=0.1,
@@ -1789,7 +1789,7 @@ tl.init = {
 	run: UTIL.newTimeRunner(5000, 'sec0'),
 	init: function(d) {
 		newPlayer();
-		d.title = SPRITE.newObj('Static', {
+		d.title = SPRITE.newObj('Basic', {
 			t: 'Dannmaku Demo!',
 			font: '30px Arial'
 		});
@@ -1884,7 +1884,7 @@ ieach([
 		init: function(d) {
 			d.age = 0;
 			d.disable_fire = true;
-			d.text = SPRITE.newObj('Static', v);
+			d.text = SPRITE.newObj('Basic', v);
 		},
 		run: function(dt, d) {
 			if (d.pass || GAME.keyste.ctrlKey || (d.age+=dt) > 20000)
@@ -1932,7 +1932,7 @@ tl.boss = {
 };
 tl.end = {
 	init: function(d) {
-		SPRITE.newObj('Static', {
+		SPRITE.newObj('Basic', {
 			t: 'You Win!'
 		});
 	},
