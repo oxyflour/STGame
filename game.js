@@ -137,25 +137,25 @@ function line_circle_intersect(ln, cr) {
 		return ret;
 	}
 }
-function circles_hit(d, e) {
-	var r = sqrt_sum(d.x - e.x, d.y - e.y),
-		sin = (d.y - e.y) / r,
-		cos = (d.x - e.x) / r,
-		md = d.mass,
-		me = e.mass,
-		vd = sqrt_sum(d.vx, d.vy),
-		ve = sqrt_sum(e.vx, e.vy),
-		vdn = d.vx*cos + d.vy*sin, vdr = d.vx*sin - d.vy*cos,
-		ven = e.vx*cos + e.vy*sin, ver = e.vx*sin - e.vy*cos;
+function circles_hit(cr1, cr2) {
+	var r = sqrt_sum(cr1.x - cr2.x, cr1.y - cr2.y),
+		sin = (cr1.y - cr2.y) / r,
+		cos = (cr1.x - cr2.x) / r,
+		md = cr1.mass,
+		me = cr2.mass,
+		vd = sqrt_sum(cr1.vx, cr1.vy),
+		ve = sqrt_sum(cr2.vx, cr2.vy),
+		vdn = cr1.vx*cos + cr1.vy*sin, vdr = cr1.vx*sin - cr1.vy*cos,
+		ven = cr2.vx*cos + cr2.vy*sin, ver = cr2.vx*sin - cr2.vy*cos;
 	var vdn2 = (vdn*(md - me)+2*me*ven)/(md+me),
 		ven2 = (ven*(me - md)+2*md*vdn)/(md+me);
-	d.vx = vdn2*cos + vdr*sin; d.vy = vdn2*sin - vdr*cos;
-	e.vx = ven2*cos + ver*sin; e.vy = ven2*sin - ver*cos;
-	var cx = (d.x*e.r+e.x*d.r)/(d.r+e.r),
-		cy = (d.y*e.r+e.y*d.r)/(d.r+e.r),
+	cr1.vx = vdn2*cos + vdr*sin; cr1.vy = vdn2*sin - vdr*cos;
+	cr2.vx = ven2*cos + ver*sin; cr2.vy = ven2*sin - ver*cos;
+	var cx = (cr1.x*cr2.r+cr2.x*cr1.r)/(cr1.r+cr2.r),
+		cy = (cr1.y*cr2.r+cr2.y*cr1.r)/(cr1.r+cr2.r),
 		f = 1.01;
-	d.x = cx + d.r*cos*f; d.y = cy + d.r*sin*f;
-	e.x = cx - e.r*cos*f; e.y = cy - e.r*sin*f;
+	cr1.x = cx + cr1.r*cos*f; cr1.y = cy + cr1.r*sin*f;
+	cr2.x = cx - cr2.r*cos*f; cr2.y = cy - cr2.r*sin*f;
 }
 
 function $(s, p) {
