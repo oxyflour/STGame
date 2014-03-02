@@ -608,24 +608,14 @@ var UTIL = {
 	// { res:'', sx:0, sy:0, sw:10, sh:10, w:10, h:10, [rotate:1] }
 	addFrameAnim: function(v, t, fs) {
 		v.anim(t, function(d) {
-			d.index = (d.index + 1) % d.frames.length;
-			v.data.frame = d.frames[d.index];
-		}, {
-			frames: fs,
-			index: 0
-		}, 'frame');
-	},
-	// fgs: array of fs in newFrameAnim
-	// fn should return frames to display
-	addFrameGroupAnim: function(v, t, fn) {
-		v.anim(t, function(d) {
-			d.frames = fn(v, d);
-			d.index = (d.index + 1) % d.frames.length;
-			v.data.frame = d.frames[d.index];
+			if (d.frames = fs.call ? fs(v, d) : fs) {
+				d.index = (d.index + 1) % d.frames.length;
+				v.data.frame = d.frames[d.index];
+			}
 		}, {
 			frames: undefined,
 			index: 0
-		}, 'frames');
+		}, 'frame');
 	},
 	// ps should be array of objects like
 	// { x/fx:0, y/fy:0, v:10 }
@@ -852,9 +842,7 @@ SPRITE.newCls('Basic', {
 		layer: undefined,
 	}, d);
 	if (d.frames) {
-		if (d.frames.call)
-			UTIL.addFrameGroupAnim(this, d.frtick, d.frames);
-		else if (d.frames.length > 1)
+		if (d.frames.call || d.frames.length > 1)
 			UTIL.addFrameAnim(this, d.frtick, d.frames);
 		else
 			d.frame = d.frames[0];
