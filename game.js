@@ -1040,7 +1040,7 @@ SPRITE.newCls('Player', {
 }, function(d) {
 	d = extend({
 		r: 15,
-		h: 3,
+		h: 1,
 
 		x: interp(GAME.rect.l, GAME.rect.r, 0.5),
 		y: interp(GAME.rect.t, GAME.rect.b, 0.8),
