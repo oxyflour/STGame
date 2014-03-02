@@ -1409,16 +1409,25 @@ function newDannmaku(d) {
 	}
 	else if (d.type == 'OrbAround') {
 		fill(d, {
-			pos: { x:d.from.data.x, y:d.from.data.y, t:0 },
-			dir: undefined,
+			source_x: d.from.data.x,
+			source_y: d.from.data.y,
+			theta: 0,
 			speed: 1/300,
+			radius: 100,
+			offset_count: 0.04,
+			offset_speed: 0.1,
+			flip_each_count: true,
 		});
+		if (d.offset_count && d.generator)
+			d.theta += d.generator.count * d.offset_count;
+		if (d.flip_each_count && d.generator)
+			d.speed *= d.generator.count % 2 ? 1 : -1;
 		v.runBase = function(dt, d, s) {
 			var f = d.from;
 			if (f && f.isAlive && f.state.d.name!='dying') {
-				d.pos.t += dt;
-				d.x = 100*Math.sin(d.pos.t*d.speed) + d.pos.x;
-				d.y = 100*Math.cos(d.pos.t*d.speed) + d.pos.y;
+				d.x = d.radius*Math.sin(d.theta) + d.source_x;
+				d.y = d.radius*Math.cos(d.theta) + d.source_y;
+				d.theta += dt*d.speed;
 			}
 		};
 	}
@@ -1526,9 +1535,11 @@ function newEnemy(d, f) {
 		}
 	}[d && d.preset], d);
 	f = f || {
+		preset: '',
 		delay: 1000,
 		dannmaku: {
-			type: 'Circle',
+			type: 'OrbAround',
+			speed: 1/500,
 		},
 	};
 	var enm = SPRITE.newObj('Enemy', d);
