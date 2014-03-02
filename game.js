@@ -1339,6 +1339,7 @@ function newBullet(d) {
 }
 function newDannmaku(d) {
 	var v = SPRITE.newObj('Dannmaku', d);
+	d = v.data;
 	if (d.type == 'FollowSource') {
 		fill(d, {
 			duration: 1500,
@@ -1382,6 +1383,28 @@ function newDannmaku(d) {
 					d.vy -= d.gravity * dt * (d.y - e.y);
 				}
 			}
+		};
+	}
+	else if (d.type == 'Circle') {
+		fill(d, {
+			theta_delta: 0.001,
+			flip_each_count: true,
+			flip_each_layer: true,
+			decrease_by: 0.99,
+		});
+		if (d.flip_each_count && d.generator)
+			d.theta_delta *= d.generator.count % 2 ? 1 : -1;
+		if (d.flip_each_layer && d.generator)
+			d.theta_delta *= d.generator.layer % 2 ? 1 : -1;
+		v.runBase = function(dt, d, s) {
+			var v = sqrt_sum(d.vx, d.vy),
+				sinv = d.vy / v,
+				cosv = d.vx / v,
+				sint = Math.sin(d.theta_delta*dt),
+				cost = Math.cos(d.theta_delta*dt);
+			d.vy = v * (sinv*cost + cosv*sint);
+			d.vx = v * (cosv*cost - sinv*sint);
+			d.theta_delta *= d.decrease_by;
 		};
 	}
 	else if (d.type == 'OrbAround') {
@@ -1504,6 +1527,9 @@ function newEnemy(d, f) {
 	}[d && d.preset], d);
 	f = f || {
 		delay: 1000,
+		dannmaku: {
+			type: 'Circle',
+		},
 	};
 	var enm = SPRITE.newObj('Enemy', d);
 	if (f) STORY.timeout(function(d) {
