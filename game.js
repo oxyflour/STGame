@@ -114,13 +114,48 @@ function circle_intersect(cr1, cr2) {
 	return squa_sum(cr1.x - cr2.x, cr1.y - cr2.y) < 
 		squa_sum(cr1.r + cr2.r, 0)
 }
-function line_circle_intersect(x1, y1, x2, y2, w, cr) {
-	var dx = x2 - x1, dy = y2 - y1,
-		dx1 = cr.x - x1, dy1 = cr.y - y1, t1 = dx1*dx + dy1*dy,
-		dx2 = cr.x - y2, dy2 = cr.y - y2, t2 = dx2*dx + dy2*dy;
-	return (t1 > 0 && t2 < 0 && squa_sum(dy*dx1 - dx*dy1, 0) / squa_sum(dx, dy) < squa_sum(cr.r+w, 0)) ||
-		(t1 <= 0 && squa_sum(dx1, dy1) < squa_sum(cr.r+w, 0)) ||
-		(t2 >= 0 && squa_sum(dx2, dy2) < squa_sum(cr.r+w, 0));
+function line_circle_intersect(ln, cr) {
+	var dx = ln.x - ln.x1, dy = ln.y - ln.y1,
+		dx1 = cr.x - ln.x1, dy1 = cr.y - ln.y1, t1 = dx1*dx + dy1*dy,
+		dx2 = cr.x - ln.x, dy2 = cr.y - ln.y, t2 = dx2*dx + dy2*dy,
+		ret = { x:0, y:0, vx:0, vy:0, r:ln.r, mass:1e3 };
+	if (((t1 > 0 && t2 < 0) || (t1 < 0 && t2 > 0)) &&
+			squa_sum(dy*dx1 - dx*dy1, 0) / squa_sum(dx, dy) < squa_sum(cr.r+ln.r, 0)) {
+		var dxq = dx*dx, dyq = dy*dy, dxy = dx*dy;
+		ret.x = (dyq*ln.x1+dxq*cr.x + dxy*(cr.y-ln.y1)) / (dxq + dyq);
+		ret.y = (dxq*ln.y1+dyq*cr.y + dxy*(cr.x-ln.x1)) / (dxq + dyq);
+		return ret;
+	}
+	else if (t1 <= 0 && squa_sum(dx1, dy1) < squa_sum(cr.r+ln.r, 0)) {
+		ret.x = ln.x1;
+		ret.y = ln.y1;
+		return ret;
+	}
+	else if (t2 >= 0 && squa_sum(dx2, dy2) < squa_sum(cr.r+ln.r, 0)) {
+		ret.x = ln.x;
+		ret.y = ln.y;
+		return ret;
+	}
+}
+function circles_hit(d, e) {
+	var r = sqrt_sum(d.x - e.x, d.y - e.y),
+		sin = (d.y - e.y) / r,
+		cos = (d.x - e.x) / r,
+		md = d.mass,
+		me = e.mass,
+		vd = sqrt_sum(d.vx, d.vy),
+		ve = sqrt_sum(e.vx, e.vy),
+		vdn = d.vx*cos + d.vy*sin, vdr = d.vx*sin - d.vy*cos,
+		ven = e.vx*cos + e.vy*sin, ver = e.vx*sin - e.vy*cos;
+	var vdn2 = (vdn*(md - me)+2*me*ven)/(md+me),
+		ven2 = (ven*(me - md)+2*md*vdn)/(md+me);
+	d.vx = vdn2*cos + vdr*sin; d.vy = vdn2*sin - vdr*cos;
+	e.vx = ven2*cos + ver*sin; e.vy = ven2*sin - ver*cos;
+	var cx = (d.x*e.r+e.x*d.r)/(d.r+e.r),
+		cy = (d.y*e.r+e.y*d.r)/(d.r+e.r),
+		f = 1.01;
+	d.x = cx + d.r*cos*f; d.y = cy + d.r*sin*f;
+	e.x = cx - e.r*cos*f; e.y = cy - e.r*sin*f;
 }
 
 function $(s, p) {
@@ -897,6 +932,7 @@ SPRITE.newCls('Player', {
 	hits: [
 		'Player',
 		'Ball',
+		'Stick',
 		'Enemy',
 		'Dannmaku',
 		'Drop',
@@ -904,16 +940,7 @@ SPRITE.newCls('Player', {
 	hit: function(v) {
 		var d = this.data,
 			e = v.data;
-		if (v.state.d.mkDamage) {
-			if (!this.state.d.isInvinc && circle_intersect({ x:d.x, y:d.y, r:d.h }, e)) {
-				STORY.on(STORY.events.PLAYER_HIT, this);
-			}
-			else if (circle_intersect(d, e) && !e.grazed) {
-				e.grazed = true;
-				STORY.on(STORY.events.PLAYER_GRAZE, this);
-			}
-		}
-		else if (v.clsName == SPRITE.proto.Drop.clsName && v.state.d.name=='living') {
+		if (v.clsName == SPRITE.proto.Drop.clsName && v.state.d.name=='living') {
 			if (circle_intersect(d, { x:e.x, y:e.y, r:20 })) {
 				STORY.on(STORY.events.PLAYER_GETDROP, this);
 				STORY.on(STORY.events.DROP_COLLECTED, v);
@@ -931,6 +958,22 @@ SPRITE.newCls('Player', {
 					f = 1.01;
 				d.x = cx + d.r*cos*f; d.y = cy + d.r*sin*f;
 				e.x = cx - e.r*cos*f; e.y = cy - e.r*sin*f;
+			}
+		}
+		else if (v.clsName == SPRITE.proto.Stick.clsName) {
+			if (!this.state.d.isInvinc && line_circle_intersect(e, { x:d.x, y:d.y, r:d.h })) {
+				STORY.on(STORY.events.PLAYER_HIT, this);
+			}
+			else if (line_circle_intersect(e, d) && !e.grazed) {
+				STORY.on(STORY.events.PLAYER_GRAZE, e.grazed = this);
+			}
+		}
+		else if (v.state.d.mkDamage) {
+			if (!this.state.d.isInvinc && circle_intersect({ x:d.x, y:d.y, r:d.h }, e)) {
+				STORY.on(STORY.events.PLAYER_HIT, this);
+			}
+			else if (circle_intersect(d, e) && !e.grazed) {
+				STORY.on(STORY.events.PLAYER_GRAZE, e.grazed = this);
 			}
 		}
 	},
@@ -1091,26 +1134,8 @@ SPRITE.newCls('Ball', {
 	hit: function(v) {
 		var d = this.data,
 			e = v.data;
-		if (circle_intersect(d, e)) {
-			var r = sqrt_sum(d.x - e.x, d.y - e.y),
-				sin = (d.y - e.y) / r,
-				cos = (d.x - e.x) / r,
-				md = d.r,
-				me = e.r,
-				vd = sqrt_sum(d.vx, d.vy),
-				ve = sqrt_sum(e.vx, e.vy),
-				vdn = d.vx*cos + d.vy*sin, vdr = d.vx*sin - d.vy*cos,
-				ven = e.vx*cos + e.vy*sin, ver = e.vx*sin - e.vy*cos;
-			var vdn2 = (vdn*(md - me)+2*me*ven)/(md+me),
-				ven2 = (ven*(me - md)+2*md*vdn)/(md+me);
-			d.vx = vdn2*cos + vdr*sin; d.vy = vdn2*sin - vdr*cos;
-			e.vx = ven2*cos + ver*sin; e.vy = ven2*sin - ver*cos;
-			var cx = (d.x*e.r+e.x*d.r)/(d.r+e.r),
-				cy = (d.y*e.r+e.y*d.r)/(d.r+e.r),
-				f = 1.01;
-			d.x = cx + d.r*cos*f; d.y = cy + d.r*sin*f;
-			e.x = cx - e.r*cos*f; e.y = cy - e.r*sin*f;
-		}
+		if (circle_intersect(d, e))
+			circles_hit(d, e);
 	},
 
 	states: [
@@ -1120,6 +1145,49 @@ SPRITE.newCls('Ball', {
 	],
 }, function(d) {
 	SPRITE.init.Base.call(this, d);
+	this.data.mass = this.data.r;
+});
+
+SPRITE.newCls('Stick', {
+	from: 'Base',
+	layer: 'L20',
+	hits: [
+		'Ball',
+	],
+	hit: function(v) {
+		var d = this.data,
+			e = v.data;
+			cr = line_circle_intersect(d, e);
+		if (cr)
+			circles_hit(cr, e);
+	},
+	mkRect: function(rt, d) {
+		rt.l = Math.min(d.x0, d.x, d.x1);
+		rt.t = Math.min(d.y0, d.y, d.y1);
+		rt.r = Math.max(d.x0, d.x, d.x1);
+		rt.b = Math.max(d.y0, d.y, d.y1);
+	},
+	drawStatic: function(d, s) {
+		DC.beginPath();
+		DC.moveTo(d.x, d.y);
+		DC.lineTo(d.x1, d.y1);
+		DC.lineWidth = d.r;
+		DC.stroke();
+		DC.closePath();
+	},
+
+	states: [
+		{ name:'creating',	life: 200,		next: 1, mkDamage:0 },
+		{ name:'living',	life: Math.Inf, next: 2, mkDamage:1 },
+		{ name:'dying',		life: 500,		next:-1, mkDamage:0 },
+	],
+}, function(d) {
+	d = extend({
+		x1: 0,
+		y1: 0,
+	}, d);
+	SPRITE.init.Base.call(this, d);
+	this.data.mass = 100;
 });
 
 SPRITE.newCls('Enemy', {
