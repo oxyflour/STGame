@@ -966,7 +966,7 @@ SPRITE.newCls('Player', {
 	
 	runPlayer: function(dt, d, s) {
 		var m = GAME.keyste.shiftKey,
-			v = m ? 0.12 : 0.35;
+			v = m ? 0.12 : 0.36;
 		d.slowMode = m;
 		d.x0 = d.x;
 		d.y0 = d.y;
@@ -1106,7 +1106,7 @@ SPRITE.newCls('Player', {
 		key_down: 40,
 		key_fire: GAME.keychars.Z,
 		key_bomb: GAME.keychars.X,
-		fire_interval: 80,
+		fire_interval: 50,
 		fire_count: 500,
 	}, this.data.conf);
 });
@@ -1266,7 +1266,7 @@ SPRITE.newCls('Bullet', {
 }, function(d) {
 	d = extend({
 		r: 5,
-		vy: -0.5,
+		vy: -1.2,
 	}, d);
 	SPRITE.init.Circle.call(this, d);
 });
@@ -1358,13 +1358,14 @@ function newBullet(d) {
 		}, 'Enemy');
 	}
 	ieach([1, -1], function(i, x) {
-		var v0 = 0.7, v1 = 0.5,
+		var vy = 1.2, vx = 0.02, v1 = 0.5,
 			t = (d.from.data.slowMode ? random(-5, 5) : random(10, 20)) * Math.PI / 180,
 			onmyou = x > 0 ? d.from.onmyous.right : d.from.onmyous.left;
 		SPRITE.newObj('Bullet', {
-			x: d.from.data.x + 10*x,
+			x: d.from.data.x + 5*x,
 			y: d.from.data.y,
-			vy: -v0,
+			vy: -vy,
+			vx: x * vx,
 			from: d.from,
 			frames: RES.frames.Bullet0,
 		});
