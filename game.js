@@ -578,9 +578,7 @@ var GAME = (function() {
 	_t.draw = function() {
 		DC.clear();
 		SPRITE.eachLayerObj(function(i, v) {
-			DC.save();
 			v.draw();
-			DC.restore();
 		})
 	};
 	_t.keyste = {};
@@ -783,6 +781,7 @@ SPRITE.newCls('Basic', {
 	draw: function() {
 		var d = this.data, s = this.state;
 		if (d.opacity > 0) {
+			DC.save();
 			if (d.opacity < 1)
 				DC.globalAlpha = d.opacity;
 
@@ -792,6 +791,7 @@ SPRITE.newCls('Basic', {
 				this.drawFrame(d, s);
 			else if (d.text)
 				this.drawText(d, s);
+			DC.restore();
 		}
 	},
 	anim: function(t, fn, d, id) {
