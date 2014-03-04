@@ -31,22 +31,22 @@ body {
 	<canvas id="player0R" from="player0L 0 48 256 48"
 		transform="mirror:x"></canvas>
 	<canvas id="bullet0" from="player0L 128 0 16 16"
-		transform="rotate:30"></canvas>
+		transform="rotate:{{range(180, 0, 30)}}"></canvas>
 	<canvas id="bullet1" from="player0L 144 0 16 16"
-		transform="rotate:0,15,30,45,60,75"></canvas>
+		transform="rotate:{{range(90, 0, 15)}}"></canvas>
 	<canvas id="onmyou" from="player0L 128 16 16 16"
-		transform="rotate:0,20,40,60,80,100,120,140,160,180,200,220,240,260,280,300,320,340"></canvas>
+		transform="rotate:{{range(360, 0, 20)}}"></canvas>
 	<img id="etama2" src="res/etama2.png" />
 	<img id="etama3" src="res/etama3.png" />
 	<img id="etama4" src="res/etama4.png" />
 	<img id="eff00" src="res/eff00.png" />
 	<canvas id="effboss" from="eff00 16 48 16 16"
-		transform="rotate:0,10,20,30,40,50,60,70,80,90,100,110,120,130,140,150,160,170"></canvas>
+		transform="rotate:{{range(180, 0, 10)}}"></canvas>
 	<canvas id="pslow" from="etama2 0 112 64 64"
-		transform="rotate:0,10,20,30,40,50,60,70,80"></canvas>
+		transform="rotate:{{range(90, 0, 10)}}"></canvas>
 	<img id="stg1enm" src="res/stg1enm.png" />
 	<script id="frames">
-		(function() {
+		(function(RES) {
 			var _t = {};
 
 			_t.Player0 = array(4, function(i) {
@@ -75,16 +75,16 @@ body {
 				{ res:'player0L', sx:0, sy: 0, sw:0, sh:0, w:0, h:0 },
 			];
 
-			_t.Bullet0 = [
-				{ res:'bullet0', sx:0, sy:0, sw:16, sh:16, w:16, h:16 },
-			];
-			_t.Bullet1 = array(6, function(i) {
+			_t.Bullet0 = array(RES.bullet0.width/16, function(i) {
+				return extend({ res:'bullet0', sy:0, sw:16, sh:16, w:16, h:16 }, { sx:16*i });
+			});
+			_t.Bullet1 = array(RES.bullet1.width/16, function(i) {
 				return extend({ res:'bullet1', sy:0, sw:16, sh:16, w:16, h:16 }, { sx:16*i });
 			});
-			_t.Onmyou = array(16, function(i) {
+			_t.Onmyou = array(RES.onmyou.width/16, function(i) {
 				return extend({ res:'onmyou', sy:0, sw:16, sh:16, w:16, h:16 }, { sx:16*i });
 			});
-			_t.PSlow = array(9, function(i) {
+			_t.PSlow = array(RES.pslow.width/64, function(i) {
 				return extend({ res:'pslow', sy:0, sw:64, sh:64, w:64, h:64 }, { sx:64*i });
 			});
 
@@ -108,7 +108,7 @@ body {
 				return extend({ res:'stg1enm', sy:255-48, sw:32, sh:48, w:32, h:48 }, { sx:32*i });
 			});
 
-			_t.EffBoss = array(18, function(i) {
+			_t.EffBoss = array(RES.effboss.width/16, function(i) {
 				return { res:'effboss', sx:i*16, sy:0, sw:16, sh:16, w:16, h:16 };
 			});
 			_t.EffEnemy = ieach([32,42,52,62,60,58,56,54,52,50,48,46,44,42,40,38,36,34,32,30,28,26], function(i, d, ls) {

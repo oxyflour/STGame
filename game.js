@@ -312,11 +312,14 @@ var RES = (function(res) {
 	}
 	function getTrans(trans) {
 		var st = trans ? trans.split(';') : [];
-		return ieach(st, function(i, v, d) {
-			var st = v.split(':'),
-				k = st[0],
-				vs = st[1].split(',');
-			ieach(vs, function(i, v) {
+		return ieach(st, function(i, s, d) {
+			var k = s.substr(0, s.indexOf(':')),
+				v = s.substr(k.length + 1);
+			v = v.replace(/{{([^{}]+)}}/gm, function(match, name) {
+				var r = eval(name);
+				return r.join ? r.join(',') : r;
+			});
+			ieach(v.split(','), function(i, v) {
 				d.push({ k:k, v:v });
 			});
 		}, []);
@@ -363,7 +366,7 @@ var RES = (function(res) {
 				d[v.id] = v;
 			}
 			else if (v.tagName == 'SCRIPT') {
-				d[v.id] = eval(v.innerHTML)();
+				d[v.id] = eval(v.innerHTML)(_t);
 			}
 		}, _t);
 	}
