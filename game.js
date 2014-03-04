@@ -679,11 +679,20 @@ var UTIL = {
 		}, []);
 
 		var s = newStateMachine(stes);
-		s.setName = function(k) {
-			var i = ieach(s.stes, function(i, v, d) {
+		s.setOld = s.set;
+		s.set = function(k) {
+			var i = ieach(this.stes, function(i, v, d) {
 				if (v.data.name==k) return i;
-			});
-			s.set(i);
+			}, k);
+			this.setOld(i);
+			this.is_creating = this.d.name == 'creating';
+			this.is_dying = this.d.name == 'dying';
+		}
+		s.die = function() {
+			s.set('dying');
+		}
+		s.create = function() {
+			s.set('creating');
 		}
 		s.set(0);
 		return s;
@@ -746,13 +755,13 @@ SPRITE.newCls('Basic', {
 		if (!s.d.life)
 			this.isAlive = false;
 
-		if (d.parent && d.parent.state.d.name=='dying' && s.d.name!='dying')
-			s.setName('dying');
+		if (d.parent && d.parent.state.is_dying && !s.is_dying)
+			s.die();
 
 		var delta = 1;
-		if (s.d.name=='creating')
+		if (s.is_creating)
 			delta = dt / s.d.life;
-		else if (s.d.name=='dying')
+		else if (s.is_dying)
 			delta = - dt / s.d.life;
 		d.opacity = limit_between((+d.opacity || 0) + delta, 0, 1);
 
@@ -1024,11 +1033,9 @@ SPRITE.newCls('Player', {
 		if (d.y < interp(GAME.rect.t, GAME.rect.b, 0.3))
 			STORY.on(STORY.events.PLAYER_AUTOCOLLECT, v);
 	},
-	onStateChange: function(d0, d) {
-		if (d && d.name=='dying')
+	onStateChange: function(s, d) {
+		if (s.is_dying)
 			STORY.on(STORY.events.PLAYER_DYING, this);
-		if (d0 && d0.bomb && !d.bomb)
-			STORY.on(STORY.events.PLAYER_BOMBEND, this);
 	},
 	runBasic: function(dt, d, s) {
 		if (!this.isAlive) {
@@ -1036,7 +1043,7 @@ SPRITE.newCls('Player', {
 			return;
 		}
 
-		if (s.d.name!='dying')
+		if (!s.is_dying)
 			this.runPlayer(dt, d, s);
 
 		// limit player move inside boundary
@@ -1055,7 +1062,7 @@ SPRITE.newCls('Player', {
 		this.rect.b = d.y + d.r*1.1;
 
 		if (this.last_state != s.d)
-			this.onStateChange(this.last_state, s.d);
+			this.onStateChange(s, this.last_state);
 		this.last_state = s.d;
 	},
 	drawBasic: function(d, s) {
@@ -1088,7 +1095,7 @@ SPRITE.newCls('Player', {
 		frtick: 120,
 	  	frames: function(v, d) {
 			var fs = RES.frames.Player0;
-			if (v.state.d.name=='dying') {
+			if (v.state.is_dying) {
 				fs = RES.frames.PlayerD;
 				if (d.index + 1 > fs.length - 1)
 					d.index = fs.length - 2;
@@ -1191,7 +1198,7 @@ SPRITE.newCls('Enemy', {
 	hit: function(v) {
 		var d = this.data,
 			e = v.data;
-		if (this.state.d.name=='dying' || v.state.d.name=='dying')
+		if (this.state.is_dying || v.state.is_dying)
 			return;
 		if (circle_intersect(d, e)) {
 			d.damage ++;
@@ -1224,7 +1231,7 @@ SPRITE.newCls('Drop', {
 		var v = d.collected;
 		if (v && !v.isAlive)
 			v = d.collected = SPRITE.getAliveOne('Player');
-		if (v && v.isAlive && v.state.d.name!='dying') {
+		if (v && v.isAlive && !v.state.is_dying) {
 			var e = v.data,
 				v = d.collected_auto ? 0.8 : sqrt_sum(d.vx, d.vy),
 				dx = e.x - d.x,
@@ -1319,7 +1326,7 @@ function newPlayer() {
 	});
 	p.pslow = {};
 	p.anim(100, function(d, p) {
-		p.showSlow = p.isAlive && p.state.d.name != 'dying' && p.data.slowMode;
+		p.showSlow = p.isAlive && !p.state.is_dying && p.data.slowMode;
 		if (!p.showSlow || p.pslow.isAlive)
 			return;
 		p.pslow = SPRITE.newObj('Basic', {
@@ -1331,10 +1338,10 @@ function newPlayer() {
 			var p = d.parent;
 			d.x = p.data.x;
 			d.y = p.data.y;
-			if (p.showSlow && s.d.name == 'dying')
-				s.setName('creating');
-			if (!p.showSlow && s.d.name != 'dying')
-				s.setName('dying');
+			if (p.showSlow && s.is_dying)
+				s.create();
+			if (!p.showSlow && !s.is_dying)
+				s.die();
 		};
 	});
 }
@@ -1393,7 +1400,7 @@ function newBullet(d) {
 		}).runCircle = function(dt, d, s) {
 			var u = d.to,
 				e = u && u.data;
-			if (u && u.isAlive && u.state.d.mkDamage && s.d.name != 'dying') {
+			if (u && u.isAlive && u.state.d.mkDamage && !s.is_dying) {
 				var dx = e.x - d.x,
 					dy = e.y - d.y,
 					r = sqrt_sum(dx, dy),
@@ -1491,7 +1498,7 @@ function newDannmaku(d) {
 			d.speed *= d.generator.count % 2 ? 1 : -1;
 		v.runCircle = function(dt, d, s) {
 			var f = d.from;
-			if (f && f.isAlive && f.state.d.name!='dying') {
+			if (f && f.isAlive && !f.state.is_dying) {
 				d.x = d.radius*Math.sin(d.theta) + d.source_x;
 				d.y = d.radius*Math.cos(d.theta) + d.source_y;
 				d.theta += dt*d.speed;
@@ -1718,15 +1725,15 @@ function newEffect(v) {
 function killCls() {
 	ieach(arguments, function(i, c) {
 		SPRITE.eachObj(function(i, v) {
-			if (v.state.d.name!='dying')
-				v.state.setName('dying');
+			if (!v.state.is_dying)
+				v.state.die();
 		}, c);
 	})
 }
 function killObj() {
 	ieach(arguments, function(i, v) {
-		if (v.state.d.name!='dying')
-			v.state.setName('dying');
+		if (!v.state.is_dying)
+			v.state.die();
 	})
 }
 
@@ -1760,7 +1767,7 @@ tl.all = {
 		}
 		else if (e == STORY.events.PLAYER_HIT) {
 			GAME.statics.graze --;
-			v.state.setName('juesi');
+			v.state.set('juesi');
 			/*
 			STORY.timeout(function() {
 				killCls('Dannmaku');
@@ -1791,18 +1798,18 @@ tl.all = {
 				});
 		}
 		else if (e == STORY.events.PLAYER_BOMB) {
-			v.state.setName('bomb');
+			v.state.set('bomb');
 		}
 		else if (e == STORY.events.ENEMY_KILL) {
-			v.state.setName('dying');
+			v.state.die();
 			newEffect(v);
 		}
 		else if (e == STORY.events.DROP_COLLECTED) {
-			v.state.setName('dying');
+			v.state.die();
 			GAME.statics.point += 10;
 		}
 		else if (e == STORY.events.BULLET_HIT) {
-			v.state.setName('dying');
+			v.state.die();
 			v.data.vx = random(-0.1, 0.1);
 			v.data.vy = random(0.1, 0.2) * (v.data.vy > 0 ? -1 : 1);
 			UTIL.addFrameAnim(v, v.data.frtick, RES.frames.EffBullet);
@@ -1819,7 +1826,7 @@ tl.init = {
 		});
 	},
 	quit: function(d) {
-		d.title.state.setName('dying');
+		d.title.state.die();
 	}
 };
 tl.sec0 = {
@@ -1869,11 +1876,11 @@ tl.sec1 = {
 				y: v.data.y
 			});
 			var pass = reduce(SPRITE.objs.Enemy, function(i, v, r) {
-				return v.isAlive ? (r && v.state.d.name=='dying') : r;
+				return v.isAlive ? (r && v.state.is_dying) : r;
 			}, true);
 			if (pass) {
 				SPRITE.eachObj(function(i, v) {
-					v.state.setName('dying');
+					v.state.die();
 					SPRITE.newObj('Drop', {
 						x: v.data.x,
 						y: v.data.y,
@@ -1890,7 +1897,7 @@ tl.sec1 = {
 			}
 		}
 		else if (e == STORY.events.OBJECT_OUT) {
-			if (v.clsName == SPRITE.proto.Enemy.clsName && v.state.d.name!='dying')
+			if (v.clsName == SPRITE.proto.Enemy.clsName && !v.state.is_dying)
 				newEnemy();
 		}
 	}
@@ -1915,7 +1922,7 @@ ieach([
 				return n;
 		},
 		quit: function(d) {
-			d.text.state.setName('dying');
+			d.text.state.die();
 		},
 		on: function(e, v, d) {
 			if (e == STORY.events.GAME_INPUT) {
