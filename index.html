@@ -58,6 +58,8 @@ body {
 	<img id="eff00" src="res/eff00.png" />
 	<canvas id="effboss" from="eff00 16 48 16 16"
 		transform="rotate:{{range(180, 0, 10)}}"></canvas>
+	<canvas id="effbullet" from="player0L 128 32 16 16"
+		transform="rotate:{{range(360, 0, 60)}}"></canvas>
 	<canvas id="pslow" from="etama2 0 112 64 64"
 		transform="rotate:{{range(90, 0, 10)}}"></canvas>
 	<img id="stg1enm" src="res/stg1enm.png" />
@@ -124,9 +126,9 @@ body {
 				return extend({ res:'stg1enm', sy:255-48, sw:32, sh:48, w:32, h:48 }, { sx:32*i });
 			});
 
-			_t.EffBullet = [
-				{ res:'player0L', sx:160, sy:0, sw:16, sh:16, w:16, h:16 },
-			];
+			_t.EffBullet = array(RES.effbullet.width/16, function(i) {
+				return { res:'effbullet', sx:i*16, sy:0, sw:16, sh:16, w:16, h:16 };
+			});
 			_t.EffBoss = array(RES.effboss.width/16, function(i) {
 				return { res:'effboss', sx:i*16, sy:0, sw:16, sh:16, w:16, h:16 };
 			});
