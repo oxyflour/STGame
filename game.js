@@ -825,7 +825,6 @@ SPRITE.newCls('Basic', {
 	],
 }, function(d) {
 	this.isAlive = true;
-	this.state = UTIL.newAliveState(this.states);
 	this.data = d = extend({
 		x: interp(GAME.rect.l, GAME.rect.r, 0.5),
 		y: interp(GAME.rect.t, GAME.rect.b, 0.5),
@@ -843,8 +842,10 @@ SPRITE.newCls('Basic', {
 		pathtick: 30,
 		pathnodes: undefined, // array of objects like { x/fx:0, y/fy:0, v:1}
 
+		states: undefined,
 		layer: undefined,
 	}, d);
+	this.state = UTIL.newAliveState(d.states || this.states);
 	if (d.frames) {
 		if (d.frames.call || d.frames.length > 1)
 			UTIL.addFrameAnim(this, d.frtick, d.frames);
@@ -1685,11 +1686,12 @@ function newEffect(v) {
 			Enemy: RES.frames.EffEnemy,
 			Player: RES.frames.EffPlayer,
 		}[v.clsName],
-	}).state = UTIL.newAliveState([
-		{ name:'creating',	life: 100,	next: 1 },
-		{ name:'living',	life: 50,	next: 2 },
-		{ name:'dying',		life: 850,	next:-1 },
-	]);
+		states: [
+			{ name:'creating',	life: 100,	next: 1 },
+			{ name:'living',	life: 50,	next: 2 },
+			{ name:'dying',		life: 850,	next:-1 },
+		],
+	});
 	array(8, function(i) {
 		var p = SPRITE.newObj('Circle', {
 			x: v.data.x,
@@ -1700,12 +1702,12 @@ function newEffect(v) {
 				Enemy: RES.frames.EffPiece,
 				Player: RES.frames.EffPieceR,
 			}[v.clsName]),
+			states: [
+				{ name:'creating',	life: 50,	next: 1 },
+				{ name:'living',	life: 50,	next: 2 },
+				{ name:'dying',		life: 600,	next:-1 },
+			],
 		})
-		p.state = UTIL.newAliveState([
-			{ name:'creating',	life: 50,	next: 1 },
-			{ name:'living',	life: 50,	next: 2 },
-			{ name:'dying',		life: 600,	next:-1 },
-		]);
 		p.runCircle = function(dt, d, s) {
 			d.vx *= 0.97;
 			d.vy *= 0.97;
