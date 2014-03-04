@@ -1363,28 +1363,33 @@ function newBullet(d) {
 			}
 		}, 'Enemy');
 	}
-	ieach([1, -1], function(i, x) {
-		var vy = 1.2, vx = 0.02, v1 = 0.5,
-			t = (d.from.data.slowMode ? random(-5, 5) : random(10, 20)) * Math.PI / 180,
+	d.from.bullet0_idx = ((d.from.bullet0_idx || 0) + 1) % RES.frames.Bullet0.length;
+	d.from.bullet1_idx = ((d.from.bullet1_idx || 0) + 1) % 5;
+	array(2, function(i, para) {
+		var x = i % 2 ? -1 : 1;
+		SPRITE.newObj('Bullet', {
+			x: d.from.data.x + x*5,
+			y: d.from.data.y,
+			vx: 0.02*x,
+			vy: -1.2,
+			from: d.from,
+			frames: RES.frames.Bullet0[d.from.bullet0_idx],
+		});
+	});
+	if (d.from.bullet1_idx == 0) array(4, function(i) {
+		var x = i % 2 ? -1 : 1,
+			v1 = random(0.4, 0.5),
+			t = (d.from.data.slowMode ? random(-5, 5) : random(10, 20)-i*5) * Math.PI / 180,
 			onmyou = x > 0 ? d.from.onmyous.right : d.from.onmyous.left;
 		SPRITE.newObj('Bullet', {
-			x: d.from.data.x + 5*x,
-			y: d.from.data.y,
-			vy: -vy,
-			vx: x * vx,
-			from: d.from,
-			frames: RES.frames.Bullet0,
-		});
-		var b = SPRITE.newObj('Bullet', {
 			x: onmyou.data.x,
 			y: onmyou.data.y,
 			vy: -v1*Math.cos(t),
-			vx: v1*x*Math.sin(t),
+			vx: x*v1*Math.sin(t),
 			from: d.from,
 			to: d.to,
 			frames: RES.frames.Bullet1,
-		});
-		b.runBase = function(dt, d, s) {
+		}).runBase = function(dt, d, s) {
 			var u = d.to,
 				e = u && u.data;
 			if (u && u.isAlive && u.state.d.mkDamage) {
@@ -1396,7 +1401,7 @@ function newBullet(d) {
 				d.vy = v * dy / r;
 			}
 		};
-	});
+	})
 }
 function newDannmaku(d) {
 	var v = SPRITE.newObj('Dannmaku', d);
