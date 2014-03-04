@@ -705,27 +705,7 @@ var UTIL = {
 		if (GAME.state == GAME.states.RUNNING)
 			GAME.run(10);
 	});
-	setInterval(function() {
-		gameTick.run(Math.min(dt(), 100));
-	}, 10);
-
-	GAME.fps = 0;
-	var fpsCounter = newFPSCounter();
-	requestAnimationFrame(function render(t) {
-		GAME.fps = fpsCounter(t);
-		GAME.draw();
-		requestAnimationFrame(render);
-	});
-
-	setInterval(function() {
-		var fns = {
-			'ui-bind': function(e, t) {
-				return Function(($attr(e, 'ui-bind-attr') || 'this.innerHTML')+'='+t);
-			},
-			'ui-show': function(e, t) {
-				return Function('this.style.display=('+t+')?"block":"none"');
-			}
-		};
+	var uiTick = newTicker(80, function(fns) {
 		ieach($('.ui'), function(i, e) {
 			ieach(e.attributes, function(i, attr) {
 				var n = attr.name,
@@ -735,7 +715,27 @@ var UTIL = {
 				if (f) (e[k] = e[k] || f(e, t)).apply(e);
 			});
 		});
-	}, 80);
+	}, {
+		'ui-bind': function(e, t) {
+			return Function(($attr(e, 'ui-bind-attr') || 'this.innerHTML')+'='+t);
+		},
+		'ui-show': function(e, t) {
+			return Function('this.style.display=('+t+')?"block":"none"');
+		}
+	});
+	setInterval(function() {
+		var t = Math.min(dt(), 100);
+		gameTick.run(t);
+		uiTick.run(t);
+	}, 10);
+
+	GAME.fps = 0;
+	var fpsCounter = newFPSCounter();
+	requestAnimationFrame(function render(t) {
+		GAME.fps = fpsCounter(t);
+		GAME.draw();
+		requestAnimationFrame(render);
+	});
 	
 	ieach(['keydown', 'keyup'], function(i, v) {
 		window.addEventListener(v, function(e) {
