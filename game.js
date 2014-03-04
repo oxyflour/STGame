@@ -118,25 +118,25 @@ function circle_intersect(cr1, cr2) {
 		squa_sum(cr1.r + cr2.r, 0)
 }
 function line_circle_intersect(ln, cr) {
-	var dx = ln.x - ln.x1, dy = ln.y - ln.y1,
-		dx1 = cr.x - ln.x1, dy1 = cr.y - ln.y1, t1 = dx1*dx + dy1*dy,
-		dx2 = cr.x - ln.x, dy2 = cr.y - ln.y, t2 = dx2*dx + dy2*dy,
+	var dx = ln.dx, dy = ln.dy,
+		dx1 = cr.x - ln.x, dy1 = cr.y - ln.y, t1 = dx1*dx + dy1*dy,
+		dx2 = dx1 - dx, dy2 = dy1 - dy, t2 = dx2*dx + dy2*dy,
 		ret = { x:0, y:0, vx:0, vy:0, r:ln.r, mass:1e3 };
 	if (((t1 > 0 && t2 < 0) || (t1 < 0 && t2 > 0)) &&
 			squa_sum(dy*dx1 - dx*dy1, 0) / squa_sum(dx, dy) < squa_sum(cr.r+ln.r, 0)) {
 		var dxq = dx*dx, dyq = dy*dy, dxy = dx*dy;
-		ret.x = (dyq*ln.x1+dxq*cr.x + dxy*(cr.y-ln.y1)) / (dxq + dyq);
-		ret.y = (dxq*ln.y1+dyq*cr.y + dxy*(cr.x-ln.x1)) / (dxq + dyq);
+		ret.x = (dyq*ln.x+dxq*cr.x + dxy*(cr.y-ln.y)) / (dxq + dyq);
+		ret.y = (dxq*ln.y+dyq*cr.y + dxy*(cr.x-ln.x)) / (dxq + dyq);
 		return ret;
 	}
 	else if (t1 <= 0 && squa_sum(dx1, dy1) < squa_sum(cr.r+ln.r, 0)) {
-		ret.x = ln.x1;
-		ret.y = ln.y1;
+		ret.x = ln.x;
+		ret.y = ln.y;
 		return ret;
 	}
 	else if (t2 >= 0 && squa_sum(dx2, dy2) < squa_sum(cr.r+ln.r, 0)) {
-		ret.x = ln.x;
-		ret.y = ln.y;
+		ret.x = ln.x + dx;
+		ret.y = ln.y + dy;
 		return ret;
 	}
 }
@@ -1162,15 +1162,15 @@ SPRITE.newCls('Stick', {
 			circles_hit(cr, e);
 	},
 	mkRect: function(rt, d) {
-		rt.l = Math.min(d.x0, d.x, d.x1);
-		rt.t = Math.min(d.y0, d.y, d.y1);
-		rt.r = Math.max(d.x0, d.x, d.x1);
-		rt.b = Math.max(d.y0, d.y, d.y1);
+		rt.l = Math.min(d.x0, d.x, d.x + d.dx);
+		rt.t = Math.min(d.y0, d.y, d.y + d.dy);
+		rt.r = Math.max(d.x0, d.x, d.x + d.dx);
+		rt.b = Math.max(d.y0, d.y, d.y + d.dy);
 	},
 	drawBasic: function(d, s) {
 		DC.beginPath();
 		DC.moveTo(d.x, d.y);
-		DC.lineTo(d.x1, d.y1);
+		DC.lineTo(d.x + d.dx, d.y + d.dy);
 		DC.lineWidth = d.r;
 		DC.stroke();
 		DC.closePath();
@@ -1183,8 +1183,8 @@ SPRITE.newCls('Stick', {
 	],
 }, function(d) {
 	d = extend({
-		x1: 0,
-		y1: 0,
+		dx: 0,
+		dy: (GAME.rect.b - GAME.rect.t)*0.2,
 	}, d);
 	SPRITE.init.Circle.call(this, d);
 	this.data.mass = 100;
