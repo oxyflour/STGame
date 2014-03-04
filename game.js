@@ -738,7 +738,7 @@ var UTIL = {
 
 SPRITE.newCls('Basic', {
 	layer: 'L10',
-	runStatic: undefined,
+	runBasic: undefined,
 	run: function(dt) {
 		var d = this.data, s = this.state;
 
@@ -756,10 +756,10 @@ SPRITE.newCls('Basic', {
 			delta = - dt / s.d.life;
 		d.opacity = limit_between((+d.opacity || 0) + delta, 0, 1);
 
-		if (this.runStatic)
-			this.runStatic(dt, d, s);
+		if (this.runBasic)
+			this.runBasic(dt, d, s);
 	},
-	drawStatic: undefined,
+	drawBasic: undefined,
 	drawText: function(d, s) {
 		if (d.font)
 			DC.font = d.font;
@@ -791,8 +791,8 @@ SPRITE.newCls('Basic', {
 			if (d.opacity < 1)
 				DC.globalAlpha = d.opacity;
 
-			if (this.drawStatic)
-				this.drawStatic(d, s);
+			if (this.drawBasic)
+				this.drawBasic(d, s);
 			else if (d.frame)
 				this.drawFrame(d, s);
 			else if (d.text)
@@ -859,7 +859,7 @@ SPRITE.newCls('Basic', {
 
 SPRITE.newCls('Circle', {
 	from: 'Basic',
-	runBase: undefined,
+	runCircle: undefined,
 	mkRect: function(rt, d) {
 		rt.l = Math.min(d.x0, d.x) - d.r*1.1;
 		rt.t = Math.min(d.y0, d.y) - d.r*1.1;
@@ -875,11 +875,11 @@ SPRITE.newCls('Circle', {
 			STORY.on(STORY.events.OBJECT_OUT, this);
 		}
 	},
-	runStatic: function(dt, d, s) {
+	runBasic: function(dt, d, s) {
 		d.x0 = d.x;
 		d.y0 = d.y;
-		if (this.runBase)
-			this.runBase(dt, d, s);
+		if (this.runCircle)
+			this.runCircle(dt, d, s);
 		d.x += d.vx * dt;
 		d.y += d.vy * dt;
 
@@ -895,7 +895,7 @@ SPRITE.newCls('Circle', {
 		DC.closePath();
 		DC.fill();
 	},
-	drawStatic: function(d, s) {
+	drawBasic: function(d, s) {
 		if (d.frame)
 			this.drawFrame(d, s);
 		else
@@ -1029,7 +1029,7 @@ SPRITE.newCls('Player', {
 		if (d0 && d0.bomb && !d.bomb)
 			STORY.on(STORY.events.PLAYER_BOMBEND, this);
 	},
-	runStatic: function(dt, d, s) {
+	runBasic: function(dt, d, s) {
 		if (!this.isAlive) {
 			STORY.on(STORY.events.PLAYER_DEAD, this);
 			return;
@@ -1057,7 +1057,7 @@ SPRITE.newCls('Player', {
 			this.onStateChange(this.last_state, s.d);
 		this.last_state = s.d;
 	},
-	drawStatic: function(d, s) {
+	drawBasic: function(d, s) {
 		if (this.state.d.isInvinc)
 			DC.globalAlpha = 0.5;
 
@@ -1159,7 +1159,7 @@ SPRITE.newCls('Stick', {
 		rt.r = Math.max(d.x0, d.x, d.x1);
 		rt.b = Math.max(d.y0, d.y, d.y1);
 	},
-	drawStatic: function(d, s) {
+	drawBasic: function(d, s) {
 		DC.beginPath();
 		DC.moveTo(d.x, d.y);
 		DC.lineTo(d.x1, d.y1);
@@ -1219,7 +1219,7 @@ SPRITE.newCls('Enemy', {
 SPRITE.newCls('Drop', {
 	from: 'Circle',
 	layer: 'L20',
-	runBase: function(dt, d, s) {
+	runCircle: function(dt, d, s) {
 		var v = d.collected;
 		if (v && !v.isAlive)
 			v = d.collected = SPRITE.getAliveOne('Player');
@@ -1307,7 +1307,7 @@ function newPlayer() {
 			offsetRadius: 25,
 			anim: a,
 		});
-		p.onmyous[k].runStatic = function(dt, d, s) {
+		p.onmyous[k].runBasic = function(dt, d, s) {
 			var p = d.parent,
 				a = d.anim,
 				delta = p.data.slowMode ? a.delta : -a.delta;
@@ -1326,7 +1326,7 @@ function newPlayer() {
 			parent: p,
 			frames: RES.frames.PSlow,
 		});
-		p.pslow.runStatic = function(dt, d, s) {
+		p.pslow.runBasic = function(dt, d, s) {
 			var p = d.parent;
 			d.x = p.data.x;
 			d.y = p.data.y;
@@ -1389,7 +1389,7 @@ function newBullet(d) {
 			from: d.from,
 			to: d.to,
 			frames: RES.frames.Bullet1,
-		}).runBase = function(dt, d, s) {
+		}).runCircle = function(dt, d, s) {
 			var u = d.to,
 				e = u && u.data;
 			if (u && u.isAlive && u.state.d.mkDamage) {
@@ -1411,7 +1411,7 @@ function newDannmaku(d) {
 			duration: 1500,
 			gravity: 20e-7,
 		});
-		v.runBase = function(dt, d, s) {
+		v.runCircle = function(dt, d, s) {
 			if (this.state.d.age < d.duration && d.from) {
 				var e = d.from.data;
 				d.vx -= d.gravity * dt * (d.x - e.x);
@@ -1424,7 +1424,7 @@ function newDannmaku(d) {
 			min_velocity: 0.02,
 			decrease_by: 0.992,
 		});
-		v.runBase = function(dt, d, s) {
+		v.runCircle = function(dt, d, s) {
 			if (Math.abs(d.vx) > d.min_velocity) d.vx *= d.decrease_by;
 			if (Math.abs(d.vy) > d.min_velocity) d.vy *= d.decrease_by;
 		};
@@ -1435,7 +1435,7 @@ function newDannmaku(d) {
 			gravity: 10e-7,
 			decrease_by: 0.98,
 		});
-		v.runBase = function(dt, d, s) {
+		v.runCircle = function(dt, d, s) {
 			if (this.state.d.age < d.duration) {
 				d.vx *= d.decrease_by;
 				d.vy *= d.decrease_by;
@@ -1462,7 +1462,7 @@ function newDannmaku(d) {
 			d.theta_delta *= d.generator.count % 2 ? 1 : -1;
 		if (d.flip_each_layer && d.generator)
 			d.theta_delta *= d.generator.layer % 2 ? 1 : -1;
-		v.runBase = function(dt, d, s) {
+		v.runCircle = function(dt, d, s) {
 			var v = sqrt_sum(d.vx, d.vy),
 				sinv = d.vy / v,
 				cosv = d.vx / v,
@@ -1488,7 +1488,7 @@ function newDannmaku(d) {
 			d.theta += d.generator.count * d.offset_count;
 		if (d.flip_each_count && d.generator)
 			d.speed *= d.generator.count % 2 ? 1 : -1;
-		v.runBase = function(dt, d, s) {
+		v.runCircle = function(dt, d, s) {
 			var f = d.from;
 			if (f && f.isAlive && f.state.d.name!='dying') {
 				d.x = d.radius*Math.sin(d.theta) + d.source_x;
@@ -1640,7 +1640,7 @@ function newBoss() {
 				radius2: 10,
 			}
 		});
-		eff.runStatic = function(dt, d, s) {
+		eff.runBasic = function(dt, d, s) {
 			var p = d.parent,
 				r = d.rot;
 			r.theta += r.dtheta * dt;
@@ -1658,7 +1658,7 @@ function newBoss() {
 		eff.draw = return_nothing;
 		return eff;
 	});
-	boss.drawStatic = function(d, s) {
+	boss.drawBasic = function(d, s) {
 		ieach(boss.effects, function(i, v) {
 			if (v.data.z < 0)
 				v.drawEffects();
@@ -1706,7 +1706,7 @@ function newEffect(v) {
 			{ name:'living',	life: 50,	next: 2 },
 			{ name:'dying',		life: 600,	next:-1 },
 		]);
-		p.runBase = function(dt, d, s) {
+		p.runCircle = function(dt, d, s) {
 			d.vx *= 0.97;
 			d.vy *= 0.97;
 			d.scale *= 0.995;
