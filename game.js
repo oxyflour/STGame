@@ -311,7 +311,7 @@ var RES = (function(res) {
 		}
 	}
 	function getTrans(trans) {
-		var st = trans ? trans.split(' ') : [];
+		var st = trans ? trans.split(';') : [];
 		return ieach(st, function(i, v, d) {
 			var st = v.split(':'),
 				k = st[0],
