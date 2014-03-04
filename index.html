@@ -20,8 +20,24 @@ body {
 .text-center {
 	text-align: center;
 }
-#canv {
+.main {
+	position: absolute;
+	top: 0;
+	left: 0;
+}
+.bg {
+	width: 320px;
+	height: 480px;
+	overflow: hidden;
+}
+#bgimg {
+	width: 100%;
+	height: 480px;
 	background: url(res/bg.png);
+	-webkit-transform: perspective(600px) rotateX(60deg);
+	-webkit-transform-origin: center top;
+	-ms-transform: perspective(600px) rotateX(60deg);
+	-ms-transform-origin: center top;
 }
 </style>
 </head>
@@ -129,22 +145,33 @@ body {
 			return _t;
 		})
 	</script>
+	<script id="elems">
+		(function(RES) {
+			return {
+				bg: $e('bgimg'),
+			}
+		})
+	</script>
 </div>
-<div class="absolute full-width">
-	<div>fps: <span class="ui" ui-bind="GAME.fps.toFixed(3)"></span></div>
-	<div>story: <span class="ui" ui-bind="STORY.state.n"></span></div>
-	<div>graze: <span class="ui" ui-bind="GAME.statics.graze"></span></div>
-	<div>point: <span class="ui" ui-bind="GAME.statics.point"></span></div>
-	<div>miss: <span class="ui" ui-bind="GAME.statics.miss"></span></div>
-	<div class="ui" ui-show="RES.process < 1">
-		loading: <span class="ui" ui-bind="(RES.process*100).toFixed(1)+'%'"></span>
-	</div>
-	<div class="text-center ui" ui-show="GAME.state != GAME.states.RUNNING">
-		<big class="ui" ui-bind="keyfind(GAME.states, GAME.state)"></big>
-	</div>
+<div class="bg">
+	<div id="bgimg"></div>
 </div>
-<canvas ui-bind="GAME.statics.time*0.05+'px'" ui-bind-attr="this.style['background-position-y']"
-	id="canv" class="ui" width="320px" height="480px"></canvas>
+<div class="main">
+	<div class="absolute full-width">
+		<div>fps: <span class="ui" ui-bind="GAME.fps.toFixed(3)"></span></div>
+		<div>story: <span class="ui" ui-bind="STORY.state.n"></span></div>
+		<div>graze: <span class="ui" ui-bind="GAME.statics.graze"></span></div>
+		<div>point: <span class="ui" ui-bind="GAME.statics.point"></span></div>
+		<div>miss: <span class="ui" ui-bind="GAME.statics.miss"></span></div>
+		<div class="ui" ui-show="RES.process < 1">
+			loading: <span class="ui" ui-bind="(RES.process*100).toFixed(1)+'%'"></span>
+		</div>
+		<div class="text-center ui" ui-show="GAME.state != GAME.states.RUNNING">
+			<big class="ui" ui-bind="keyfind(GAME.states, GAME.state)"></big>
+		</div>
+	</div>
+	<canvas id="canv" width="320px" height="480px"></canvas>
+</div>
 <script src="game.js"></script>
 </body>
 </html>

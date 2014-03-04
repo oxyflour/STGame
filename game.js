@@ -1746,9 +1746,13 @@ GAME.statics = {
 	miss: 0
 };
 var tl = {};
+var bgTick = newTicker(50, function() {
+	RES.elems.bg.style['background-position-y'] = GAME.statics.time*0.02+'px';
+});
 tl.all = {
 	after_run: function(dt) {
 		GAME.statics.time += dt;
+		bgTick.run(dt);
 	},
 	before_on: function(e, v, d) {
 		if (e == STORY.events.GAME_INPUT) {
