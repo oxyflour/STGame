@@ -1748,8 +1748,9 @@ var tl = {};
 tl.all = {
 	bg: newTicker(50, function() {
 		RES.elems.bg.style['background-position-y'] = GAME.statics.time*0.02+'px';
+		RES.elems.bg2.style['background-position-y'] = GAME.statics.time*0.031+'px';
 	}),
-	after_run: function(dt) {
+	after_run: function(dt, d) {
 		GAME.statics.time += dt;
 		this.bg.run(dt);
 	},

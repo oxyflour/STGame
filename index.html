@@ -26,14 +26,15 @@ body {
 	left: 0;
 }
 .bg {
+	position: relative;
 	width: 320px;
 	height: 480px;
 	overflow: hidden;
 }
-#bgimg {
+.bgimg {
+	position: absolute;
 	width: 100%;
 	height: 480px;
-	background: url(res/bg.png);
 	-webkit-transform: perspective(600px) rotateX(60deg);
 	-webkit-transform-origin: center top;
 	-ms-transform: perspective(600px) rotateX(60deg);
@@ -151,12 +152,14 @@ body {
 		(function(RES) {
 			return {
 				bg: $e('bgimg'),
+				bg2: $e('bgimg2'),
 			}
 		})
 	</script>
 </div>
 <div class="bg">
-	<div id="bgimg"></div>
+	<div id="bgimg" style="background:url(res/bg.png);" class="bgimg"></div>
+	<div id="bgimg2" style="background:url(res/bg2.png);opacity:0.4" class="bgimg"></div>
 </div>
 <div class="main">
 	<div class="absolute full-width">
