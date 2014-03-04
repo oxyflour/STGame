@@ -1707,6 +1707,7 @@ function newEffect(v) {
 			y: v.data.y,
 			vx: random(-0.2, 0.2),
 			vy: random(-0.2, 0.2),
+			scale: 1.5,
 			frames: randin({
 				Enemy: RES.frames.EffPiece,
 				Player: RES.frames.EffPieceR,
@@ -1720,7 +1721,7 @@ function newEffect(v) {
 		p.runCircle = function(dt, d, s) {
 			d.vx *= 0.97;
 			d.vy *= 0.97;
-			d.scale *= 0.995;
+			d.scale *= 0.992;
 		};
 	});
 }
