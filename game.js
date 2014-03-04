@@ -843,7 +843,7 @@ SPRITE.newCls('Basic', {
 		if (d.frames.call || d.frames.length > 1)
 			UTIL.addFrameAnim(this, d.frtick, d.frames);
 		else
-			d.frame = d.frames[0];
+			d.frame = d.frames[0] || d.frames;
 	}
 	if (d.pathnodes)
 		UTIL.addPathAnim(this, d.pathtick, d.pathnodes);
@@ -1341,7 +1341,7 @@ function newBall(d) {
 		vy: d.speed*Math.cos(t),
 		r: r,
 		scale: 2.5*r / 32,
-		frames: [ RES.frames.TamaLarge[randin(range(8))] ],
+		frames: randin(RES.frames.TamaLarge),
 	});
 }
 function newBullet(d) {
@@ -1685,11 +1685,11 @@ function newEffect(v) {
 			y: v.data.y,
 			vx: random(-0.1, 0.1),
 			vy: random(-0.1, 0.1),
-			frames: [ randin(RES.frames.EffPiece) ],
+			frames: randin(RES.frames.EffPiece),
 		}).state = UTIL.newAliveState([
-			{ name:'creating',	life: 10,	next: 1 },
-			{ name:'living',	life: 10,	next: 2 },
-			{ name:'dying',		life: 500,	next:-1 },
+			{ name:'creating',	life: 50,	next: 1 },
+			{ name:'living',	life: 50,	next: 2 },
+			{ name:'dying',		life: 600,	next:-1 },
 		]);
 	});
 }
