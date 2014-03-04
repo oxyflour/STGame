@@ -1268,7 +1268,7 @@ SPRITE.newCls('Bullet', {
 	states: [
 		{ name:'creating',	life: 50,		next: 1 },
 		{ name:'living',	life: Math.Inf, next: 2 },
-		{ name:'dying',		life: 10,		next:-1 },
+		{ name:'dying',		life: 400,		next:-1 },
 	],
 }, function(d) {
 	d = extend({
@@ -1393,7 +1393,7 @@ function newBullet(d) {
 		}).runCircle = function(dt, d, s) {
 			var u = d.to,
 				e = u && u.data;
-			if (u && u.isAlive && u.state.d.mkDamage) {
+			if (u && u.isAlive && u.state.d.mkDamage && s.d.name != 'dying') {
 				var dx = e.x - d.x,
 					dy = e.y - d.y,
 					r = sqrt_sum(dx, dy),
@@ -1803,6 +1803,9 @@ tl.all = {
 		}
 		else if (e == STORY.events.BULLET_HIT) {
 			v.state.setName('dying');
+			v.data.vx = random(-0.1, 0.1);
+			v.data.vy = random(0.1, 0.2) * (v.data.vy > 0 ? -1 : 1);
+			UTIL.addFrameAnim(v, v.data.frtick, RES.frames.EffBullet);
 		}
 	}
 };
