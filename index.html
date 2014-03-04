@@ -117,8 +117,10 @@ body {
 			_t.EffPlayer = ieach([32,42,52,62,67,72,76,80,83,86,89,92,95,98,101,104,107,110,113,116,119,122], function(i, d, ls) {
 				ls.push(extend({ res:'eff00', sx:0, sy:0, sw:32, sh:32 }, { w:d*1.5, h:d*1.5 }));
 			}, []);
-			_t.EffPiece = array(16, function(i) {
-				return { res:'eff00', sx:i*16, sy:32, sw:16, sh:16, w:16, h:16 };
+			ieach(['EffPiece', 'EffPieceR', 'EffPieceG', 'EffPieceB'], function(i, k) {
+				_t[k] = array(4, function(j) {
+					return { res:'eff00', sx:i*64+j*16, sy:32, sw:16, sh:16, w:16, h:16 };
+				});
 			});
 
 			return _t;

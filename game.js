@@ -1683,17 +1683,26 @@ function newEffect(v) {
 		{ name:'dying',		life: 850,	next:-1 },
 	]);
 	array(8, function(i) {
-		SPRITE.newObj('Circle', {
+		var p = SPRITE.newObj('Circle', {
 			x: v.data.x,
 			y: v.data.y,
-			vx: random(-0.1, 0.1),
-			vy: random(-0.1, 0.1),
-			frames: randin(RES.frames.EffPiece),
-		}).state = UTIL.newAliveState([
+			vx: random(-0.2, 0.2),
+			vy: random(-0.2, 0.2),
+			frames: randin({
+				Enemy: RES.frames.EffPiece,
+				Player: RES.frames.EffPieceR,
+			}[v.clsName]),
+		})
+		p.state = UTIL.newAliveState([
 			{ name:'creating',	life: 50,	next: 1 },
 			{ name:'living',	life: 50,	next: 2 },
 			{ name:'dying',		life: 600,	next:-1 },
 		]);
+		p.runBase = function(dt, d, s) {
+			d.vx *= 0.97;
+			d.vy *= 0.97;
+			d.scale *= 0.995;
+		};
 	});
 }
 function killCls() {
