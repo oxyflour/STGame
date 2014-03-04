@@ -610,16 +610,18 @@ var GAME = (function() {
 })();
 
 var UTIL = {
-	// fs should be array of objects like
-	// { res:'', sx:0, sy:0, sw:10, sh:10, w:10, h:10, [rotate:1] }
+	// fs can be function, frame array, or a single frame
 	addFrameAnim: function(v, t, fs) {
 		v.anim(t, function(d) {
-			if (d.frames = fs.call ? fs(v, d) : fs) {
+			if (d.callback)
+				d.frames = d.callback(v, d);
+			if (d.frames) {
 				d.index = (d.index + 1) % d.frames.length;
 				v.data.frame = d.frames[d.index];
 			}
 		}, {
-			frames: undefined,
+			callback: fs.call && fs,
+			frames: fs.length >= 0 ? fs : [fs],
 			index: 0
 		}, 'frame');
 	},
@@ -855,12 +857,8 @@ SPRITE.newCls('Basic', {
 		layer: undefined,
 	}, d);
 	this.state = UTIL.newAliveState(d.states || this.states);
-	if (d.frames) {
-		if (d.frames.call || d.frames.length > 1)
-			UTIL.addFrameAnim(this, d.frtick, d.frames);
-		else
-			d.frame = d.frames[0] || d.frames;
-	}
+	if (d.frames)
+		UTIL.addFrameAnim(this, d.frtick, d.frames);
 	if (d.pathnodes)
 		UTIL.addPathAnim(this, d.pathtick, d.pathnodes);
 	if (d.layer)
@@ -1264,7 +1262,7 @@ SPRITE.newCls('Drop', {
 		vy: -0.4,
 		collected: undefined,
 		collected_auto: false,
-		frames: [ RES.frames.Drops[2] ],
+		frames: RES.frames.Drops[2],
 	}, d);
 	SPRITE.init.Circle.call(this, d);
 });
@@ -1819,7 +1817,7 @@ tl.all = {
 			v.state.die();
 			v.data.vx = random(-0.1, 0.1);
 			v.data.vy = random(0.1, 0.2) * (v.data.vy > 0 ? -1 : 1);
-			UTIL.addFrameAnim(v, v.data.frtick, RES.frames.EffBullet);
+			UTIL.addFrameAnim(v, v.data.frtick, randin(RES.frames.EffBullet));
 		}
 	}
 };
@@ -1893,7 +1891,7 @@ tl.sec1 = {
 						y: v.data.y,
 						vx: v.data.vx *= 0.01,
 						vx: v.data.vy *= 0.01,
-						frames: [ RES.frames.Drops[1] ],
+						frames: RES.frames.Drops[1],
 					});
 				}, 'Dannmaku');
 				STORY.timeout(function(d) {
