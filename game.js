@@ -1665,7 +1665,7 @@ function newBoss() {
 	}
 }
 function newEffect(v) {
-	var eff = SPRITE.newObj('Circle', {
+	SPRITE.newObj('Circle', {
 		x: v.data.x,
 		y: v.data.y,
 		vx: v.data.vx*=0.1,
@@ -1674,12 +1674,24 @@ function newEffect(v) {
 			Enemy: RES.frames.EffEnemy,
 			Player: RES.frames.EffPlayer,
 		}[v.clsName],
-	});
-	eff.state = UTIL.newAliveState([
+	}).state = UTIL.newAliveState([
 		{ name:'creating',	life: 100,	next: 1 },
 		{ name:'living',	life: 50,	next: 2 },
 		{ name:'dying',		life: 850,	next:-1 },
 	]);
+	array(8, function(i) {
+		SPRITE.newObj('Circle', {
+			x: v.data.x,
+			y: v.data.y,
+			vx: random(-0.1, 0.1),
+			vy: random(-0.1, 0.1),
+			frames: [ randin(RES.frames.EffPiece) ],
+		}).state = UTIL.newAliveState([
+			{ name:'creating',	life: 10,	next: 1 },
+			{ name:'living',	life: 10,	next: 2 },
+			{ name:'dying',		life: 500,	next:-1 },
+		]);
+	});
 }
 function killCls() {
 	ieach(arguments, function(i, c) {
