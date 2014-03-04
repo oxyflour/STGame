@@ -5,15 +5,15 @@ function return_nothing() {
 function return_self(x) {
 	return x;
 }
-function array(n, fn) {
+function range(e, b, d, fn) {
 	var ls = [];
-	for (var i = 0; i < n; i ++) {
-		ls[i] = fn(i);
+	for (var i = b||0, k = d||1; i < e; i += k) {
+		ls.push(fn ? fn(i) : i);
 	}
 	return ls;
 }
-function range(n) {
-	return array(n, return_self);
+function array(n, fn) {
+	return range(n, 0, 1, fn);
 }
 function ieach(ls, fn, d) {
 	var n = ls.length, r = undefined;
