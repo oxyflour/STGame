@@ -90,7 +90,10 @@ function random(b, e) {
 	return b + Math.random()*d;
 }
 function randin(ls) {
-	return ls[Math.floor(Math.random()*ls.length)];
+	var ks = keys(ls),
+		i = Math.floor(random(ks.length)),
+		k = ks[i];
+	return ls[k];
 }
 function limit_between(x, min, max) {
 	if (x > max) x = max;
