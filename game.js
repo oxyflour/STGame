@@ -226,11 +226,13 @@ function newAnimateList() {
 	_t.run = function(dt) {
 		for (var i = 0, n = _t.length; i < n; i ++) {
 			var t = _t[i];
-			if (t)
-				t.run(dt);
-			if (t && t.finished) {
-				_t[i] = undefined;
-				unused.push(i);
+			if (t) {
+				if (t.finished) {
+					_t[i] = undefined;
+					unused.push(i);
+				}
+				else
+					t.run(dt);
 			}
 		}
 		cleaner.run(dt);
