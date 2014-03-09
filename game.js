@@ -509,14 +509,20 @@ var STORY = (function() {
 	]);
 	_t.state = _t.anim = _t.hook = {};
 	_t.load = function(tl, hook) {
+		if (_t.hook.quit)
+			_t.hook.quit();
 		_t.state = newStateMachine(tl);
 		_t.anim = newAnimateList();
 		_t.hook = extend({
+			init: undefined,
+			quit: undefined,
 			before_run: undefined,
 			after_run: undefined,
 			before_on: undefined,
 			after_on: undefined,
 		}, hook);
+		if (_t.hook.init)
+			_t.hook.init();
 	}
 	_t.timeout = function(f, t, d, n) {
 		var s = _t.state.s;
@@ -1752,6 +1758,11 @@ tl.all = {
 		RES.elems.bg.style['background-position-y'] = GAME.statics.time*0.02+'px';
 		RES.elems.bg2.style['background-position-y'] = GAME.statics.time*0.031+'px';
 	}),
+	init: function() {
+		newPlayer();
+	},
+	quit: function() {
+	},
 	after_run: function(dt, d) {
 		GAME.statics.time += dt;
 		this.bg.run(dt);
@@ -1827,7 +1838,6 @@ tl.all = {
 tl.init = {
 	run: UTIL.newTimeRunner(5000, 'sec0'),
 	init: function(d) {
-		newPlayer();
 		d.title = SPRITE.newObj('Basic', {
 			t: 'Dannmaku Demo!',
 			font: '30px Arial'
