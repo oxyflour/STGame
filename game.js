@@ -1752,8 +1752,7 @@ GAME.statics = {
 	point: 0,
 	miss: 0
 };
-var tl = {};
-tl.all = {
+var hook = {
 	bg: newTicker(50, function() {
 		RES.elems.bg.style['background-position-y'] = GAME.statics.time*0.02+'px';
 		RES.elems.bg2.style['background-position-y'] = GAME.statics.time*0.031+'px';
@@ -1835,6 +1834,7 @@ tl.all = {
 		}
 	}
 };
+var tl = {};
 tl.init = {
 	run: UTIL.newTimeRunner(5000, 'sec0'),
 	init: function(d) {
@@ -1990,7 +1990,7 @@ tl.end = {
 };
 
 RES.check(function() {
-	STORY.load(tl, tl.all);
+	STORY.load(tl, hook);
 	GAME.start('init');
 //	STORY.state.set('sec1');
 });
