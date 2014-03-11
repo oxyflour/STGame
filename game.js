@@ -1770,6 +1770,9 @@ var hook = {
 	},
 	before_on: function(e, v, d) {
 		if (e == STORY.events.STORY_LOAD) {
+			SPRITE.eachObj(function(i, v) {
+				v.isAlive = false;
+			});
 			newPlayer();
 		}
 		else if (e == STORY.events.GAME_INPUT) {
