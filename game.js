@@ -1543,6 +1543,7 @@ function newDannmaku(d) {
 			length: 50,
 			theta: Math.PI/2,
 		});
+		v.space = { l:d.length, r:d.length, t:d.length, b:d.length };
 		var last = v;
 		range(d.length, d.r, d.r, function(r) {
 			last = SPRITE.newObj('Dannmaku', {
@@ -1551,6 +1552,7 @@ function newDannmaku(d) {
 				parent: last,
 				length: r,
 			});
+			last.space = v.space;
 			last.runCircle = function(dt, d, s) {
 				var pd = d.head.data,
 					x = pd.x + d.length * Math.cos(pd.theta),
@@ -1559,7 +1561,7 @@ function newDannmaku(d) {
 				d.vy = (y - d.y) / dt;
 			};
 		});
-		last.data.parent = v;
+		v.data.parent = last;
 	}
 }
 function genDannmaku(d) {
