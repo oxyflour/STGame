@@ -1550,24 +1550,31 @@ function newDannmaku(d) {
 	}
 	else if (d.type == 'Laser') {
 		fill(d, {
-			length: 50,
+			radius1: 30,
+			radius2: 30,
 			theta: Math.PI/2,
 		});
-		v.space = { l:d.length, r:d.length, t:d.length, b:d.length };
+
+		var dim = d.radius1 + d.radius2;
+		v.space = { l:dim, r:dim, t:dim, b:dim };
+
 		var last = v;
-		range(d.length, d.r, d.r, function(r) {
+		range(d.radius2, -d.radius1, d.r*1.5, function(r) {
+			if (r > -d.r && d < d.r)
+				return;
 			last = SPRITE.newObj('Dannmaku', {
 				vx: 0,
 				vy: 0,
+				r: v.data.r,
 				head: v,
+				dist: r,
 				parent: last,
-				length: r,
 			});
 			last.space = v.space;
 			last.runCircle = function(dt, d, s) {
 				var pd = d.head.data;
-				d.x = pd.x + d.length * Math.cos(pd.theta);
-				d.y = pd.y + d.length * Math.sin(pd.theta);
+				d.x = pd.x + d.dist * Math.cos(pd.theta);
+				d.y = pd.y + d.dist * Math.sin(pd.theta);
 			};
 		});
 		v.data.parent = last;
