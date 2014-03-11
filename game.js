@@ -1538,6 +1538,29 @@ function newDannmaku(d) {
 			}, d);
 		}, d.delay);
 	}
+	else if (d.type == 'Laser') {
+		fill(d, {
+			length: 50,
+			theta: Math.PI/2,
+		});
+		var last = v;
+		range(d.length, d.r, d.r, function(r) {
+			last = SPRITE.newObj('Dannmaku', {
+				vy: 0,
+				head: v,
+				parent: last,
+				length: r,
+			});
+			last.runCircle = function(dt, d, s) {
+				var pd = d.head.data,
+					x = pd.x + d.length * Math.cos(pd.theta),
+					y = pd.y + d.length * Math.sin(pd.theta);
+				d.vx = (x - d.x) / dt;
+				d.vy = (y - d.y) / dt;
+			};
+		});
+		last.data.parent = v;
+	}
 }
 function genDannmaku(d) {
 	if (d.type == 'any') {
