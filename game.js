@@ -1505,7 +1505,7 @@ function newDannmaku(d) {
 			source_x: d.from.data.x,
 			source_y: d.from.data.y,
 			theta: 0,
-			speed: 1/300,
+			speed: 1/500,
 			radius: 100,
 			offset_count: 0.04,
 			offset_speed: 0.1,
@@ -1659,7 +1659,6 @@ function newEnemy(d, f) {
 		delay: 1000,
 		dannmaku: {
 			type: 'OrbAround',
-			speed: 1/500,
 		},
 	};
 	var enm = SPRITE.newObj('Enemy', d);
