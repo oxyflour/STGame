@@ -785,6 +785,9 @@ SPRITE.newCls('Basic', {
 
 		if (this.runBasic)
 			this.runBasic(dt, d, s);
+
+		if (d.x + d.y !== d.y + d.x)
+			this.isAlive = false;
 	},
 	drawBasic: undefined,
 	drawText: function(d, s) {
