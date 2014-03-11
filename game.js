@@ -492,6 +492,7 @@ var SPRITE = (function() {
 var STORY = (function() {
 	var _t = [];
 	_t.events = dictflip([
+		'STORY_LOAD',
 		'GAME_INPUT',
 		'OBJECT_OUT',
 		'PLAYER_HIT',
@@ -509,8 +510,6 @@ var STORY = (function() {
 	]);
 	_t.state = _t.anim = _t.hook = {};
 	_t.load = function(tl, hook) {
-		if (_t.hook.quit)
-			_t.hook.quit();
 		_t.state = newStateMachine(tl);
 		_t.anim = newAnimateList();
 		_t.hook = extend({
@@ -521,8 +520,7 @@ var STORY = (function() {
 			before_on: undefined,
 			after_on: undefined,
 		}, hook);
-		if (_t.hook.init)
-			_t.hook.init();
+		_t.on(_t.events.STORY_LOAD)
 	}
 	_t.timeout = function(f, t, d, n) {
 		var s = _t.state.s;
@@ -1757,17 +1755,24 @@ var hook = {
 		RES.elems.bg.style['background-position-y'] = GAME.statics.time*0.02+'px';
 		RES.elems.bg2.style['background-position-y'] = GAME.statics.time*0.031+'px';
 	}),
-	init: function() {
-		newPlayer();
+	data: undefined,
+	init: function(d) {
 	},
-	quit: function() {
+	quit: function(d) {
 	},
 	after_run: function(dt, d) {
 		GAME.statics.time += dt;
 		this.bg.run(dt);
+		if (this.data !== d) {
+			this.quit(this.data);
+			this.init(this.data = d);
+		}
 	},
 	before_on: function(e, v, d) {
-		if (e == STORY.events.GAME_INPUT) {
+		if (e == STORY.events.STORY_LOAD) {
+			newPlayer();
+		}
+		else if (e == STORY.events.GAME_INPUT) {
 			if (v.type == 'keyup' && v.which == 13) {
 				var s = GAME.state,
 					c = GAME.states;
