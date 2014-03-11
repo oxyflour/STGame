@@ -473,6 +473,11 @@ var SPRITE = (function() {
 			});
 		});
 	};
+	_t.clrObj = function(c) {
+		_t.eachObj(function(i, v) {
+			v.isAlive = false;
+		}, c);
+	};
 	_t.moveToLayer = function(obj, layer) {
 		if (obj.layer != layer) {
 			if (_t.layer[obj.layer][obj.layer_idx] == obj)
@@ -1770,9 +1775,7 @@ var hook = {
 	},
 	before_on: function(e, v, d) {
 		if (e == STORY.events.STORY_LOAD) {
-			SPRITE.eachObj(function(i, v) {
-				v.isAlive = false;
-			});
+			SPRITE.clrObj();
 			newPlayer();
 		}
 		else if (e == STORY.events.GAME_INPUT) {
