@@ -1478,28 +1478,6 @@ function newDannmaku(d) {
 			}
 		};
 	}
-	else if (d.type == 'Circle') {
-		fill(d, {
-			theta_delta: 0.001,
-			flip_each_count: true,
-			flip_each_layer: true,
-			decrease_by: 0.99,
-		});
-		if (d.flip_each_count && d.generator)
-			d.theta_delta *= d.generator.count % 2 ? 1 : -1;
-		if (d.flip_each_layer && d.generator)
-			d.theta_delta *= d.generator.layer % 2 ? 1 : -1;
-		v.runCircle = function(dt, d, s) {
-			var v = sqrt_sum(d.vx, d.vy),
-				sinv = d.vy / v,
-				cosv = d.vx / v,
-				sint = Math.sin(d.theta_delta*dt),
-				cost = Math.cos(d.theta_delta*dt);
-			d.vy = v * (sinv*cost + cosv*sint);
-			d.vx = v * (cosv*cost - sinv*sint);
-			d.theta_delta *= d.decrease_by;
-		};
-	}
 	else if (d.type == 'OrbAround') {
 		fill(d, {
 			source_x: d.from.data.x,
@@ -1529,8 +1507,11 @@ function newDannmaku(d) {
 	else if (d.type == 'ZigZag') {
 		fill(d, {
 			delay: 500,
-			interval: 5000,
-			theta_delta: 0.8,
+			count: 0,
+			interval: 50,
+			theta_delta: 0.15,
+			delay_count: 1,
+			flip_count: 30,
 			flip_each_count: true,
 			flip_each_layer: true,
 		});
@@ -1538,15 +1519,16 @@ function newDannmaku(d) {
 			d.theta_delta *= d.generator.count % 2 ? 1 : -1;
 		if (d.flip_each_layer && d.generator)
 			d.theta_delta *= d.generator.layer % 2 ? 1 : -1;
-		STORY.timeout(function() {
-			v.anim(d.interval, function(d, v) {
-				var vr = sqrt_sum(d.vx, d.vy),
-					t = Math.atan2(d.vy, d.vx) + d.theta_delta;
-				d.vx = Math.cos(t) * vr;
-				d.vy = Math.sin(t) * vr;
+		v.anim(d.interval, function(d, v) {
+			if (d.delay_count-- > 0)
+				return;
+			var vr = sqrt_sum(d.vx, d.vy),
+				t = Math.atan2(d.vy, d.vx) + d.theta_delta;
+			d.vx = Math.cos(t) * vr;
+			d.vy = Math.sin(t) * vr;
+			if (d.count++ % d.flip_count == 0)
 				d.theta_delta = -d.theta_delta;
-			}, d);
-		}, d.delay);
+		}, d);
 	}
 	else if (d.type == 'Laser') {
 		fill(d, {
@@ -1644,7 +1626,7 @@ function genDannmaku(d) {
 		};
 	}, d.interval, d, d.layers);
 }
-function newEnemy(d, f) {
+function newEnemy(d) {
 	d = extend({
 		x: random(GAME.rect.l+100, GAME.rect.r-100),
 		vx: random(-0.05, 0.05),
@@ -1652,24 +1634,25 @@ function newEnemy(d, f) {
 		r: 16,
 		frtick: 150,
 		frames: RES.frames['Enemy'+randin([0,1])+randin([0,1,2])],
+		generator: {
+			preset: '',
+			delay: 1000,
+			dannmaku: {
+				type: 'ZigZag',
+			},
+		}
 	}, {
 		'com1': {
 			// example
 		}
 	}[d && d.preset], d);
-	f = f || {
-		preset: '',
-		delay: 1000,
-		dannmaku: {
-			type: 'OrbAround',
-		},
-	};
 	var enm = SPRITE.newObj('Enemy', d);
-	if (f) STORY.timeout(function(d) {
-		genDannmaku(d);
-	}, f.delay || 0, fill(f, {
-		from: enm,
-	}));
+	if (d.generator) {
+		d.generator.from = enm;
+		STORY.timeout(function(d) {
+			genDannmaku(d);
+		}, d.generator.delay || 0, d.generator)
+	};
 }
 function newBoss() {
 	var boss = SPRITE.newObj('Enemy', {
