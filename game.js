@@ -768,8 +768,13 @@ SPRITE.newCls('Basic', {
 		if (!s.d.life)
 			this.isAlive = false;
 
-		if (d.parent && d.parent.state.is_dying && !s.is_dying)
-			s.die();
+		if (d.parent) {
+			var p = d.parent;
+			if (!p.isAlive)
+				this.isAlive = false;
+			else if (p.state.is_dying && !s.is_dying)
+				s.die();
+		}
 
 		var delta = 1;
 		if (s.is_creating)
