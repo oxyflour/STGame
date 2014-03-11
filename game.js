@@ -1506,14 +1506,16 @@ function newDannmaku(d) {
 	}
 	else if (d.type == 'ZigZag') {
 		fill(d, {
-			delay: 500,
 			count: 0,
+			theta_delta: 0.05,
+			delay: 500,
 			interval: 50,
-			theta_delta: 0.15,
-			delay_count: 1,
+			theta_max: 0.05,
+			delay_count: 10,
 			flip_count: 30,
 			flip_each_count: true,
 			flip_each_layer: true,
+			decrease_by: 0.95,
 		});
 		if (d.flip_each_count && d.generator)
 			d.theta_delta *= d.generator.count % 2 ? 1 : -1;
@@ -1526,8 +1528,11 @@ function newDannmaku(d) {
 				t = Math.atan2(d.vy, d.vx) + d.theta_delta;
 			d.vx = Math.cos(t) * vr;
 			d.vy = Math.sin(t) * vr;
-			if (d.count++ % d.flip_count == 0)
-				d.theta_delta = -d.theta_delta;
+			d.theta_delta *= d.decrease_by;
+			if (d.count++ > d.flip_count) {
+				d.count = 0;
+				d.theta_delta = (d.theta_delta > 0 ? 1 : -1) * d.theta_max;
+			}
 		}, d);
 	}
 	else if (d.type == 'Laser') {
