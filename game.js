@@ -1511,6 +1511,8 @@ function newDannmaku(d) {
 			offset_speed: 0.1,
 			flip_each_count: true,
 		});
+		if (d.generator)
+			d.theta = d.generator.theta0;
 		if (d.offset_count && d.generator)
 			d.theta += d.generator.count * d.offset_count;
 		if (d.flip_each_count && d.generator)
@@ -1518,8 +1520,8 @@ function newDannmaku(d) {
 		v.runCircle = function(dt, d, s) {
 			var f = d.from;
 			if (f && f.isAlive && !f.state.is_dying) {
-				d.x = d.radius*Math.sin(d.theta) + d.source_x;
-				d.y = d.radius*Math.cos(d.theta) + d.source_y;
+				d.x = d.radius*Math.cos(d.theta) + d.source_x;
+				d.y = d.radius*Math.sin(d.theta) + d.source_y;
 				d.theta += dt*d.speed;
 			}
 		};
@@ -1610,6 +1612,8 @@ function genDannmaku(d) {
 		var idx = 0, cnt = d.theta_count-1;
 		STORY.timeout(function(d, layer) {
 			if (d.from && d.from.state.d.name=='living') {
+				var to = d.to ? d.to.data : SPRITE.getAliveOne('Player').data,
+					from = +d.x === d.x ? { x:d.x, y:d.y } : d.from.data;
 				for(var count = 0; count < d.count; count ++) {
 					if (idx ++ >= cnt)
 						idx = d.theta_reverse ? -cnt : 0;
@@ -1617,10 +1621,9 @@ function genDannmaku(d) {
 					if (d.theta_velocity_flip)
 						d.theta_velocity = -d.theta_velocity;
 
-					var to = d.to ? d.to.data : SPRITE.getAliveOne('Player').data,
-						from = +d.x === d.x ? { x:d.x, y:d.y } : d.from.data,
-						t = Math.atan2(to.y-from.y, to.x-from.x) +
-							d.theta*random(d.theta_rand_min, d.theta_rand_max)+random(d.theta_rand);
+					var t0 = Math.atan2(to.y-from.y, to.x-from.x),
+						tp = d.theta*random(d.theta_rand_min, d.theta_rand_max),
+						t = t0 + tp + random(d.theta_rand);
 					newDannmaku(extend({
 						x: from.x + d.radius*Math.cos(t),
 						y: from.y + d.radius*Math.sin(t),
@@ -1629,7 +1632,7 @@ function genDannmaku(d) {
 						r: 3,
 						from: d.from,
 						frames: RES.frames.LongA,
-						generator: { layer:layer, count:count },
+						generator: { layer:layer, count:count, theta0:t0, thetap:tp, theta:t },
 					}, d.dannmaku));
 				};
 			}
