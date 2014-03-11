@@ -1581,72 +1581,68 @@ function newDannmaku(d) {
 	}
 }
 function genDannmaku(d) {
-	if (d.type == 'any') {
-	}
-	else {
-		d = extend({
-			theta: 0,
-			theta_rand: 0.05,
-			theta_rand_min: 0.8,
-			theta_rand_max: 1.2,
-			theta_step: 0.15,
-			theta_count: 9,
-			theta_reverse: false,
-			theta_velocity: 0.0,
-			theta_velocity_flip: false,
-			count: 9,
-			layers: 10,
-			interval: 200,
-			radius: 20,
-			velocity: 0.2,
-			x: undefined,
-			y: undefined,
-			to: undefined,
-			dannmaku: undefined,
-		}, {
-			'com1': {
-				count: 1,
-				layers: 50,
-				interval: 50,
-			},
-			'com2': {
-				count: 1,
-				layers: 50,
-				interval: 50,
-				theta_reverse: true,
-			},
-		}[d && d.preset], d);
-		var idx = 0, cnt = d.theta_count-1;
-		STORY.timeout(function(d, layer) {
-			if (d.from && d.from.state.d.name=='living') {
-				var to = d.to ? d.to.data : SPRITE.getAliveOne('Player').data,
-					from = +d.x === d.x ? { x:d.x, y:d.y } : d.from.data;
-				for(var count = 0; count < d.count; count ++) {
-					if (idx ++ >= cnt)
-						idx = d.theta_reverse ? -cnt : 0;
-					d.theta = (Math.abs(idx) - cnt/2) * d.theta_step;
-					if (d.theta_velocity_flip)
-						d.theta_velocity = -d.theta_velocity;
+	d = extend({
+		theta: 0,
+		theta_rand: 0.05,
+		theta_rand_min: 0.8,
+		theta_rand_max: 1.2,
+		theta_step: 0.15,
+		theta_count: 9,
+		theta_reverse: false,
+		theta_velocity: 0.0,
+		theta_velocity_flip: false,
+		count: 9,
+		layers: 10,
+		interval: 200,
+		radius: 20,
+		velocity: 0.2,
+		x: undefined,
+		y: undefined,
+		to: undefined,
+		dannmaku: undefined,
+	}, {
+		'com1': {
+			count: 1,
+			layers: 50,
+			interval: 50,
+		},
+		'com2': {
+			count: 1,
+			layers: 50,
+			interval: 50,
+			theta_reverse: true,
+		},
+	}[d && d.preset], d);
+	var idx = 0, cnt = d.theta_count-1;
+	STORY.timeout(function(d, layer) {
+		if (!d.from || !d.from.isAlive || d.from.state.is_dying) {
+			this.finished = true;
+			return;
+		}
+		var to = d.to ? d.to.data : SPRITE.getAliveOne('Player').data,
+			from = +d.x === d.x ? { x:d.x, y:d.y } : d.from.data;
+		for(var count = 0; count < d.count; count ++) {
+			if (idx ++ >= cnt)
+				idx = d.theta_reverse ? -cnt : 0;
+			d.theta = (Math.abs(idx) - cnt/2) * d.theta_step;
+			if (d.theta_velocity_flip)
+				d.theta_velocity = -d.theta_velocity;
 
-					var t0 = Math.atan2(to.y-from.y, to.x-from.x),
-						tp = d.theta*random(d.theta_rand_min, d.theta_rand_max),
-						t = t0 + tp + random(d.theta_rand);
-					newDannmaku(extend({
-						x: from.x + d.radius*Math.cos(t),
-						y: from.y + d.radius*Math.sin(t),
-						vx: d.velocity*Math.cos(t+d.theta_velocity),
-						vy: d.velocity*Math.sin(t+d.theta_velocity),
-						r: 3,
-						from: d.from,
-						frames: RES.frames.LongA,
-						generator: { layer:layer, count:count, theta0:t0, thetap:tp, theta:t },
-					}, d.dannmaku));
-				};
-			}
-			else
-				this.finished = true;
-		}, d.interval, d, d.layers);
-	}
+			var t0 = Math.atan2(to.y-from.y, to.x-from.x),
+				tp = d.theta*random(d.theta_rand_min, d.theta_rand_max),
+				t = t0 + tp + random(d.theta_rand);
+			newDannmaku(extend({
+				x: from.x + d.radius*Math.cos(t),
+				y: from.y + d.radius*Math.sin(t),
+				vx: d.velocity*Math.cos(t+d.theta_velocity),
+				vy: d.velocity*Math.sin(t+d.theta_velocity),
+				r: 3,
+				from: d.from,
+				frames: RES.frames.LongA,
+				generator: { layer:layer, count:count, theta0:t0, thetap:tp, theta:t },
+			}, d.dannmaku));
+		};
+	}, d.interval, d, d.layers);
 }
 function newEnemy(d, f) {
 	d = extend({
