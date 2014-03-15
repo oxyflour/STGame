@@ -31,7 +31,7 @@ body {
 	margin: 0 auto;
 	background-color: #555;
 }
-.main, .mask {
+.main, .main>* {
 	width: 640px;
 	height: 480px;
 }
@@ -45,6 +45,10 @@ body {
 	color: #eee;
 	margin-top: 30px;
 	margin-left: 400px;
+}
+.mask {
+	background: rgba(0, 0, 0, 0.7);
+	color: #eee;
 }
 .bgimg {
 	position: absolute;
@@ -187,7 +191,7 @@ body {
 		<div>point: <span class="ui" ui-bind="GAME.statics.point"></span></div>
 		<div>miss: <span class="ui" ui-bind="GAME.statics.miss"></span></div>
 	</div>
-	<div class="mask absolute text-center ui" style="background:rgba(0,0,0,0.7)" ui-show="GAME.state != GAME.states.RUNNING">
+	<div class="mask absolute text-center ui" ui-show="GAME.state != GAME.states.RUNNING">
 		<strong><big><p class="ui" ui-bind="keyfind(GAME.states, GAME.state)"></p></big></strong>
 	</div>
 </div>
