@@ -1442,6 +1442,7 @@ function newDannmaku(d) {
 			decrease_min: 0.02,
 			duration: 1000,
 			gravity: 10e-7,
+			velocity_min: 0.1,
 		});
 		v.runCircle = function(dt, d, s) {
 			if (s.d.age < d.decrease) {
@@ -1450,8 +1451,17 @@ function newDannmaku(d) {
 			}
 			else if (s.d.age < d.decrease + d.duration) {
 				if (d.target && d.target.isAlive) {
-					d.vx -= d.gravity * dt * (d.x - d.target.data.x);
-					d.vy -= d.gravity * dt * (d.y - d.target.data.y);
+					var e = d.target.data;
+					d.vx -= d.gravity * dt * (d.x - e.x);
+					d.vy -= d.gravity * dt * (d.y - e.y);
+					if (sqrt_sum(d.vx, d.vy) < d.velocity_min) {
+						var v = d.velocity_min,
+							dx = e.x - d.x,
+							dy = e.y - d.y,
+							r = sqrt_sum(dx, dy);
+						d.vx = v * dx / r;
+						d.vy = v * dy / r;
+					}
 				}
 				else if (d.target_cls)
 					d.target = SPRITE.getAliveOne(d.target_cls);
