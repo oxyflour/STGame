@@ -31,7 +31,7 @@ body {
 	margin: 0 auto;
 	background-color: #555;
 }
-.main, .main>* {
+.main, .screen {
 	width: 640px;
 	height: 480px;
 }
@@ -191,7 +191,7 @@ body {
 		<div>point: <span class="ui" ui-bind="GAME.statics.point"></span></div>
 		<div>miss: <span class="ui" ui-bind="GAME.statics.miss"></span></div>
 	</div>
-	<div class="mask absolute text-center ui" ui-show="GAME.state != GAME.states.RUNNING">
+	<div class="screen mask absolute text-center ui" ui-show="GAME.state != GAME.states.RUNNING">
 		<strong><big><p class="ui" ui-bind="keyfind(GAME.states, GAME.state)"></p></big></strong>
 	</div>
 </div>
