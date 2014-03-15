@@ -1433,48 +1433,28 @@ function newBullet(d) {
 function newDannmaku(d) {
 	var v = SPRITE.newObj('Dannmaku', d);
 	d = v.data;
-	if (d.type == 'FollowSource') {
+	if (d.type == 'FollowTarget') {
 		fill(d, {
-			duration: 1500,
-			gravity: 20e-7,
-		});
-		v.runCircle = function(dt, d, s) {
-			if (this.state.d.age < d.duration && d.from) {
-				var e = d.from.data;
-				d.vx -= d.gravity * dt * (d.x - e.x);
-				d.vy -= d.gravity * dt * (d.y - e.y);
-			}
-		};
-	}
-	else if (d.type == 'SlowingDown') {
-		fill(d, {
-			min_velocity: 0.02,
-			decrease_by: 0.992,
-		});
-		v.runCircle = function(dt, d, s) {
-			if (Math.abs(d.vx) > d.min_velocity) d.vx *= d.decrease_by;
-			if (Math.abs(d.vy) > d.min_velocity) d.vy *= d.decrease_by;
-		};
-	}
-	else if (d.type == 'FollowTarget') {
-		fill(d, {
+			target_cls: undefined,
+			target: undefined,
+			decrease: 1000,
+			decrease_by: 0.99,
+			decrease_min: 0.02,
 			duration: 1000,
 			gravity: 10e-7,
-			decrease_by: 0.98,
 		});
 		v.runCircle = function(dt, d, s) {
-			if (this.state.d.age < d.duration) {
-				d.vx *= d.decrease_by;
-				d.vy *= d.decrease_by;
+			if (s.d.age < d.decrease) {
+				if (Math.abs(d.vx) > d.decrease_min) d.vx *= d.decrease_by;
+				if (Math.abs(d.vy) > d.decrease_min) d.vy *= d.decrease_by;
 			}
-			else {
-				if (!d.to || !d.to.isAlive)
-					d.to = SPRITE.getAliveOne('Player');
-				if (d.to) {
-					var e = d.to.data;
-					d.vx -= d.gravity * dt * (d.x - e.x);
-					d.vy -= d.gravity * dt * (d.y - e.y);
+			else if (s.d.age < d.decrease + d.duration) {
+				if (d.target && d.target.isAlive) {
+					d.vx -= d.gravity * dt * (d.x - d.target.data.x);
+					d.vy -= d.gravity * dt * (d.y - d.target.data.y);
 				}
+				else if (d.target_cls)
+					d.target = SPRITE.getAliveOne(d.target_cls);
 			}
 		};
 	}
@@ -1643,7 +1623,8 @@ function newEnemy(d) {
 			preset: '',
 			delay: 1000,
 			dannmaku: {
-				type: 'ZigZag',
+				type: 'FollowTarget',
+	  			target_cls: 'Player',
 			},
 		}
 	}, {
