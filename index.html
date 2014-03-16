@@ -51,16 +51,23 @@ body {
 }
 .logo {
 	margin-top: 282px;
-	margin-left: 436px;
-}
-.logo .fonts {
+	margin-left: 446px;
+	width: 168px;
+	height: 174px;
 	background: url(res/font_logo.png) no-repeat center;
-	border-spacing: 0;
+}
+.logo .td {
+	float: left;
+	width: 56px;
+	height: 58px;
 }
 .logo .font {
+	position: absolute;
 	background-image: url(res/front.png);
-	width: 60px;
-	height: 60px;
+	margin-left: -6px;
+	margin-top: -3px;
+	width: 64px;
+	height: 64px;
 	opacity: 0.6;
 }
 .mask {
@@ -209,23 +216,21 @@ body {
 		<div>miss: <span class="ui" ui-bind="GAME.statics.miss"></span></div>
 	</div>
 	<div class="logo absolute">
-		<table class="fonts">
-			<tr>
-				<td class="font" style="background-position:0 0;"></td>
-				<td class="font" style="background-position:-64px 0;"></td>
-				<td></td>
-			</tr>
-			<tr>
-				<td></td>
-				<td class="font" style="background-position:-128px 0; opacity: 1"></td>
-				<td></td>
-			</tr>
-			<tr>
-				<td></td>
-				<td class="font" style="background-position:-192px 0;"></td>
-				<td class="font" style="background-position:0 -64px;"></td>
-			</tr>
-		</table>
+		<div class="tr">
+			<div class="td"><div class="font" style="background-position:0 0;"></div></div>
+			<div class="td"><div class="font" style="background-position:-64px 0;"></div></div>
+			<div class="td"></div>
+		</div>
+		<div class="tr">
+			<div class="td"></div>
+			<div class="td"><div class="font" style="background-position:-128px 0;opacity:1"></div></div>
+			<div class="td"></div>
+		</div>
+		<div class="tr">
+			<div class="td"></div>
+			<div class="td"><div class="font" style="background-position:-192px 0;"></div></div>
+			<div class="td"><div class="font" style="background-position:0 -64px;"></div></div>
+		</div>
 	</div>
 	<div class="screen mask absolute text-center ui" ui-show="GAME.state != GAME.states.RUNNING">
 		<strong><big><p class="ui" ui-bind="keyfind(GAME.states, GAME.state)"></p></big></strong>
