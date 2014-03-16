@@ -1437,28 +1437,31 @@ function newDannmaku(d) {
 		fill(d, {
 			target_cls: undefined,
 			target: undefined,
-			decrease: 1000,
+			decrease_duration: 1000,
 			decrease_by: 0.99,
 			velocity_min: 0.02,
 			duration: 1000,
 			gravity: 10e-7,
 			accel_min: 0.1,
+			offset_x: 0,
+			offset_y: 0,
 		});
 		v.runCircle = function(dt, d, s) {
-			if (s.d.age < d.decrease) {
+			if (s.d.age < d.decrease_duration) {
 				d.vx *= d.decrease_by;
 				d.vy *= d.decrease_by;
 			}
-			else if (s.d.age < d.decrease + d.duration) {
+			else if (s.d.age < d.decrease_duration + d.duration) {
 				if (d.target && d.target.isAlive) {
-					var e = d.target.data;
-					d.vx -= d.gravity * dt * (d.x - e.x);
-					d.vy -= d.gravity * dt * (d.y - e.y);
+					var e = d.target.data,
+						dx = e.x - d.x + d.offset_x,
+						dy = e.y - d.y + d.offset_y;
+					d.vx += d.gravity * dt * dx;
+					d.vy += d.gravity * dt * dy;
+
 					var v = sqrt_sum(d.vx, d.vy);
 					if (v < d.accel_min && !d.grazed) {
-						var dx = e.x - d.x,
-							dy = e.y - d.y,
-							r = sqrt_sum(dx, dy);
+						var r = sqrt_sum(dx, dy);
 						d.vx = v * dx / r;
 						d.vy = v * dy / r;
 					}
@@ -1466,8 +1469,9 @@ function newDannmaku(d) {
 				else if (d.target_cls)
 					d.target = SPRITE.getAliveOne(d.target_cls);
 			}
-			if (Math.abs(d.vx) < d.velocity_min) d.vx = d.velocity_min;
-			if (Math.abs(d.vy) < d.velocity_min) d.vy = d.velocity_min;
+			var rv = 1/d.velocity_min;
+			d.vx = 1/limit_between(1/d.vx, -rv, rv);
+			d.vy = 1/limit_between(1/d.vy, -rv, rv);
 		};
 	}
 	else if (d.type == 'OrbAround') {
@@ -1565,7 +1569,7 @@ function genDannmaku(d) {
 		theta_rand: 0.05,
 		theta_rand_min: 0.8,
 		theta_rand_max: 1.2,
-		theta_step: 0.15,
+		theta_step: 0.2,
 		theta_count: 9,
 		theta_reverse: false,
 		theta_velocity: 0.0,
@@ -1610,7 +1614,7 @@ function genDannmaku(d) {
 			var t0 = Math.atan2(to.y-from.y, to.x-from.x),
 				tp = d.theta*random(d.theta_rand_min, d.theta_rand_max),
 				t = t0 + tp + random(d.theta_rand);
-			newDannmaku(extend({
+			(d.create || newDannmaku)(extend({
 				x: from.x + d.radius*Math.cos(t),
 				y: from.y + d.radius*Math.sin(t),
 				vx: d.velocity*Math.cos(t+d.theta_velocity),
@@ -1638,6 +1642,17 @@ function newEnemy(d) {
 				type: 'FollowTarget',
 	  			target_cls: 'Player',
 			},
+	  		create: function(d) {
+				function get(ls, i) {
+					return ls[i % ls.length];
+				}
+				var x = d.generator.count % 2;
+				d.decrease_by = x ? 0.99 : 1;
+				d.decrease_duration = x ? 1000 : 10000;
+				d.frames = x ? RES.frames.LongA : RES.frames.TamaA;
+				d.offset_x = d.generator.layer % 2 ? -40 : 40;
+				newDannmaku(d);
+			}
 		}
 	}, {
 		'com1': {
