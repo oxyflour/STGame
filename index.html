@@ -23,13 +23,16 @@ body {
 .full-width {
 	width: 100%;
 }
+.full-height {
+	height: 100%;
+}
 .text-center {
 	text-align: center;
 }
 
 .main {
 	margin: 0 auto;
-	background-color: #555;
+	background: url(res/font_bg.png);
 }
 .main, .screen {
 	width: 640px;
@@ -45,6 +48,20 @@ body {
 	color: #eee;
 	margin-top: 58px;
 	margin-left: 434px;
+}
+.logo {
+	margin-top: 282px;
+	margin-left: 436px;
+}
+.logo .fonts {
+	background: url(res/font_logo.png) no-repeat center;
+	border-spacing: 0;
+}
+.logo .font {
+	background-image: url(res/front.png);
+	width: 60px;
+	height: 60px;
+	opacity: 0.6;
 }
 .mask {
 	background: rgba(0, 0, 0, 0.7);
@@ -190,6 +207,25 @@ body {
 		<div>graze: <span class="ui" ui-bind="GAME.statics.graze"></span></div>
 		<div>point: <span class="ui" ui-bind="GAME.statics.point"></span></div>
 		<div>miss: <span class="ui" ui-bind="GAME.statics.miss"></span></div>
+	</div>
+	<div class="logo absolute">
+		<table class="fonts">
+			<tr>
+				<td class="font" style="background-position:0 0;"></td>
+				<td class="font" style="background-position:-64px 0;"></td>
+				<td></td>
+			</tr>
+			<tr>
+				<td></td>
+				<td class="font" style="background-position:-128px 0; opacity: 1"></td>
+				<td></td>
+			</tr>
+			<tr>
+				<td></td>
+				<td class="font" style="background-position:-192px 0;"></td>
+				<td class="font" style="background-position:0 -64px;"></td>
+			</tr>
+		</table>
 	</div>
 	<div class="screen mask absolute text-center ui" ui-show="GAME.state != GAME.states.RUNNING">
 		<strong><big><p class="ui" ui-bind="keyfind(GAME.states, GAME.state)"></p></big></strong>
