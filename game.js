@@ -1822,7 +1822,7 @@ var hook = {
 			newPlayer();
 		}
 		else if (e == STORY.events.GAME_INPUT) {
-			if (v.type == 'keyup' && v.which == 13) {
+			if (v.type == 'keyup' && v.which == 27) {
 				var s = GAME.state,
 					c = GAME.states;
 				if (s == c.PAUSE)

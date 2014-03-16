@@ -249,19 +249,21 @@ input[type="radio"]:checked + label {
 			<div class="td"><div class="font" style="background-position:0 -64px;"></div></div>
 		</div>
 	</div>
-	<div class="screen mask absolute ui" ui-show="GAME.state != GAME.states.RUNNING">
+	<div class="screen mask absolute ui" ui-show="GAME.state == GAME.states.PAUSE">
 		<strong><big><p class="ui text-center" ui-bind="keyfind(GAME.states, GAME.state)"></p></big></strong>
-		<form>
-			<p><input type="radio" name="pause_menu"><label>Continue</label></p>
-			<p><input type="radio" name="pause_menu"><label>Back to Title</label></p>
-			<p><input type="radio" name="pause_menu"><label>Quit</label></p>
+		<form action="javascript:void(null)" onsubmit="eval(getRadioVal(this.pause_menu))">
+			<p><input type="radio" name="pause_menu" value="GAME.state = GAME.states.RUNNING"><label>Continue</label></p>
+			<!--p><input type="radio" name="pause_menu" value=""><label>Back to Title</label></p-->
+			<!--p><input type="radio" name="pause_menu" value=""><label>Restart</label></p-->
+			<p><input type="radio" name="pause_menu" value="window.close()"><label>Quit</label></p>
+			<input style="width:0px;opacity:0;" type="submit" />
 		</form>
 	</div>
 </div>
 <div class="ui" ui-show="RES.process < 1">
 	loading: <span class="ui" ui-bind="(RES.process*100).toFixed(1)+'%'"></span>
 </div>
-<div class="ui" ui-bind="GAME.state" ui-bind-exec="setTimeout(checkButtons, 100)"></div>
+<div class="ui" ui-bind="GAME.state" ui-bind-exec="setTimeout(checkRadios, 100)"></div>
 <script src="game.js"></script>
 <script>
 ieach($('input[type="radio"]'), function(i, v) {
@@ -270,16 +272,22 @@ ieach($('input[type="radio"]'), function(i, v) {
 		n.setAttribute('for', v.id = 'radio'+i);
 });
 
-function checkButtons() {
-	var ls = $('input[type="radio"]'),
-		r = ieach(ls, function(i, v) {
-			if (v.scrollHeight > 0 && v.checked)
-				return v;
-		}, ls[0]);
+function checkRadios() {
+	var ls = $('input[type="radio"]');
+	var r = ieach(ls, function(i, v) {
+		if (v.scrollHeight > 0 && v.checked)
+			return v;
+	}, ls[0]);
 	if (r) {
 		r.checked = true;
 		r.focus();
 	}
+}
+
+function getRadioVal(ls) {
+	return ieach(ls, function(i, v) {
+		if (v.checked) return v.value;
+	});
 }
 </script>
 </body>
