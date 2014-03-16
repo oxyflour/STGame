@@ -718,24 +718,34 @@ var UTIL = {
 		if (GAME.state == GAME.states.RUNNING)
 			GAME.run(10);
 	});
-	var uiTick = newTicker(100, function(fns) {
+	var uiTick = newTicker(100, function(cbs) {
 		ieach($('.ui'), function(i, e) {
-			ieach(e.attributes, function(i, attr) {
-				var n = attr.name,
-					t = attr.textContent,
-					k = 'exec:'+n+':'+t,
-					f = fns[attr.name];
-				if (f) (e[k] = e[k] || f(e, t)).apply(e);
+			ieach(cbs, function(i, cb) {
+				var n = cb[0],
+					f = cb[1],
+					attr = e.attributes[n];
+				if (attr) {
+					var t = attr.textContent,
+						k = 'ui-exec:'+n+':'+t,
+						d = e[k] || (e[k] = {
+							fn: f(e),
+							fv: Function('return ('+t+')'),
+							v: undefined,
+						});
+					var v = d.fv.call(e);
+					if (v != d.v)
+						d.fn.call(e, d.v = v);
+				}
 			});
 		});
-	}, {
-		'ui-bind': function(e, t) {
-			return Function(($attr(e, 'ui-bind-attr') || 'this.innerHTML')+'='+t);
-		},
-		'ui-show': function(e, t) {
-			return Function('this.style.display=('+t+')?"block":"none"');
-		}
-	});
+	}, [
+		['ui-bind', function(e) {
+			return Function('val', $attr(e, 'ui-bind-exec') || (($attr(e, 'ui-bind-attr') || 'this.innerHTML')+'=val'));
+		}],
+		['ui-show', function(e) {
+			return Function('val', 'this.style.display=(val)?"block":"none"');
+		}],
+	]);
 	setInterval(function() {
 		var t = Math.min(dt(), 100);
 		gameTick.run(t);
