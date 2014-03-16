@@ -1815,6 +1815,7 @@ var hook = {
 		else if (e == STORY.events.PLAYER_HIT) {
 			GAME.statics.graze --;
 			v.state.set('juesi');
+			newEffect(v);
 			/*
 			STORY.timeout(function() {
 				killCls('Dannmaku');
@@ -1825,14 +1826,12 @@ var hook = {
 			GAME.statics.graze ++;
 		}
 		else if (e == STORY.events.PLAYER_DYING) {
-			var vy = -0.8,
-				x = v.data.x,
+			var x = v.data.x,
 				y = v.data.y;
-			SPRITE.newObj('Drop', { vy:vy, x:x+90, y:y-50 });
-			SPRITE.newObj('Drop', { vy:vy, x:x+30, y:y-60 });
-			SPRITE.newObj('Drop', { vy:vy, x:x-30, y:y-60 });
-			SPRITE.newObj('Drop', { vy:vy, x:x-90, y:y-50 });
-			newEffect(v);
+			SPRITE.newObj('Drop', { vx:  -1, vy: -0.8, x:x, y:y });
+			SPRITE.newObj('Drop', { vx:-0.5, vy:-0.85, x:x, y:y });
+			SPRITE.newObj('Drop', { vx: 0.5, vy:-0.85, x:x, y:y });
+			SPRITE.newObj('Drop', { vx:   1, vy: -0.8, x:x, y:y });
 		}
 		else if (e == STORY.events.PLAYER_DEAD) {
 			GAME.statics.miss ++;
