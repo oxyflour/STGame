@@ -8,6 +8,19 @@ body {
 	background: #ddd;
 	overflow: hidden;
 }
+input[type="radio"] {
+	opacity: 0;
+}
+input[type="radio"] + label {
+	-webkit-transition: all ease 0.4s;
+	-ms-transition: all ease 0.4s;
+	opacity: 0.5;
+	font-weight: bold;
+}
+input[type="radio"]:checked + label {
+	opacity: 1;
+	margin-left: -5px;
+}
 .absolute {
 	position: absolute;
 }
@@ -236,13 +249,38 @@ body {
 			<div class="td"><div class="font" style="background-position:0 -64px;"></div></div>
 		</div>
 	</div>
-	<div class="screen mask absolute text-center ui" ui-show="GAME.state != GAME.states.RUNNING">
-		<strong><big><p class="ui" ui-bind="keyfind(GAME.states, GAME.state)"></p></big></strong>
+	<div class="screen mask absolute ui" ui-show="GAME.state != GAME.states.RUNNING">
+		<strong><big><p class="ui text-center" ui-bind="keyfind(GAME.states, GAME.state)"></p></big></strong>
+		<form>
+			<p><input type="radio" name="pause_menu"><label>Continue</label></p>
+			<p><input type="radio" name="pause_menu"><label>Back to Title</label></p>
+			<p><input type="radio" name="pause_menu"><label>Quit</label></p>
+		</form>
 	</div>
 </div>
 <div class="ui" ui-show="RES.process < 1">
 	loading: <span class="ui" ui-bind="(RES.process*100).toFixed(1)+'%'"></span>
 </div>
+<div class="ui" ui-bind="GAME.state" ui-bind-exec="setTimeout(checkButtons, 100)"></div>
 <script src="game.js"></script>
+<script>
+ieach($('input[type="radio"]'), function(i, v) {
+	var n = v.nextElementSibling;
+	if (n && n.tagName == 'LABEL' && !v.id)
+		n.setAttribute('for', v.id = 'radio'+i);
+});
+
+function checkButtons() {
+	var ls = $('input[type="radio"]'),
+		r = ieach(ls, function(i, v) {
+			if (v.scrollHeight > 0 && v.checked)
+				return v;
+		}, ls[0]);
+	if (r) {
+		r.checked = true;
+		r.focus();
+	}
+}
+</script>
 </body>
 </html>
