@@ -1439,24 +1439,24 @@ function newDannmaku(d) {
 			target: undefined,
 			decrease: 1000,
 			decrease_by: 0.99,
-			decrease_min: 0.02,
+			velocity_min: 0.02,
 			duration: 1000,
 			gravity: 10e-7,
-			velocity_min: 0.1,
+			accel_min: 0.1,
 		});
 		v.runCircle = function(dt, d, s) {
 			if (s.d.age < d.decrease) {
-				if (Math.abs(d.vx) > d.decrease_min) d.vx *= d.decrease_by;
-				if (Math.abs(d.vy) > d.decrease_min) d.vy *= d.decrease_by;
+				d.vx *= d.decrease_by;
+				d.vy *= d.decrease_by;
 			}
 			else if (s.d.age < d.decrease + d.duration) {
 				if (d.target && d.target.isAlive) {
 					var e = d.target.data;
 					d.vx -= d.gravity * dt * (d.x - e.x);
 					d.vy -= d.gravity * dt * (d.y - e.y);
-					if (sqrt_sum(d.vx, d.vy) < d.velocity_min) {
-						var v = d.velocity_min,
-							dx = e.x - d.x,
+					var v = sqrt_sum(d.vx, d.vy);
+					if (v < d.accel_min && !d.grazed) {
+						var dx = e.x - d.x,
 							dy = e.y - d.y,
 							r = sqrt_sum(dx, dy);
 						d.vx = v * dx / r;
@@ -1466,6 +1466,8 @@ function newDannmaku(d) {
 				else if (d.target_cls)
 					d.target = SPRITE.getAliveOne(d.target_cls);
 			}
+			if (Math.abs(d.vx) < d.velocity_min) d.vx = d.velocity_min;
+			if (Math.abs(d.vy) < d.velocity_min) d.vy = d.velocity_min;
 		};
 	}
 	else if (d.type == 'OrbAround') {
