@@ -681,15 +681,16 @@ var UTIL = {
 		}, []);
 
 		var s = newStateMachine(stes);
-		s.setOld = s.set;
-		s.set = function(k) {
-			var i = ieach(this.stes, function(i, v, d) {
-				if (v.data.name==k) return i;
-			}, k);
-			this.setOld(i);
-			this.is_creating = this.d.name == 'creating';
-			this.is_dying = this.d.name == 'dying';
-		}
+		override(s, 'set', function(set) {
+			return function(k) {
+				var i = ieach(this.stes, function(i, v, d) {
+					if (v.data.name==k) return i;
+				}, k);
+				set.call(this, i);
+				this.is_creating = this.d.name == 'creating';
+				this.is_dying = this.d.name == 'dying';
+			};
+		});
 		s.die = function() {
 			s.set('dying');
 		}
