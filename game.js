@@ -702,8 +702,10 @@ var UTIL = {
 	},
 };
 
-(function() {
-	var dt = newCounter();
+(function(counter) {
+	var dt =  function() {
+		return Math.min(counter(), 100);
+	};
 	var gameTick = newTicker(10, function() {
 		if (GAME.state == GAME.states.RUNNING)
 			GAME.run(10);
@@ -737,10 +739,10 @@ var UTIL = {
 		}],
 	]);
 	setInterval(function() {
-		var t = Math.min(dt(), 100);
+		var t = dt();
 		gameTick.run(t);
 		uiTick.run(t);
-	}, 10);
+	}, 5);
 
 	GAME.fps = 0;
 	var fpsCounter = newFPSCounter();
@@ -753,10 +755,10 @@ var UTIL = {
 	ieach(['keydown', 'keyup'], function(i, v) {
 		window.addEventListener(v, function(e) {
 			GAME.input(e);
-			gameTick.run(Math.min(dt(), 100));
+			gameTick.run(dt());
 		});
 	});
-})();
+})(newCounter());
 
 SPRITE.newCls('Basic', {
 	layer: 'L10',
