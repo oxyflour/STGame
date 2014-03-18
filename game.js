@@ -840,12 +840,11 @@ SPRITE.newCls('Basic', {
 		t.f(t.d);
 
 		if (id) {
-			var dict = this.animations;
-			if (!dict)
-				dict = this.animations = {};
-			if (dict[id])
-				dict[id].finished = true;
-			dict[id] = t;
+			var dict = this.data,
+				k = 'am#' + id;
+			if (dict[k])
+				dict[k].finished = true;
+			dict[k] = t;
 		}
 
 		return t;
