@@ -419,6 +419,11 @@ var RES = (function(res) {
 })($e('res'));
 
 var SPRITE = (function() {
+	function loop(ls, fn) {
+		if (ls) ieach(ls, function(i, v) {
+			v && !v.finished && fn(i, v);
+		});
+	}
 	var _t = {
 		cls: newGroupList(),
 		layers: newGroupList(),
@@ -446,16 +451,11 @@ var SPRITE = (function() {
 		});
 		return obj;
 	};
-	_t.each = function(ls, fn) {
-		if (ls) ieach(ls, function(i, v) {
-			v && !v.finished && fn(i, v);
-		});
-	};
 	_t.eachObj = function(fn, c) {
 		if (c)
-			_t.each(_t.cls.groups[c], fn);
+			loop(_t.cls.groups[c], fn);
 		else ieach(_t.cls, function(i, ls) {
-			_t.each(ls, fn);
+			loop(ls, fn);
 		});
 	};
 	_t.clrObj = function(c) {
