@@ -255,7 +255,7 @@ input[type="radio"]:checked + label {
 		<form action="javascript:void(null)" onsubmit="eval(getRadioVal(this.pause_menu))">
 			<p><input type="radio" name="pause_menu" value="GAME.state = GAME.states.RUNNING"><label>Continue</label></p>
 			<!--p><input type="radio" name="pause_menu" value=""><label>Back to Title</label></p-->
-			<!--p><input type="radio" name="pause_menu" value=""><label>Restart</label></p-->
+			<p><input type="radio" name="pause_menu" value="loadAndStart()"><label>Restart</label></p>
 			<p><input type="radio" name="pause_menu" value="window.close()"><label>Quit</label></p>
 			<input style="width:0px;opacity:0;" type="submit" />
 		</form>
@@ -290,6 +290,13 @@ function getRadioVal(ls) {
 		if (v.checked) return v.value;
 	});
 }
+
+function loadAndStart() {
+	GAME.load(tl, hook);
+	GAME.start('init');
+}
+RES.check(loadAndStart);
+
 </script>
 </body>
 </html>

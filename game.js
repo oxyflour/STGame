@@ -493,7 +493,6 @@ var STORY = (function() {
 			before_on: undefined,
 			after_on: undefined,
 		}, hook);
-		_t.on(_t.events.STORY_LOAD)
 	}
 	_t.timeout = function(f, t, d, n) {
 		var s = _t.state.s;
@@ -547,6 +546,10 @@ var GAME = (function() {
 		t: 0,
 		r: DC.canv.width,
 		b: DC.canv.height
+	};
+	_t.load = function(tl, hk) {
+		STORY.load(tl, hook);
+		STORY.on(STORY.events.STORY_LOAD);
 	};
 	_t.start = function(n) {
 		STORY.state.set(n);
@@ -2015,9 +2018,3 @@ tl.end = {
 	run: function(dt, d) {
 	}
 };
-
-RES.check(function() {
-	STORY.load(tl, hook);
-	GAME.start('init');
-//	STORY.state.set('sec1');
-});
