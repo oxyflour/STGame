@@ -1323,7 +1323,7 @@ function newPlayer() {
 			d.y = p.data.y - d.offsetRadius * Math.sin(a.val * Math.PI);
 		};
 	});
-	p.pslow = {};
+	p.pslow = { finished: true };
 	p.anim(100, function(d, p) {
 		p.showSlow = !p.finished && !p.state.is_dying && p.data.slowMode;
 		if (!p.showSlow || !p.pslow.finished)
