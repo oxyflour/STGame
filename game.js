@@ -1329,7 +1329,7 @@ function newPlayer() {
 		if (!p.showSlow || !p.pslow.finished)
 			return;
 		p.pslow = SPRITE.newObj('Basic', {
-			layer: 'L99',
+			layer: 'L20',
 			parent: p,
 			frames: RES.frames.PSlow,
 		});
