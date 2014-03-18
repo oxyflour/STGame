@@ -433,25 +433,19 @@ var SPRITE = (function() {
 	};
 	_t.newObj = function(c, data) {
 		var obj = new _t.init[c](data);
-		_t.cls.add(c, {
-			obj: obj,
-			run: function(dt) {
-				this.obj.run(dt);
-				this.finished = !this.obj.isAlive;
-			}
-		});
+		_t.cls.add(c, obj);
 		_t.layers.add(c, {
 			obj: obj,
 			run: function() {
 				this.obj.draw();
-				this.finished = !this.obj.isAlive;
+				this.finished = this.obj.finished;
 			}
 		});
 		return obj;
 	};
 	_t.each = function(ls, fn) {
 		if (ls) ieach(ls, function(i, v) {
-			v && !v.finished && fn(i, v.obj);
+			v && !v.finished && fn(i, v);
 		});
 	};
 	_t.eachObj = function(fn, c) {
@@ -463,7 +457,7 @@ var SPRITE = (function() {
 	};
 	_t.clrObj = function(c) {
 		_t.eachObj(function(i, v) {
-			v.obj.isAlive = false;
+			v.finished = true;
 		}, c);
 	};
 	return _t;
@@ -598,7 +592,7 @@ var GAME = (function() {
 var UTIL = {
 	getOneObj: function(c) {
 		return ieach(SPRITE.cls.groups[c], function(i, v) {
-			if (v && !v.finished) return v.obj;
+			if (v && !v.finished) return v;
 		});
 	},
 	// fs can be function, frame array, or a single frame
@@ -756,12 +750,12 @@ SPRITE.newCls('Basic', {
 
 		s.run(dt);
 		if (!s.d.life)
-			this.isAlive = false;
+			this.finished = true;
 
 		if (d.parent) {
 			var p = d.parent;
-			if (!p.isAlive)
-				this.isAlive = false;
+			if (p.finished)
+				this.finished = true;
 			else if (p.state.is_dying && !s.is_dying)
 				s.die();
 		}
@@ -777,7 +771,7 @@ SPRITE.newCls('Basic', {
 			this.runBasic(dt, d, s);
 
 		if (d.x + d.y !== d.y + d.x)
-			this.isAlive = false;
+			this.finished = true;
 	},
 	drawBasic: undefined,
 	drawText: function(d, s) {
@@ -822,7 +816,7 @@ SPRITE.newCls('Basic', {
 	},
 	anim: function(t, fn, d, id) {
 		var t = newTicker(t, function(obj) {
-			this.finished = fn(d, obj) || !obj.isAlive;
+			this.finished = fn(d, obj) || obj.finished;
 		}, this);
 		STORY.anim.add(t);
 		t.f(t.d);
@@ -844,7 +838,6 @@ SPRITE.newCls('Basic', {
 		{ name:'dying',		life: 500,		next:-1 }
 	],
 }, function(d) {
-	this.isAlive = true;
 	this.data = d = extend({
 		x: interp(GAME.rect.l, GAME.rect.r, 0.5),
 		y: interp(GAME.rect.t, GAME.rect.b, 0.5),
@@ -888,7 +881,7 @@ SPRITE.newCls('Circle', {
 			rt.l-sp.r > GAME.rect.r ||
 			rt.b+sp.t < GAME.rect.t ||
 			rt.t-sp.b > GAME.rect.b) {
-			this.isAlive = false;
+			this.finished = true;
 			STORY.on(STORY.events.OBJECT_OUT, this);
 		}
 	},
@@ -1045,7 +1038,7 @@ SPRITE.newCls('Player', {
 			STORY.on(STORY.events.PLAYER_DYING, this);
 	},
 	runBasic: function(dt, d, s) {
-		if (!this.isAlive) {
+		if (this.finished) {
 			STORY.on(STORY.events.PLAYER_DEAD, this);
 			return;
 		}
@@ -1236,9 +1229,9 @@ SPRITE.newCls('Drop', {
 	layer: 'L20',
 	runCircle: function(dt, d, s) {
 		var v = d.collected;
-		if (v && !v.isAlive)
+		if (v && v.finished)
 			v = d.collected = UTIL.getOneObj('Player');
-		if (v && v.isAlive && !v.state.is_dying) {
+		if (v && !v.finished && !v.state.is_dying) {
 			var e = v.data,
 				v = d.collected_auto ? 0.8 : sqrt_sum(d.vx, d.vy),
 				dx = e.x - d.x,
@@ -1333,8 +1326,8 @@ function newPlayer() {
 	});
 	p.pslow = {};
 	p.anim(100, function(d, p) {
-		p.showSlow = p.isAlive && !p.state.is_dying && p.data.slowMode;
-		if (!p.showSlow || p.pslow.isAlive)
+		p.showSlow = !p.finished && !p.state.is_dying && p.data.slowMode;
+		if (!p.showSlow || !p.pslow.finished)
 			return;
 		p.pslow = SPRITE.newObj('Basic', {
 			layer: 'L99',
@@ -1408,7 +1401,7 @@ function newBullet(d) {
 			}).runCircle = function(dt, d, s) {
 				var u = d.to,
 					e = u && u.data;
-				if (u && u.isAlive && u.state.d.mkDamage && !s.is_dying) {
+				if (u && !u.finished && u.state.d.mkDamage && !s.is_dying) {
 					var dx = e.x - d.x,
 						dy = e.y - d.y,
 						r = sqrt_sum(dx, dy),
@@ -1442,7 +1435,7 @@ function newDannmaku(d) {
 				d.vy *= d.decrease_by;
 			}
 			else if (s.d.age < d.decrease_duration + d.duration) {
-				if (d.target && d.target.isAlive) {
+				if (d.target && !d.target.finished) {
 					var e = d.target.data,
 						dx = e.x - d.x + d.offset_x,
 						dy = e.y - d.y + d.offset_y;
@@ -1483,7 +1476,7 @@ function newDannmaku(d) {
 			d.speed *= d.generator.count % 2 ? 1 : -1;
 		v.runCircle = function(dt, d, s) {
 			var f = d.from;
-			if (f && f.isAlive && !f.state.is_dying) {
+			if (f && !f.finished && !f.state.is_dying) {
 				d.x = d.radius*Math.cos(d.theta) + d.source_x;
 				d.y = d.radius*Math.sin(d.theta) + d.source_y;
 				d.theta += dt*d.speed;
@@ -1588,7 +1581,7 @@ function genDannmaku(d) {
 	}[d && d.preset], d);
 	var idx = 0, cnt = d.theta_count-1;
 	STORY.timeout(function(d, layer) {
-		if (!d.from || !d.from.isAlive || d.from.state.is_dying) {
+		if (!d.from || d.from.finished || d.from.state.is_dying) {
 			this.finished = true;
 			return;
 		}
@@ -1927,7 +1920,7 @@ tl.sec1 = {
 				y: v.data.y
 			});
 			var pass = reduce(SPRITE.objs.Enemy, function(i, v, r) {
-				return v.isAlive ? (r && v.state.is_dying) : r;
+				return v.finished ? r : (r && v.state.is_dying);
 			}, true);
 			if (pass) {
 				SPRITE.eachObj(function(i, v) {
