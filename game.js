@@ -437,8 +437,7 @@ var SPRITE = (function() {
 		_t.layers.add(c, {
 			obj: obj,
 			run: function() {
-				this.obj.draw();
-				this.finished = this.obj.finished;
+				(this.finished = this.obj.finished) || this.obj.draw();
 			}
 		});
 		return obj;
