@@ -1030,7 +1030,7 @@ SPRITE.newCls('Player', {
 
 		// AUTO COLLECT!
 		if (d.y < interp(GAME.rect.t, GAME.rect.b, 0.3))
-			STORY.on(STORY.events.PLAYER_AUTOCOLLECT, v);
+			STORY.on(STORY.events.PLAYER_AUTOCOLLECT, this);
 	},
 	onStateChange: function(s, d) {
 		if (s.is_dying)
