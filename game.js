@@ -73,6 +73,10 @@ function fill(c) {
 		return i == 0 ? r : fil(r, v);
 	}, c);
 }
+function override(obj, key, fn) {
+	var old = obj[key];
+	obj[key] = fn(old);
+}
 function arrcat() {
 	return ieach(arguments, function(i, v, d) {
 		each(v, function(j, u, d) {
@@ -493,6 +497,15 @@ var STORY = (function() {
 			before_on: undefined,
 			after_on: undefined,
 		}, hook);
+		override(_t.state, 'set', function(set) {
+			return function(n) {
+				if (_t.hook.quit)
+					_t.hook.quit(this.n, this.d);
+				set.call(this, n);
+				if (_t.hook.init)
+					_t.hook.init(this.n, this.d);
+			};
+		});
 	}
 	_t.timeout = function(f, t, d, n) {
 		var s = _t.state.s;
@@ -1778,18 +1791,14 @@ var hook = {
 		RES.elems.bg.style['background-position-y'] = GAME.statics.time*0.02+'px';
 		RES.elems.bg2.style['background-position-y'] = GAME.statics.time*0.031+'px';
 	}),
-	data: undefined,
-	init: function(d) {
+	init: function(n, d) {
+		console.log('--> ', n)
 	},
-	quit: function(d) {
+	quit: function(n, d) {
 	},
 	after_run: function(dt, d) {
 		GAME.statics.time += dt;
 		this.bg.run(dt);
-		if (this.data !== d) {
-			this.quit(this.data);
-			this.init(this.data = d);
-		}
 	},
 	before_on: function(e, v, d) {
 		if (e == STORY.events.STORY_LOAD) {
