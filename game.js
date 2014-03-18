@@ -219,7 +219,7 @@ function newAnimateList() {
 		_t.length = unused.length = 0;
 		_t.push.apply(_t, ls);
 	};
-	_t.add = function(t) { // t should be object returned from newTicker()
+	_t.add = function(t) { // t should be object like { run: function(){} }
 		t.finished = false;
 		_t[unused.length ? unused.pop() : _t.length] = t;
 	};
@@ -237,6 +237,31 @@ function newAnimateList() {
 		}
 		cleaner.run(dt);
 	}
+	return _t;
+}
+function newGroupList() {
+	var _t = [];
+	_t.groups = {};
+	_t.sort = [];
+	_t.resort = function() {
+		_t.sort = keys(_t.groups).sort();
+		_t.length = 0;
+		ieach(_t.sort, function(i, k) {
+			_t.push(_t.groups[k]);
+		});
+	};
+	_t.add = function(k, t) {
+		var ls = _t.groups[k];
+		if (!ls) {
+			ls = _t.groups[k] = newAnimateList();
+			_t.resort();
+		}
+		ls.add(t);
+	};
+	_t.run = function(dt) {
+		for (var i = 0, n = _t.length; i < n; i ++)
+			_t[i].run(dt);
+	};
 	return _t;
 }
 function newStateMachine(stes) {
@@ -390,56 +415,17 @@ var RES = (function(res) {
 })($e('res'));
 
 var SPRITE = (function() {
-	function getIndex(ls, deadOrAlive) {
-		var n = ls.length;
-		for (var i = 0; i < n; i ++)
-			if (!ls[i].isAlive != !deadOrAlive) return i;
-		return n;
-	}
-	function insertToList(ls, v) {
-		var i = getIndex(ls, true);
-		ls[i] = v;
-		return i;
-	}
-	function loop(ls, fn) {
-		var a = 0,
-			n = ls.length;
-		for (var i = 0; i < n; i ++) {
-			var v = ls[i];
-			if (v.isAlive) {
-				fn(i, v);
-				a ++;
-			}
-		}
-		// no one alive? clear the array then
-		if (a == 0 && n > 0)
-			ls.length = 0;
-	}
-	function addToLayer(obj) {
-		var layer = _t.layer[obj.layer];
-		if (!layer) {
-			layer = _t.layer[obj.layer] = [];
-			_t.layer_sort = keys(_t.layer).sort();
-		}
-		return insertToList(layer, obj);
-	}
 	var _t = {
-		objs: {},
-		layer: {},
+		cls: newGroupList(),
+		layers: newGroupList(),
 		init: {},
 		proto: {},
-		objs_sort: [],
-		layer_sort: [],
 	};
 	_t.newCls = function(c, proto, init) {
 		var from = proto.from ? new _t.init[proto.from]() : {};
 		proto = extend(from, proto);
 		proto.clsName = c;
 
-		if (!_t.objs[c]) {
-			_t.objs[c] = [];
-			_t.objs_sort = keys(_t.objs).sort();
-		}
 		_t.init[c] = init;
 		_t.proto[c] = init.prototype = proto;
 
@@ -447,49 +433,38 @@ var SPRITE = (function() {
 	};
 	_t.newObj = function(c, data) {
 		var obj = new _t.init[c](data);
-		obj.obj_idx = insertToList(_t.objs[c], obj);
-		obj.layer_idx = addToLayer(obj);
+		_t.cls.add(c, {
+			obj: obj,
+			run: function(dt) {
+				this.obj.run(dt);
+				this.finished = !this.obj.isAlive;
+			}
+		});
+		_t.layers.add(c, {
+			obj: obj,
+			run: function() {
+				this.obj.draw();
+				this.finished = !this.obj.isAlive;
+			}
+		});
 		return obj;
+	};
+	_t.each = function(ls, fn) {
+		if (ls) ieach(ls, function(i, v) {
+			v && !v.finished && fn(i, v.obj);
+		});
 	};
 	_t.eachObj = function(fn, c) {
 		if (c)
-			loop(_t.objs[c], fn);
-		else ieach(_t.objs_sort, function(i, c) {
-			loop(_t.objs[c], fn);
-		});
-	};
-	_t.eachLayerObj = function(fn, c) {
-		if (c)
-			loop(_t.layer[c], fn);
-		else ieach(_t.layer_sort, function(i, c) {
-			loop(_t.layer[c], fn);
-		});
-	}
-	_t.each2Obj = function(fn, c1, c2) {
-		loop(_t.objs[c1], function(i, v1) {
-			loop(_t.objs[c2], function(j, v2) {
-				if (c1 != c2 || j < i)
-					fn(v1, v2);
-			});
+			_t.each(_t.cls.groups[c], fn);
+		else ieach(_t.cls, function(i, ls) {
+			_t.each(ls, fn);
 		});
 	};
 	_t.clrObj = function(c) {
 		_t.eachObj(function(i, v) {
-			v.isAlive = false;
+			v.obj.isAlive = false;
 		}, c);
-	};
-	_t.moveToLayer = function(obj, layer) {
-		if (obj.layer != layer) {
-			if (_t.layer[obj.layer][obj.layer_idx] == obj)
-				_t.layer[obj.layer][obj.layer_idx] = { isAlive:false };
-			obj.layer = layer;
-			obj.layer_idx = addToLayer(obj);
-		}
-	}
-	_t.getAliveOne = function(c) {
-		var ls = _t.objs[c],
-			i = getIndex(ls, false);
-		return ls[i];
 	};
 	return _t;
 })();
@@ -557,10 +532,14 @@ var STORY = (function() {
 
 var GAME = (function() {
 	function testhit(c1, c2, dt) {
-		SPRITE.each2Obj(function(v1, v2) {
-			if (rect_intersect(v1.rect, v2.rect))
-				v1.hit(v2, dt)
-		}, c1, c2);
+		SPRITE.eachObj(function(i, obj1) {
+			SPRITE.eachObj(function(j, obj2) {
+				if (c1 == c2 && j >= i)
+					return;
+				if (rect_intersect(obj1.rect, obj2.rect))
+					obj1.hit(obj2, dt);
+			}, c2);
+		}, c1);
 	};
 	var _t = [];
 	_t.state = 0;
@@ -581,22 +560,18 @@ var GAME = (function() {
 		_t.state = _t.states.RUNNING;
 	};
 	_t.run = function(dt) {
-		ieach(SPRITE.objs_sort, function(i, c1) {
+		ieach(SPRITE.cls.sort, function(i, c1) {
 			var hits = SPRITE.proto[c1].hits;
 			if (hits) ieach(hits, function(i, c2) {
 				testhit(c1, c2, dt);
 			});
 		});
-		SPRITE.eachObj(function(i, v) {
-			v.run(dt);
-		});
+		SPRITE.cls.run(dt);
 		STORY.run(dt);
 	};
 	_t.draw = function() {
 		DC.clear();
-		SPRITE.eachLayerObj(function(i, v) {
-			v.draw();
-		})
+		SPRITE.layers.run();
 	};
 	_t.keyste = {};
 	var chars = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
@@ -621,6 +596,11 @@ var GAME = (function() {
 })();
 
 var UTIL = {
+	getOneObj: function(c) {
+		return ieach(SPRITE.cls.groups[c], function(i, v) {
+			if (v && !v.finished) return v.obj;
+		});
+	},
 	// fs can be function, frame array, or a single frame
 	addFrameAnim: function(v, t, fs) {
 		v.anim(t, function(d) {
@@ -1257,7 +1237,7 @@ SPRITE.newCls('Drop', {
 	runCircle: function(dt, d, s) {
 		var v = d.collected;
 		if (v && !v.isAlive)
-			v = d.collected = SPRITE.getAliveOne('Player');
+			v = d.collected = UTIL.getOneObj('Player');
 		if (v && v.isAlive && !v.state.is_dying) {
 			var e = v.data,
 				v = d.collected_auto ? 0.8 : sqrt_sum(d.vx, d.vy),
@@ -1477,7 +1457,7 @@ function newDannmaku(d) {
 					}
 				}
 				else if (d.target_cls)
-					d.target = SPRITE.getAliveOne(d.target_cls);
+					d.target = UTIL.getOneObj(d.target_cls);
 			}
 			var rv = 1/d.velocity_min;
 			d.vx = 1/limit_between(1/d.vx, -rv, rv);
@@ -1612,7 +1592,7 @@ function genDannmaku(d) {
 			this.finished = true;
 			return;
 		}
-		var to = d.to ? d.to.data : SPRITE.getAliveOne('Player').data,
+		var to = d.to ? d.to.data : UTIL.getOneObj('Player').data,
 			from = +d.x === d.x ? { x:d.x, y:d.y } : d.from.data;
 		for(var count = 0; count < d.count; count ++) {
 			if (idx ++ >= cnt)
@@ -1962,7 +1942,7 @@ tl.sec1 = {
 				}, 'Dannmaku');
 				STORY.timeout(function(d) {
 					STORY.on(STORY.events.PLAYER_AUTOCOLLECT,
-						SPRITE.getAliveOne('Player'));
+						UTIL.getOneObj('Player'));
 					d.pass = true;
 				}, 100, d);
 			}
