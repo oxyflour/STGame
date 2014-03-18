@@ -434,7 +434,7 @@ var SPRITE = (function() {
 	_t.newObj = function(c, data) {
 		var obj = new _t.init[c](data);
 		_t.cls.add(c, obj);
-		_t.layers.add(c, {
+		_t.layers.add(obj.layer, {
 			obj: obj,
 			run: function() {
 				(this.finished = this.obj.finished) || this.obj.draw();
