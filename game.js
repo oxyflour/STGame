@@ -1918,7 +1918,12 @@ tl.sec1 = {
 				x: v.data.x,
 				y: v.data.y
 			});
-			if (!UTIL.getOneObj('Enemy')) {
+			var pass = true;
+			SPRITE.eachObj(function(i, v) {
+				if (!v.state.is_dying)
+					return pass = false;
+			}, 'Enemy');
+			if (pass) {
 				SPRITE.eachObj(function(i, v) {
 					v.state.die();
 					SPRITE.newObj('Drop', {
