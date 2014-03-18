@@ -610,6 +610,38 @@ var UTIL = {
 			if (v && !v.finished) return v;
 		});
 	},
+	addAnim: function(v, t, d, id) {
+		fill(d, {
+			value: 0,
+			min: 0,
+			max: 1,
+			callback: undefined,
+			step: 1,
+			loop: undefined,
+			key: undefined,
+		});
+		function loop(d, begin, end) {
+			if (d.loop.apply)
+				d.loop();
+			else if (d.loop == 'restart')
+				d.value = begin;
+			else if (d.loop == 'reverse')
+				d.step = -d.step;
+			else
+				d.value = end;
+		}
+		v.anim(t, function(d) {
+			if (d.callback)
+				d.step = d.callback(v);
+			d.value += d.step;
+			if (d.value > d.max)
+				loop(d, d.min, d.max);
+			else if (d.value < d.min)
+				loop(d, d.max, d.min);
+			if (d.key)
+				v.data[d.key] = d.value;
+		}, d, id);
+	},
 	// fs can be function, frame array, or a single frame
 	addFrameAnim: function(v, t, fs) {
 		v.anim(t, function(d) {
