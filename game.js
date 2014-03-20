@@ -1859,12 +1859,7 @@ var hook = {
 		if (e == STORY.events.STORY_LOAD) {
 			SPRITE.clrObj();
 			GAME.objects.player = newPlayer();
-			GAME.objects.bg = newBackground([
-				$e('bgimg'),
-				$e('bgmask'),
-				$e('bgimg2'),
-				$e('bgmask2'),
-			]);
+			GAME.objects.bg = newBackground($('.bg1'));
 		}
 		else if (e == STORY.events.GAME_INPUT) {
 			if (v.type == 'keyup' && v.which == 27) {
