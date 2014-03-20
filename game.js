@@ -243,7 +243,7 @@ function newAnimateList() {
 	}
 	return _t;
 }
-function newGroupList() {
+function newGroupAnim() {
 	var _t = [];
 	_t.groups = {};
 	_t.sort = [];
@@ -425,8 +425,8 @@ var SPRITE = (function() {
 		});
 	}
 	var _t = {
-		cls: newGroupList(),
-		layers: newGroupList(),
+		cls: newGroupAnim(),
+		layers: newGroupAnim(),
 		init: {},
 		proto: {},
 	};
