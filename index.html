@@ -207,22 +207,14 @@ input[type="radio"]:checked + label {
 			return _t;
 		})
 	</script>
-	<script id="elems">
-		(function(RES) {
-			return {
-				bg: $e('bgimg'),
-				bg2: $e('bgimg2'),
-			}
-		})
-	</script>
 </div>
 <div class="main ui" ui-show="RES.process == 1">
 	<div class="game absolute no-overflow" style="z-index:0">
 		<div class="relative bgimg">
-			<div id="bgimg" style="background:url(res/bg.png);"></div>
-			<div style="background:url(res/mask.png) repeat-x;"></div>
-			<div id="bgimg2" style="background:url(res/bg2.png);opacity:0.9"></div>
-			<div style="background:url(res/mask.png) repeat-x;opacity:0.6"></div>
+			<div class="ui-obj" id="bgimg" bg-speed="0.02" style="background:url(res/bg.png);"></div>
+			<div class="ui-obj" id="bgmask" style="background:url(res/mask.png) repeat-x;"></div>
+			<div class="ui-obj" id="bgimg2" bg-speed="0.03" style="background:url(res/bg2.png);opacity:0.9"></div>
+			<div class="ui-obj" id="bgmask2" style="background:url(res/mask.png) repeat-x;opacity:0.6"></div>
 		</div>
 	</div>
 	<canvas class="game absolute" id="canv" width="384px" height="448px"></canvas>
@@ -271,6 +263,10 @@ ieach($('input[type="radio"]'), function(i, v) {
 	var n = v.nextElementSibling;
 	if (n && n.tagName == 'LABEL' && !v.id)
 		n.setAttribute('for', v.id = 'radio'+i);
+});
+ieach($('.ui-obj'), function(i, v) {
+	v.className += ' ui';
+	v.setAttribute('ui-show', 'this.object && !this.object.finished');
 });
 
 function checkRadios() {

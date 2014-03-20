@@ -1803,6 +1803,26 @@ function newEffect(v) {
 		};
 	});
 }
+function newBackground(elems) {
+	var bg = SPRITE.newObj('Basic');
+	bg.elems = elems;
+	bg.draw = return_nothing;
+	ieach(elems, function(i, e) {
+		e.object = bg;
+		e.offset = 0;
+		e.speed = parseFloat($attr(e, 'bg-speed') || '0');
+		e.opacity = e.style.opacity || 1;
+	});
+	bg.anim(50, function(d, v) {
+		ieach(v.elems, function(i, e) {
+			e.offset += e.speed * 50;
+			e.style['background-position-y'] = e.offset + 'px';
+			if (v.data.opacity >= 0)
+				e.style.opacity = e.opacity * v.data.opacity;
+		});
+	});
+	return bg;
+}
 function killCls() {
 	ieach(arguments, function(i, c) {
 		SPRITE.eachObj(function(i, v) {
@@ -1818,17 +1838,14 @@ function killObj() {
 	})
 }
 
+GAME.objects = {
+};
 GAME.statics = {
-	time: 0,
 	graze: 0,
 	point: 0,
 	miss: 0
 };
 var hook = {
-	bg: newTicker(50, function() {
-		RES.elems.bg.style['background-position-y'] = GAME.statics.time*0.02+'px';
-		RES.elems.bg2.style['background-position-y'] = GAME.statics.time*0.031+'px';
-	}),
 	init: function(n, d) {
 		console.log('--> ', n)
 	},
@@ -1836,12 +1853,17 @@ var hook = {
 	},
 	after_run: function(dt, d) {
 		GAME.statics.time += dt;
-		this.bg.run(dt);
 	},
 	before_on: function(e, v, d) {
 		if (e == STORY.events.STORY_LOAD) {
 			SPRITE.clrObj();
-			newPlayer();
+			GAME.objects.player = newPlayer();
+			GAME.objects.bg = newBackground([
+				$e('bgimg'),
+				$e('bgmask'),
+				$e('bgimg2'),
+				$e('bgmask2'),
+			]);
 		}
 		else if (e == STORY.events.GAME_INPUT) {
 			if (v.type == 'keyup' && v.which == 27) {
@@ -1882,7 +1904,7 @@ var hook = {
 		}
 		else if (e == STORY.events.PLAYER_DEAD) {
 			GAME.statics.miss ++;
-			newPlayer();
+			GAME.objects.player = newPlayer();
 		}
 		else if (e == STORY.events.PLAYER_FIRE) {
 			if (!d.disable_fire)
