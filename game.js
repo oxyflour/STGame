@@ -721,7 +721,7 @@ var UTIL = {
 				set.call(this, i);
 				this.is_creating = this.d.name == 'creating';
 				this.is_dying = this.d.name == 'dying';
-				this.is_living == !(this.is_creating || this.is_dying);
+				this.is_living = !(this.is_creating || this.is_dying);
 			};
 		});
 		s.die = function() {
@@ -996,7 +996,7 @@ SPRITE.newCls('Player', {
 	hit: function(v) {
 		var d = this.data,
 			e = v.data;
-		if (v.clsName == SPRITE.proto.Drop.clsName && v.is_living) {
+		if (v.clsName == SPRITE.proto.Drop.clsName && v.state.is_living) {
 			if (circle_intersect(d, { x:e.x, y:e.y, r:20 })) {
 				STORY.on(STORY.events.PLAYER_GETDROP, this);
 				STORY.on(STORY.events.DROP_COLLECTED, v);
