@@ -767,7 +767,9 @@ var UTIL = {
 			return Function('val', $attr(e, 'ui-bind-exec') || (($attr(e, 'ui-bind-attr') || 'this.innerHTML')+'=val'));
 		}],
 		['ui-show', function(e) {
-			return Function('val', 'this.style.display=(val)?"block":"none"');
+			return function(v) {
+				this.style.display = v ? 'block' : 'none';
+			};
 		}],
 	]);
 	setInterval(function() {
