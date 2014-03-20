@@ -754,7 +754,7 @@ var UTIL = {
 						d = e[k] || (e[k] = {
 							fn: f(e),
 							fv: Function('return ('+t+')'),
-							v: undefined,
+							v: NaN,
 						});
 					var v = d.fv.call(e);
 					if (v != d.v)
