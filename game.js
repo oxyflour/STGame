@@ -835,6 +835,8 @@ SPRITE.newCls('Basic', {
 		var f = d.frame,
 			w = (f.w || f.sw) * d.scale,
 			h = (f.h || f.sh) * d.scale;
+		if (f.rotate === undefined)
+			f.rotate = 0;
 		if (f.rotate) {
 			var t = +f.rotate===f.rotate ? f.rotate :
 				Math.PI*1.5 + Math.atan2(d.vy, d.vx);
