@@ -493,15 +493,15 @@ var STORY = (function() {
 			before_on: undefined,
 			after_on: undefined,
 		}, hook);
-		_t.state.set = (function(set) {
+		_t.state.set = (function(set, hk) {
 			return function(n) {
-				if (_t.hook.quit)
-					_t.hook.quit(this.n, this.d);
+				if (hk.quit)
+					hk.quit(this.n, this.d);
 				set.call(this, n);
-				if (_t.hook.init)
-					_t.hook.init(this.n, this.d);
+				if (hk.init)
+					hk.init(this.n, this.d);
 			};
-		})(_t.state.set);
+		})(_t.state.set, _t.hook);
 	}
 	_t.timeout = function(f, t, d, n) {
 		var s = _t.state.s;
@@ -695,7 +695,7 @@ var UTIL = {
 	},
 	// stes: array of objects like
 	// { life:1000, [next:1] }
-	newAliveState: function(stes) {
+	newAliveState: function(stes, hk) {
 		function init(d) {
 			d.age = 0;
 		}
@@ -707,10 +707,17 @@ var UTIL = {
 		stes = ieach(stes, function(k, v, d) {
 			d[k] = { run:run, init:init, data:extend({}, v) }
 		}, []);
+		hk = fill(hk, {
+			data: undefined,
+			init: undefined,
+			quit: undefined,
+		});
 
 		var s = newStateMachine(stes);
-		s.set = (function(set) {
+		s.set = (function(set, hk) {
 			return function(k) {
+				if (hk.quit)
+					hk.quit(hk.data, this);
 				var i = ieach(this.stes, function(i, v, d) {
 					if (v.data.name==k) return i;
 				}, k);
@@ -718,8 +725,10 @@ var UTIL = {
 				this.is_creating = this.d.name == 'creating';
 				this.is_dying = this.d.name == 'dying';
 				this.is_living = !(this.is_creating || this.is_dying);
+				if (hk.init)
+					hk.init(hk.data, this);
 			};
-		})(s.set);
+		})(s.set, hk);
 		s.die = function() {
 			s.set('dying');
 		}
@@ -1083,10 +1092,6 @@ SPRITE.newCls('Player', {
 		if (d.y < interp(GAME.rect.t, GAME.rect.b, 0.3))
 			STORY.on(STORY.events.PLAYER_AUTOCOLLECT, this);
 	},
-	onStateChange: function(s, d) {
-		if (s.is_dying)
-			STORY.on(STORY.events.PLAYER_DYING, this);
-	},
 	runBasic: function(dt, d, s) {
 		if (this.finished) {
 			STORY.on(STORY.events.PLAYER_DEAD, this);
@@ -1110,10 +1115,6 @@ SPRITE.newCls('Player', {
 		this.rect.t = d.y - d.r*1.1;
 		this.rect.r = d.x + d.r*1.1;
 		this.rect.b = d.y + d.r*1.1;
-
-		if (this.last_state != s.d)
-			this.onStateChange(s, this.last_state);
-		this.last_state = s.d;
 	},
 	drawBasic: function(d, s) {
 		if (this.state.d.isInvinc)
@@ -1163,6 +1164,13 @@ SPRITE.newCls('Player', {
 	SPRITE.init.Basic.call(this, d);
 	this.rect = { l:0, t:0, r:0, b:0 };
 
+	this.state = UTIL.newAliveState(d.states || this.states, {
+		data: this,
+		init: function(v, s) {
+			if (s.is_dying)
+				STORY.on(STORY.events.PLAYER_DYING, this);
+		},
+	});
 	this.data.conf = extend({
 		key_left: 37,
 		key_up: 38,
