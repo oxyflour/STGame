@@ -222,7 +222,7 @@ input[type="radio"]:checked + label {
 	</div>
 	<canvas class="game absolute" id="canv" width="384px" height="448px"></canvas>
 	<div class="info absolute">
-		<div>fps: <span class="ui" ui-bind="GAME.fps.toFixed(3)"></span></div>
+		<div>fps: <span class="ui" ui-bind="GAME.fps.toFixed(3)+' ('+GAME.tick+')'"></span></div>
 		<div>story: <span class="ui" ui-bind="STORY.state.n"></span></div>
 		<div>graze: <span class="ui" ui-bind="GAME.statics.graze"></span></div>
 		<div>point: <span class="ui" ui-bind="GAME.statics.point"></span></div>

@@ -783,6 +783,7 @@ var UTIL = {
 		var t = dt();
 		gameTick.run(t);
 		uiTick.run(t);
+		GAME.tick = t;
 	}, 5);
 
 	GAME.fps = 0;
@@ -794,10 +795,7 @@ var UTIL = {
 	});
 	
 	ieach(['keydown', 'keyup'], function(i, v) {
-		window.addEventListener(v, function(e) {
-			GAME.input(e);
-			gameTick.run(dt());
-		});
+		window.addEventListener(v, GAME.input);
 	});
 })(newCounter());
 
