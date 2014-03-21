@@ -1168,7 +1168,7 @@ SPRITE.newCls('Player', {
 		data: this,
 		init: function(v, s) {
 			if (s.is_dying)
-				STORY.on(STORY.events.PLAYER_DYING, this);
+				STORY.on(STORY.events.PLAYER_DYING, v);
 		},
 	});
 	this.data.conf = extend({
