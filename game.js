@@ -1821,7 +1821,7 @@ function newBackground(elems) {
 	bg.anim(50, function(d, v) {
 		ieach(v.elems, function(i, e) {
 			e.offset += e.speed * 50;
-			e.style['background-position-y'] = e.offset + 'px';
+			e.style.backgroundPosition = '0 ' + e.offset + 'px';
 			if (v.data.opacity >= 0)
 				e.style.opacity = e.opacity * v.data.opacity;
 		});
