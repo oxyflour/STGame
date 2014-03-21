@@ -1305,6 +1305,15 @@ SPRITE.newCls('Drop', {
 			d.vx *= 0.9;
 		}
 	},
+	drawBasic: function(d, s) {
+		SPRITE.proto.Circle.drawBasic.call(this, d);
+		if (d.y < GAME.rect.t && d.smallframe) this.drawFrame({
+			x: d.x,
+			y: GAME.rect.t + 16,
+			scale: 1,
+			frame: d.smallframe,
+		}, s);
+	},
 	space: {
 		l: 40,
 		r: 40,
@@ -1323,6 +1332,7 @@ SPRITE.newCls('Drop', {
 		collected: undefined,
 		collected_auto: false,
 		frames: RES.frames.Drops[2],
+		smallframe: RES.frames.Drops[8],
 	}, d);
 	SPRITE.init.Circle.call(this, d);
 });
