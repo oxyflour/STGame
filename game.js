@@ -479,6 +479,7 @@ var STORY = (function() {
 		'PLAYER_BOMBEND',
 		'DROP_COLLECTED',
 		'BULLET_HIT',
+		'DANNMAKU_HIT',
 		'ENEMY_KILL'
 	]);
 	_t.state = _t.anim = _t.hook = {};
@@ -1282,6 +1283,30 @@ SPRITE.newCls('Enemy', {
 	SPRITE.init.Circle.call(this, d);
 });
 
+SPRITE.newCls('Shield', {
+	from: 'Circle',
+	hits: [
+		'Dannmaku',
+	],
+	hit: function(v) {
+		var d = this.data,
+			e = v.data;
+		if (v.state.is_dying)
+			return;
+		if (circle_intersect(d, e)) {
+			STORY.on(STORY.events.DANNMAKU_HIT, v);
+		}
+	},
+	
+	states: [
+		{ name:'creating',	life: 500,		next: 1 },
+		{ name:'living',	life: Math.Inf, next: 2 },
+		{ name:'dying',		life: 500,		next:-1 },
+	],
+}, function(d) {
+	SPRITE.init.Circle.call(this, d);
+});
+
 SPRITE.newCls('Drop', {
 	from: 'Circle',
 	layer: 'L20',
@@ -1938,6 +1963,9 @@ var hook = {
 			v.data.vx = random(-0.1, 0.1);
 			v.data.vy = random(0.1, 0.2) * (v.data.vy > 0 ? -1 : 1);
 			UTIL.addFrameAnim(v, v.data.frtick, randin(RES.frames.EffBullet));
+		}
+		else if (e == STORY.events.DANNMAKU_HIT) {
+			v.state.die();
 		}
 	}
 };
