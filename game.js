@@ -73,10 +73,6 @@ function fill(c) {
 		return i == 0 ? r : fil(r, v);
 	}, c);
 }
-function override(obj, key, fn) {
-	var old = obj[key];
-	obj[key] = fn(old);
-}
 function arrcat() {
 	return ieach(arguments, function(i, v, d) {
 		each(v, function(j, u, d) {
@@ -497,7 +493,7 @@ var STORY = (function() {
 			before_on: undefined,
 			after_on: undefined,
 		}, hook);
-		override(_t.state, 'set', function(set) {
+		_t.state.set = (function(set) {
 			return function(n) {
 				if (_t.hook.quit)
 					_t.hook.quit(this.n, this.d);
@@ -505,7 +501,7 @@ var STORY = (function() {
 				if (_t.hook.init)
 					_t.hook.init(this.n, this.d);
 			};
-		});
+		})(_t.state.set);
 	}
 	_t.timeout = function(f, t, d, n) {
 		var s = _t.state.s;
@@ -713,7 +709,7 @@ var UTIL = {
 		}, []);
 
 		var s = newStateMachine(stes);
-		override(s, 'set', function(set) {
+		s.set = (function(set) {
 			return function(k) {
 				var i = ieach(this.stes, function(i, v, d) {
 					if (v.data.name==k) return i;
@@ -723,7 +719,7 @@ var UTIL = {
 				this.is_dying = this.d.name == 'dying';
 				this.is_living = !(this.is_creating || this.is_dying);
 			};
-		});
+		})(s.set);
 		s.die = function() {
 			s.set('dying');
 		}
