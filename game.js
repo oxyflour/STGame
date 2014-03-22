@@ -482,7 +482,6 @@ var STORY = (function() {
 		'PLAYER_DYING',
 		'PLAYER_DEAD',
 		'PLAYER_AUTOCOLLECT',
-		'PLAYER_GETDROP',
 		'PLAYER_GRAZE',
 		'PLAYER_FIRE',
 		'PLAYER_BOMB',
@@ -997,12 +996,9 @@ SPRITE.newCls('Player', {
 		var d = this.data,
 			e = v.data;
 		if (v.clsName == SPRITE.proto.Drop.clsName && v.state.is_living) {
-			if (circle_intersect(d, { x:e.x, y:e.y, r:20 })) {
-				STORY.on(STORY.events.PLAYER_GETDROP, this);
+			e.collected = this;
+			if (circle_intersect(d, { x:e.x, y:e.y, r:20 }))
 				STORY.on(STORY.events.DROP_COLLECTED, v);
-			}
-			else
-				e.collected = this;
 		}
 		else if (v.clsName == SPRITE.proto.Player.clsName) {
 			if (circle_intersect(d, e))
