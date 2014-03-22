@@ -248,7 +248,7 @@ input[type="radio"]:checked + label {
 	</div>
 	<div class="screen mask absolute ui" ui-show="GAME.state == GAME.states.PAUSE">
 		<strong><big><p class="ui text-center" ui-bind="keyfind(GAME.states, GAME.state)"></p></big></strong>
-		<form action="javascript:void(null)" onsubmit="eval(getRadioVal(this.pause_menu))">
+		<form action="javascript:eval(getRadioVal($('input[name=pause_menu]')))">
 			<p><input type="radio" name="pause_menu" value="GAME.state = GAME.states.RUNNING"><label>Continue</label></p>
 			<!--p><input type="radio" name="pause_menu" value=""><label>Back to Title</label></p-->
 			<p><input type="radio" name="pause_menu" value="loadAndStart()"><label>Restart</label></p>
@@ -270,7 +270,7 @@ ieach($('input[type="radio"]'), function(i, v) {
 		n.addEventListener('mouseup', function(e) {
 			// have to wait before radios changed
 			setTimeout(function() {
-				v.form.onsubmit ? v.form.onsubmit() : v.form.submit();
+				v.form.submit();
 			}, 10);
 		});
 	}
