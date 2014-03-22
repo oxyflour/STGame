@@ -1862,7 +1862,8 @@ function newBomb(player) {
 			d.scale = d.r / 30;
 		};
 	});
-	SPRITE.newObj('Basic', {
+	SPRITE.newObj('Shield', {
+		r: 60,
 		x: player.data.x,
 		y: player.data.y,
 		frames: RES.frames.EffPlayer,
