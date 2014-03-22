@@ -989,7 +989,6 @@ SPRITE.newCls('Player', {
 	hits: [
 		'Player',
 		'Ball',
-		'Stick',
 		'Enemy',
 		'Dannmaku',
 		'Drop',
@@ -1008,14 +1007,6 @@ SPRITE.newCls('Player', {
 		else if (v.clsName == SPRITE.proto.Player.clsName) {
 			if (circle_intersect(d, e))
 				circles_hit(d, e)
-		}
-		else if (v.clsName == SPRITE.proto.Stick.clsName) {
-			if (!this.state.d.isInvinc && line_circle_intersect(e, { x:d.x, y:d.y, r:d.h })) {
-				STORY.on(STORY.events.PLAYER_HIT, this);
-			}
-			else if (line_circle_intersect(e, d) && !e.grazed) {
-				STORY.on(STORY.events.PLAYER_GRAZE, e.grazed = this);
-			}
 		}
 		else if (v.state.d.mkDamage) {
 			if (!this.state.d.isInvinc && circle_intersect({ x:d.x, y:d.y, r:d.h }, e)) {
