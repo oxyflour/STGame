@@ -1086,7 +1086,7 @@ SPRITE.newCls('Player', {
 			d.fire_tick.run(dt);
 
 		// BOMB!
-		if (GAME.keyste[d.conf.key_bomb] && s.is_living && s.d.name !== 'bomb')
+		if (GAME.keyste[d.conf.key_bomb] && (s.is_creating || s.is_living) && s.d.name !== 'bomb')
 			STORY.on(STORY.events.PLAYER_BOMB, this);
 
 		// AUTO COLLECT!
