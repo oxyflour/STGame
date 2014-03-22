@@ -1009,12 +1009,10 @@ SPRITE.newCls('Player', {
 				circles_hit(d, e)
 		}
 		else if (v.state.d.mkDamage) {
-			if (!this.state.d.isInvinc && circle_intersect({ x:d.x, y:d.y, r:d.h }, e)) {
+			if (!this.state.d.isInvinc && circle_intersect({ x:d.x, y:d.y, r:d.h }, e))
 				STORY.on(STORY.events.PLAYER_HIT, this);
-			}
-			else if (circle_intersect(d, e) && !e.grazed) {
+			else if (!e.grazed && circle_intersect(d, e))
 				STORY.on(STORY.events.PLAYER_GRAZE, e.grazed = this);
-			}
 		}
 	},
 	
