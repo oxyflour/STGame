@@ -1824,39 +1824,32 @@ function newBomb(player) {
 	bg.elem.object = bg;
 	bg.draw = return_nothing;
 	bg.anim(50, function(x, bg) {
-		var d = bg.data,
-			s = bg.state,
-			p = bg.player,
-			e = bg.elem;
-		if ((p.finished || p.state.d.name !== 'bomb') && !s.is_dying)
-			s.die();
-		else {
-			if (e.object == bg)
-				e.style.opacity = d.health;
-
-			bg.shield_index = (bg.shield_index || 0) + 1;
-			if (bg.shield_index >= 15) {
-				bg.shield_index = 0;
-				SPRITE.newObj('Shield', {
-					sx: p.data.x,
-					sy: p.data.y,
-					theta: random(0, Math.PI*2),
-					dtheta: randin([-0.002, 0.002]),
-					dist: 0,
-					parent: p,
-					frames: RES.frames.Shield[0],
-				}).runCircle = function(dt, d, s) {
-					d.theta += d.dtheta * dt;
-					d.dist += 0.1 * dt;
-					d.x = d.sx + d.dist * Math.cos(d.theta);
-					d.y = d.sy + d.dist * Math.sin(d.theta);
-					d.r = 5 + Math.sqrt(d.health) * 40;
-					d.scale = d.r / 30;
-				};
-			}
-		}
+		var p = bg.player;
+		if ((p.finished || p.state.d.name !== 'bomb') && !bg.state.is_dying)
+			bg.state.die();
+		if (bg.elem.object == bg)
+			bg.elem.style.opacity = bg.data.health;
 	});
-	SPRITE.newObj('Circle', {
+	bg.anim(800, function(x, bg) {
+		var p = bg.player;
+		if (bg.state.is_living) SPRITE.newObj('Shield', {
+			sx: p.data.x,
+			sy: p.data.y,
+			theta: random(0, Math.PI*2),
+			dtheta: randin([-0.002, 0.002]),
+			dist: 0,
+			parent: p,
+			frames: RES.frames.Shield[0],
+		}).runCircle = function(dt, d, s) {
+			d.theta += d.dtheta * dt;
+			d.dist += 0.1 * dt;
+			d.x = d.sx + d.dist * Math.cos(d.theta);
+			d.y = d.sy + d.dist * Math.sin(d.theta);
+			d.r = 1 + Math.sqrt(d.health) * 40;
+			d.scale = d.r / 30;
+		};
+	});
+	SPRITE.newObj('Basic', {
 		x: player.data.x,
 		y: player.data.y,
 		frames: RES.frames.EffPlayer,
