@@ -1875,7 +1875,8 @@ function newBomb(player) {
 		if ((p.finished || p.state.d.name !== 'bomb') && !s.is_dying)
 			s.die();
 		else {
-			e.style.opacity = d.health;
+			if (e.object == bg)
+				e.style.opacity = d.health;
 
 			bg.shield_index = (bg.shield_index || 0) + 1;
 			if (bg.shield_index >= 20) {
