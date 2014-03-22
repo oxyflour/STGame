@@ -611,11 +611,11 @@ var GAME = (function() {
 })();
 
 var UTIL = {
-	getOneObj: function(c) {
+	getOneObj: function(c, fn) {
 		var ls = SPRITE.cls.groups[c];
-		return ls && ieach(ls, function(i, v) {
-			if (v && !v.finished) return v;
-		});
+		return ls && ieach(ls, function(i, v, fn) {
+			if (v && !v.finished) return fn ? fn(v) : v;
+		}, fn);
 	},
 	addAnim: function(v, t, d, id) {
 		fill(d, {
