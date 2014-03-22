@@ -162,6 +162,13 @@ function circles_hit(cr1, cr2) {
 	cr1.x = cx + cr1.r*cos*f; cr1.y = cy + cr1.r*sin*f;
 	cr2.x = cx - cr2.r*cos*f; cr2.y = cy - cr2.r*sin*f;
 }
+function redirect_object(from, to, v) {
+	var dx = to.x - from.x,
+		dy = to.y - from.y,
+		r = sqrt_sum(dx, dy);
+	from.vx = v * dx / r;
+	from.vy = v * dy / r;
+}
 
 function $(s, p) {
 	return (p || document).querySelectorAll(s);
@@ -1311,12 +1318,8 @@ SPRITE.newCls('Drop', {
 			v = d.collected = UTIL.getOneObj('Player');
 		if (v && !v.finished && !v.state.is_dying) {
 			var e = v.data,
-				v = d.collected_auto ? 0.6 : sqrt_sum(d.vx, d.vy),
-				dx = e.x - d.x,
-				dy = e.y - d.y,
-				r = sqrt_sum(dx, dy);
-			d.vx = v * dx / r;
-			d.vy = v * dy / r;
+				v = d.collected_auto ? 0.6 : sqrt_sum(d.vx, d.vy);
+			redirect_object(d, e, v);
 			if (!d.collected_auto)
 				d.collected = undefined;
 		}
@@ -1492,14 +1495,8 @@ function newBullet(d) {
 			}).runCircle = function(dt, d, s) {
 				var u = d.to,
 					e = u && u.data;
-				if (u && !u.finished && u.state.d.mkDamage && !s.is_dying) {
-					var dx = e.x - d.x,
-						dy = e.y - d.y,
-						r = sqrt_sum(dx, dy),
-						v = sqrt_sum(d.vx, d.vy);
-					d.vx = v * dx / r;
-					d.vy = v * dy / r;
-				}
+				if (u && !u.finished && u.state.d.mkDamage && !s.is_dying)
+					redirect_object(d, e, sqrt_sum(d.vx, d.vy));
 			};
 		})
 	}
@@ -1534,11 +1531,8 @@ function newDannmaku(d) {
 					d.vy += d.gravity * dt * dy;
 
 					var v = sqrt_sum(d.vx, d.vy);
-					if (v < d.accel_min && !d.grazed) {
-						var r = sqrt_sum(dx, dy);
-						d.vx = v * dx / r;
-						d.vy = v * dy / r;
-					}
+					if (v < d.accel_min && !d.grazed)
+						redirect_object(d, e, v);
 				}
 				else if (d.target_cls)
 					d.target = UTIL.getOneObj(d.target_cls);
