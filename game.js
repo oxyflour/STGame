@@ -1316,7 +1316,7 @@ SPRITE.newCls('Drop', {
 			v = d.collected = UTIL.getOneObj('Player');
 		if (v && !v.finished && !v.state.is_dying) {
 			var e = v.data,
-				v = d.collected_auto ? 0.8 : sqrt_sum(d.vx, d.vy),
+				v = d.collected_auto ? 0.6 : sqrt_sum(d.vx, d.vy),
 				dx = e.x - d.x,
 				dy = e.y - d.y,
 				r = sqrt_sum(dx, dy);
@@ -1346,9 +1346,9 @@ SPRITE.newCls('Drop', {
 		b: 20
 	},
 	states: [
-		{ name:'creating',	life: 300,		next: 1 },
+		{ name:'creating',	life: 100,		next: 1 },
 		{ name:'living',	life: Math.Inf, next: 2 },
-		{ name:'dying',		life: 100,		next:-1 },
+		{ name:'dying',		life: 50,		next:-1 },
 	],
 }, function(d) {
 	d = extend({
