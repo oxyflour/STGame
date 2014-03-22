@@ -902,6 +902,7 @@ SPRITE.newCls('Basic', {
 		text: 'Static Text',
 		color: undefined,
 		font: undefined,
+		opacity: 0,
 
 		parent: undefined, // if parent is dead, it will kill self too
 
@@ -1084,7 +1085,7 @@ SPRITE.newCls('Player', {
 			d.fire_tick.run(dt);
 
 		// BOMB!
-		if (GAME.keyste[d.conf.key_bomb] && s.is_living && !s.d.bomb)
+		if (GAME.keyste[d.conf.key_bomb] && s.is_living && s.d.name !== 'bomb')
 			STORY.on(STORY.events.PLAYER_BOMB, this);
 
 		// AUTO COLLECT!
@@ -1849,17 +1850,45 @@ function newBackground(elems) {
 		e.object = bg;
 		e.offset = 0;
 		e.speed = parseFloat($attr(e, 'bg-speed') || '0');
-		e.opacity = e.style.opacity || 1;
 	});
 	bg.anim(50, function(d, v) {
 		ieach(v.elems, function(i, e) {
 			e.offset += e.speed * 50;
 			e.style.backgroundPosition = '0 ' + e.offset + 'px';
-			if (v.data.opacity >= 0)
-				e.style.opacity = e.opacity * v.data.opacity;
+			e.style.opacity = v.data.opacity;
 		});
 	});
 	return bg;
+}
+function newBomb(player) {
+	var bg = SPRITE.newObj('Basic');
+	bg.player = player;
+	bg.elem = $('.bgimg .bombbg')[0];
+	bg.elem.object = bg;
+	bg.draw = return_nothing;
+	bg.anim(50, function(x, bg) {
+		var d = bg.data,
+			s = bg.state,
+			p = bg.player,
+			e = bg.elem;
+		if ((p.finished || p.state.d.name !== 'bomb') && !s.is_dying)
+			s.die();
+		else {
+			e.style.opacity = d.opacity;
+
+			bg.shield_index = (bg.shield_index || 0) + 1;
+			if (bg.shield_index >= 20) {
+				bg.shield_index = 0;
+				SPRITE.newObj('Shield', {
+					x: p.data.x,
+					y: p.data.y,
+					vy: -0.2,
+				}).runCircle = function(dt, d, s) {
+					d.r = 10 + Math.sqrt(d.opacity) * 40;
+				};
+			}
+		}
+	});
 }
 function killCls() {
 	ieach(arguments, function(i, c) {
@@ -1947,6 +1976,7 @@ var hook = {
 		}
 		else if (e == STORY.events.PLAYER_BOMB) {
 			v.state.set('bomb');
+			newBomb(v);
 		}
 		else if (e == STORY.events.ENEMY_KILL) {
 			v.state.die();
