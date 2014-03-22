@@ -1325,6 +1325,9 @@ SPRITE.newCls('Drop', {
 			d.vy += 0.001 * dt;
 			d.vx *= 0.9;
 		}
+		else {
+			d.vx = 0;
+		}
 	},
 	drawBasic: function(d, s) {
 		SPRITE.proto.Circle.drawBasic.call(this, d);
