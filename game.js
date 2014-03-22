@@ -168,6 +168,7 @@ function redirect_object(from, to, v) {
 		r = sqrt_sum(dx, dy);
 	from.vx = v * dx / r;
 	from.vy = v * dy / r;
+	return r;
 }
 
 function $(s, p) {
@@ -673,24 +674,20 @@ var UTIL = {
 			if (!n)
 				return true;
 
-			if (+n.fx === n.fx)
+			if (+n.fx === n.fx && +n.x !== n.x)
 				n.x = interp(GAME.rect.l, GAME.rect.r, n.fx);
-			if (+n.fy === n.fy)
+			if (+n.fy === n.fy && +n.y !== n.y)
 				n.y = interp(GAME.rect.t, GAME.rect.b, n.fy);
 
 			if (d.index == 0) {
+				d.index ++;
 				e.x = n.x;
 				e.y = n.y;
-				d.index ++;
 			} else {
-				var dx = n.x - e.x,
-					dy = n.y - e.y,
-					r = sqrt_sum(dx, dy),
-					f = n.v / r;
-				e.x = e.x * (1-f) + n.x * f;
-				e.y = e.y * (1-f) + n.y * f;
-				if (f >= 1) // to next node
+				if (redirect_object(e, n, n.v) < n.v)
 					d.index ++;
+				e.x += e.vx;
+				e.y += e.vy;
 			}
 		}, {
 			pathnodes: ps,
