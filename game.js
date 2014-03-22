@@ -673,8 +673,10 @@ var UTIL = {
 		v.anim(t, function(d) {
 			var e = v.data,
 				n = d.pathnodes[d.index];
-			if (!n)
+			if (!n) {
+				e.vx = e.vy = 0;
 				return true;
+			}
 
 			if (+n.fx === n.fx && +n.x !== n.x)
 				n.x = interp(GAME.rect.l, GAME.rect.r, n.fx);
@@ -689,9 +691,6 @@ var UTIL = {
 			else {
 				if (redirect_object(e, n, n.v) < n.v * d.tick)
 					d.index ++;
-				// no more movement
-				if (!n.v)
-					return true;
 			}
 		}, {
 			tick: t,
@@ -1720,7 +1719,6 @@ function newBoss() {
 			{ fx:0.0, fy:0.0, v:0.1 },
 			{ fx:0.1, fy:0.1, v:0.1 },
 			{ fx:0.5, fy:0.1, v:0.1 },
-			{ fx:0.5, fy:0.1, v:0.0 },
 		],
 	});
 	boss.effects = array(3, function(i) {
@@ -2130,7 +2128,6 @@ ieach([
 		pathnodes: [
 			{ v:0.1 },
 			{ fx:0.5, fy:0.5, v:0.1 },
-			{ fx:0.5, fy:0.5, v:0.0 },
 		],
 	},
 	{
