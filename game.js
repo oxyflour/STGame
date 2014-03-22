@@ -817,12 +817,12 @@ SPRITE.newCls('Basic', {
 				s.die();
 		}
 
-		var delta = 1;
+		var x = 1;
 		if (s.is_creating)
-			delta = dt / s.d.life;
+			x = dt / s.d.life;
 		else if (s.is_dying)
-			delta = - dt / s.d.life;
-		d.opacity = limit_between((+d.opacity || 0) + delta, 0, 1);
+			x = - dt / s.d.life;
+		d.health = limit_between(d.health + x, 0, 1);
 
 		if (this.runBasic)
 			this.runBasic(dt, d, s);
@@ -859,10 +859,10 @@ SPRITE.newCls('Basic', {
 	},
 	draw: function() {
 		var d = this.data, s = this.state;
-		if (d.opacity > 0) {
+		if (d.health > 0) {
 			DC.save();
-			if (d.opacity < 1)
-				DC.globalAlpha = d.opacity;
+			if (d.health < 1)
+				DC.globalAlpha = d.health;
 
 			if (this.drawBasic)
 				this.drawBasic(d, s);
@@ -902,7 +902,8 @@ SPRITE.newCls('Basic', {
 		text: 'Static Text',
 		color: undefined,
 		font: undefined,
-		opacity: 0,
+
+		health: 0, // variable between 0 and 1
 
 		parent: undefined, // if parent is dead, it will kill self too
 
@@ -1855,7 +1856,7 @@ function newBackground(elems) {
 		ieach(v.elems, function(i, e) {
 			e.offset += e.speed * 50;
 			e.style.backgroundPosition = '0 ' + e.offset + 'px';
-			e.style.opacity = v.data.opacity;
+			e.style.opacity = v.data.health;
 		});
 	});
 	return bg;
@@ -1874,7 +1875,7 @@ function newBomb(player) {
 		if ((p.finished || p.state.d.name !== 'bomb') && !s.is_dying)
 			s.die();
 		else {
-			e.style.opacity = d.opacity;
+			e.style.opacity = d.health;
 
 			bg.shield_index = (bg.shield_index || 0) + 1;
 			if (bg.shield_index >= 20) {
@@ -1884,7 +1885,7 @@ function newBomb(player) {
 					y: p.data.y,
 					vy: -0.2,
 				}).runCircle = function(dt, d, s) {
-					d.r = 10 + Math.sqrt(d.opacity) * 40;
+					d.r = 10 + Math.sqrt(d.health) * 40;
 				};
 			}
 		}
