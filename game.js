@@ -1253,6 +1253,7 @@ SPRITE.newCls('Enemy', {
 	from: 'Circle',
 	hits: [
 		'Bullet',
+		'Shield',
 	],
 	hit: function(v) {
 		var d = this.data,
@@ -1260,8 +1261,9 @@ SPRITE.newCls('Enemy', {
 		if (this.state.is_dying || v.state.is_dying)
 			return;
 		if (circle_intersect(d, e)) {
-			d.damage ++;
-			STORY.on(STORY.events.BULLET_HIT, v);
+			d.damage += v.state.d.mkDamage || 1;
+			if (v.clsName == SPRITE.proto.Bullet.clsName)
+				STORY.on(STORY.events.BULLET_HIT, v);
 			if (d.damage >= d.life) {
 				STORY.on(STORY.events.ENEMY_KILL, this);
 			}
@@ -1277,7 +1279,7 @@ SPRITE.newCls('Enemy', {
 	d = extend({
 		r: 20,
 		y: interp(GAME.rect.t, GAME.rect.b, 0.1),
-		life: 10,
+		life: 20,
 		damage: 0
 	}, d);
 	SPRITE.init.Circle.call(this, d);
@@ -1299,9 +1301,9 @@ SPRITE.newCls('Shield', {
 	},
 	
 	states: [
-		{ name:'creating',	life: 800,		next: 1 },
-		{ name:'living',	life: Math.Inf, next: 2 },
-		{ name:'dying',		life: 500,		next:-1 },
+		{ name:'creating',	life: 800,		next: 1, mkDamage:0 },
+		{ name:'living',	life: Math.Inf, next: 2, mkDamage:20 },
+		{ name:'dying',		life: 500,		next:-1, mkDamage:0 },
 	],
 }, function(d) {
 	SPRITE.init.Circle.call(this, d);
@@ -1366,9 +1368,9 @@ SPRITE.newCls('Bullet', {
 	from: 'Circle',
 	layer: 'L20',
 	states: [
-		{ name:'creating',	life: 50,		next: 1 },
-		{ name:'living',	life: Math.Inf, next: 2 },
-		{ name:'dying',		life: 400,		next:-1 },
+		{ name:'creating',	life: 50,		next: 1, mkDamage:0 },
+		{ name:'living',	life: Math.Inf, next: 2, mkDamage:1 },
+		{ name:'dying',		life: 400,		next:-1, mkDamage:0 },
 	],
 }, function(d) {
 	d = extend({
@@ -1821,11 +1823,10 @@ function newEffect(v) {
 	});
 	array(8, function(i) {
 		var p = SPRITE.newObj('Circle', {
-			x: v.data.x,
-			y: v.data.y,
+			x: v.data.x + random(10),
+			y: v.data.y + random(10),
 			vx: random(-0.2, 0.2),
 			vy: random(-0.2, 0.2),
-			scale: 1.5,
 			frames: randin({
 				Enemy: RES.frames.EffPiece,
 				Player: RES.frames.EffPieceR,
@@ -1839,7 +1840,7 @@ function newEffect(v) {
 		p.runCircle = function(dt, d, s) {
 			d.vx *= 0.97;
 			d.vy *= 0.97;
-			d.scale *= 0.992;
+			d.scale = d.health*d.health * 2 + 1;
 		};
 	});
 }
@@ -1887,7 +1888,7 @@ function newBomb(player) {
 					theta: random(0, Math.PI*2),
 					dtheta: randin([-0.002, 0.002]),
 					dist: 0,
-					parent: bg,
+					parent: p,
 					frames: RES.frames.Shield[0],
 				}).runCircle = function(dt, d, s) {
 					d.theta += d.dtheta * dt;
