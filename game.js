@@ -2129,6 +2129,14 @@ ieach([
 			{ v:0.1 },
 			{ fx:0.5, fy:0.5, v:0.1 },
 		],
+		damage_max: 100,
+	},
+	{
+		pathnodes: [
+			{ v:0.1 },
+			{ fx:0.1, fy:0.5, v:0.2 },
+			{ fx:0.9, fy:0.5, v:0.2 },
+		],
 	},
 	{
 		//...
@@ -2137,51 +2145,38 @@ ieach([
 		//...
 	},
 	{
-		//...
-	},
-	{
-		next:'bossFin'
+		next: 'end',
 	},
 ], function(i, v, tl) {
 	var c = v.name || 'boss'+i, n = v.next || 'boss'+(i+1);
 	tl[c] = {
 		init: function(d) {
 			killCls('Dannmaku');
+			d.age = 0;
 			d.duration = v.duration || 30000;
+			d.damage_max = v.damage_max || Math.Inf;
 			d.boss = UTIL.getOneObj('Enemy') || newBoss();
 			if (v.pathnodes)
 				UTIL.addPathAnim(d.boss, v.pathnodes);
 		},
 		run: function(dt, d) {
-			d.age = (d.age || 0) + dt;
-			if (d.age > d.duration || d.pass)
+			d.age += dt;
+			if (d.age > d.duration || d.boss.data.damage >= d.damage_max || d.pass) {
+				d.boss.data.damage = v.damage_max || 0;
 				return n;
+			}
 		},
 		on: function(e, v, d) {
 			if (e == STORY.events.ENEMY_KILL) {
 				d.pass = true;
-				v.data.damage = 0;
 				v.state.set('living');
 			};
 		},
 	}
 }, tl);
-tl.bossFin = {
-	init: function(d) {
-		killCls('Dannmaku');
-	},
-	run: function(dt, d) {
-		if (d.pass)
-			return 'end';
-	},
-	on: function(e, v, d) {
-		if (e == STORY.events.ENEMY_KILL) {
-			d.pass = true;
-		}
-	},
-};
 tl.end = {
 	init: function(d) {
+		killCls('Enemy', 'Dannmaku');
 		SPRITE.newObj('Basic', {
 			text: 'You Win!'
 		});
