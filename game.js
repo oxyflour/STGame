@@ -836,7 +836,7 @@ SPRITE.newCls('Basic', {
 			DC.font = d.font;
 		if (d.color)
 			DC.fillStyle = d.color;
-		DC.fillText(d.t, d.x, d.y);
+		DC.fillText(d.text, d.x, d.y);
 	},
 	drawFrame: function(d, s) {
 		var f = d.frame,
@@ -868,7 +868,7 @@ SPRITE.newCls('Basic', {
 				this.drawBasic(d, s);
 			else if (d.frame)
 				this.drawFrame(d, s);
-			else if (d.text)
+			else
 				this.drawText(d, s);
 			DC.restore();
 		}
@@ -899,7 +899,7 @@ SPRITE.newCls('Basic', {
 	this.data = d = extend({
 		x: interp(GAME.rect.l, GAME.rect.r, 0.5),
 		y: interp(GAME.rect.t, GAME.rect.b, 0.5),
-		text: 'Static Text',
+		text: undefined,
 		color: undefined,
 		font: undefined,
 
@@ -1895,7 +1895,7 @@ function newBomb(player) {
 					d.dist += 0.1 * dt;
 					d.x = d.sx + d.dist * Math.cos(d.theta);
 					d.y = d.sy + d.dist * Math.sin(d.theta);
-					d.r = 10 + Math.sqrt(d.health) * 40;
+					d.r = 5 + Math.sqrt(d.health) * 40;
 					d.scale = d.r / 30;
 				};
 			}
@@ -2039,7 +2039,7 @@ tl.init = {
 	run: UTIL.newTimeRunner(5000, 'sec0'),
 	init: function(d) {
 		d.title = SPRITE.newObj('Basic', {
-			t: 'Dannmaku Demo!',
+			text: 'Dannmaku Demo!',
 			font: '30px Arial'
 		});
 	},
@@ -2123,12 +2123,12 @@ tl.sec1 = {
 	}
 };
 ieach([
-	{ t:'x0aabbcc', x:GAME.rect.l+50, y:interp(GAME.rect.t, GAME.rect.b, 0.8), name:'diag' },
-	{ t:'y0aabbcc', x:GAME.rect.r-50, y:interp(GAME.rect.t, GAME.rect.b, 0.8) },
-	{ t:'x0aabbcc', x:GAME.rect.l+50, y:interp(GAME.rect.t, GAME.rect.b, 0.8) },
-	{ t:'y0aabbcc', x:GAME.rect.r-50, y:interp(GAME.rect.t, GAME.rect.b, 0.8) },
-	{ t:'x0aabbcc', x:GAME.rect.l+50, y:interp(GAME.rect.t, GAME.rect.b, 0.8) },
-	{ t:'y0aabbcc', x:GAME.rect.r-50, y:interp(GAME.rect.t, GAME.rect.b, 0.8), next:'boss' },
+	{ text:'x0aabbcc', x:GAME.rect.l+50, y:interp(GAME.rect.t, GAME.rect.b, 0.8), name:'diag' },
+	{ text:'y0aabbcc', x:GAME.rect.r-50, y:interp(GAME.rect.t, GAME.rect.b, 0.8) },
+	{ text:'x0aabbcc', x:GAME.rect.l+50, y:interp(GAME.rect.t, GAME.rect.b, 0.8) },
+	{ text:'y0aabbcc', x:GAME.rect.r-50, y:interp(GAME.rect.t, GAME.rect.b, 0.8) },
+	{ text:'x0aabbcc', x:GAME.rect.l+50, y:interp(GAME.rect.t, GAME.rect.b, 0.8) },
+	{ text:'y0aabbcc', x:GAME.rect.r-50, y:interp(GAME.rect.t, GAME.rect.b, 0.8), next:'boss' },
 ], function(i, v, tl) {
 	var c = v.name || 'diag'+i, n = v.next || 'diag'+(i+1);
 	tl[c] = {
@@ -2184,7 +2184,7 @@ tl.boss = {
 tl.end = {
 	init: function(d) {
 		SPRITE.newObj('Basic', {
-			t: 'You Win!'
+			text: 'You Win!'
 		});
 	},
 	run: function(dt, d) {
