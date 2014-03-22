@@ -110,7 +110,7 @@ input[type="radio"]:focus + label {
 	<canvas id="player0R" from="player0L 0 48 256 48"
 		transform="mirror:x"></canvas>
 	<canvas id="bullet0" from="player0L 128 0 16 16"
-		transform="rotate:{{range(180, 0, 60)}}"></canvas>
+		transform="rotate:{{range(180, 0, 10)}}"></canvas>
 	<canvas id="bullet1" from="player0L 144 0 16 16"
 		transform="rotate:{{range(90, 0, 15)}}"></canvas>
 	<canvas id="onmyou" from="player0L 128 16 16 16"
@@ -203,7 +203,7 @@ input[type="radio"]:focus + label {
 				return { res:'effboss', sx:i*16, sy:0, sw:16, sh:16, w:16, h:16 };
 			});
 			_t.EffEnemy = ieach([32,42,52,62,60,58,56,54,52,50,48,46,44,42,40,38,36,34,32,30,28,26], function(i, d, ls) {
-				ls.push(extend({ res:'eff00', sx:32, sy:0, sw:32, sh:32, rotate:-i*0.3 }, { w:d, h:d }));
+				ls.push(extend({ res:'eff00', sx:32, sy:0, sw:32, sh:32, rotate:-i*0.5 }, { w:d, h:d }));
 			}, []);
 			_t.EffPlayer = ieach([32,42,52,62,67,72,76,80,83,86,89,92,95,98,101,104,107,110,113,116,119,122], function(i, d, ls) {
 				ls.push(extend({ res:'eff00', sx:0, sy:0, sw:32, sh:32 }, { w:d*1.5, h:d*1.5 }));
@@ -225,7 +225,7 @@ input[type="radio"]:focus + label {
 			<div class="ui-obj bg1" style="background:url(res/mask.png) repeat-x;"></div>
 			<div class="ui-obj bg1" style="background:url(res/bg2.png);opacity:0.9" bg-speed="0.03"></div>
 			<div class="ui-obj bg1" style="background:url(res/mask.png) repeat-x;opacity:0.6"></div>
-			<div class="ui-obj bombbg" style="background:rgba(0,0,0,0.5)"></div>
+			<div class="ui-obj bombbg" style="background:rgba(0,0,0,0.6)"></div>
 		</div>
 	</div>
 	<canvas class="game absolute" id="canv" width="384px" height="448px"></canvas>

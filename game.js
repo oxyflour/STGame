@@ -861,8 +861,10 @@ SPRITE.newCls('Basic', {
 		var d = this.data, s = this.state;
 		if (d.health > 0) {
 			DC.save();
-			if (d.health < 1)
-				DC.globalAlpha = d.health;
+			if (d.health < 1 || d.opacity < 1)
+				DC.globalAlpha = d.health*d.opacity;
+			if (d.blend)
+				DC.globalCompositeOperation = d.blend;
 
 			if (this.drawBasic)
 				this.drawBasic(d, s);
@@ -907,7 +909,9 @@ SPRITE.newCls('Basic', {
 		parent: undefined, // if parent is dead, it will kill self too
 
 		frame: undefined, // i.e. {res:'player0L', sx:0, sy:0, sw:10, sh:10, w:10, h:10}
+		blend: undefined,
 		scale: 1,
+		opacity: 1,
 
 		frtick: 50,
 		frames: undefined, // array of frames
@@ -1019,7 +1023,7 @@ SPRITE.newCls('Player', {
 	
 	runPlayer: function(dt, d, s) {
 		var m = GAME.keyste.shiftKey,
-			v = m ? 0.12 : 0.36;
+			v = m ? 0.12 : 0.24;
 		d.slowMode = m;
 		d.x0 = d.x;
 		d.y0 = d.y;
@@ -1155,7 +1159,7 @@ SPRITE.newCls('Player', {
 		key_down: 40,
 		key_fire: GAME.keychars.Z,
 		key_bomb: GAME.keychars.X,
-		fire_interval: 50,
+		fire_interval: 1000 / 12,
 		fire_count: 500,
 	}, this.data.conf);
 });
@@ -1251,7 +1255,7 @@ SPRITE.newCls('Enemy', {
 	d = extend({
 		r: 20,
 		y: interp(GAME.rect.t, GAME.rect.b, 0.1),
-		life: 20,
+		life: 2,
 		damage: 0
 	}, d);
 	SPRITE.init.Circle.call(this, d);
@@ -1420,17 +1424,18 @@ function newBall(d) {
 	});
 }
 function newBullet(d) {
-	d.from.bullet0_idx = ((d.from.bullet0_idx || 0) + 1) % RES.frames.Bullet0.length;
-	d.from.bullet1_idx = ((d.from.bullet1_idx || 0) + 1) % 5;
+	d.from.bullet1_idx = ((d.from.bullet1_idx || 0) + 1) % 6;
 	array(2, function(i, para) {
 		var x = i % 2 ? -1 : 1;
 		SPRITE.newObj('Bullet', {
 			x: d.from.data.x + x*5,
 			y: d.from.data.y,
 			vx: 0.02*x,
-			vy: -1.2,
+			vy: -0.72,
 			from: d.from,
-			frames: RES.frames.Bullet0[d.from.bullet0_idx],
+			frtick: 1000/36,
+			frames: RES.frames.Bullet0,
+			opacity: 0.7,
 		});
 	});
 	if (d.from.bullet1_idx == 0) {
@@ -1458,7 +1463,9 @@ function newBullet(d) {
 				vx: x*v1*Math.sin(t),
 				from: d.from,
 				to: d.to,
+				frtick: 1000/36,
 				frames: RES.frames.Bullet1,
+				opacity: 0.7,
 			}).runCircle = function(dt, d, s) {
 				var u = d.to,
 					e = u && u.data;
@@ -1776,7 +1783,7 @@ function newEffect(v) {
 			Player: RES.frames.EffPlayer,
 		}[v.clsName],
 		states: {
-			life: [100, 50, 850],
+			life: [0, 50, 950],
 		},
 	});
 	array(8, function(i) {
@@ -1786,17 +1793,20 @@ function newEffect(v) {
 			vx: random(-0.2, 0.2),
 			vy: random(-0.2, 0.2),
 			frames: randin({
-				Enemy: RES.frames.EffPiece,
-				Player: RES.frames.EffPieceR,
+				Enemy: RES.frames.EffPieceB,
+				Player: RES.frames.EffPieceG,
 			}[v.clsName]),
+			scale: 2,
+			opacity: 0.5,
+			blend: 'lighter',
 			states: {
-				life: [50, 50, 600],
+				life: [50, 50, 750],
 			},
 		})
 		p.runCircle = function(dt, d, s) {
 			d.vx *= 0.97;
 			d.vy *= 0.97;
-			d.scale = d.health*d.health * 2 + 1;
+			d.scale = d.health*d.health * 2 + 0.5;
 		};
 	});
 }
@@ -1841,6 +1851,8 @@ function newBomb(player) {
 			dist: 0,
 			parent: p,
 			frames: RES.frames.Shield[0],
+		 	opacity: 0.5,
+			blend: 'lighter',
 		}).runCircle = function(dt, d, s) {
 			d.theta += d.dtheta * dt;
 			d.dist += 0.1 * dt;
@@ -1957,9 +1969,23 @@ var hook = {
 		}
 		else if (e == STORY.events.BULLET_HIT) {
 			v.state.die();
-			v.data.vx = random(-0.1, 0.1);
-			v.data.vy = random(0.1, 0.2) * (v.data.vy > 0 ? -1 : 1);
-			UTIL.addFrameAnim(v, randin(RES.frames.EffBullet));
+			v.data.vx *= 0.05;
+			v.data.vy *= 0.05;
+			UTIL.addFrameAnim(v, RES.frames.BulletD[v.data.to ? 1 : 0]);
+			SPRITE.newObj('Circle', {
+				x: v.data.x,
+				y: v.data.y,
+				vx: random(-0.2, 0.2),
+				vy: random(-0.2, 0.2),
+				frames: RES.frames.EffPieceR,
+				opacity: 0.6,
+				blend: 'lighter',
+				states: {
+					life: [50, 50, 550],
+				}
+			}).runCircle = function(dt, d, s) {
+				d.scale = 0.5 + d.health;
+			};
 		}
 		else if (e == STORY.events.DANNMAKU_HIT) {
 			v.state.die();
