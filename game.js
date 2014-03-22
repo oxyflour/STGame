@@ -2149,7 +2149,6 @@ ieach([
 			killCls('Dannmaku');
 			d.duration = v.duration || 30000;
 			d.boss = UTIL.getOneObj('Enemy') || newBoss();
-			d.boss.data.damage = 0;
 			if (v.pathnodes)
 				UTIL.addPathAnim(d.boss, v.pathnodes);
 		},
@@ -2161,6 +2160,7 @@ ieach([
 		on: function(e, v, d) {
 			if (e == STORY.events.ENEMY_KILL) {
 				d.pass = true;
+				v.data.damage = 0;
 				v.state.set('living');
 			};
 		},
