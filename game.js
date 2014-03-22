@@ -650,7 +650,8 @@ var UTIL = {
 		}, d, id);
 	},
 	// fs can be function, frame array, or a single frame
-	addFrameAnim: function(v, t, fs) {
+	addFrameAnim: function(v, fs, t) {
+		t = t || v.data.frtick || 50;
 		v.anim(t, function(d) {
 			if (d.callback)
 				d.frames = d.callback(v, d);
@@ -667,7 +668,8 @@ var UTIL = {
 	// ps should be array of objects like
 	// { x/fx:0, y/fy:0, v:10 }
 	// x and y should be between 0 and 1
-	addPathAnim: function(v, t, ps) {
+	addPathAnim: function(v, ps, t) {
+		t = t || v.data.pathtick || 50;
 		v.anim(t, function(d) {
 			var e = v.data,
 				n = d.pathnodes[d.index];
@@ -910,7 +912,7 @@ SPRITE.newCls('Basic', {
 
 		frtick: 50,
 		frames: undefined, // array of frames
-		pathtick: 30,
+		pathtick: 50,
 		pathnodes: undefined, // array of objects like { x/fx:0, y/fy:0, v:1}
 
 		states: undefined,
@@ -918,9 +920,9 @@ SPRITE.newCls('Basic', {
 	}, d);
 	this.state = UTIL.newAliveState(d.states || this.states);
 	if (d.frames)
-		UTIL.addFrameAnim(this, d.frtick, d.frames);
+		UTIL.addFrameAnim(this, d.frames);
 	if (d.pathnodes)
-		UTIL.addPathAnim(this, d.pathtick, d.pathnodes);
+		UTIL.addPathAnim(this, d.pathnodes);
 	if (d.layer)
 		this.layer = d.layer;
 });
@@ -1964,7 +1966,7 @@ var hook = {
 			v.state.die();
 			v.data.vx = random(-0.1, 0.1);
 			v.data.vy = random(0.1, 0.2) * (v.data.vy > 0 ? -1 : 1);
-			UTIL.addFrameAnim(v, v.data.frtick, randin(RES.frames.EffBullet));
+			UTIL.addFrameAnim(v, randin(RES.frames.EffBullet));
 		}
 		else if (e == STORY.events.DANNMAKU_HIT) {
 			v.state.die();
@@ -2152,7 +2154,7 @@ ieach([
 			d.boss = UTIL.getOneObj('Enemy') || newBoss();
 			d.boss.data.damage = 0;
 			if (v.pathnodes)
-				UTIL.addPathAnim(d.boss, d.boss.data.pathtick, v.pathnodes);
+				UTIL.addPathAnim(d.boss, v.pathnodes);
 		},
 		run: function(dt, d) {
 			d.age = (d.age || 0) + dt;
