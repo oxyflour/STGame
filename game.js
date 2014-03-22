@@ -141,11 +141,13 @@ function line_circle_intersect(ln, cr) {
 	}
 }
 function circles_hit(cr1, cr2) {
+	if (cr1.x == cr2.x && cr1.y == cr2.y)
+		cr2[randin(['x', 'y'])] += randin([-1, 1]) * 1e-3;
 	var r = sqrt_sum(cr1.x - cr2.x, cr1.y - cr2.y),
 		sin = (cr1.y - cr2.y) / r,
 		cos = (cr1.x - cr2.x) / r,
-		md = cr1.mass,
-		me = cr2.mass,
+		md = cr1.mass || cr1.r,
+		me = cr2.mass || cr2.r,
 		vd = sqrt_sum(cr1.vx, cr1.vy),
 		ve = sqrt_sum(cr2.vx, cr2.vy),
 		vdn = cr1.vx*cos + cr1.vy*sin, vdr = cr1.vx*sin - cr1.vy*cos,
@@ -1011,16 +1013,8 @@ SPRITE.newCls('Player', {
 				e.collected = this;
 		}
 		else if (v.clsName == SPRITE.proto.Player.clsName) {
-			if (circle_intersect(d, e)) {
-				var r = sqrt_sum(d.x - e.x, d.y - e.y),
-					sin = (d.y - e.y) / r,
-					cos = (d.x - e.x) / r,
-					cx = (d.x*e.r+e.x*d.r)/(d.r+e.r),
-					cy = (d.y*e.r+e.y*d.r)/(d.r+e.r),
-					f = 1.01;
-				d.x = cx + d.r*cos*f; d.y = cy + d.r*sin*f;
-				e.x = cx - e.r*cos*f; e.y = cy - e.r*sin*f;
-			}
+			if (circle_intersect(d, e))
+				circles_hit(d, e)
 		}
 		else if (v.clsName == SPRITE.proto.Stick.clsName) {
 			if (!this.state.d.isInvinc && line_circle_intersect(e, { x:d.x, y:d.y, r:d.h })) {
