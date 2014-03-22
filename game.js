@@ -711,20 +711,19 @@ var UTIL = {
 			if (d.age > d.life)
 				return d.next !== undefined ? d.next : -1;
 		}
-		stes = ieach(stes, function(k, v, d) {
-			d[k] = { run:run, init:init, data:extend({}, v) }
+		if (!stes.name) stes.name = ['creating', 'living', 'dying'];
+		if (!stes.next) stes.next = [1, 2, -1];
+		stes = ieach(stes.name, function(i, n, d) {
+			var data = each(stes, function(k, ls, d) {
+				d[k] = ls[i];
+			}, {});
+			d[i] = { run:run, init:init, data:data };
 		}, []);
-		hk = fill(hk, {
-			data: undefined,
-			init: undefined,
-			quit: undefined,
-		});
 
 		var s = newStateMachine(stes);
 		s.set = (function(set, hk) {
 			return function(k) {
-				if (hk.quit)
-					hk.quit(hk.data, this);
+				hk && hk.quit && hk.quit(hk.data, this);
 				var i = ieach(this.stes, function(i, v, d) {
 					if (v.data.name==k) return i;
 				}, k);
@@ -732,8 +731,7 @@ var UTIL = {
 				this.is_creating = this.d.name == 'creating';
 				this.is_dying = this.d.name == 'dying';
 				this.is_living = !(this.is_creating || this.is_dying);
-				if (hk.init)
-					hk.init(hk.data, this);
+				hk && hk.init && hk.init(hk.data, this);
 			};
 		})(s.set, hk);
 		s.die = function() {
@@ -889,11 +887,9 @@ SPRITE.newCls('Basic', {
 
 		return t;
 	},
-	states: [
-		{ name:'creating',	life: 500,		next: 1 },
-		{ name:'living',	life: Math.Inf, next: 2 },
-		{ name:'dying',		life: 500,		next:-1 }
-	],
+	states: {
+		life: [500,	Math.Inf, 500],
+	},
 }, function(d) {
 	this.data = d = extend({
 		x: interp(GAME.rect.l, GAME.rect.r, 0.5),
@@ -1116,13 +1112,12 @@ SPRITE.newCls('Player', {
 			this.drawFrame(d, s);
 	},
 
-	states: [
-		{ name:'creating',	life: 2000,		next: 1, isInvinc:1 },
-		{ name:'living',	life: Math.Inf, next: 2, isInvinc:0 },
-		{ name:'dying',		life: 1000,		next:-1, isInvinc:1 },
-		{ name:'bomb',		life: 5000,		next: 0, isInvinc:1 },
-		{ name:'juesi',		life: 100,		next: 2, isInvinc:1 },
-	],
+	states: {
+		name: ['creating', 'living', 'dying', 'bomb', 'juesi'],
+		life: [2000, Math.Inf, 1000, 5000, 100],
+		next: [1, 2, -1, 0, 2],
+		isInvinc: [1, 0, 1, 1, 1],
+	},
 }, function(d) {
 	d = extend({
 		r: 15,
@@ -1188,11 +1183,10 @@ SPRITE.newCls('Ball', {
 			circles_hit(d, e);
 	},
 
-	states: [
-		{ name:'creating',	life: 200,		next: 1, mkDamage:0 },
-		{ name:'living',	life: Math.Inf, next: 2, mkDamage:1 },
-		{ name:'dying',		life: 500,		next:-1, mkDamage:0 },
-	],
+	states: {
+		life: [200, Math.Inf, 500],
+		mkDamage: [0, 1, 0],
+	},
 }, function(d) {
 	SPRITE.init.Circle.call(this, d);
 	this.data.mass = this.data.r;
@@ -1226,11 +1220,10 @@ SPRITE.newCls('Stick', {
 		DC.closePath();
 	},
 
-	states: [
-		{ name:'creating',	life: 200,		next: 1, mkDamage:0 },
-		{ name:'living',	life: Math.Inf, next: 2, mkDamage:1 },
-		{ name:'dying',		life: 500,		next:-1, mkDamage:0 },
-	],
+	states: {
+		life: [200, Math.Inf, 500],
+		mkDamage: [0, 1, 0],
+	},
 }, function(d) {
 	d = extend({
 		dx: 0,
@@ -1260,11 +1253,10 @@ SPRITE.newCls('Enemy', {
 		}
 	},
 	
-	states: [
-		{ name:'creating',	life: 500,		next: 1, mkDamage:0 },
-		{ name:'living',	life: Math.Inf, next: 2, mkDamage:1 },
-		{ name:'dying',		life: 500,		next:-1, mkDamage:0 },
-	],
+	states: {
+		life: [500, Math.Inf, 500],
+		mkDamage: [0, 1, 0],
+	},
 }, function(d) {
 	d = extend({
 		r: 20,
@@ -1290,11 +1282,10 @@ SPRITE.newCls('Shield', {
 		}
 	},
 	
-	states: [
-		{ name:'creating',	life: 800,		next: 1, mkDamage:0 },
-		{ name:'living',	life: Math.Inf, next: 2, mkDamage:20 },
-		{ name:'dying',		life: 500,		next:-1, mkDamage:0 },
-	],
+	states: {
+		life: [800, Math.Inf, 500],
+		mkDamage: [0, 20, 0],
+	},
 }, function(d) {
 	SPRITE.init.Circle.call(this, d);
 });
@@ -1336,11 +1327,9 @@ SPRITE.newCls('Drop', {
 		t: 300,
 		b: 20
 	},
-	states: [
-		{ name:'creating',	life: 100,		next: 1 },
-		{ name:'living',	life: Math.Inf, next: 2 },
-		{ name:'dying',		life: 50,		next:-1 },
-	],
+	states: {
+		life: [100, Math.Inf, 50],
+	},
 }, function(d) {
 	d = extend({
 		r: 60,
@@ -1356,11 +1345,10 @@ SPRITE.newCls('Drop', {
 SPRITE.newCls('Bullet', {
 	from: 'Circle',
 	layer: 'L20',
-	states: [
-		{ name:'creating',	life: 50,		next: 1, mkDamage:0 },
-		{ name:'living',	life: Math.Inf, next: 2, mkDamage:1 },
-		{ name:'dying',		life: 400,		next:-1, mkDamage:0 },
-	],
+	states: {
+		life: [50, Math.Inf, 400],
+		mkDamage: [0, 1, 0],
+	},
 }, function(d) {
 	d = extend({
 		r: 5,
@@ -1372,11 +1360,10 @@ SPRITE.newCls('Bullet', {
 SPRITE.newCls('Dannmaku', {
 	from: 'Circle',
 	layer: 'L20',
-	states: [
-		{ name:'creating',	life: 100,		next: 1, mkDamage:0 },
-		{ name:'living',	life: Math.Inf, next: 2, mkDamage:1 },
-		{ name:'dying',		life: 300,		next:-1, mkDamage:0 },
-	],
+	states: {
+		life: [100, Math.Inf, 300],
+		mkDamage: [0, 1, 0],
+	},
 }, function(d) {
 	d = extend({
 		r: 5,
@@ -1802,11 +1789,9 @@ function newEffect(v) {
 			Enemy: RES.frames.EffEnemy,
 			Player: RES.frames.EffPlayer,
 		}[v.clsName],
-		states: [
-			{ name:'creating',	life: 100,	next: 1 },
-			{ name:'living',	life: 50,	next: 2 },
-			{ name:'dying',		life: 850,	next:-1 },
-		],
+		states: {
+			life: [100, 50, 850],
+		},
 	});
 	array(8, function(i) {
 		var p = SPRITE.newObj('Circle', {
@@ -1818,11 +1803,9 @@ function newEffect(v) {
 				Enemy: RES.frames.EffPiece,
 				Player: RES.frames.EffPieceR,
 			}[v.clsName]),
-			states: [
-				{ name:'creating',	life: 50,	next: 1 },
-				{ name:'living',	life: 50,	next: 2 },
-				{ name:'dying',		life: 600,	next:-1 },
-			],
+			states: {
+				life: [50, 50, 600],
+			},
 		})
 		p.runCircle = function(dt, d, s) {
 			d.vx *= 0.97;
@@ -1892,11 +1875,9 @@ function newBomb(player) {
 		x: player.data.x,
 		y: player.data.y,
 		frames: RES.frames.EffPlayer,
-		states: [
-			{ name:'creating',	life: 100,	next: 1 },
-			{ name:'living',	life: 50,	next: 2 },
-			{ name:'dying',		life: 850,	next:-1 },
-		],
+		states: {
+			life: [100, 50, 850],
+		},
 	});
 }
 function killCls() {
