@@ -1126,10 +1126,10 @@ SPRITE.newCls('Player', {
 	},
 
 	states: [
-		{ name:'creating',	life: 1000,		next: 1, isInvinc:1 },
+		{ name:'creating',	life: 2000,		next: 1, isInvinc:1 },
 		{ name:'living',	life: Math.Inf, next: 2, isInvinc:0 },
 		{ name:'dying',		life: 1000,		next:-1, isInvinc:1 },
-		{ name:'bomb',		life: 5000,		next: 1, isInvinc:1 },
+		{ name:'bomb',		life: 5000,		next: 0, isInvinc:1 },
 		{ name:'juesi',		life: 100,		next: 2, isInvinc:1 },
 	],
 }, function(d) {
