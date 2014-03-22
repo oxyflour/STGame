@@ -1299,7 +1299,7 @@ SPRITE.newCls('Shield', {
 	},
 	
 	states: [
-		{ name:'creating',	life: 500,		next: 1 },
+		{ name:'creating',	life: 800,		next: 1 },
 		{ name:'living',	life: Math.Inf, next: 2 },
 		{ name:'dying',		life: 500,		next:-1 },
 	],
@@ -1879,7 +1879,7 @@ function newBomb(player) {
 				e.style.opacity = d.health;
 
 			bg.shield_index = (bg.shield_index || 0) + 1;
-			if (bg.shield_index >= 20) {
+			if (bg.shield_index >= 15) {
 				bg.shield_index = 0;
 				SPRITE.newObj('Shield', {
 					sx: p.data.x,
@@ -1887,16 +1887,28 @@ function newBomb(player) {
 					theta: random(0, Math.PI*2),
 					dtheta: randin([-0.002, 0.002]),
 					dist: 0,
-					parent: p,
+					parent: bg,
+					frames: RES.frames.Shield[0],
 				}).runCircle = function(dt, d, s) {
 					d.theta += d.dtheta * dt;
 					d.dist += 0.1 * dt;
 					d.x = d.sx + d.dist * Math.cos(d.theta);
 					d.y = d.sy + d.dist * Math.sin(d.theta);
 					d.r = 10 + Math.sqrt(d.health) * 40;
+					d.scale = d.r / 30;
 				};
 			}
 		}
+	});
+	SPRITE.newObj('Circle', {
+		x: player.data.x,
+		y: player.data.y,
+		frames: RES.frames.EffPlayer,
+		states: [
+			{ name:'creating',	life: 100,	next: 1 },
+			{ name:'living',	life: 50,	next: 2 },
+			{ name:'dying',		life: 850,	next:-1 },
+		],
 	});
 }
 function killCls() {

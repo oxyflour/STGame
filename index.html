@@ -172,6 +172,9 @@ input[type="radio"]:focus + label {
 			_t.PSlow = array(RES.pslow.width/64, function(i) {
 				return extend({ res:'pslow', sy:0, sw:64, sh:64, w:64, h:64 }, { sx:64*i });
 			});
+			_t.Shield = [
+				{ res:'player0L', sx:0, sy:98, sw:60, sh:60, w:120, h:120 },
+			];
 
 			ieach(['Drops', 'Lasers', 'TamaA', 'TamaB', 'LongA', 'LongB', 'LongC'], function(i, k) {
 				_t[k] = array(16, function(j) {
