@@ -2026,12 +2026,21 @@ tl.init = {
 	run: UTIL.newTimeRunner(5000, 'sec0'),
 	init: function(d) {
 		d.title = SPRITE.newObj('Basic', {
-			text: 'Dannmaku Demo!',
-			font: '30px Arial'
+			text: 'Stage 1',
+			font: '20px Arial',
+			color: 'yellow',
 		});
+		d.text = SPRITE.newObj('Basic', {
+			text: '~ Mystic Flier ~',
+			font: '15px Arial',
+			sy: interp(GAME.rect.t, GAME.rect.b, 0.5) + 35,
+		});
+		d.text.runBasic = function(dt, d, s) {
+			d.y = d.sy - Math.sqrt(d.health)*10;
+		};
 	},
 	quit: function(d) {
-		d.title.state.die();
+		killObj(d.title, d.text);
 	}
 };
 tl.sec0 = {
