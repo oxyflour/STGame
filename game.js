@@ -1676,11 +1676,18 @@ function genDannmaku(d) {
 	}[d && d.preset], d);
 	var idx = 0, cnt = d.theta_count-1;
 	STORY.timeout(function(d, layer) {
+		function getPlayerData() {
+			var player = UTIL.getOneObj('Player');
+			return player ? player.data : {
+				x:interp(GAME.rect.l, GAME.rect.r, 0.5),
+				y:interp(GAME.rect.t, GAME.rect.b, 0.7),
+			};
+		}
 		if (!d.from || d.from.finished || d.from.state.is_dying) {
 			this.finished = true;
 			return;
 		}
-		var to = d.to ? d.to.data : UTIL.getOneObj('Player').data,
+		var to = d.to ? d.to.data : getPlayerData(),
 			from = +d.x === d.x ? { x:d.x, y:d.y } : d.from.data;
 		for(var count = 0; count < d.count; count ++) {
 			if (idx ++ >= cnt)
