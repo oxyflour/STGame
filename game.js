@@ -1881,10 +1881,17 @@ function newBomb(player) {
 			if (bg.shield_index >= 20) {
 				bg.shield_index = 0;
 				SPRITE.newObj('Shield', {
-					x: p.data.x,
-					y: p.data.y,
-					vy: -0.2,
+					sx: p.data.x,
+					sy: p.data.y,
+					theta: random(0, Math.PI*2),
+					dtheta: randin([-0.002, 0.002]),
+					dist: 20,
+					parent: p,
 				}).runCircle = function(dt, d, s) {
+					d.theta += d.dtheta * dt;
+					d.dist += 0.1 * dt;
+					d.x = d.sx + d.dist * Math.cos(d.theta);
+					d.y = d.sy + d.dist * Math.sin(d.theta);
 					d.r = 10 + Math.sqrt(d.health) * 40;
 				};
 			}
