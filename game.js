@@ -1715,11 +1715,6 @@ function newBoss() {
 		life: 300,
 		frtick: 150,
 		frames: RES.frames.EnemyX,
-		pathnodes: [
-			{ fx:0.0, fy:0.0, v:0.1 },
-			{ fx:0.1, fy:0.1, v:0.1 },
-			{ fx:0.5, fy:0.1, v:0.1 },
-		],
 	});
 	boss.effects = array(3, function(i) {
 		var eff = SPRITE.newObj('Basic', {
@@ -2123,6 +2118,11 @@ tl.boss0 = {
 ieach([
 	{
 		name:'boss',
+		pathnodes: [
+			{ fx:0.0, fy:0.0, v:0.1 },
+			{ fx:0.1, fy:0.1, v:0.1 },
+			{ fx:0.5, fy:0.1, v:0.1 },
+		],
 	},
 	{
 		pathnodes: [
