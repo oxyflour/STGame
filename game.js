@@ -1767,6 +1767,7 @@ function newBoss() {
 		DC.stroke();
 		DC.closePath();
 	}
+	return boss;
 }
 function newEffect(v) {
 	SPRITE.newObj('Circle', {
@@ -2115,12 +2116,59 @@ ieach([
 		},
 	}
 }, tl);
-tl.boss = {
+tl.boss0 = {
+	run: UTIL.newTimeRunner(2000, 'boss'),
+};
+ieach([
+	{
+		name:'boss',
+	},
+	{
+		pathnodes: [
+			{ v:0.1 },
+			{ fx:0.5, fy:0.5, v:0.1 },
+			{ fx:0.5, fy:0.5, v:0.0 },
+		],
+	},
+	{
+		//...
+	},
+	{
+		//...
+	},
+	{
+		//...
+	},
+	{
+		next:'bossFin'
+	},
+], function(i, v, tl) {
+	var c = v.name || 'boss'+i, n = v.next || 'boss'+(i+1);
+	tl[c] = {
+		init: function(d) {
+			killCls('Dannmaku');
+			d.duration = v.duration || 30000;
+			d.boss = UTIL.getOneObj('Enemy') || newBoss();
+			d.boss.data.damage = 0;
+			if (v.pathnodes)
+				UTIL.addPathAnim(d.boss, d.boss.data.pathtick, v.pathnodes);
+		},
+		run: function(dt, d) {
+			d.age = (d.age || 0) + dt;
+			if (d.age > d.duration || d.pass)
+				return n;
+		},
+		on: function(e, v, d) {
+			if (e == STORY.events.ENEMY_KILL) {
+				d.pass = true;
+				v.state.set('living');
+			};
+		},
+	}
+}, tl);
+tl.bossFin = {
 	init: function(d) {
-		killCls('Enemy', 'Dannmaku');
-		STORY.timeout(function() {
-			newBoss();
-		}, 1000);
+		killCls('Dannmaku');
 	},
 	run: function(dt, d) {
 		if (d.pass)
@@ -2128,17 +2176,9 @@ tl.boss = {
 	},
 	on: function(e, v, d) {
 		if (e == STORY.events.ENEMY_KILL) {
-			SPRITE.newObj('Drop', {
-				x: v.data.x,
-				y: v.data.y,
-				pass: 1
-			});
+			d.pass = true;
 		}
-		else if (e == STORY.events.DROP_COLLECTED) {
-			if (v.data.pass)
-				d.pass = true;
-		}
-	}
+	},
 };
 tl.end = {
 	init: function(d) {
