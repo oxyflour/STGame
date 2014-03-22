@@ -1376,7 +1376,7 @@ function newPlayer() {
 	}, function(k, a) {
 		p.onmyous[k] = SPRITE.newObj('Basic', {
 			parent: p,
-			frames: RES.frames.Onmyou,
+			frames: k == 'left' ? RES.frames.OnmyouR : RES.frames.Onmyou,
 			offsetRadius: 25,
 			anim: a,
 		});

@@ -169,6 +169,9 @@ input[type="radio"]:focus + label {
 			_t.Onmyou = array(RES.onmyou.width/16, function(i) {
 				return extend({ res:'onmyou', sy:0, sw:16, sh:16, w:16, h:16 }, { sx:16*i });
 			});
+			_t.OnmyouR = array(RES.onmyou.width/16, function(i) {
+				return extend({ res:'onmyou', sy:0, sw:16, sh:16, w:16, h:16 }, { sx:RES.onmyou.width-16-16*i });
+			});
 			_t.PSlow = array(RES.pslow.width/64, function(i) {
 				return extend({ res:'pslow', sy:0, sw:64, sh:64, w:64, h:64 }, { sx:64*i });
 			});
