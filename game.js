@@ -1252,15 +1252,14 @@ SPRITE.newCls('Enemy', {
 	hit: function(v) {
 		var d = this.data,
 			e = v.data;
-		if (this.state.is_dying || v.state.is_dying)
-			return;
-		if (circle_intersect(d, e)) {
+		if (!this.state.is_dying && !v.state.is_dying &&
+				v.hit_with != this && circle_intersect(d, e)) {
+			v.hit_with = this;
 			d.damage += v.state.d.mkDamage || 1;
 			if (v.clsName == SPRITE.proto.Bullet.clsName)
 				STORY.on(STORY.events.BULLET_HIT, v);
-			if (d.damage >= d.life) {
+			if (d.damage >= d.life)
 				STORY.on(STORY.events.ENEMY_KILL, this);
-			}
 		}
 	},
 	
@@ -1287,9 +1286,9 @@ SPRITE.newCls('Shield', {
 	hit: function(v) {
 		var d = this.data,
 			e = v.data;
-		if (v.state.is_dying)
-			return;
-		if (circle_intersect(d, e)) {
+		if (!v.state.is_dying &&
+				v.hit_with != this && circle_intersect(d, e)) {
+			v.hit_with = this;
 			STORY.on(STORY.events.DANNMAKU_HIT, v);
 		}
 	},
