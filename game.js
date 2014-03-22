@@ -818,19 +818,11 @@ SPRITE.newCls('Basic', {
 		if (!s.d.life)
 			this.finished = true;
 
-		if (d.parent) {
-			var p = d.parent;
-			if (p.finished)
-				this.finished = true;
-			else if (p.state.is_dying && !s.is_dying)
-				s.die();
-		}
+		var p = d.parent;
+		if (p && (p.finished || p.state.is_dying) && !s.is_dying) 
+			s.die();
 
-		var x = 1;
-		if (s.is_creating)
-			x = dt / s.d.life;
-		else if (s.is_dying)
-			x = - dt / s.d.life;
+		var x = (s.is_creating && dt/s.d.life) || (s.is_dying && -dt/s.d.life) || 1;
 		d.health = limit_between(d.health + x, 0, 1);
 
 		if (this.runBasic)
@@ -882,19 +874,20 @@ SPRITE.newCls('Basic', {
 			DC.restore();
 		}
 	},
-	anim: function(t, fn, d, id) {
+	anim: function(t, fn, x, id) {
 		var t = newTicker(t, function(obj) {
-			this.finished = fn(d, obj) || obj.finished;
+			this.finished = fn(x, obj) || obj.finished;
 		}, this);
+
 		STORY.anim.add(t);
 		t.f(t.d);
 
 		if (id) {
-			var dict = this.data,
+			var d = this.data,
 				k = 'am#' + id;
-			if (dict[k])
-				dict[k].finished = true;
-			dict[k] = t;
+			if (d[k])
+				d[k].finished = true;
+			d[k] = t;
 		}
 
 		return t;
