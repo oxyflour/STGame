@@ -183,13 +183,13 @@ function newCounter() {
 }
 function newFPSCounter() {
 	var idx = 0,
-		len = 100,
+		len = 120,
 		arr = Array(len);
 	return function(t) {
-		var dt = (t - arr[idx]) / len;
+		var fps = 1000 * len / (t - arr[idx]);
 		arr[idx] = t;
 		idx = (idx + 1) % len;
-		return 1000.0 / dt;
+		return fps;
 	}
 }
 function newTicker(t, f, d) {
