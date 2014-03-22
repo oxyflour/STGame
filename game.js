@@ -1384,7 +1384,7 @@ SPRITE.newCls('Dannmaku', {
 	states: [
 		{ name:'creating',	life: 100,		next: 1, mkDamage:0 },
 		{ name:'living',	life: Math.Inf, next: 2, mkDamage:1 },
-		{ name:'dying',		life: 100,		next:-1, mkDamage:0 },
+		{ name:'dying',		life: 300,		next:-1, mkDamage:0 },
 	],
 }, function(d) {
 	d = extend({
@@ -1885,7 +1885,7 @@ function newBomb(player) {
 					sy: p.data.y,
 					theta: random(0, Math.PI*2),
 					dtheta: randin([-0.002, 0.002]),
-					dist: 20,
+					dist: 0,
 					parent: p,
 				}).runCircle = function(dt, d, s) {
 					d.theta += d.dtheta * dt;
@@ -2002,6 +2002,21 @@ var hook = {
 		}
 		else if (e == STORY.events.DANNMAKU_HIT) {
 			v.state.die();
+			v.data.vx *= 0.1;
+			v.data.vy *= 0.1;
+
+			var h = v.data.frame.h || v.data.frame.sh;
+			v.data.frame = v.data.frame_dead || RES.frames.BulletD[1];
+			v.data.scale *= v.data.scale * h / (v.data.frame.h || v.data.frame.sh);
+			v.anim(Math.Inf, return_nothing, undefined, 'frame');
+
+			SPRITE.newObj('Drop', {
+				x: v.data.x,
+				y: v.data.y,
+				frames: RES.frames.Drops[6],
+				collected: UTIL.getOneObj('Player'),
+				collected_auto: true,
+			});
 		}
 	}
 };
