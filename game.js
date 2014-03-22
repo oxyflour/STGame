@@ -96,8 +96,8 @@ function randin(ls) {
 	return ls[k];
 }
 function limit_between(x, min, max) {
-	if (x > max) x = max;
-	if (x < min) x = min;
+	if (!(x <= max)) x = max;
+	if (!(x >= min)) x = min;
 	return x;
 }
 function interp(x0, x1, f) {
