@@ -612,7 +612,8 @@ var GAME = (function() {
 
 var UTIL = {
 	getOneObj: function(c) {
-		return ieach(SPRITE.cls.groups[c], function(i, v) {
+		var ls = SPRITE.cls.groups[c];
+		return ls && ieach(ls, function(i, v) {
 			if (v && !v.finished) return v;
 		});
 	},
