@@ -679,16 +679,19 @@ var UTIL = {
 				n.y = interp(GAME.rect.t, GAME.rect.b, n.fy);
 
 			if (d.index == 0) {
-				d.index ++;
-				e.x = n.x;
-				e.y = n.y;
-			} else {
-				if (redirect_object(e, n, n.v) < n.v)
+				d.index = 1;
+				if (+n.x === n.x) e.x = n.x;
+				if (+n.y === n.y) e.y = n.y;
+			}
+			else {
+				if (redirect_object(e, n, n.v) < n.v * d.tick)
 					d.index ++;
-				e.x += e.vx;
-				e.y += e.vy;
+				// no more movement
+				if (!n.v)
+					return true;
 			}
 		}, {
+			tick: t,
 			pathnodes: ps,
 			index: 0
 		}, 'path');
@@ -1711,9 +1714,10 @@ function newBoss() {
 		frtick: 150,
 		frames: RES.frames.EnemyX,
 		pathnodes: [
-			{ fx:0.0, fy:0.0, v:3 },
-			{ fx:0.1, fy:0.1, v:3 },
-			{ fx:0.5, fy:0.1, v:3 },
+			{ fx:0.0, fy:0.0, v:0.1 },
+			{ fx:0.1, fy:0.1, v:0.1 },
+			{ fx:0.5, fy:0.1, v:0.1 },
+			{ fx:0.5, fy:0.1, v:0.0 },
 		],
 	});
 	boss.effects = array(3, function(i) {
