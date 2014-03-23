@@ -1891,9 +1891,13 @@ function killObj() {
 GAME.objects = {
 };
 GAME.statics = {
-	graze: 0,
+	max_point: 1000000,
 	point: 0,
-	miss: 0
+	player: 7,
+	bomb: 7,
+	power: 255,
+	graze: 0,
+	dot: 0,
 };
 var hook = {
 	init: function(n, d) {
@@ -1946,10 +1950,11 @@ var hook = {
 			SPRITE.newObj('Drop', { vx:-0.5, vy:-0.85, x:x, y:y });
 			SPRITE.newObj('Drop', { vx: 0.5, vy:-0.85, x:x, y:y });
 			SPRITE.newObj('Drop', { vx:   1, vy: -0.8, x:x, y:y });
+			GAME.statics.player --;
 		}
 		else if (e == STORY.events.PLAYER_DEAD) {
-			GAME.statics.miss ++;
 			GAME.objects.player = newPlayer();
+			GAME.statics.bomb = 7;
 		}
 		else if (e == STORY.events.PLAYER_FIRE) {
 			if (!d.disable_fire)
@@ -1958,6 +1963,7 @@ var hook = {
 				});
 		}
 		else if (e == STORY.events.PLAYER_BOMB) {
+			GAME.statics.bomb --;
 			v.state.set('bomb');
 			newBomb(v);
 		}

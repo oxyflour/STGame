@@ -62,7 +62,7 @@ input[type="radio"]:focus + label {
 .info {
 	color: #eee;
 	margin-top: 58px;
-	margin-left: 434px;
+	margin-left: 432px;
 }
 .logo {
 	margin-top: 294px;
@@ -101,6 +101,100 @@ input[type="radio"]:focus + label {
 	position: absolute;
 	width: 100%;
 	height: 480px;
+}
+
+.line {
+	height: 24px;
+}
+.line-small {
+	height: 20px;
+}
+.line-sep {
+	height: 16px;
+}
+.label {
+	float: left;
+	width: 64px;
+}
+.label>* {
+	background: url(res/front.png);
+	height: 16px;
+}
+.label-max-point {
+	width: 64px;
+	background-position: 0 -192px;
+}
+.label-point {
+	width: 32px;
+	background-position: 0 -208px;
+}
+.label-player {
+	width: 64px;
+	background-position: 0 -176px;
+}
+.label-bomb {
+	width: 48px;
+	background-position: 0 -161px;
+}
+.label-power {
+	width: 64px;
+	background-position: -32px -208px;
+}
+.label-graze {
+	width: 48px;
+	background-position: -32px -224px;
+}
+.label-dot {
+	width: 48px;
+	background-position: -48px -160px;
+}
+.player {
+	background: url(res/front.png) -32px -240px;
+	float: left;
+	width: 16px;
+	height: 16px;
+}
+.bomb {
+	background: url(res/front.png) -48px -240px;
+	float: left;
+	width: 16px;
+	height: 16px;
+}
+.num {
+	background: url(res/ascii.png) 0 -32px;
+	float: left;
+	width: 14px;
+	height: 16px;
+}
+.n0 {
+	background-position: -0     -48px;
+}
+.n1 {
+	background-position: -16px  -48px;
+}
+.n2 {
+	background-position: -32px  -48px;
+}
+.n3 {
+	background-position: -48px  -48px;
+}
+.n4 {
+	background-position: -64px  -48px;
+}
+.n5 {
+	background-position: -80px  -48px;
+}
+.n6 {
+	background-position: -96px  -48px;
+}
+.n7 {
+	background-position: -112px -48px;
+}
+.n8 {
+	background-position: -128px -48px;
+}
+.n9 {
+	background-position: -144px -48px;
 }
 </style>
 </head>
@@ -233,11 +327,82 @@ input[type="radio"]:focus + label {
 	</div>
 	<canvas class="game absolute" id="canv" width="384px" height="448px"></canvas>
 	<div class="info absolute">
-		<div>fps: <span class="ui" ui-bind="GAME.fps.toFixed(2)+' / '+GAME.tick"></span></div>
-		<div>story: <span class="ui" ui-bind="STORY.state.n"></span></div>
-		<div>graze: <span class="ui" ui-bind="GAME.statics.graze"></span></div>
-		<div>point: <span class="ui" ui-bind="GAME.statics.point"></span></div>
-		<div>miss: <span class="ui" ui-bind="GAME.statics.miss"></span></div>
+		<div class="line">
+			<div class="label"><div class="label-max-point"></div></div>
+			<div class="ui" ui-bind="'ui num n'+getNum(GAME.statics.max_point+1e9, 1)" ui-bind-attr="this.className"></div>
+			<div class="ui" ui-bind="'ui num n'+getNum(GAME.statics.max_point+1e9, 2)" ui-bind-attr="this.className"></div>
+			<div class="ui" ui-bind="'ui num n'+getNum(GAME.statics.max_point+1e9, 3)" ui-bind-attr="this.className"></div>
+			<div class="ui" ui-bind="'ui num n'+getNum(GAME.statics.max_point+1e9, 4)" ui-bind-attr="this.className"></div>
+			<div class="ui" ui-bind="'ui num n'+getNum(GAME.statics.max_point+1e9, 5)" ui-bind-attr="this.className"></div>
+			<div class="ui" ui-bind="'ui num n'+getNum(GAME.statics.max_point+1e9, 6)" ui-bind-attr="this.className"></div>
+			<div class="ui" ui-bind="'ui num n'+getNum(GAME.statics.max_point+1e9, 7)" ui-bind-attr="this.className"></div>
+			<div class="ui" ui-bind="'ui num n'+getNum(GAME.statics.max_point+1e9, 8)" ui-bind-attr="this.className"></div>
+			<div class="ui" ui-bind="'ui num n'+getNum(GAME.statics.max_point+1e9, 9)" ui-bind-attr="this.className"></div>
+		</div>
+		<div class="line">
+			<div class="label"><div class="label-point"></div></div>
+			<div class="ui" ui-bind="'ui num n'+getNum(GAME.statics.point+1e9, 1)" ui-bind-attr="this.className"></div>
+			<div class="ui" ui-bind="'ui num n'+getNum(GAME.statics.point+1e9, 2)" ui-bind-attr="this.className"></div>
+			<div class="ui" ui-bind="'ui num n'+getNum(GAME.statics.point+1e9, 3)" ui-bind-attr="this.className"></div>
+			<div class="ui" ui-bind="'ui num n'+getNum(GAME.statics.point+1e9, 4)" ui-bind-attr="this.className"></div>
+			<div class="ui" ui-bind="'ui num n'+getNum(GAME.statics.point+1e9, 5)" ui-bind-attr="this.className"></div>
+			<div class="ui" ui-bind="'ui num n'+getNum(GAME.statics.point+1e9, 6)" ui-bind-attr="this.className"></div>
+			<div class="ui" ui-bind="'ui num n'+getNum(GAME.statics.point+1e9, 7)" ui-bind-attr="this.className"></div>
+			<div class="ui" ui-bind="'ui num n'+getNum(GAME.statics.point+1e9, 8)" ui-bind-attr="this.className"></div>
+			<div class="ui" ui-bind="'ui num n'+getNum(GAME.statics.point+1e9, 9)" ui-bind-attr="this.className"></div>
+		</div>
+		<div class="line-sep"></div>
+		<div class="line">
+			<div class="label"><div class="label-player"></div></div>
+			<div class="ui player" ui-show="GAME.statics.player > 0"></div>
+			<div class="ui player" ui-show="GAME.statics.player > 1"></div>
+			<div class="ui player" ui-show="GAME.statics.player > 2"></div>
+			<div class="ui player" ui-show="GAME.statics.player > 3"></div>
+			<div class="ui player" ui-show="GAME.statics.player > 4"></div>
+			<div class="ui player" ui-show="GAME.statics.player > 5"></div>
+			<div class="ui player" ui-show="GAME.statics.player > 6"></div>
+		</div>
+		<div class="line">
+			<div class="label"><div class="label-bomb"></div></div>
+			<div class="ui bomb" ui-show="GAME.statics.bomb > 0"></div>
+			<div class="ui bomb" ui-show="GAME.statics.bomb > 1"></div>
+			<div class="ui bomb" ui-show="GAME.statics.bomb > 2"></div>
+			<div class="ui bomb" ui-show="GAME.statics.bomb > 3"></div>
+			<div class="ui bomb" ui-show="GAME.statics.bomb > 4"></div>
+			<div class="ui bomb" ui-show="GAME.statics.bomb > 5"></div>
+			<div class="ui bomb" ui-show="GAME.statics.bomb > 6"></div>
+		</div>
+		<div class="line-sep"></div>
+		<div class="line-small">
+			<div class="label"><div class="label-power"></div></div>
+			<div class="ui" ui-bind="'ui num n'+getNum(GAME.statics.power, 0)" ui-bind-attr="this.className"></div>
+			<div class="ui" ui-bind="'ui num n'+getNum(GAME.statics.power, 1)" ui-bind-attr="this.className"></div>
+			<div class="ui" ui-bind="'ui num n'+getNum(GAME.statics.power, 2)" ui-bind-attr="this.className"></div>
+		</div>
+		<div class="line-small">
+			<div class="label"><div class="label-graze"></div></div>
+			<div class="ui" ui-bind="'ui num n'+getNum(GAME.statics.graze, 0)" ui-bind-attr="this.className"></div>
+			<div class="ui" ui-bind="'ui num n'+getNum(GAME.statics.graze, 1)" ui-bind-attr="this.className"></div>
+			<div class="ui" ui-bind="'ui num n'+getNum(GAME.statics.graze, 2)" ui-bind-attr="this.className"></div>
+			<div class="ui" ui-bind="'ui num n'+getNum(GAME.statics.graze, 3)" ui-bind-attr="this.className"></div>
+			<div class="ui" ui-bind="'ui num n'+getNum(GAME.statics.graze, 4)" ui-bind-attr="this.className"></div>
+			<div class="ui" ui-bind="'ui num n'+getNum(GAME.statics.graze, 5)" ui-bind-attr="this.className"></div>
+			<div class="ui" ui-bind="'ui num n'+getNum(GAME.statics.graze, 6)" ui-bind-attr="this.className"></div>
+			<div class="ui" ui-bind="'ui num n'+getNum(GAME.statics.graze, 7)" ui-bind-attr="this.className"></div>
+			<div class="ui" ui-bind="'ui num n'+getNum(GAME.statics.graze, 8)" ui-bind-attr="this.className"></div>
+		</div>
+		<div class="line-small">
+			<div class="label"><div class="label-dot"></div></div>
+			<div class="ui" ui-bind="'ui num n'+getNum(GAME.statics.dot, 0)" ui-bind-attr="this.className"></div>
+			<div class="ui" ui-bind="'ui num n'+getNum(GAME.statics.dot, 1)" ui-bind-attr="this.className"></div>
+			<div class="ui" ui-bind="'ui num n'+getNum(GAME.statics.dot, 2)" ui-bind-attr="this.className"></div>
+			<div class="ui" ui-bind="'ui num n'+getNum(GAME.statics.dot, 3)" ui-bind-attr="this.className"></div>
+			<div class="ui" ui-bind="'ui num n'+getNum(GAME.statics.dot, 4)" ui-bind-attr="this.className"></div>
+			<div class="ui" ui-bind="'ui num n'+getNum(GAME.statics.dot, 5)" ui-bind-attr="this.className"></div>
+			<div class="ui" ui-bind="'ui num n'+getNum(GAME.statics.dot, 6)" ui-bind-attr="this.className"></div>
+			<div class="ui" ui-bind="'ui num n'+getNum(GAME.statics.dot, 7)" ui-bind-attr="this.className"></div>
+			<div class="ui" ui-bind="'ui num n'+getNum(GAME.statics.dot, 8)" ui-bind-attr="this.className"></div>
+		</div>
 	</div>
 	<div class="logo absolute">
 		<div class="tr">
@@ -265,6 +430,10 @@ input[type="radio"]:focus + label {
 			<p><input type="radio" name="pause_menu" value="window.close()"><label>Quit</label></p>
 			<input style="width:0px;opacity:0;" type="submit" />
 		</form>
+	</div>
+	<div class="game absolute" style="color:white">
+		<div>fps: <span class="ui" ui-bind="GAME.fps.toFixed(2)+' / '+GAME.tick"></span></div>
+		<div>story: <span class="ui" ui-bind="STORY.state.n"></span></div>
 	</div>
 </div>
 <div class="ui" ui-show="RES.process < 1">
@@ -306,6 +475,10 @@ function getRadioVal(ls) {
 	return ieach(ls, function(i, v) {
 		if (v.checked) return v.value;
 	});
+}
+
+function getNum(n, i) {
+	return (n + '').substr(i, 1);
 }
 
 function loadAndStart() {
