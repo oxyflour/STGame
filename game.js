@@ -2017,14 +2017,16 @@ tl.init = {
 			font: '20px Arial',
 			color: 'yellow',
 		});
-		d.text = SPRITE.newObj('Basic', {
-			text: '~ Mystic Flier ~',
-			font: '15px Arial',
-			sy: interp(GAME.rect.t, GAME.rect.b, 0.5) + 35,
-		});
-		d.text.runBasic = function(dt, d, s) {
-			d.y = d.sy - Math.sqrt(d.health)*10;
-		};
+		STORY.timeout(function(d) {
+			d.text = SPRITE.newObj('Basic', {
+				text: '~ Mystic Flier ~',
+				font: '15px Arial',
+				sy: interp(GAME.rect.t, GAME.rect.b, 0.5) + 35,
+			});
+			d.text.runBasic = function(dt, d, s) {
+				d.y = d.sy - Math.sqrt(d.health)*10;
+			};
+		}, 400, d);
 	},
 	quit: function(d) {
 		killObj(d.title, d.text);
