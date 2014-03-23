@@ -678,9 +678,9 @@ var UTIL = {
 				return true;
 			}
 
-			if (+n.fx === n.fx && +n.x !== n.x)
+			if (+n.x !== n.x && +n.fx === n.fx)
 				n.x = interp(GAME.rect.l, GAME.rect.r, n.fx);
-			if (+n.fy === n.fy && +n.y !== n.y)
+			if (+n.y !== n.y && +n.fy === n.fy)
 				n.y = interp(GAME.rect.t, GAME.rect.b, n.fy);
 
 			if (d.index == 0) {
