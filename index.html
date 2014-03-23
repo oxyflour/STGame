@@ -148,6 +148,12 @@ input[type="radio"]:focus + label {
 	width: 48px;
 	background-position: -48px -160px;
 }
+.power-bar {
+	margin-left: 64px;
+	background: rgba(255,255,255,0.4);
+	height: 16px;
+	width: 128px;
+}
 .player {
 	background: url(res/front.png) -32px -240px;
 	float: left;
@@ -158,6 +164,12 @@ input[type="radio"]:focus + label {
 	background: url(res/front.png) -48px -240px;
 	float: left;
 	width: 16px;
+	height: 16px;
+}
+.power-max {
+	background: url(res/front.png) -64px -240px;
+	float: left;
+	width: 48px;
 	height: 16px;
 }
 .num {
@@ -373,11 +385,17 @@ input[type="radio"]:focus + label {
 			<div class="ui bomb" ui-show="GAME.statics.bomb > 6"></div>
 		</div>
 		<div class="line-sep"></div>
-		<div class="line-small">
+		<div class="line-small ui" ui-show="GAME.statics.power < 255">
+			<div class="power-bar absolute ui" ui-bind="GAME.statics.power*0.5+'px'" ui-bind-attr="this.style.width"></div>
 			<div class="label"><div class="label-power"></div></div>
 			<div class="ui" ui-bind="'ui num n'+getNum(GAME.statics.power, 0)" ui-bind-attr="this.className"></div>
 			<div class="ui" ui-bind="'ui num n'+getNum(GAME.statics.power, 1)" ui-bind-attr="this.className"></div>
 			<div class="ui" ui-bind="'ui num n'+getNum(GAME.statics.power, 2)" ui-bind-attr="this.className"></div>
+		</div>
+		<div class="line-small ui" ui-show="GAME.statics.power >= 255">
+			<div class="power-bar absolute"></div>
+			<div class="label"><div class="label-power"></div></div>
+			<div class="power-max"></div>
 		</div>
 		<div class="line-small">
 			<div class="label"><div class="label-graze"></div></div>
