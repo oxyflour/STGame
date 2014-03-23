@@ -753,9 +753,9 @@ var UTIL = {
 	var dt =  function() {
 		return Math.min(counter(), 100);
 	};
-	var gameTick = newTicker(10, function() {
+	var gameTick = newTicker(5, function() {
 		if (GAME.state == GAME.states.RUNNING)
-			GAME.run(10);
+			GAME.run(5);
 	});
 	var uiTick = newTicker(100, function(cbs) {
 		ieach($('.ui'), function(i, e) {
