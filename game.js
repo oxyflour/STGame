@@ -2194,9 +2194,23 @@ ieach([
 			d.age = 0;
 			d.duration = v.duration || 30000;
 			d.damage_max = v.damage_max || Math.Inf;
+
 			d.boss = UTIL.getOneObj('Enemy') || newBoss();
 			if (v.pathnodes)
 				UTIL.addPathAnim(d.boss, v.pathnodes);
+
+			d.countdown = SPRITE.newObj('Basic', {
+				x: interp(GAME.rect.l, GAME.rect.r, 1)-20,
+				y: interp(GAME.rect.t, GAME.rect.b, 0)+20,
+			});
+			d.countdown.anim(100, function(d, v) {
+				var t = Math.floor((d.duration - d.age) / 1000);
+				v.data.color = (t<10 && 'red') || (t<20 && 'rgb(151,125,208)') || 'rgb(164,209,250)';
+				v.data.text = Math.max(t, 0);
+			}, d);
+		},
+		quit: function(d) {
+			d.countdown.state.die();
 		},
 		run: function(dt, d) {
 			d.age += dt;
