@@ -877,7 +877,7 @@ SPRITE.newCls('Basic', {
 	},
 	anim: function(t, fn, x, id) {
 		var t = newTicker(t, function(obj) {
-			this.finished = fn(x, obj) || obj.finished;
+			this.finished = obj.finished || fn(x, obj);
 		}, this);
 
 		STORY.anim.add(t);
