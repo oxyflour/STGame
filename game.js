@@ -1355,7 +1355,7 @@ SPRITE.newCls('Dannmaku', {
 	from: 'Circle',
 	layer: 'L20',
 	states: {
-		life: [100, Math.Inf, 300],
+		life: [100, Math.Inf, 200],
 		mkDamage: [0, 1, 0],
 	},
 }, function(d) {
@@ -1993,10 +1993,12 @@ var hook = {
 			v.data.vx *= 0.1;
 			v.data.vy *= 0.1;
 
-			var h = v.data.frame.h || v.data.frame.sh;
-			v.data.frame = v.data.frame_dead || RES.frames.BulletD[1];
-			v.data.scale *= v.data.scale * h / (v.data.frame.h || v.data.frame.sh);
-			v.anim(Math.Inf, return_nothing, undefined, 'frame');
+			var f0 = v.data.frame;
+				f = v.data.frame_dead || RES.frames.BulletD[1],
+				h = f.h || f.sh;
+				h0 = f0 ? (f0.h || f0.sh) : h,
+			v.data.scale *= h / h0;
+			UTIL.addFrameAnim(v, f);
 
 			SPRITE.newObj('Drop', {
 				x: v.data.x,
