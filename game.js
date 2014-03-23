@@ -2077,7 +2077,7 @@ tl.sec1 = {
 		if (d.pass) {
 			tl.loop = (tl.loop || 0) + 1;
 			if (tl.loop >= 5)
-				return 'diag';
+				return 'boss0';
 			else
 				return 'sec1';
 		}
@@ -2123,7 +2123,7 @@ ieach([
 	{ text:'x0aabbcc', x:GAME.rect.l+50, y:interp(GAME.rect.t, GAME.rect.b, 0.8) },
 	{ text:'y0aabbcc', x:GAME.rect.r-50, y:interp(GAME.rect.t, GAME.rect.b, 0.8) },
 	{ text:'x0aabbcc', x:GAME.rect.l+50, y:interp(GAME.rect.t, GAME.rect.b, 0.8) },
-	{ text:'y0aabbcc', x:GAME.rect.r-50, y:interp(GAME.rect.t, GAME.rect.b, 0.8), next:'boss0' },
+	{ text:'y0aabbcc', x:GAME.rect.r-50, y:interp(GAME.rect.t, GAME.rect.b, 0.8), next:'boss1' },
 ], function(i, v, tl) {
 	var c = v.name || 'diag'+i, n = v.next || 'diag'+(i+1);
 	tl[c] = {
@@ -2152,11 +2152,12 @@ ieach([
 	}
 }, tl);
 tl.boss0 = {
-	run: UTIL.newTimeRunner(2000, 'boss'),
+	run: UTIL.newTimeRunner(5000, 'boss'),
 };
 ieach([
 	{
 		name:'boss',
+		next:'diag',
 		pathnodes: [
 			{ fx:0.0, fy:0.0, v:0.1 },
 			{ fx:0.1, fy:0.1, v:0.1 },
