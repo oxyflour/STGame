@@ -1867,6 +1867,7 @@ function newBomb(player) {
 		x: player.data.x,
 		y: player.data.y,
 		frames: RES.frames.EffPlayer,
+		scale: 1.5,
 		states: {
 			life: [100, 50, 850],
 		},
@@ -1998,6 +1999,7 @@ var hook = {
 				h = f.h || f.sh;
 				h0 = f0 ? (f0.h || f0.sh) : h,
 			v.data.scale *= h / h0;
+			v.data.opacity = 0.5;
 			UTIL.addFrameAnim(v, f);
 
 			SPRITE.newObj('Drop', {
