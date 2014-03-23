@@ -715,9 +715,11 @@ var UTIL = {
 			if (d.age > d.life)
 				return d.next !== undefined ? d.next : -1;
 		}
+
 		if (!stes.name) stes.name = ['creating', 'living', 'dying'];
 		if (!stes.next) stes.next = [1, 2, -1];
-		stes = ieach(stes.name, function(i, n, d) {
+
+		stes = ieach(stes.life, function(i, n, d) {
 			var data = each(stes, function(k, ls, d) {
 				d[k] = ls[i];
 			}, {});
@@ -725,19 +727,28 @@ var UTIL = {
 		}, []);
 
 		var s = newStateMachine(stes);
-		s.set = (function(set, hk) {
+
+		s.set = (function(set) {
 			return function(k) {
-				hk && hk.quit && hk.quit(hk.data, this);
-				var i = ieach(this.stes, function(i, v, d) {
+				k = ieach(this.stes, function(i, v, d) {
 					if (v.data.name==k) return i;
 				}, k);
-				set.call(this, i);
+				set.call(this, k);
+
 				this.is_creating = this.d.name == 'creating';
 				this.is_dying = this.d.name == 'dying';
 				this.is_living = !(this.is_creating || this.is_dying);
+			};
+		})(s.set);
+
+		if (hk) s.set = (function(set, hk) {
+			return function(k) {
+				hk && hk.quit && hk.quit(hk.data, this);
+				set.call(this, k);
 				hk && hk.init && hk.init(hk.data, this);
 			};
 		})(s.set, hk);
+
 		s.die = function() {
 			s.set('dying');
 		}
@@ -745,6 +756,7 @@ var UTIL = {
 			s.set('creating');
 		}
 		s.set(0);
+
 		return s;
 	},
 };
