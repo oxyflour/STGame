@@ -85,6 +85,10 @@ input[type="radio"]:focus + label {
 	height: 64px;
 	opacity: 0.6;
 }
+.fps {
+	margin-top: 10px;
+	margin-left: 432px;
+}
 .mask {
 	background: rgba(0, 0, 0, 0.7);
 	color: #eee;
@@ -449,7 +453,7 @@ input[type="radio"]:focus + label {
 			<input style="width:0px;opacity:0;" type="submit" />
 		</form>
 	</div>
-	<div class="game absolute" style="color:white">
+	<div class="fps absolute" style="color:white">
 		<div>fps: <span class="ui" ui-bind="GAME.fps.toFixed(2)+' / '+GAME.tick"></span></div>
 		<div>story: <span class="ui" ui-bind="STORY.state.n"></span></div>
 	</div>
