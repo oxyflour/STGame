@@ -369,7 +369,7 @@ var RES = (function(res) {
 		canv.height = sc.h;
 		ieach(ts, function(i, t) {
 			dc.save();
-			if (t.k == 'mirror') {
+			if (!t.k || t.k == 'mirror') {
 				if (t.v == 'x') {
 					dc.translate(canv.width, 0);
 					dc.scale(-1, 1);
@@ -386,10 +386,6 @@ var RES = (function(res) {
 				dc.rotate(parseInt(t.v)*Math.PI/180);
 				dc.drawImage(sc.s, sc.x, sc.y, sc.w, sc.h,
 					-sc.w/2, -sc.h/2, sc.w, sc.h);
-			}
-			else {
-				dc.drawImage(sc.s, sc.x, sc.y, sc.w, sc.h,
-					0, 0, sc.w, sc.h);
 			}
 			dc.restore();
 		});
