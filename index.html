@@ -47,7 +47,6 @@ input[type="radio"]:focus + label {
 
 .main {
 	margin: 0 auto;
-	background: url(res/font_bg.png);
 }
 .main, .screen {
 	width: 640px;
@@ -236,6 +235,8 @@ input[type="radio"]:focus + label {
 	<canvas id="pslow" from="etama2 0 112 64 64"
 		transform="rotate:{{range(90, 0, 6)}}"></canvas>
 	<img id="stg1enm" src="res/stg1enm.png" />
+	<img id="front" src="res/front.png" />
+	<canvas id="mainbg_patt" from="front 0 224 32 32"></canvas>
 	<script id="frames">
 		(function(RES) {
 			var _t = {};
@@ -330,6 +331,17 @@ input[type="radio"]:focus + label {
 			return _t;
 		})
 	</script>
+	<script id="gen_mainbg">
+		(function(RES) {
+			var cv = $e('mainbg'),
+				dc = cv.getContext('2d'),
+				patt = dc.createPattern(RES.mainbg_patt, 'repeat');
+			cv.width = cv.scrollWidth;
+			cv.height = cv.scrollHeight;
+			dc.fillStyle = patt;
+			dc.fillRect(0, 0, cv.width, cv.height);
+		})
+	</script>
 	<script id="gen_maskbg">
 		(function(RES) {
 			ieach($('.maskbg'), function(i, cv) {
@@ -346,6 +358,7 @@ input[type="radio"]:focus + label {
 	</script>
 </div>
 <div class="main ui" ui-show="RES.process == 1">
+	<canvas id="mainbg" class="screen absolute"></canvas>
 	<div class="game absolute no-overflow" style="z-index:0">
 		<div class="relative bgimg">
 			<div class="ui-obj bg1" style="background:url(res/bg.png);" bg-speed="0.02"></div>

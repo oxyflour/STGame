@@ -348,7 +348,7 @@ var RES = (function(res) {
 		}
 	}
 	function getTrans(trans) {
-		var st = trans ? trans.split(';') : [];
+		var st = (trans || '').split(';');
 		return ieach(st, function(i, s, d) {
 			var k = s.substr(0, s.indexOf(':')),
 				v = s.substr(k.length + 1);
@@ -386,6 +386,10 @@ var RES = (function(res) {
 				dc.rotate(parseInt(t.v)*Math.PI/180);
 				dc.drawImage(sc.s, sc.x, sc.y, sc.w, sc.h,
 					-sc.w/2, -sc.h/2, sc.w, sc.h);
+			}
+			else {
+				dc.drawImage(sc.s, sc.x, sc.y, sc.w, sc.h,
+					0, 0, sc.w, sc.h);
 			}
 			dc.restore();
 		});
