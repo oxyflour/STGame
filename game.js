@@ -379,7 +379,7 @@ var RES = (function(res) {
 					dc.scale(1, -1);
 				}
 				dc.drawImage(sc.s, sc.x, sc.y, sc.w, sc.h,
-					0, 0, sc.w, sc.h);
+					sc.w*i, 0, sc.w, sc.h);
 			}
 			else if (t.k == 'rotate') {
 				dc.translate(sc.w*i + sc.w/2, sc.h/2);
@@ -1854,26 +1854,48 @@ function newBomb(player) {
 		if (bg.elem.object == bg)
 			bg.elem.style.opacity = bg.data.health;
 	});
-	bg.anim(800, function(x, bg) {
+	bg.anim(400, function(x, bg) {
 		var p = bg.player;
-		if (bg.state.is_living) SPRITE.newObj('Shield', {
-			sx: p.data.x,
-			sy: p.data.y,
-			theta: random(0, Math.PI*2),
-			dtheta: randin([-0.002, 0.002]),
-			dist: 0,
-			parent: p,
-			frames: RES.frames.Shield[0],
-		 	opacity: 0.5,
-			blend: 'lighter',
-		}).runCircle = function(dt, d, s) {
-			d.theta += d.dtheta * dt;
-			d.dist += 0.1 * dt;
-			d.x = d.sx + d.dist * Math.cos(d.theta);
-			d.y = d.sy + d.dist * Math.sin(d.theta);
-			d.r = 1 + Math.sqrt(d.health) * 40;
-			d.scale = d.r / 30;
-		};
+		if (bg.state.is_living) {
+			var sh = SPRITE.newObj('Shield', {
+				sx: p.data.x,
+				sy: p.data.y,
+				theta: random(0, Math.PI*2),
+				dtheta: randin([-0.002, 0.002]),
+				dist: 0,
+				parent: p,
+				frames: RES.frames.Shield[0],
+				opacity: 0.8,
+			});
+			sh.runCircle = function(dt, d, s) {
+				d.theta += d.dtheta * dt;
+				d.dist += 0.1 * dt;
+				d.x = d.sx + d.dist * Math.cos(d.theta);
+				d.y = d.sy + d.dist * Math.sin(d.theta);
+				d.r = 1 + Math.sqrt(d.health) * 40;
+				d.scale = d.r / 30;
+			};
+			ieach([1, 2, 3, 2, 3], function(i, v) {
+				SPRITE.newObj('Basic', {
+					index: v,
+					theta: random(0, Math.PI*2),
+					dtheta: random(-0.005, 0.005),
+					dist: random(10, 15),
+					parent: sh,
+					frame: RES.frames.Shield[v],
+					opacity: 0.5,
+					blend: 'lighter',
+				}).runBasic = function(dt, d, s) {
+					var p = d.parent;
+					d.dist = p.data.r * 0.4;
+					d.theta += d.dtheta * dt;
+					d.x = p.data.x + d.dist * Math.cos(d.theta);
+					d.y = p.data.y + d.dist * Math.sin(d.theta);
+					if (d.index > 1 && !s.is_dying)
+						d.scale = d.health * 1.5;
+				};
+			});
+		}
 	});
 	SPRITE.newObj('Shield', {
 		r: 60,

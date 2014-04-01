@@ -237,6 +237,27 @@ input[type="radio"]:focus + label {
 	<img id="stg1enm" src="res/stg1enm.png" />
 	<img id="front" src="res/front.png" />
 	<canvas id="mainbg_patt" from="front 0 224 32 32"></canvas>
+	<canvas id="bomb_patt" from="player0L 0 97 63 64"></canvas>
+	<canvas id="bombs"></canvas>
+	<script id="gen_bombbg">
+		(function(RES) {
+			var cv = RES.bombs,
+				dc = cv.getContext('2d'),
+				patt = RES.bomb_patt,
+				colors = ['white', 'red', 'blue', 'green'];
+			cv.width = patt.width * colors.length;
+			cv.height = patt.height;
+			ieach(colors, function(i, c) {
+				var x = patt.width*i;
+				dc.save();
+				dc.drawImage(patt, x, 0);
+				dc.globalCompositeOperation = 'source-atop';
+				dc.fillStyle = c;
+				dc.fillRect(x, 0, patt.width, patt.height);
+				dc.restore();
+			});
+		});
+	</script>
 	<script id="frames">
 		(function(RES) {
 			var _t = {};
@@ -286,9 +307,9 @@ input[type="radio"]:focus + label {
 			_t.PSlow = array(RES.pslow.width/64, function(i) {
 				return extend({ res:'pslow', sy:0, sw:64, sh:64, w:64, h:64 }, { sx:64*i });
 			});
-			_t.Shield = [
-				{ res:'player0L', sx:0, sy:98, sw:60, sh:60, w:120, h:120 },
-			];
+			_t.Shield = array(RES.bombs.width/63, function(i) {
+				return extend({ res:'bombs', sy:0, sw:60, sh:60, w:120, h:120 }, { sx:63*i });
+			});
 
 			ieach(['Drops', 'Lasers', 'TamaA', 'TamaB', 'LongA', 'LongB', 'LongC'], function(i, k) {
 				_t[k] = array(16, function(j) {
