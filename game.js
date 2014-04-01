@@ -1875,7 +1875,7 @@ function newBomb(player) {
 				d.r = 1 + Math.sqrt(d.health) * 40;
 				d.scale = d.r / 30;
 			};
-			ieach([1, 2, 3, 2, 3], function(i, v) {
+			ieach([2, 3, 1, 2, 3], function(i, v) {
 				SPRITE.newObj('Basic', {
 					index: v,
 					theta: random(0, Math.PI*2),
@@ -1898,7 +1898,6 @@ function newBomb(player) {
 		}
 	});
 	SPRITE.newObj('Shield', {
-		r: 60,
 		x: player.data.x,
 		y: player.data.y,
 		frames: RES.frames.EffPlayer,
@@ -1906,7 +1905,9 @@ function newBomb(player) {
 		states: {
 			life: [100, 50, 850],
 		},
-	});
+	}).runCircle = function(dt, d, s) {
+		d.r = 20 + d.health * 60;
+	};
 }
 function killCls() {
 	ieach(arguments, function(i, c) {
