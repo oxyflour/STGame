@@ -1834,12 +1834,13 @@ function newBackground(elems) {
 		e.object = bg;
 		e.offset = 0;
 		e.speed = parseFloat($attr(e, 'bg-speed') || '0');
+		e.opacity = parseFloat(e.style.opacity || '1');
 	});
 	bg.anim(50, function(d, v) {
 		ieach(v.elems, function(i, e) {
 			e.offset += e.speed * 50;
 			e.style.backgroundPosition = '0 ' + e.offset + 'px';
-			e.style.opacity = v.data.health;
+			e.style.opacity = e.opacity * v.data.health;
 		});
 	});
 	return bg;
