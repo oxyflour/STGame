@@ -354,6 +354,11 @@ input[type="radio"]:focus + label {
 	</script>
 	<script id="gen_mainbg">
 		(function(RES) {
+			/*
+			 * canvas.toDataURL() will not work in chrome when the html file is opened in a local disk
+			 * see http://stackoverflow.com/questions/10187306/canvas-todataurl-throws-security-exception-despite-image-being-local
+			 */
+			//$e('mainbg').style.background = 'url(' + RES.mainbg_patt.toDataURL() + ')';
 			var cv = $e('mainbg'),
 				dc = cv.getContext('2d'),
 				patt = dc.createPattern(RES.mainbg_patt, 'repeat');
