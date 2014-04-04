@@ -1847,7 +1847,7 @@ function newBackground(elems) {
 		ieach(v.elems, function(i, e) {
 			e.offset += e.speed * 50;
 			if (e.offset > 0)
-				e.offset = -e.total;
+				e.offset -= e.total;
 			e.style.marginTop = e.offset + 'px';
 			e.style.opacity = e.opacity * v.data.health;
 		});

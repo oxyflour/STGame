@@ -302,7 +302,7 @@ input[type="radio"]:focus + label {
 			cv.width = cv.scrollWidth;
 			cv.height = cv.scrollHeight;
 
-			var s = 1.2;
+			var s = 1.5;
 			ieach([RES.tree_pattL, RES.tree_pattR], function mkRepeatTexture(i, patt) {
 				var sw = patt.width,
 					h = patt.height / 2,
@@ -321,6 +321,7 @@ input[type="radio"]:focus + label {
 			});
 
 			var rh = parseInt($attr(cv, 'bg-reserve'));
+			dc.clearRect(0, cv.height - rh, cv.width, rh);
 			CanvasDrawSelf(cv, 0, 0, cv.width, rh, 0, cv.height - rh, cv.width, rh);
 		})
 	</script>
@@ -336,7 +337,13 @@ input[type="radio"]:focus + label {
 			dc.fillStyle = dc.createPattern(RES.ground_patt, 'repeat');
 			dc.fillRect(0, 0, cv.width, cv.height);
 
+			var s = 0.8;
+			dc.globalAlpha = 0.4;
+			dc.drawImage($e('treebg'), 0, 0, cv.width, cv.height, (1-s)/2*cv.width, 0, cv.width*s, cv.height);
+			dc.globalAlpha = 1;
+
 			var rh = parseInt($attr(cv, 'bg-reserve'));
+			dc.clearRect(0, cv.height - rh, cv.width, rh);
 			CanvasDrawSelf(cv, 0, 0, cv.width, rh, 0, cv.height - rh, cv.width, rh);
 		})
 	</script>
@@ -444,7 +451,7 @@ input[type="radio"]:focus + label {
 				id="groundbg" bg-speed="0.02" bg-reserve="400"></canvas>
 			<canvas class="ui-obj bg1 full-width" style="height:300px;opacity:0.6;"
 				id="maskbg1"></canvas>
-			<canvas class="ui-obj bg1 full-width" style="height:1000px;opacity:0.9"
+			<canvas class="ui-obj bg1 full-width" style="height:1000px"
 				id="treebg" bg-speed="0.03" bg-reserve="400"></canvas>
 			<canvas class="ui-obj bg1 full-width maskbg" style="height:200px;opacity:0.7;"
 				id="maskbg2"></canvas>
