@@ -100,6 +100,11 @@ function limit_between(x, min, max) {
 	if (!(x >= min)) x = min;
 	return x;
 }
+function keep_outside(x, min, max) {
+	if (!(x >= max) && !(x <= min))
+		x = (x + x > max + min) ? max : min;
+	return x;
+}
 function interp(x0, x1, f) {
 	return x0 * (1-f) + x1 * f;
 }
@@ -180,6 +185,10 @@ function $e(id) {
 function $attr(e, a) {
 	var attr = e && e.attributes[a];
 	return attr && attr.textContent;
+}
+function $style(e, k) {
+	var style = getComputedStyle(e);
+	return style && style.getPropertyValue(k);
 }
 
 function newCounter() {
@@ -343,8 +352,8 @@ var RES = (function(res) {
 			s: im,
 			x: 0,
 			y: 0,
-			w: im.naturalWidth,
-			h: im.naturalHeight,
+			w: im.naturalWidth || im.width,
+			h: im.naturalHeight || im.height,
 		}
 	}
 	function getTrans(trans) {
@@ -364,25 +373,27 @@ var RES = (function(res) {
 	function updateCanvas(canv, from, trans) {
 		var sc = getSrc(from),
 			ts = getTrans(trans),
-			dc = canv.getContext('2d');
-		canv.width = sc.w * ts.length;
-		canv.height = sc.h;
+			dc = canv.getContext('2d'),
+			sk = $attr(canv, 'stack') == 'y' ? [0, 1] : [1, 0];
+		canv.width = sc.w + sc.w*(ts.length-1)*sk[0];
+		canv.height = sc.h + sc.h*(ts.length-1)*sk[1];
 		ieach(ts, function(i, t) {
 			dc.save();
+			dc.translate(sc.w*i*sk[0], sc.h*i*sk[1]);
 			if (!t.k || t.k == 'mirror') {
-				if (t.v == 'x') {
-					dc.translate(canv.width, 0);
+				if (t.v.indexOf('x') >= 0) {
+					dc.translate(sc.w, 0);
 					dc.scale(-1, 1);
 				}
-				else if (t.v == 'y') {
-					dc.translate(0, canv.height);
+				if (t.v.indexOf('y') >= 0) {
+					dc.translate(0, sc.h);
 					dc.scale(1, -1);
 				}
 				dc.drawImage(sc.s, sc.x, sc.y, sc.w, sc.h,
-					sc.w*i, 0, sc.w, sc.h);
+					0, 0, sc.w, sc.h);
 			}
 			else if (t.k == 'rotate') {
-				dc.translate(sc.w*i + sc.w/2, sc.h/2);
+				dc.translate(sc.w/2, sc.h/2);
 				dc.rotate(parseInt(t.v)*Math.PI/180);
 				dc.drawImage(sc.s, sc.x, sc.y, sc.w, sc.h,
 					-sc.w/2, -sc.h/2, sc.w, sc.h);
@@ -1523,9 +1534,8 @@ function newDannmaku(d) {
 				else if (d.target_cls)
 					d.target = UTIL.getOneObj(d.target_cls);
 			}
-			var rv = 1/d.velocity_min;
-			d.vx = 1/limit_between(1/d.vx, -rv, rv);
-			d.vy = 1/limit_between(1/d.vy, -rv, rv);
+			d.vx = keep_outside(d.vx, -d.velocity_min, d.velocity_min);
+			d.vy = keep_outside(d.vy, -d.velocity_min, d.velocity_min);
 		};
 	}
 	else if (d.type == 'OrbAround') {
@@ -1829,13 +1839,16 @@ function newBackground(elems) {
 	ieach(elems, function(i, e) {
 		e.object = bg;
 		e.offset = 0;
+		e.total = e.scrollHeight - parseFloat($attr(e, 'bg-reserve') || '0');
 		e.speed = parseFloat($attr(e, 'bg-speed') || '0');
 		e.opacity = parseFloat(e.style.opacity || '1');
 	});
 	bg.anim(50, function(d, v) {
 		ieach(v.elems, function(i, e) {
 			e.offset += e.speed * 50;
-			e.style.backgroundPosition = '0 ' + e.offset + 'px';
+			if (e.offset > 0)
+				e.offset = -e.total;
+			e.style.marginTop = e.offset + 'px';
 			e.style.opacity = e.opacity * v.data.health;
 		});
 	});

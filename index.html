@@ -235,8 +235,9 @@ input[type="radio"]:focus + label {
 	<canvas id="pslow" from="etama2 0 112 64 64"
 		transform="rotate:{{range(90, 0, 6)}}"></canvas>
 	<img id="stg1enm" src="res/stg1enm.png" />
+	<img id="stg1bg" src="res/stg1bg.png" />
 	<img id="front" src="res/front.png" />
-	<canvas id="mainbg_patt" from="front 0 224 32 32"></canvas>
+	<!-- -->
 	<canvas id="bomb_patt" from="player0L 0 97 63 64"></canvas>
 	<canvas id="bombs"></canvas>
 	<script id="gen_bombbg">
@@ -258,6 +259,88 @@ input[type="radio"]:focus + label {
 			});
 		});
 	</script>
+	<!-- -->
+	<canvas id="mainbg_patt" from="front 0 224 32 32"></canvas>
+	<script id="gen_mainbg">
+		(function(RES) {
+			/*
+			 * canvas.toDataURL() will not work in chrome when the html file is opened in a local disk
+			 * see http://stackoverflow.com/questions/10187306/canvas-todataurl-throws-security-exception-despite-image-being-local
+			 */
+			//$e('mainbg').style.background = 'url(' + RES.mainbg_patt.toDataURL() + ')';
+			var cv = $e('mainbg'),
+				dc = cv.getContext('2d'),
+				patt = dc.createPattern(RES.mainbg_patt, 'repeat');
+			cv.width = cv.scrollWidth;
+			cv.height = cv.scrollHeight;
+			dc.fillStyle = patt;
+			dc.fillRect(0, 0, cv.width, cv.height);
+		})
+	</script>
+	<!-- -->
+	<script id="gen_maskbg">
+		(function(RES) {
+			ieach([$e('maskbg1'), $e('maskbg2')], function(i, cv) {
+				cv.width = cv.scrollWidth;
+				cv.height = cv.scrollHeight;
+				var dc = cv.getContext('2d'),
+					grad = dc.createLinearGradient(0, 0, 0, cv.height);
+				grad.addColorStop(0, 'black');
+				grad.addColorStop(1, 'transparent');
+				dc.fillStyle = grad;
+				dc.fillRect(0, 0, cv.width, cv.height);
+			});
+		})
+	</script>
+	<!-- -->
+	<canvas id="tree_pattL" from="stg1bg 0 48 64 128" transform="mirror:0,y" stack="y"></canvas>
+	<canvas id="tree_pattR" from="tree_pattL" transform="mirror:x"></canvas>
+	<script id="gen_treebg">
+		(function(RES) {
+			var cv = $e('treebg'),
+				dc = cv.getContext('2d');
+			cv.width = cv.scrollWidth;
+			cv.height = cv.scrollHeight;
+
+			var s = 1.2;
+			ieach([RES.tree_pattL, RES.tree_pattR], function mkRepeatTexture(i, patt) {
+				var sw = patt.width,
+					h = patt.height / 2,
+					f = random(1),
+					x = i && (cv.width - sw*s),
+					y = 0;
+				while (y < cv.height) {
+					var g = random(1);
+						sy = (g > f ? f : 2 - f) * h,
+						sh = Math.abs(g - f) * h;
+					dc.drawImage(patt, 0, sy, sw, sh, x, y, sw*s, sh*s);
+
+					f = g;
+					y += sh*s;
+				}
+			});
+
+			var rh = parseInt($attr(cv, 'bg-reserve'));
+			CanvasDrawSelf(cv, 0, 0, cv.width, rh, 0, cv.height - rh, cv.width, rh);
+		})
+	</script>
+	<!-- -->
+	<canvas id="ground_patt" from="stg1bg 0 0 64 32"></canvas>
+	<script id="gen_groundbg">
+		(function(RES) {
+			var cv = $e('groundbg'),
+				dc = cv.getContext('2d');
+			cv.width = cv.scrollWidth;
+			cv.height = cv.scrollHeight;
+
+			dc.fillStyle = dc.createPattern(RES.ground_patt, 'repeat');
+			dc.fillRect(0, 0, cv.width, cv.height);
+
+			var rh = parseInt($attr(cv, 'bg-reserve'));
+			CanvasDrawSelf(cv, 0, 0, cv.width, rh, 0, cv.height - rh, cv.width, rh);
+		})
+	</script>
+	<!-- -->
 	<script id="frames">
 		(function(RES) {
 			var _t = {};
@@ -352,45 +435,19 @@ input[type="radio"]:focus + label {
 			return _t;
 		})
 	</script>
-	<script id="gen_mainbg">
-		(function(RES) {
-			/*
-			 * canvas.toDataURL() will not work in chrome when the html file is opened in a local disk
-			 * see http://stackoverflow.com/questions/10187306/canvas-todataurl-throws-security-exception-despite-image-being-local
-			 */
-			//$e('mainbg').style.background = 'url(' + RES.mainbg_patt.toDataURL() + ')';
-			var cv = $e('mainbg'),
-				dc = cv.getContext('2d'),
-				patt = dc.createPattern(RES.mainbg_patt, 'repeat');
-			cv.width = cv.scrollWidth;
-			cv.height = cv.scrollHeight;
-			dc.fillStyle = patt;
-			dc.fillRect(0, 0, cv.width, cv.height);
-		})
-	</script>
-	<script id="gen_maskbg">
-		(function(RES) {
-			ieach($('.maskbg'), function(i, cv) {
-				cv.width = cv.scrollWidth;
-				cv.height = cv.scrollHeight;
-				var dc = cv.getContext('2d'),
-					grad = dc.createLinearGradient(0, 0, 0, cv.height);
-				grad.addColorStop(0, 'black');
-				grad.addColorStop(1, 'transparent');
-				dc.fillStyle = grad;
-				dc.fillRect(0, 0, cv.width, cv.height);
-			});
-		})
-	</script>
 </div>
 <div class="main ui" ui-show="RES.process == 1">
 	<canvas id="mainbg" class="screen absolute"></canvas>
 	<div class="game absolute no-overflow" style="z-index:0">
 		<div class="relative bgimg">
-			<div class="ui-obj bg1" style="background:url(res/bg.png);" bg-speed="0.02"></div>
-			<canvas class="ui-obj bg1 maskbg" style="width:100%;height:400px;opacity:0.6;"></canvas>
-			<div class="ui-obj bg1" style="background:url(res/bg2.png);opacity:0.9" bg-speed="0.03"></div>
-			<canvas class="ui-obj bg1 maskbg" style="width:100%;height:300px;opacity:0.7;"></canvas>
+			<canvas class="ui-obj bg1 full-width" style="height:1000px;"
+				id="groundbg" bg-speed="0.02" bg-reserve="400"></canvas>
+			<canvas class="ui-obj bg1 full-width" style="height:300px;opacity:0.6;"
+				id="maskbg1"></canvas>
+			<canvas class="ui-obj bg1 full-width" style="height:1000px;opacity:0.9"
+				id="treebg" bg-speed="0.03" bg-reserve="400"></canvas>
+			<canvas class="ui-obj bg1 full-width maskbg" style="height:200px;opacity:0.7;"
+				id="maskbg2"></canvas>
 			<div class="ui-obj bombbg" style="background:rgba(0,0,0,0.6)"></div>
 		</div>
 	</div>
@@ -554,6 +611,16 @@ function getRadioVal(ls) {
 
 function getNum(n, i) {
 	return (n + '').substr(i, 1);
+}
+
+function CanvasDrawSelf(cv, sx, sy, sw, sh, x, y, w, h) {
+	var dc = cv.getContext('2d'),
+		ct = document.createElement('canvas'),
+		dt = ct.getContext('2d');
+	ct.width = w;
+	ct.height = h;
+	dt.drawImage(cv, sx, sy, sw, sh, 0, 0, w, h);
+	dc.drawImage(ct, x, y);
 }
 
 function loadAndStart() {
