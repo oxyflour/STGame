@@ -489,7 +489,7 @@ var SPRITE = (function() {
 })();
 
 var STORY = (function() {
-	var _t = [];
+	var _t = {};
 	_t.events = dictflip([
 		'STORY_LOAD',
 		'GAME_INPUT',
@@ -1930,17 +1930,6 @@ function killObj() {
 	})
 }
 
-GAME.objects = {
-};
-GAME.statics = {
-	max_point: 1000000,
-	point: 0,
-	player: 7,
-	bomb: 7,
-	power: 255,
-	graze: 0,
-	dot: 0,
-};
 var hook = {
 	init: function(n, d) {
 		console.log('--> ', n)
@@ -1948,13 +1937,22 @@ var hook = {
 	quit: function(n, d) {
 	},
 	after_run: function(dt, d) {
-		GAME.statics.time += dt;
+		STORY.statics.time += dt;
 	},
 	before_on: function(e, v, d) {
 		if (e == STORY.events.STORY_LOAD) {
 			SPRITE.clrObj();
-			GAME.objects.player = newPlayer();
-			GAME.objects.bg = newBackground($('.bg1'));
+			STORY.statics = {
+				max_point: 1000000,
+				point: 0,
+				player: 7,
+				bomb: 7,
+				power: 255,
+				graze: 0,
+				dot: 0,
+			};
+			newPlayer();
+			newBackground($('.bg1'));
 		}
 		else if (e == STORY.events.GAME_INPUT) {
 			if (v.type == 'keyup' && v.which == 27) {
@@ -1973,7 +1971,7 @@ var hook = {
 			}, 'Drop');
 		}
 		else if (e == STORY.events.PLAYER_HIT) {
-			GAME.statics.graze --;
+			STORY.statics.graze --;
 			v.state.set('juesi');
 			newEffect(v);
 			/*
@@ -1983,7 +1981,7 @@ var hook = {
 			*/
 		}
 		else if (e == STORY.events.PLAYER_GRAZE) {
-			GAME.statics.graze ++;
+			STORY.statics.graze ++;
 		}
 		else if (e == STORY.events.PLAYER_DYING) {
 			var x = v.data.x,
@@ -1992,11 +1990,11 @@ var hook = {
 			SPRITE.newObj('Drop', { vx:-0.5, vy:-0.85, x:x, y:y });
 			SPRITE.newObj('Drop', { vx: 0.5, vy:-0.85, x:x, y:y });
 			SPRITE.newObj('Drop', { vx:   1, vy: -0.8, x:x, y:y });
-			GAME.statics.player --;
+			STORY.statics.player --;
 		}
 		else if (e == STORY.events.PLAYER_DEAD) {
-			GAME.objects.player = newPlayer();
-			GAME.statics.bomb = 7;
+			newPlayer();
+			STORY.statics.bomb = 7;
 		}
 		else if (e == STORY.events.PLAYER_FIRE) {
 			if (!d.disable_fire)
@@ -2005,7 +2003,7 @@ var hook = {
 				});
 		}
 		else if (e == STORY.events.PLAYER_BOMB) {
-			GAME.statics.bomb --;
+			STORY.statics.bomb --;
 			v.state.set('bomb');
 			newBomb(v);
 		}
@@ -2015,7 +2013,7 @@ var hook = {
 		}
 		else if (e == STORY.events.DROP_COLLECTED) {
 			v.state.die();
-			GAME.statics.point += 10;
+			STORY.statics.point += 10;
 		}
 		else if (e == STORY.events.BULLET_HIT) {
 			v.state.die();
