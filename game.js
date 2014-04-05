@@ -170,12 +170,21 @@ function circles_hit(cr1, cr2) {
 	cr1.x = cx + cr1.r*cos*f; cr1.y = cy + cr1.r*sin*f;
 	cr2.x = cx - cr2.r*cos*f; cr2.y = cy - cr2.r*sin*f;
 }
-function redirect_object(from, to, v) {
+function redirect_object(from, to, v, f) {
 	var dx = to.x - from.x,
 		dy = to.y - from.y,
 		r = sqrt_sum(dx, dy);
-	from.vx = v * dx / r;
-	from.vy = v * dy / r;
+	var vx = v * dx / r,
+		vy = v * dy / r;
+	if (f > 0 && f < 1) {
+		var tx = interp(from.vx, vx, f),
+			ty = interp(from.vy, vy, f);
+		tr = sqrt_sum(tx, ty);
+		vx = v * tx / tr;
+		vy = v * ty / tr;
+	}
+	from.vx = vx;
+	from.vy = vy;
 	return r;
 }
 
@@ -629,6 +638,19 @@ var GAME = (function() {
 var UTIL = {
 	getOneObj: function(c, fn) {
 		return SPRITE.eachObj(fn || return_second, c);
+	},
+	getNearestAlive: function(v, c) {
+		var r = Inf, t = undefined;
+		SPRITE.eachObj(function(i, u) {
+			if (u.state.is_dying)
+				return;
+			var r0 = squa_sum(u.data.x-v.data.x, u.data.y-v.data.y);
+			if (r0 < r) {
+				r = r0;
+				t = u;
+			}
+		}, c);
+		return t;
 	},
 	addAnim: function(v, d, t, id) {
 		fill(d, {
@@ -1299,8 +1321,8 @@ SPRITE.newCls('Shield', {
 	},
 	
 	states: {
-		life: [800, Inf, 500],
-		mkDamage: [0, 20, 0],
+		life: [1000, Inf, 500],
+		mkDamage: [0, 20, 20],
 	},
 }, function(d) {
 	SPRITE.init.Circle.call(this, d);
@@ -1455,18 +1477,8 @@ function newBullet(d) {
 		});
 	});
 	if (d.from.bullet1_idx == 0) {
-		if (!d.to) {
-			var r = Inf;
-			SPRITE.eachObj(function(i, u) {
-				if (u.state.d.mkDamage) {
-					var r0 = squa_sum(u.data.x-d.from.data.x, u.data.y-d.from.data.y);
-					if (r0 < r) {
-						r = r0;
-						d.to = u;
-					}
-				}
-			}, 'Enemy');
-		}
+		if (!d.to)
+			d.to = UTIL.getNearestAlive(d.from, 'Enemy');
 		array(4, function(i) {
 			var x = i % 2 ? -1 : 1,
 				v1 = random(0.4, 0.5),
@@ -1486,7 +1498,7 @@ function newBullet(d) {
 				var u = d.to,
 					e = u && u.data;
 				if (u && !u.finished && u.state.d.mkDamage && !s.is_dying)
-					redirect_object(d, e, sqrt_sum(d.vx, d.vy));
+					redirect_object(d, e, sqrt_sum(d.vx, d.vy), 0.05);
 			};
 		})
 	}
@@ -1860,50 +1872,70 @@ function newBomb(player) {
 		if (bg.elem.object == bg)
 			bg.elem.style.opacity = bg.data.health;
 	});
-	bg.anim(400, function(x, bg) {
+	bg.anim(800, function(x, bg) {
+		if (bg.state.is_dying)
+			return;
 		var p = bg.player;
-		if (bg.state.is_living) {
-			var sh = SPRITE.newObj('Shield', {
-				sx: p.data.x,
-				sy: p.data.y,
-				theta: random(0, Math.PI*2),
-				dtheta: randin([-0.002, 0.002]),
-				dist: 0,
-				parent: p,
-				frames: RES.frames.Shield[0],
-				opacity: 0.8,
-			});
-			sh.runCircle = function(dt, d, s) {
+		var sh = SPRITE.newObj('Shield', {
+			sx: p.data.x,
+			sy: p.data.y,
+			theta: random(0, Math.PI*2),
+			dtheta: randin([-0.002, 0.002]),
+			dist: 15,
+			frames: RES.frames.Shield[0],
+		});
+		sh.runCircle = function(dt, d, s) {
+			if (s.d.age < 1000) {
 				d.theta += d.dtheta * dt;
 				d.dist += 0.1 * dt;
-				d.x = d.sx + d.dist * Math.cos(d.theta);
-				d.y = d.sy + d.dist * Math.sin(d.theta);
-				d.r = 1 + Math.sqrt(d.health) * 40;
-				d.scale = d.r / 30;
+				dx = d.sx + d.dist * Math.cos(d.theta) - d.x;
+				dy = d.sy + d.dist * Math.sin(d.theta) - d.y;
+				d.vx = dx / dt;
+				d.vy = dy / dt;
+			}
+			else if (s.d.age < 4000) {
+				if (!d.to)
+					d.to = UTIL.getNearestAlive(this, 'Enemy');
+				if (d.to && !d.to.finished)
+					redirect_object(d, d.to.data, sqrt_sum(d.vx, d.vy), 0.02);
+			}
+			d.r = 1 + Math.sqrt(d.health) * 40;
+			d.scale = d.r / 30;
+		};
+		ieach([1, 2, 3], function(i, v) {
+			SPRITE.newObj('Basic', {
+				index: v,
+				theta: random(0, Math.PI*2),
+				dtheta: random(-0.005, 0.005),
+				dist: random(10, 15),
+				parent: sh,
+				frame: RES.frames.Shield[v],
+				opacity: 0.5,
+				blend: 'lighter',
+			}).runBasic = function(dt, d, s) {
+				var p = d.parent;
+				d.dist = p.data.r * 0.4;
+				d.theta += d.dtheta * dt;
+				d.x = p.data.x + d.dist * Math.cos(d.theta);
+				d.y = p.data.y + d.dist * Math.sin(d.theta);
+				if (d.index > 1 && !s.is_dying)
+					d.scale = d.health * 1.5;
 			};
-			ieach([2, 3, 1, 2, 3], function(i, v) {
-				SPRITE.newObj('Basic', {
-					index: v,
-					theta: random(0, Math.PI*2),
-					dtheta: random(-0.005, 0.005),
-					dist: random(10, 15),
-					parent: sh,
-					frame: RES.frames.Shield[v],
-					opacity: 0.5,
-					blend: 'lighter',
-				}).runBasic = function(dt, d, s) {
-					var p = d.parent;
-					d.dist = p.data.r * 0.4;
-					d.theta += d.dtheta * dt;
-					d.x = p.data.x + d.dist * Math.cos(d.theta);
-					d.y = p.data.y + d.dist * Math.sin(d.theta);
-					if (d.index > 1 && !s.is_dying)
-						d.scale = d.health * 1.5;
-				};
-			});
-		}
+		});
 	});
-	SPRITE.newObj('Shield', {
+
+	var sh = SPRITE.newObj('Shield', {
+		parent: bg,
+	});
+	sh.runCircle = function(dt, d, s) {
+		var p = d.parent.player;
+		d.x = p.data.x;
+		d.y = p.data.y;
+		d.r = s.is_dying ? 400 - d.health*300 : d.health * 100;
+	};
+	sh.drawCircle = return_nothing;
+
+	SPRITE.newObj('Basic', {
 		x: player.data.x,
 		y: player.data.y,
 		frames: RES.frames.EffPlayer,
@@ -1911,9 +1943,7 @@ function newBomb(player) {
 		states: {
 			life: [100, 50, 850],
 		},
-	}).runCircle = function(dt, d, s) {
-		d.r = 20 + d.health * 60;
-	};
+	});
 }
 function killCls() {
 	ieach(arguments, function(i, c) {
