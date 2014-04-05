@@ -630,7 +630,7 @@ var UTIL = {
 	getOneObj: function(c, fn) {
 		return SPRITE.eachObj(fn || return_second, c);
 	},
-	addAnim: function(v, t, d, id) {
+	addAnim: function(v, d, t, id) {
 		fill(d, {
 			value: 0,
 			min: 0,
@@ -649,7 +649,7 @@ var UTIL = {
 			else
 				d.value = end;
 		}
-		v.anim(t, function(d) {
+		v.anim(t || 15, function(d) {
 			if (d.value > d.max && d.step > 0)
 				loop(d, d.min, d.max);
 			else if (d.value < d.min && d.step < 0)
@@ -1408,14 +1408,14 @@ function newPlayer() {
 			parent: p,
 			frames: RES.frames[a.frames],
 		});
-		UTIL.addAnim(p.onmyous[k], 15, a);
+		UTIL.addAnim(p.onmyous[k], a);
 	});
 	p.pslow = SPRITE.newObj('Basic', {
 		layer: 'L20',
 		parent: p,
 		frames: RES.frames.PSlow,
 	});
-	UTIL.addAnim(p.pslow, 15, {
+	UTIL.addAnim(p.pslow, {
 		delta: 1/120,
 		callback: function(v) {
 			var p = v.data.parent;
