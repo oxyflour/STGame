@@ -1393,7 +1393,7 @@ function newPlayer() {
 	var p = SPRITE.newObj('Player');
 	p.onmyous = {};
 	keach({
-		'left': { value:0.9, max:0.9, min:0.6, delta:-0.008, frames:'OnmyouR' },
+		'left' : { value:0.9, max:0.9, min:0.6, delta:-0.008, frames:'OnmyouR' },
 		'right': { value:0.1, max:0.4, min:0.1, delta:+0.008, frames:'Onmyou' },
 	}, function(k, a) {
 		a.callback = function(v) {
@@ -1408,14 +1408,14 @@ function newPlayer() {
 			parent: p,
 			frames: RES.frames[a.frames],
 		});
-		UTIL.addAnim(p.onmyous[k], 10, a);
+		UTIL.addAnim(p.onmyous[k], 15, a);
 	});
 	p.pslow = SPRITE.newObj('Basic', {
 		layer: 'L20',
 		parent: p,
 		frames: RES.frames.PSlow,
 	});
-	UTIL.addAnim(p.pslow, 10, {
+	UTIL.addAnim(p.pslow, 15, {
 		delta: 1/120,
 		callback: function(v) {
 			var p = v.data.parent;
@@ -2076,7 +2076,8 @@ tl.init = {
 				sy: interp(GAME.rect.t, GAME.rect.b, 0.5) + 35,
 			});
 			d.text.runBasic = function(dt, d, s) {
-				d.y = d.sy - Math.sqrt(d.health)*10;
+				if (!s.is_dying)
+					d.y = d.sy - Math.sqrt(d.health)*10;
 			};
 		}, 400, d);
 	},
