@@ -260,26 +260,20 @@ input[type="radio"]:focus + label {
 			 */
 			//$e('mainbg').style.background = 'url(' + RES.mainbg_patt.toDataURL() + ')';
 			var cv = $e('mainbg'),
-				dc = cv.getContext('2d'),
-				patt = dc.createPattern(RES.mainbg_patt, 'repeat');
-			cv.width = cv.scrollWidth;
-			cv.height = cv.scrollHeight;
-			dc.fillStyle = patt;
-			dc.fillRect(0, 0, cv.width, cv.height);
+				dc = getCanvasDC(cv);
+			dc.fillWith(dc.createPattern(RES.mainbg_patt, 'repeat'));
 		})
 	</script>
 	<!-- -->
 	<script id="gen_maskbg">
 		(function(RES) {
-			ieach([$e('maskbg1'), $e('maskbg2')], function(i, cv) {
-				cv.width = cv.scrollWidth;
-				cv.height = cv.scrollHeight;
-				var dc = cv.getContext('2d'),
+			ieach(['maskbg1', 'maskbg2'], function(i, c) {
+				var cv = $e(c),
+					dc = getCanvasDC(cv),
 					grad = dc.createLinearGradient(0, 0, 0, cv.height);
 				grad.addColorStop(0, 'black');
 				grad.addColorStop(1, 'transparent');
-				dc.fillStyle = grad;
-				dc.fillRect(0, 0, cv.width, cv.height);
+				dc.fillWith(grad);
 			});
 		})
 	</script>
@@ -289,9 +283,7 @@ input[type="radio"]:focus + label {
 	<script id="gen_treebg">
 		(function(RES) {
 			var cv = $e('treebg'),
-				dc = cv.getContext('2d');
-			cv.width = cv.scrollWidth;
-			cv.height = cv.scrollHeight;
+				dc = getCanvasDC(cv);
 
 			var s = 1.5;
 			ieach([RES.tree_pattL, RES.tree_pattR], function mkRepeatTexture(i, patt) {
@@ -321,13 +313,10 @@ input[type="radio"]:focus + label {
 	<script id="gen_groundbg">
 		(function(RES) {
 			var cv = $e('groundbg'),
-				dc = cv.getContext('2d');
-			cv.width = cv.scrollWidth;
-			cv.height = cv.scrollHeight;
+				dc = getCanvasDC(cv);
 
 			/*
-			dc.fillStyle = dc.createPattern(RES.ground_patt, 'repeat');
-			dc.fillRect(0, 0, cv.width, cv.height);
+			dc.fillWith(dc.createPattern(RES.ground_patt, 'repeat'));
 			*/
 			var patt = RES.ground_patt,
 				s = 2,
@@ -354,9 +343,7 @@ input[type="radio"]:focus + label {
 	<script id="gen_gamelogo">
 		(function(RES) {
 			var cv = $e('gamelogo'),
-				dc = cv.getContext('2d');
-			cv.width = cv.scrollWidth;
-			cv.height = cv.scrollHeight;
+				dc = getCanvasDC(cv);
 			dc.drawImage(RES.logo_patt, 0, 0);
 		})
 	</script>
@@ -643,6 +630,17 @@ function CanvasDrawSelf(cv, sx, sy, sw, sh, x, y, w, h) {
 	ct.height = h;
 	dt.drawImage(cv, sx, sy, sw, sh, 0, 0, w, h);
 	dc.drawImage(ct, x, y);
+}
+function getCanvasDC(cv) {
+	cv.width = cv.scrollWidth;
+	cv.height = cv.scrollHeight;
+	var dc = cv.getContext('2d');
+	dc.fillWith = function(patt) {
+		if (patt)
+			dc.fillStyle = patt;
+		dc.fillRect(0, 0, cv.width, cv.height);
+	};
+	return dc;
 }
 
 function loadAndStart() {
