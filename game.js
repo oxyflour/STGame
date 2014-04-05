@@ -637,11 +637,10 @@ var UTIL = {
 			callback: undefined,
 			step: 1,
 			loop: undefined,
-			key: undefined,
 		});
 		function loop(d, begin, end) {
-			if (d.loop.apply)
-				d.loop();
+			if (d.loop && d.loop.apply)
+				d.loop(begin, end);
 			else if (d.loop == 'restart')
 				d.value = begin;
 			else if (d.loop == 'reverse')
@@ -650,15 +649,13 @@ var UTIL = {
 				d.value = end;
 		}
 		v.anim(t, function(d) {
-			if (d.callback)
-				d.step = d.callback(v);
-			d.value += d.step;
-			if (d.value > d.max)
+			if (d.value > d.max && d.step > 0)
 				loop(d, d.min, d.max);
-			else if (d.value < d.min)
+			else if (d.value < d.min && d.step < 0)
 				loop(d, d.max, d.min);
-			if (d.key)
-				v.data[d.key] = d.value;
+			if (d.callback)
+				d.callback(v);
+			d.value += d.step;
 		}, d, id);
 	},
 	// fs can be function, frame array, or a single frame
@@ -1395,43 +1392,37 @@ function newPlayer() {
 	var p = SPRITE.newObj('Player');
 	p.onmyous = {};
 	keach({
-		'left': { val:0.9, max:0.9, min:0.6, delta:-0.002 },
-		'right': { val:0.1, max:0.4, min:0.1, delta:+0.002 },
+		'left': { value:0.9, max:0.9, min:0.6, delta:-0.008, frames:'OnmyouR' },
+		'right': { value:0.1, max:0.4, min:0.1, delta:+0.008, frames:'Onmyou' },
 	}, function(k, a) {
+		a.callback = function(v) {
+			var p = v.data.parent,
+				r = 25,
+				t = this.value * Math.PI;
+			v.data.x = p.data.x + r * Math.cos(t);
+			v.data.y = p.data.y - r * Math.sin(t);
+			this.step = p.data.slowMode ? this.delta : -this.delta;
+		};
 		p.onmyous[k] = SPRITE.newObj('Basic', {
 			parent: p,
-			frames: k == 'left' ? RES.frames.OnmyouR : RES.frames.Onmyou,
-			offsetRadius: 25,
-			anim: a,
+			frames: RES.frames[a.frames],
 		});
-		p.onmyous[k].runBasic = function(dt, d, s) {
-			var p = d.parent,
-				a = d.anim,
-				delta = p.data.slowMode ? a.delta : -a.delta;
-			a.val = limit_between(a.val + dt * delta, a.min, a.max);
-			d.x = p.data.x + d.offsetRadius * Math.cos(a.val * Math.PI);
-			d.y = p.data.y - d.offsetRadius * Math.sin(a.val * Math.PI);
-		};
+		UTIL.addAnim(p.onmyous[k], 10, a);
 	});
-	p.pslow = { finished: true };
-	p.anim(100, function(d, p) {
-		p.showSlow = !p.finished && !p.state.is_dying && p.data.slowMode;
-		if (!p.showSlow || !p.pslow.finished)
-			return;
-		p.pslow = SPRITE.newObj('Basic', {
-			layer: 'L20',
-			parent: p,
-			frames: RES.frames.PSlow,
-		});
-		p.pslow.runBasic = function(dt, d, s) {
-			var p = d.parent;
-			d.x = p.data.x;
-			d.y = p.data.y;
-			if (p.showSlow && s.is_dying)
-				s.create();
-			if (!p.showSlow && !s.is_dying)
-				s.die();
-		};
+	p.pslow = SPRITE.newObj('Basic', {
+		layer: 'L20',
+		parent: p,
+		frames: RES.frames.PSlow,
+	});
+	UTIL.addAnim(p.pslow, 10, {
+		delta: 1/120,
+		callback: function(v) {
+			var p = v.data.parent;
+			v.data.x = p.data.x;
+			v.data.y = p.data.y;
+			v.data.opacity = this.value;
+			this.step = p.data.slowMode ? this.delta : -this.delta;
+		},
 	});
 }
 function newBall(d) {
