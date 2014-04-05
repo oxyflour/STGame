@@ -63,19 +63,18 @@ input[type="radio"]:focus + label {
 	margin-top: 58px;
 	margin-left: 432px;
 }
-.logo {
+.title {
 	margin-top: 294px;
 	margin-left: 446px;
 	width: 168px;
 	height: 168px;
-	background: url(res/font_logo.png) no-repeat center;
 }
-.logo .td {
+.title .td {
 	float: left;
 	width: 56px;
 	height: 56px;
 }
-.logo .font {
+.title .font {
 	position: absolute;
 	background-image: url(res/front.png);
 	margin-left: -6px;
@@ -84,6 +83,18 @@ input[type="radio"]:focus + label {
 	height: 64px;
 	opacity: 0.6;
 }
+.logo {
+	margin-top: 312px;
+	margin-left: 464px;
+	width: 128px;
+	height: 128px;
+	-webkit-animation: logo_anim 2s;
+	    -ms-animation: logo_anim 2s;
+	   -moz-animation: logo_anim 2s;
+}
+@-webkit-keyframes logo_anim { from { -webkit-transform: rotate(180deg); } to { -webkit-transform: rotate(0); } }
+    @-ms-keyframes logo_anim { from {     -ms-transform: rotate(180deg); } to {     -ms-transform: rotate(0); } }
+   @-moz-keyframes logo_anim { from {    -moz-transform: rotate(180deg); } to {    -moz-transform: rotate(0); } }
 .fps {
 	margin-top: 10px;
 	margin-left: 432px;
@@ -359,6 +370,17 @@ input[type="radio"]:focus + label {
 		})
 	</script>
 	<!-- -->
+	<canvas id="logo_patt" from="front 128 128 128 128"></canvas>
+	<script id="gen_gamelogo">
+		(function(RES) {
+			var cv = $e('gamelogo'),
+				dc = cv.getContext('2d');
+			cv.width = cv.scrollWidth;
+			cv.height = cv.scrollHeight;
+			dc.drawImage(RES.logo_patt, 0, 0);
+		})
+	</script>
+	<!-- -->
 	<script id="frames">
 		(function(RES) {
 			var _t = {};
@@ -554,7 +576,9 @@ input[type="radio"]:focus + label {
 			<div class="ui" ui-bind="'ui num n'+getNum(STORY.statics.dot, 8)" ui-bind-attr="this.className"></div>
 		</div>
 	</div>
-	<div class="logo absolute">
+	<canvas class="logo absolute"
+		id="gamelogo"></canvas>
+	<div class="title absolute">
 		<div class="tr">
 			<div class="td"><div class="font" style="background-position:0 0;"></div></div>
 			<div class="td"><div class="font" style="background-position:-64px 0;"></div></div>
