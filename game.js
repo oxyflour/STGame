@@ -383,16 +383,32 @@ var RES = (function(res) {
 			});
 		}, []);
 	}
-	function updateCanvas(canv, from, trans) {
-		var sc = getSrc(from),
-			ts = getTrans(trans),
-			dc = canv.getContext('2d'),
-			sk = $attr(canv, 'stack') == 'y' ? [0, 1] : [1, 0];
-		canv.width = sc.w + sc.w*(ts.length-1)*sk[0];
-		canv.height = sc.h + sc.h*(ts.length-1)*sk[1];
+	function getScale(scale) {
+		var st = (scale || '').split(' '),
+			x = parseFloat(st[0]),
+			y = parseFloat(st[1]);
+		if (+x === x && +y === y)
+			return [x, y];
+		else if (+x === x)
+			return [x, x];
+		else
+			return [1, 1];
+	}
+	function getStack(stack) {
+		return stack == 'y' ? [0, 1] : [1, 0];
+	}
+	function updateCanvas(canv) {
+		var dc = canv.getContext('2d'),
+			sc = getSrc($attr(canv, 'from')),
+			ts = getTrans($attr(canv, 'transform')),
+			scale = getScale($attr(canv, 'scale')),
+			stack = getStack($attr(canv, 'stack'));
+		canv.width = (sc.w + sc.w*(ts.length-1)*stack[0]) * scale[0];
+		canv.height = (sc.h + sc.h*(ts.length-1)*stack[1]) * scale[1];
 		ieach(ts, function(i, t) {
 			dc.save();
-			dc.translate(sc.w*i*sk[0], sc.h*i*sk[1]);
+			dc.scale(scale[0], scale[1]);
+			dc.translate(sc.w*i*stack[0], sc.h*i*stack[1]);
 			if (!t.k || t.k == 'mirror') {
 				if (t.v.indexOf('x') >= 0) {
 					dc.translate(sc.w, 0);
@@ -424,10 +440,8 @@ var RES = (function(res) {
 	function loaded() {
 		ieach(res.children, function(i, v, d) {
 			if (v.tagName == 'CANVAS') {
-				var from = $attr(v, 'from'),
-					trans = $attr(v, 'transform');
-				if (from)
-					updateCanvas(v, from, trans);
+				if ($attr(v, 'from'))
+					updateCanvas(v);
 				d[v.id] = v;
 			}
 			else if (v.tagName == 'IMG') {
