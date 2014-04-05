@@ -305,7 +305,7 @@ input[type="radio"]:focus + label {
 
 			var rh = parseInt($attr(cv, 'bg-reserve'));
 			dc.clearRect(0, cv.height - rh, cv.width, rh);
-			CanvasDrawSelf(cv, 0, 0, cv.width, rh, 0, cv.height - rh, cv.width, rh);
+			dc.drawImage(cv, 0, 0, cv.width, rh, 0, cv.height - rh, cv.width, rh);
 		})
 	</script>
 	<!-- -->
@@ -335,7 +335,7 @@ input[type="radio"]:focus + label {
 
 			var rh = parseInt($attr(cv, 'bg-reserve'));
 			dc.clearRect(0, cv.height - rh, cv.width, rh);
-			CanvasDrawSelf(cv, 0, 0, cv.width, rh, 0, cv.height - rh, cv.width, rh);
+			dc.drawImage(cv, 0, 0, cv.width, rh, 0, cv.height - rh, cv.width, rh);
 		})
 	</script>
 	<!-- -->
@@ -622,15 +622,6 @@ function getNum(n, i) {
 	return (n + '').substr(i, 1);
 }
 
-function CanvasDrawSelf(cv, sx, sy, sw, sh, x, y, w, h) {
-	var dc = cv.getContext('2d'),
-		ct = document.createElement('canvas'),
-		dt = ct.getContext('2d');
-	ct.width = w;
-	ct.height = h;
-	dt.drawImage(cv, sx, sy, sw, sh, 0, 0, w, h);
-	dc.drawImage(ct, x, y);
-}
 function getCanvasDC(cv) {
 	cv.width = cv.scrollWidth;
 	cv.height = cv.scrollHeight;
