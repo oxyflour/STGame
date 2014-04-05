@@ -310,7 +310,8 @@ function newStateMachine(stes) {
 
 var DC = (function(canv) {
 	var _t = canv.getContext('2d');
-	_t.canv = canv;
+	canv.width = canv.scrollWidth;
+	canv.height = canv.scrollHeight;
 	_t.clear = function() {
 		_t.clearRect(0, 0, canv.width, canv.height);
 	}
@@ -574,8 +575,8 @@ var GAME = (function() {
 	_t.rect = {
 		l: 0,
 		t: 0,
-		r: DC.canv.width,
-		b: DC.canv.height
+		r: DC.canvas.width,
+		b: DC.canvas.height
 	};
 	_t.load = function(tl, hk) {
 		STORY.load(tl, hook);
