@@ -338,6 +338,8 @@ input[type="radio"]:focus + label {
 		})
 	</script>
 	<!-- -->
+	<img id="ascii" src="res/ascii.png" />
+	<!-- -->
 	<script id="frames">
 		(function(RES) {
 			var _t = {};
@@ -429,6 +431,30 @@ input[type="radio"]:focus + label {
 				});
 			});
 
+			return _t;
+		})
+	</script>
+	<script id="fontmap">
+		(function(RES) {
+			var _t = {
+				cw: 16,
+				ch: 16,
+			}
+			ieach([
+				' !"#$%&\'()*+,-./',
+				'0123456789:;<=>?',
+				'@ABCDEFGHIJKLMNO',
+				'PQRSTUVWXYZ[`]`_',
+				' abcdefghijklmno',
+				'pqrstuvwxyz(|)~`',
+			], function(i, s) {
+				ieach(s, function(j, c) {
+					_t[c] = {
+						x: j * _t.cw,
+						y: i * _t.ch + 32,
+					};
+				});
+			});
 			return _t;
 		})
 	</script>

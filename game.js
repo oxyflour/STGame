@@ -979,11 +979,23 @@ SPRITE.newCls('Basic', {
 	},
 	drawBasic: undefined,
 	drawText: function(d, s) {
-		if (d.font)
-			DC.font = d.font;
-		if (d.color)
-			DC.fillStyle = d.color;
-		DC.fillText(d.text, d.x, d.y);
+		if (d.font && d.font.res && d.font.map) {
+			var m = d.font.map,
+				w = m.cw * d.text.length,
+				h = m.ch;
+			ieach(d.text, function(i, c) {
+				var pos = m[c];
+				DC.drawImageInt(RES[d.font.res], pos.x, pos.y, m.cw, m.ch,
+					d.x - w/2 + m.cw*i, d.y - h/2, m.cw, m.ch);
+			});
+		}
+		else {
+			if (d.font)
+				DC.font = d.font;
+			if (d.color)
+				DC.fillStyle = d.color;
+			DC.fillText(d.text, d.x, d.y);
+		}
 	},
 	drawFrame: function(d, s) {
 		var f = d.frame,
@@ -2205,15 +2217,18 @@ tl.init = {
 	run: UTIL.newTimeRunner(5000, 'sec0'),
 	init: function(d) {
 		d.title = SPRITE.newObj('Basic', {
-			text: 'Stage 1',
-			font: '20px Arial',
-			color: 'yellow',
+			text: 'STAGE 1',
+			font: {
+				res: 'ascii',
+				map: RES.fontmap,
+			}
 		});
 		STORY.timeout(function(d) {
 			d.text = SPRITE.newObj('Basic', {
 				text: '~ Mystic Flier ~',
 				font: '15px Arial',
-				sy: interp(GAME.rect.t, GAME.rect.b, 0.5) + 35,
+				color: 'Silver',
+				sy: interp(GAME.rect.t, GAME.rect.b, 0.5) + 40,
 			});
 			d.text.runBasic = function(dt, d, s) {
 				if (!s.is_dying)
