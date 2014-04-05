@@ -1494,12 +1494,14 @@ function newBullet(d) {
 				frtick: 1000/36,
 				frames: RES.frames.Bullet1,
 				opacity: 0.7,
-			}).runCircle = function(dt, d, s) {
-				var u = d.to,
+			}).anim(50, function(k, v) {
+				var d = v.data,
+					s = v.state,
+					u = d.to,
 					e = u && u.data;
 				if (u && !u.finished && u.state.d.mkDamage && !s.is_dying)
-					redirect_object(d, e, sqrt_sum(d.vx, d.vy), 0.05);
-			};
+					redirect_object(d, e, sqrt_sum(d.vx, d.vy), 0.4);
+			});
 		})
 	}
 }
@@ -1511,15 +1513,16 @@ function newDannmaku(d) {
 			target_cls: undefined,
 			target: undefined,
 			decrease_duration: 1000,
-			decrease_by: 0.99,
+			decrease_by: 0.95,
 			velocity_min: 0.02,
-			duration: 1000,
-			gravity: 10e-7,
+			duration: 1500,
+			gravity: 6e-5,
 			accel_min: 0.1,
 			offset_x: 0,
 			offset_y: 0,
 		});
-		v.runCircle = function(dt, d, s) {
+		v.anim(50, function(k, v) {
+			var d = v.data, s = v.state;
 			if (s.d.age < d.decrease_duration) {
 				d.vx *= d.decrease_by;
 				d.vy *= d.decrease_by;
@@ -1529,19 +1532,19 @@ function newDannmaku(d) {
 					var e = d.target.data,
 						dx = e.x - d.x + d.offset_x,
 						dy = e.y - d.y + d.offset_y;
-					d.vx += d.gravity * dt * dx;
-					d.vy += d.gravity * dt * dy;
+					d.vx += d.gravity * dx;
+					d.vy += d.gravity * dy;
 
 					var v = sqrt_sum(d.vx, d.vy);
 					if (v < d.accel_min && !d.grazed)
-						redirect_object(d, e, v);
+						redirect_object(d, e, v, 0.4);
 				}
 				else if (d.target_cls)
 					d.target = UTIL.getOneObj(d.target_cls);
 			}
 			d.vx = keep_outside(d.vx, -d.velocity_min, d.velocity_min);
 			d.vy = keep_outside(d.vy, -d.velocity_min, d.velocity_min);
-		};
+		});
 	}
 	else if (d.type == 'OrbAround') {
 		fill(d, {
@@ -1723,7 +1726,7 @@ function newEnemy(d) {
 					return ls[i % ls.length];
 				}
 				var x = d.generator.count % 2;
-				d.decrease_by = x ? 0.99 : 1;
+				d.decrease_by = x ? 0.96 : 1;
 				d.decrease_duration = x ? 1000 : 10000;
 				d.frames = x ? RES.frames.LongA : RES.frames.TamaA;
 				d.offset_x = d.generator.layer % 2 ? -40 : 40;
@@ -1831,10 +1834,13 @@ function newEffect(v) {
 			},
 		})
 		p.runCircle = function(dt, d, s) {
-			d.vx *= 0.97;
-			d.vy *= 0.97;
 			d.scale = d.health*d.health * 2 + 0.5;
 		};
+		p.anim(50, function(k, v) {
+			var d = v.data;
+			d.vx *= 0.97;
+			d.vy *= 0.97;
+		});
 	});
 }
 function newBackground(elems) {
@@ -1893,15 +1899,18 @@ function newBomb(player) {
 				d.vx = dx / dt;
 				d.vy = dy / dt;
 			}
-			else if (s.d.age < 4000) {
-				if (!d.to)
-					d.to = UTIL.getNearestAlive(this, 'Enemy');
-				if (d.to && !d.to.finished)
-					redirect_object(d, d.to.data, sqrt_sum(d.vx, d.vy), 0.02);
-			}
 			d.r = 1 + Math.sqrt(d.health) * 40;
 			d.scale = d.r / 30;
 		};
+		sh.anim(50, function(k, v) {
+			var d = v.data, s = v.state;
+			if (s.d.age < 4000) {
+				if (!d.to || d.to.finished)
+					d.to = UTIL.getNearestAlive(v, 'Enemy');
+				if (d.to && !d.to.finished)
+					redirect_object(d, d.to.data, sqrt_sum(d.vx, d.vy), 0.2);
+			}
+		});
 		ieach([1, 2, 3], function(i, v) {
 			SPRITE.newObj('Basic', {
 				index: v,
