@@ -5,6 +5,9 @@ function return_nothing() {
 function return_self(x) {
 	return x;
 }
+function return_second(x0, x) {
+	return x;
+}
 function range(e, b, d, fn) {
 	var ls = [];
 	for (var i = b||0, k = d||1; i < e; i += k) {
@@ -625,10 +628,7 @@ var GAME = (function() {
 
 var UTIL = {
 	getOneObj: function(c, fn) {
-		var ls = SPRITE.cls.groups[c];
-		return ls && ieach(ls, function(i, v, fn) {
-			if (v && !v.finished) return fn ? fn(v) : v;
-		}, fn);
+		return SPRITE.eachObj(fn || return_second, c);
 	},
 	addAnim: function(v, t, d, id) {
 		fill(d, {
