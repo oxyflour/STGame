@@ -885,7 +885,8 @@ var UTIL = {
 	},
 };
 
-(function(counter) {
+GAME.init = function() {
+	var counter = newCounter();
 	var dt =  function() {
 		return Math.min(counter(), 100);
 	};
@@ -941,7 +942,7 @@ var UTIL = {
 	ieach(['keydown', 'keyup'], function(i, v) {
 		window.addEventListener(v, GAME.input);
 	});
-})(newCounter());
+};
 
 SPRITE.newCls('Basic', {
 	layer: 'L10',

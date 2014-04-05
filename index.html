@@ -628,7 +628,10 @@ function loadAndStart() {
 	GAME.load(tl, hook);
 	GAME.start('init');
 }
-RES.check(loadAndStart);
+RES.check(function() {
+	GAME.init();
+	loadAndStart();
+});
 
 </script>
 </body>
