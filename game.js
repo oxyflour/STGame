@@ -438,8 +438,9 @@ var RES = (function(res) {
 
 var SPRITE = (function() {
 	function loop(ls, fn) {
-		if (ls) ieach(ls, function(i, v) {
-			v && !v.finished && fn(i, v);
+		if (ls) return ieach(ls, function(i, v) {
+			if (v && !v.finished)
+				return fn(i, v);
 		});
 	}
 	var _t = {
@@ -471,9 +472,9 @@ var SPRITE = (function() {
 	};
 	_t.eachObj = function(fn, c) {
 		if (c)
-			loop(_t.cls.groups[c], fn);
-		else ieach(_t.cls, function(i, ls) {
-			loop(ls, fn);
+			return loop(_t.cls.groups[c], fn);
+		else return ieach(_t.cls, function(i, ls) {
+			return loop(ls, fn);
 		});
 	};
 	_t.clrObj = function(c) {
