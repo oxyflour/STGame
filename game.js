@@ -1,4 +1,4 @@
-Math.Inf = parseFloat('Infinity');
+var Inf = parseFloat('Infinity');
 
 function return_nothing() {
 }
@@ -917,7 +917,7 @@ SPRITE.newCls('Basic', {
 		return t;
 	},
 	states: {
-		life: [500,	Math.Inf, 500],
+		life: [500,	Inf, 500],
 	},
 }, function(d) {
 	this.data = d = extend({
@@ -1131,7 +1131,7 @@ SPRITE.newCls('Player', {
 
 	states: {
 		name: ['creating', 'living', 'dying', 'bomb', 'juesi'],
-		life: [2000, Math.Inf, 1000, 5000, 100],
+		life: [2000, Inf, 1000, 5000, 100],
 		next: [1, 2, -1, 0, 2],
 		isInvinc: [1, 0, 1, 1, 1],
 	},
@@ -1201,7 +1201,7 @@ SPRITE.newCls('Ball', {
 	},
 
 	states: {
-		life: [200, Math.Inf, 500],
+		life: [200, Inf, 500],
 		mkDamage: [0, 1, 0],
 	},
 }, function(d) {
@@ -1238,7 +1238,7 @@ SPRITE.newCls('Stick', {
 	},
 
 	states: {
-		life: [200, Math.Inf, 500],
+		life: [200, Inf, 500],
 		mkDamage: [0, 1, 0],
 	},
 }, function(d) {
@@ -1271,7 +1271,7 @@ SPRITE.newCls('Enemy', {
 	},
 	
 	states: {
-		life: [500, Math.Inf, 500],
+		life: [500, Inf, 500],
 		mkDamage: [0, 1, 0],
 	},
 }, function(d) {
@@ -1300,7 +1300,7 @@ SPRITE.newCls('Shield', {
 	},
 	
 	states: {
-		life: [800, Math.Inf, 500],
+		life: [800, Inf, 500],
 		mkDamage: [0, 20, 0],
 	},
 }, function(d) {
@@ -1345,7 +1345,7 @@ SPRITE.newCls('Drop', {
 		b: 20
 	},
 	states: {
-		life: [100, Math.Inf, 50],
+		life: [100, Inf, 50],
 	},
 }, function(d) {
 	d = extend({
@@ -1363,7 +1363,7 @@ SPRITE.newCls('Bullet', {
 	from: 'Circle',
 	layer: 'L20',
 	states: {
-		life: [50, Math.Inf, 400],
+		life: [50, Inf, 400],
 		mkDamage: [0, 1, 0],
 	},
 }, function(d) {
@@ -1378,7 +1378,7 @@ SPRITE.newCls('Dannmaku', {
 	from: 'Circle',
 	layer: 'L20',
 	states: {
-		life: [100, Math.Inf, 200],
+		life: [100, Inf, 200],
 		mkDamage: [0, 1, 0],
 	},
 }, function(d) {
@@ -1463,7 +1463,7 @@ function newBullet(d) {
 	});
 	if (d.from.bullet1_idx == 0) {
 		if (!d.to) {
-			var r = Math.Inf;
+			var r = Inf;
 			SPRITE.eachObj(function(i, u) {
 				if (u.state.d.mkDamage) {
 					var r0 = squa_sum(u.data.x-d.from.data.x, u.data.y-d.from.data.y);
@@ -2243,7 +2243,7 @@ ieach([
 			killCls('Dannmaku');
 			d.age = 0;
 			d.duration = v.duration || 30000;
-			d.damage_max = v.damage_max || Math.Inf;
+			d.damage_max = v.damage_max || Inf;
 
 			d.boss = UTIL.getOneObj('Enemy') || newBoss();
 			if (v.pathnodes)
