@@ -248,28 +248,8 @@ input[type="radio"]:focus + label {
 	<img id="stg1enm" src="res/stg1enm.png" />
 	<img id="stg1bg" src="res/stg1bg.png" />
 	<img id="front" src="res/front.png" />
-	<!-- -->
-	<canvas id="bomb_patt" from="player0L 0 97 63 64"></canvas>
-	<canvas id="bombs"></canvas>
-	<script id="gen_bombbg">
-		(function(RES) {
-			var cv = RES.bombs,
-				dc = cv.getContext('2d'),
-				patt = RES.bomb_patt,
-				colors = ['White', 'DeepPink', 'DodgerBlue', 'SpringGreen'];
-			cv.width = patt.width * colors.length;
-			cv.height = patt.height;
-			ieach(colors, function(i, c) {
-				var x = patt.width*i;
-				dc.save();
-				dc.drawImage(patt, x, 0);
-				dc.globalCompositeOperation = 'source-atop';
-				dc.fillStyle = c;
-				dc.fillRect(x, 0, patt.width, patt.height);
-				dc.restore();
-			});
-		});
-	</script>
+	<canvas id="bombs" from="player0L 0 97 63 64"
+		transform="colormask:White,DeepPink,DodgerBlue,SpringGreen"></canvas>
 	<!-- -->
 	<canvas id="mainbg_patt" from="front 0 224 32 32"></canvas>
 	<script id="gen_mainbg">

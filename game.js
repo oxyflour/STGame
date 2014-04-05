@@ -411,6 +411,13 @@ var RES = (function(res) {
 				dc.drawImage(sc.s, sc.x, sc.y, sc.w, sc.h,
 					-sc.w/2, -sc.h/2, sc.w, sc.h);
 			}
+			else if (t.k == 'colormask') {
+				dc.drawImage(sc.s, sc.x, sc.y, sc.w, sc.h,
+					0, 0, sc.w, sc.h);
+				dc.globalCompositeOperation = 'source-atop';
+				dc.fillStyle = t.v;
+				dc.fillRect(0, 0, sc.w, sc.h);
+			}
 			dc.restore();
 		});
 	}
