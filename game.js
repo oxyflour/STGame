@@ -2401,11 +2401,15 @@ ieach([
 			d.countdown = SPRITE.newObj('Basic', {
 				x: interp(GAME.rect.l, GAME.rect.r, 1)-20,
 				y: interp(GAME.rect.t, GAME.rect.b, 0)+20,
+				font: {
+					res: 'num',
+					map: RES.nummap,
+				},
 			});
 			d.countdown.anim(100, function(d, v) {
 				var t = Math.floor((d.duration - d.age) / 1000);
 				v.data.color = (t<10 && 'red') || (t<20 && 'rgb(151,125,208)') || 'rgb(164,209,250)';
-				v.data.text = Math.max(t, 0);
+				v.data.text = Math.max(t, 0) + '';
 			}, d);
 		},
 		quit: function(d) {
