@@ -427,8 +427,12 @@ var RES = (function(res) {
 			v = v.replace(/{{([^{}]+)}}/gm, function(match, name) {
 				var r = eval(name);
 				return r.join ? r.join(',') : r;
+			})
+			v = v.replace(/\(([^\)]+)\)/gm, function(match, name) {
+				return match.replace(/,/g, '#comma#');
 			});
 			ieach(v.split(','), function(i, v) {
+				v = v.replace(/#comma#/gm, ',');
 				d.push({ k:k, v:v });
 			});
 		}, []);
@@ -446,6 +450,18 @@ var RES = (function(res) {
 	}
 	function getStack(stack) {
 		return stack == 'y' ? [0, 1] : [1, 0];
+	}
+	function getColorRGB(color) {
+		var id = 'div_test_color',
+			div = $e(id);
+		if (!div) {
+			div = document.createElement('div');
+			div.id = id;
+			div.style.display = 'none';
+			document.body.appendChild(div);
+		}
+		div.style.backgroundColor = color;
+		return $style(div, 'background-color').match(/\d+/g).map(parseFloat);
 	}
 	function updateCanvas(canv) {
 		var dc = canv.getContext('2d'),
@@ -498,23 +514,30 @@ var RES = (function(res) {
 				h = sc.h*scale[1],
 				x = w*i*stack[0],
 				y = h*i*stack[1];
-			if (t.k == 'replacecolor') {
+			if (t.k == 'colormap') {
 				/*
 				 * context.getImageData() does not work in chrome when opened in a local disk
 				 */
-				/*
-				var im = dc.getImageData(x, y, w, h),
+				var st = t.v.split('->');
+					source = st[0].trim(),
+					color = st[1].trim(),
+					rgb0 = getColorRGB(color),
+					hsl0 = rgb2hsl(rgb0[0], rgb0[1], rgb0[2]);
+					im = dc.getImageData(x, y, w, h),
 					d = im.data;
 				for (var i = 0; i < d.length; i += 4) {
 					var hsl = rgb2hsl(d[i], d[i+1], d[i+2]);
-					// change hsl values here
+					if (source == 'l') {
+						hsl[0] = hsl0[0];
+						hsl[1] = hsl[2];
+						hsl[2] = hsl[1]*hsl0[2];
+					}
 					var rgb = hsl2rgb(hsl[0], hsl[1], hsl[2]);
 					d[i] = rgb[0];
 					d[i+1] = rgb[1];
 					d[i+2] = rgb[2];
 				}
 				dc.putImageData(im, x, y);
-				*/
 			}
 		});
 	}
@@ -2219,7 +2242,7 @@ tl.init = {
 		d.title = SPRITE.newObj('Basic', {
 			text: 'STAGE 1',
 			font: {
-				res: 'ascii',
+				res: 'ascii_yellow',
 				map: RES.fontmap,
 			}
 		});
@@ -2407,9 +2430,9 @@ ieach([
 				},
 			});
 			d.countdown.anim(100, function(d, v) {
-				var t = Math.floor((d.duration - d.age) / 1000);
-				v.data.color = (t<10 && 'red') || (t<20 && 'rgb(151,125,208)') || 'rgb(164,209,250)';
-				v.data.text = Math.max(t, 0) + '';
+				var t = Math.max(Math.floor((d.duration - d.age) / 1000), 0);
+				v.data.font.res = (t<5 && 'num3') || (t<10 && 'num2') || (t<20 && 'num1') || 'num0';
+				v.data.text = (t < 10 ? '0' : '') + t;
 			}, d);
 		},
 		quit: function(d) {
