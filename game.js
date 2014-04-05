@@ -204,11 +204,11 @@ function hue2rgb(p, q, t) {
 }
 function hsl2rgb(h, s, l) {
 	var r, g, b;
-	if (!s) {
+	if (s == 0) {
 		r = g = b = l; // achromatic
 	}
 	else {
-		var q = l < 0.5 ? l * (1 + s) : 1 + s - l * s,
+		var q = l < 0.5 ? l * (1 + s) : l + s - l * s,
 			p = 2 * l - q;
 		r = hue2rgb(p, q, h + 1/3);
 		g = hue2rgb(p, q, h);
@@ -489,23 +489,33 @@ var RES = (function(res) {
 				dc.fillStyle = t.v;
 				dc.fillRect(0, 0, sc.w, sc.h);
 			}
-			else if (t.k == 'replacecolor') {
+			else {
 				dc.drawImage(sc.s, sc.x, sc.y, sc.w, sc.h,
 					0, 0, sc.w, sc.h);
-				var im = dc.getImageData(0, 0, sc.w, sc.h),
-					d = im.data,
-					h = rgb2hsl(0, 255, 255)[0];
+			}
+			dc.restore();
+			var w = sc.w*scale[0],
+				h = sc.h*scale[1],
+				x = w*i*stack[0],
+				y = h*i*stack[1];
+			if (t.k == 'replacecolor') {
+				/*
+				 * context.getImageData() does not work in chrome when opened in a local disk
+				 */
+				/*
+				var im = dc.getImageData(x, y, w, h),
+					d = im.data;
 				for (var i = 0; i < d.length; i += 4) {
-					hsl = rgb2hsl(d[i], d[i+1], d[i+2]);
-					hsl[0] = h;
-					rgb = hsl2rgb(hsl[0], hsl[1], hsl[2]);
+					var hsl = rgb2hsl(d[i], d[i+1], d[i+2]);
+					// change hsl values here
+					var rgb = hsl2rgb(hsl[0], hsl[1], hsl[2]);
 					d[i] = rgb[0];
 					d[i+1] = rgb[1];
 					d[i+2] = rgb[2];
 				}
-				dc.putImageData(im, 0, 0);
+				dc.putImageData(im, x, y);
+				*/
 			}
-			dc.restore();
 		});
 	}
 	function loaded() {
