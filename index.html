@@ -13,8 +13,8 @@ input[type="radio"] {
 }
 input[type="radio"] + label {
 	-webkit-transition: all ease 0.4s;
-	-ms-transition: all ease 0.4s;
-	-moz-transition: all ease 0.4s;
+	    -ms-transition: all ease 0.4s;
+	   -moz-transition: all ease 0.4s;
 	opacity: 0.5;
 	font-weight: bold;
 	cursor: pointer;
@@ -93,12 +93,12 @@ input[type="radio"]:focus + label {
 	color: #eee;
 }
 .bgimg {
-	-webkit-transform: perspective(600px) rotateX(50deg);
+	-webkit-transform: perspective(700px) rotateX(50deg);
+	    -ms-transform: perspective(700px) rotateX(50deg);
+	   -moz-transform: perspective(700px) rotateX(50deg);
 	-webkit-transform-origin: center top;
-	-ms-transform: perspective(600px) rotateX(50deg);
-	-ms-transform-origin: center top;
-	-moz-transform: perspective(600px) rotateX(50deg);
-	-moz-transform-origin: center top;
+	    -ms-transform-origin: center top;
+	   -moz-transform-origin: center top;
 }
 .bgimg>* {
 	position: absolute;
@@ -334,11 +334,22 @@ input[type="radio"]:focus + label {
 			cv.width = cv.scrollWidth;
 			cv.height = cv.scrollHeight;
 
+			/*
 			dc.fillStyle = dc.createPattern(RES.ground_patt, 'repeat');
 			dc.fillRect(0, 0, cv.width, cv.height);
+			*/
+			var patt = RES.ground_patt,
+				s = 2,
+				w = patt.width * s,
+				h = patt.height * s;
+			for (var ix = 0; ix < cv.width; ix += w) {
+				for (var iy = 0; iy < cv.height; iy += h) {
+					dc.drawImage(patt, 0, 0, patt.width, patt.height, ix, iy, w, h);
+				}
+			}
 
-			var s = 0.8;
-			dc.globalAlpha = 0.4;
+			var s = 0.7;
+			dc.globalAlpha = 0.3;
 			dc.drawImage($e('treebg'), 0, 0, cv.width, cv.height, (1-s)/2*cv.width, 0, cv.width*s, cv.height);
 			dc.globalAlpha = 1;
 
