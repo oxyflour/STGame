@@ -309,24 +309,12 @@ input[type="radio"]:focus + label {
 		})
 	</script>
 	<!-- -->
-	<canvas id="ground_patt" from="stg1bg 0 0 64 32"></canvas>
+	<canvas id="ground_patt" from="stg1bg 0 0 64 32" scale="1.5"></canvas>
 	<script id="gen_groundbg">
 		(function(RES) {
 			var cv = $e('groundbg'),
 				dc = getCanvasDC(cv);
-
-			/*
 			dc.fillWith(dc.createPattern(RES.ground_patt, 'repeat'));
-			*/
-			var patt = RES.ground_patt,
-				s = 2,
-				w = patt.width * s,
-				h = patt.height * s;
-			for (var ix = 0; ix < cv.width; ix += w) {
-				for (var iy = 0; iy < cv.height; iy += h) {
-					dc.drawImage(patt, 0, 0, patt.width, patt.height, ix, iy, w, h);
-				}
-			}
 
 			var s = 0.7;
 			dc.globalAlpha = 0.3;
