@@ -308,33 +308,24 @@ input[type="radio"]:focus + label {
 	</script>
 	<!-- -->
 	<canvas id="ground_patt" from="stg1bg 0 0 64 32" scale="1.5"></canvas>
-	<canvas id="ground_patt2" from="stg1bg 64 0 64 32" scale="1.5"></canvas>
+	<canvas id="ground_patt0" from="stg1bg 64 0 16 16" scale="1.5"></canvas>
+	<canvas id="ground_patt1" from="stg1bg 80 0 16 16" scale="1.5"></canvas>
+	<canvas id="ground_patt2" from="stg1bg 96 0 32 16" scale="1.5"></canvas>
+	<canvas id="ground_patt3" from="stg1bg 64 16 16 16" scale="1.5"></canvas>
+	<canvas id="ground_patt4" from="stg1bg 80 16 28 16" scale="1.5"></canvas>
+	<canvas id="ground_patt5" from="stg1bg 108 16 20 16" scale="1.5"></canvas>
 	<script id="gen_groundbg">
 		(function(RES) {
 			var cv = $e('groundbg'),
-				dc = getCanvasDC(cv);
-			dc.fillWith(dc.createPattern(RES.ground_patt, 'repeat'));
+				dc = getCanvasDC(cv),
+				patt = RES.ground_patt;
+			dc.fillWith(dc.createPattern(patt, 'repeat'));
 
-			var patt = RES.ground_patt2;
-			var rts = [
-				[0, 0, 16, 16],
-				[16, 0, 16, 16],
-				[32, 0, 32, 16],
-				[0, 16, 16, 16],
-				[16, 16, 28, 16],
-				[28, 16, 20, 16],
-			];
-			ieach(rts, function(i, rt) {
-				ieach(rt, function(i, v) {
-					rt[i] = v * 1.5;
-				});
-			});
 			for (var y = 0; y < cv.height; y += patt.height) {
 				var cx = random(0.3, 0.7) * cv.width,
 					cy = random(patt.height) + y;
-					rt = randin(rts);
-				dc.drawImage(patt, rt[0], rt[1], rt[2], rt[3],
-					cx + rt[0], cy + rt[1], rt[2], rt[3]);
+					sc = RES['ground_patt' + Math.floor(random(6))];
+				dc.drawImage(sc, cx, cy);
 			}
 
 			var s = 0.7;
