@@ -314,6 +314,12 @@ input[type="radio"]:focus + label {
 	<canvas id="ground_patt3" from="stg1bg 64 16 16 16" scale="1.5"></canvas>
 	<canvas id="ground_patt4" from="stg1bg 80 16 28 16" scale="1.5"></canvas>
 	<canvas id="ground_patt5" from="stg1bg 108 16 20 16" scale="1.5"></canvas>
+	<canvas id="ground_tileB" from="stg1bg 128 0 64 18" scale="1.5"></canvas>
+	<canvas id="ground_tileT" from="ground_tileB" transform="rotate:180"></canvas>
+	<canvas id="ground_brush" from="stg1bg 208 48 48 16" scale="1.5"></canvas>
+	<canvas id="ground_brush0" from="ground_brush" transform="0,0"></canvas>
+	<canvas id="ground_brush1" from="ground_brush0" transform="offset:0 0,36 0" stack="y"></canvas>
+	<canvas id="ground_brush2" from="ground_brush1 0 0 72 48"></canvas>
 	<script id="gen_groundbg">
 		(function(RES) {
 			var cv = $e('groundbg'),
@@ -328,9 +334,24 @@ input[type="radio"]:focus + label {
 				dc.drawImage(sc, cx, cy);
 			}
 
-			var s = 0.7;
+			var sc = RES.ground_tileT,
+				brA = 'rgb(57, 49, 94)',
+				brB = dc.createPattern(RES.ground_brush2, 'repeat'),
+				py = 800, ph = 200;
+			for (var x = 0, y = py; x < cv.width; x += sc.width, y -= sc.height) {
+				dc.clearRect(x, y, sc.width, ph);
+				dc.fillStyle = brA;
+				dc.fillRect(x, y, sc.width, ph);
+				dc.fillStyle = brB;
+				dc.fillRect(x, y, sc.width, ph);
+				dc.drawImage(RES.ground_tileT, x, y);
+				dc.drawImage(RES.ground_tileB, x, y + ph - sc.height);
+			}
+
+			var bg = $e('treebg'),
+				w = bg.width * 0.7;
 			dc.globalAlpha = 0.3;
-			dc.drawImage($e('treebg'), 0, 0, cv.width, cv.height, (1-s)/2*cv.width, 0, cv.width*s, cv.height);
+			dc.drawImage(bg, 0, 0, bg.width, bg.height, cv.width/2-w/2, cv.height - bg.height, w, bg.height);
 			dc.globalAlpha = 1;
 
 			var rh = parseInt($attr(cv, 'bg-reserve'));
@@ -498,7 +519,7 @@ input[type="radio"]:focus + label {
 <div class="main ui" ui-show="RES.process == 1">
 	<div class="game absolute no-overflow" style="z-index:0">
 		<div class="relative bgimg">
-			<canvas class="ui-obj bg1 full-width" style="height:1000px;"
+			<canvas class="ui-obj bg1 full-width" style="height:2400px;"
 				id="groundbg" bg-speed="0.02" bg-reserve="400"></canvas>
 			<canvas class="ui-obj bg1 full-width" style="height:300px;opacity:0.6;"
 				id="maskbg1"></canvas>
