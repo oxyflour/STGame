@@ -356,6 +356,19 @@ input[type="radio"]:focus + label {
 
 			var rh = parseInt($attr(cv, 'bg-reserve'));
 			dc.repeatSelf(0, cv.height - rh, cv.width, rh, 0, 0);
+
+			/*
+			 * for debug only
+			 */
+			range(cv.height, 0, 200, function(y) {
+				dc.beginPath();
+				dc.moveTo(0, y);
+				dc.lineTo(cv.width, y);
+				dc.closePath();
+				dc.stroke();
+				dc.fillStyle = 'black';
+				dc.fillText(y, cv.width/2, y);
+			});
 		})
 	</script>
 	<!-- -->
