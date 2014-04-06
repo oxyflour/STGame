@@ -257,10 +257,14 @@ input[type="radio"]:focus + label {
 		transform="mirror:0,y" stack="y"></canvas>
 	<canvas id="tree_pattR" from="tree_pattL"
 		transform="mirror:x"></canvas>
+	<canvas id="tree_bg_tmp" bg-css="#treebg"></canvas>
 	<script id="gen_treebg">
 		(function(RES) {
-			var cv = $e('treebg'),
-				dc = getCanvasDC(cv);
+			var cv = RES.tree_bg_tmp,
+				dc = getCanvasDC(cv),
+				elem = $e('treebg');
+			cv.width = elem.scrollWidth;
+			cv.height = elem.scrollHeight;
 
 			var s = 1.5;
 			ieach([RES.tree_pattL, RES.tree_pattR], function mkRepeatTexture(i, patt) {
@@ -298,11 +302,15 @@ input[type="radio"]:focus + label {
 	<canvas id="ground_brush0" from="ground_brush" transform="0,0"></canvas>
 	<canvas id="ground_brush1" from="ground_brush0" transform="offset:0 0,36 0" stack="y"></canvas>
 	<canvas id="ground_brush2" from="ground_brush1 0 0 72 48"></canvas>
+	<canvas id="ground_bg_tmp" bg-css="#groundbg"></canvas>
 	<script id="gen_groundbg">
 		(function(RES) {
-			var cv = $e('groundbg'),
+			var cv = RES.ground_bg_tmp,
 				dc = getCanvasDC(cv),
-				patt = RES.ground_patt;
+				patt = RES.ground_patt,
+				elem = $e('groundbg');
+			cv.width = elem.scrollWidth;
+			cv.height = elem.scrollHeight;
 			dc.fillWith(dc.createPattern(patt, 'repeat'));
 
 			for (var y = 0; y < cv.height; y += patt.height) {
@@ -326,7 +334,7 @@ input[type="radio"]:focus + label {
 				dc.drawImage(RES.ground_tileB, x, y + ph - sc.height);
 			}
 
-			var bg = $e('treebg'),
+			var bg = RES.tree_bg_tmp,
 				w = bg.width * 0.7;
 			dc.globalAlpha = 0.3;
 			dc.drawImage(bg, 0, 0, bg.width, bg.height, cv.width/2-w/2, cv.height - bg.height, w, bg.height);
@@ -515,12 +523,12 @@ input[type="radio"]:focus + label {
 <div class="main ui" ui-show="RES.process == 1">
 	<div class="game absolute no-overflow" style="z-index:0">
 		<div class="relative bgimg">
-			<canvas class="ui-obj bg1" style="height:2400px;"
-				id="groundbg" bg-speed="0.02"></canvas>
+			<div class="ui-obj bg1" style="height:2400px;"
+				id="groundbg" bg-speed="0.02"></div>
 			<div class="ui-obj bg1"
 				style="height:400px;background:linear-gradient(rgba(0,0,0,0.6),transparent)"></div>
-			<canvas class="ui-obj bg1" style="height:1000px"
-				id="treebg" bg-speed="0.03"></canvas>
+			<div class="ui-obj bg1" style="height:1000px"
+				id="treebg" bg-speed="0.03"></div>
 			<div class="ui-obj bg1"
 				style="height:300px;background:linear-gradient(rgba(0,0,0,0.6),transparent)"></div>
 			<div class="ui-obj bombbg" style="background:rgba(0,0,0,0.6)"></div>
@@ -690,8 +698,6 @@ function getNum(n, i) {
 }
 
 function getCanvasDC(cv) {
-	cv.width = cv.scrollWidth;
-	cv.height = cv.scrollHeight;
 	var dc = cv.getContext('2d');
 	dc.fillWith = function(patt) {
 		if (patt)
