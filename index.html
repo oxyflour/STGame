@@ -371,7 +371,9 @@ input[type="radio"]:focus + label {
 			 * see http://stackoverflow.com/questions/10187306/canvas-todataurl-throws-security-exception-despite-image-being-local
 			 */
 			ieach($('canvas[bg-css]'), function(i, cv, ss) {
-				ss.addRule($attr(cv, 'bg-css'), 'background: url(' + cv.toDataURL() + ')');
+				var s = $attr(cv, 'bg-css'),
+					r = 'background: url(' + cv.toDataURL() + ')';
+				ss.addRule ? ss.addRule(s, r) : ss.insertRule(s+' {'+r+'}', ss.cssRules.length);
 			}, document.styleSheets[0]);
 		})
 	</script>
