@@ -289,7 +289,8 @@ function newTicker(t, f, d) {
 function newAnimateList() {
 	var _t = [], unused = [];
 	var cleaner = newTicker(1000, function() {
-		if (unused.length > 100)
+		var nt = _t.length, nu = unused.length;
+		if (nu > 100 || (nt && nu / nt > 0.8))
 			_t.clean();
 	});
 
@@ -320,6 +321,10 @@ function newAnimateList() {
 }
 function newGroupAnim() {
 	var _t = [];
+	var cleaner = newTicker(5000, function() {
+		_t.clean();
+	});
+
 	_t.groups = {};
 	_t.sort = [];
 	_t.resort = function() {
@@ -328,6 +333,13 @@ function newGroupAnim() {
 		ieach(_t.sort, function(i, k) {
 			_t.push(_t.groups[k]);
 		});
+	};
+	_t.clean = function() {
+		ieach(_t.sort, function(i, k) {
+			if (_t.groups[k] == 0)
+				delete _t.groups[k];
+		});
+		_t.resort();
 	};
 	_t.add = function(k, t) {
 		var ls = _t.groups[k];
@@ -340,6 +352,7 @@ function newGroupAnim() {
 	_t.run = function(dt) {
 		for (var i = 0, n = _t.length; i < n; i ++)
 			_t[i].run(dt);
+		cleaner.run(dt);
 	};
 	return _t;
 }
