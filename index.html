@@ -280,7 +280,7 @@ input[type="radio"]:focus + label {
 				}
 			});
 
-			var rh = parseInt($attr(cv, 'bg-reserve'));
+			var rh = parseInt($style($('.game')[0], 'height'));
 			dc.repeatSelf(0, cv.height - rh, cv.width, rh, 0, 0);
 		})
 	</script>
@@ -332,7 +332,7 @@ input[type="radio"]:focus + label {
 			dc.drawImage(bg, 0, 0, bg.width, bg.height, cv.width/2-w/2, cv.height - bg.height, w, bg.height);
 			dc.globalAlpha = 1;
 
-			var rh = parseInt($attr(cv, 'bg-reserve'));
+			var rh = parseInt($style($('.game')[0], 'height'));
 			dc.repeatSelf(0, cv.height - rh, cv.width, rh, 0, 0);
 
 			/*
@@ -516,11 +516,11 @@ input[type="radio"]:focus + label {
 	<div class="game absolute no-overflow" style="z-index:0">
 		<div class="relative bgimg">
 			<canvas class="ui-obj bg1" style="height:2400px;"
-				id="groundbg" bg-speed="0.02" bg-reserve="400"></canvas>
+				id="groundbg" bg-speed="0.02"></canvas>
 			<div class="ui-obj bg1"
 				style="height:400px;background:linear-gradient(rgba(0,0,0,0.6),transparent)"></div>
 			<canvas class="ui-obj bg1" style="height:1000px"
-				id="treebg" bg-speed="0.03" bg-reserve="400"></canvas>
+				id="treebg" bg-speed="0.03"></canvas>
 			<div class="ui-obj bg1"
 				style="height:300px;background:linear-gradient(rgba(0,0,0,0.6),transparent)"></div>
 			<div class="ui-obj bombbg" style="background:rgba(0,0,0,0.6)"></div>

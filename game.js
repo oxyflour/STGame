@@ -1999,7 +1999,7 @@ function newBackground(elems) {
 	ieach(elems, function(i, e) {
 		e.object = bg;
 		e.offset = 0;
-		e.total = e.scrollHeight - parseFloat($attr(e, 'bg-reserve') || '0');
+		e.total = e.scrollHeight - parseFloat($style($('.game')[0], 'height'));
 		e.speed = parseFloat($attr(e, 'bg-speed') || '0');
 		e.opacity = parseFloat(e.style.opacity || '1');
 	});
