@@ -44,6 +44,9 @@ input[type="radio"]:focus + label {
 .text-center {
 	text-align: center;
 }
+.float-left {
+	float: left;
+}
 
 .main {
 	margin: 0 auto;
@@ -582,17 +585,15 @@ input[type="radio"]:focus + label {
 			<div class="ui bomb" ui-show="STORY.statics.bomb > 6"></div>
 		</div>
 		<div class="line-sep"></div>
-		<div class="line-small ui" ui-show="STORY.statics.power < 255">
+		<div class="line-small">
 			<div class="power-bar absolute ui" ui-bind="STORY.statics.power*0.5+'px'" ui-bind-attr="this.style.width"></div>
 			<div class="label"><div class="label-power"></div></div>
-			<div class="ui" ui-bind="'ui num n'+getNum(STORY.statics.power, 0)" ui-bind-attr="this.className"></div>
-			<div class="ui" ui-bind="'ui num n'+getNum(STORY.statics.power, 1)" ui-bind-attr="this.className"></div>
-			<div class="ui" ui-bind="'ui num n'+getNum(STORY.statics.power, 2)" ui-bind-attr="this.className"></div>
-		</div>
-		<div class="line-small ui" ui-show="STORY.statics.power >= 255">
-			<div class="power-bar absolute"></div>
-			<div class="label"><div class="label-power"></div></div>
-			<div class="power-max"></div>
+			<div class="ui float-left" ui-show="STORY.statics.power < 255">
+				<div class="ui" ui-bind="'ui num n'+getNum(STORY.statics.power, 0)" ui-bind-attr="this.className"></div>
+				<div class="ui" ui-bind="'ui num n'+getNum(STORY.statics.power, 1)" ui-bind-attr="this.className"></div>
+				<div class="ui" ui-bind="'ui num n'+getNum(STORY.statics.power, 2)" ui-bind-attr="this.className"></div>
+			</div>
+			<div class="ui power-max" ui-show="STORY.statics.power >= 255"></div>
 		</div>
 		<div class="line-small">
 			<div class="label"><div class="label-graze"></div></div>
