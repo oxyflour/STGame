@@ -579,7 +579,7 @@ var RES = (function(res) {
 		}
 		else setTimeout(function() {
 			check(fn);
-		}, 500);
+		}, 300);
 	};
 	return _t;
 })($e('res'));
