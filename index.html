@@ -350,14 +350,7 @@ input[type="radio"]:focus + label {
 		})
 	</script>
 	<!-- -->
-	<canvas id="logo_patt" from="front 128 128 128 128"></canvas>
-	<script id="gen_gamelogo">
-		(function(RES) {
-			var cv = $e('gamelogo'),
-				dc = getCanvasDC(cv);
-			dc.drawImage(RES.logo_patt, 0, 0);
-		})
-	</script>
+	<canvas id="logo_patt" from="front 128 128 128 128" bg-css=".logo"></canvas>
 	<!-- -->
 	<script id="gen_bgcss">
 		(function(RES) {
@@ -618,8 +611,7 @@ input[type="radio"]:focus + label {
 			<div class="ui" ui-bind="'ui num n'+getNum(STORY.statics.dot, 8)" ui-bind-attr="this.className"></div>
 		</div>
 	</div>
-	<canvas class="logo absolute"
-		id="gamelogo"></canvas>
+	<div class="logo absolute"></div>
 	<div class="title absolute">
 		<div class="tr">
 			<div class="td"><div class="font" style="background-position:0 0;"></div></div>
