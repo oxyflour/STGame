@@ -2008,7 +2008,10 @@ function newBackground(elems) {
 			e.offset += e.speed * 50;
 			if (e.offset > 0)
 				e.offset -= e.total;
-			e.style.marginTop = e.offset + 'px';
+			var trans = 'translateY(' + e.offset + 'px)';
+			e.style.webkitTransform = trans;
+			e.style.msTransform = trans;
+			e.style.MozTransform = trans;
 			e.style.opacity = e.opacity * v.data.health;
 		});
 	});
