@@ -258,7 +258,7 @@ input[type="radio"]:focus + label {
 			 * canvas.toDataURL() will not work in chrome when the html file is opened in a local disk
 			 * see http://stackoverflow.com/questions/10187306/canvas-todataurl-throws-security-exception-despite-image-being-local
 			 */
-			$('.main')[0].style.background = 'url(' + RES.mainbg_patt.toDataURL() + ')';
+			document.styleSheets[0].addRule('.main', 'background: url(' + RES.mainbg_patt.toDataURL() + ')');
 		})
 	</script>
 	<!-- -->
