@@ -713,7 +713,7 @@ var GAME = (function() {
 			}, c2);
 		}, c1);
 	};
-	var _t = [];
+	var _t = {};
 	_t.state = 0;
 	_t.states = dictflip([
 		'READY',
