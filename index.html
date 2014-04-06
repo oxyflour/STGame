@@ -258,10 +258,7 @@ input[type="radio"]:focus + label {
 			 * canvas.toDataURL() will not work in chrome when the html file is opened in a local disk
 			 * see http://stackoverflow.com/questions/10187306/canvas-todataurl-throws-security-exception-despite-image-being-local
 			 */
-			//$e('mainbg').style.background = 'url(' + RES.mainbg_patt.toDataURL() + ')';
-			var cv = $e('mainbg'),
-				dc = getCanvasDC(cv);
-			dc.fillWith(dc.createPattern(RES.mainbg_patt, 'repeat'));
+			$('.main')[0].style.background = 'url(' + RES.mainbg_patt.toDataURL() + ')';
 		})
 	</script>
 	<!-- -->
@@ -487,7 +484,6 @@ input[type="radio"]:focus + label {
 	</script>
 </div>
 <div class="main ui" ui-show="RES.process == 1">
-	<canvas class="screen absolute" id="mainbg"></canvas>
 	<div class="game absolute no-overflow" style="z-index:0">
 		<div class="relative bgimg">
 			<canvas class="ui-obj bg1 full-width" style="height:1000px;"
