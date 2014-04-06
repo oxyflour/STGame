@@ -303,8 +303,7 @@ input[type="radio"]:focus + label {
 			});
 
 			var rh = parseInt($attr(cv, 'bg-reserve'));
-			dc.clearRect(0, cv.height - rh, cv.width, rh);
-			dc.drawImage(cv, 0, 0, cv.width, rh, 0, cv.height - rh, cv.width, rh);
+			dc.repeatSelf(0, 0, cv.width, rh, 0, cv.height - rh);
 		})
 	</script>
 	<!-- -->
@@ -344,8 +343,7 @@ input[type="radio"]:focus + label {
 			dc.globalAlpha = 1;
 
 			var rh = parseInt($attr(cv, 'bg-reserve'));
-			dc.clearRect(0, cv.height - rh, cv.width, rh);
-			dc.drawImage(cv, 0, 0, cv.width, rh, 0, cv.height - rh, cv.width, rh);
+			dc.repeatSelf(0, 0, cv.width, rh, 0, cv.height - rh);
 		})
 	</script>
 	<!-- -->
@@ -692,6 +690,12 @@ function getCanvasDC(cv) {
 		if (patt)
 			dc.fillStyle = patt;
 		dc.fillRect(0, 0, cv.width, cv.height);
+	};
+	dc.repeatSelf = function(sx, sy, sw, sh, x, y, w, h) {
+		w = w || sw;
+		h = h || sh;
+		dc.clearRect(x, y, w, h);
+		dc.drawImage(cv, sx, sy, sw, sh, x, y, w, h);
 	};
 	return dc;
 }
