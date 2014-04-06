@@ -56,10 +56,12 @@ input[type="radio"]:focus + label {
 	height: 480px;
 }
 .game {
-	width: 384px;
-	height: 448px;
 	margin-left: 32px;
 	margin-top: 16px;
+}
+.game, .game-size {
+	width: 384px;
+	height: 448px;
 }
 .info {
 	color: #eee;
@@ -113,6 +115,8 @@ input[type="radio"]:focus + label {
 	-webkit-transform-origin: center top;
 	    -ms-transform-origin: center top;
 	   -moz-transform-origin: center top;
+	/* fix for issue 4 */
+	overflow: hidden;
 }
 .bgimg>* {
 	position: absolute;
@@ -528,7 +532,7 @@ input[type="radio"]:focus + label {
 </div>
 <div class="main ui" ui-show="RES.process == 1">
 	<div class="game absolute no-overflow" style="z-index:0">
-		<div class="relative bgimg">
+		<div class="relative bgimg game-size">
 			<div class="ui-obj bg1" style="height:2400px;"
 				id="groundbg" bg-speed="0.01"></div>
 			<div class="ui-obj bg1"
