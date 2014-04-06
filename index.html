@@ -251,16 +251,7 @@ input[type="radio"]:focus + label {
 	<canvas id="bombs" from="player0L 0 97 63 64"
 		transform="colormask:White,DeepPink,DodgerBlue,SpringGreen"></canvas>
 	<!-- -->
-	<canvas id="mainbg_patt" from="front 0 224 32 32"></canvas>
-	<script id="gen_mainbg">
-		(function(RES) {
-			/*
-			 * canvas.toDataURL() will not work in chrome when the html file is opened in a local disk
-			 * see http://stackoverflow.com/questions/10187306/canvas-todataurl-throws-security-exception-despite-image-being-local
-			 */
-			document.styleSheets[0].addRule('.main', 'background: url(' + RES.mainbg_patt.toDataURL() + ')');
-		})
-	</script>
+	<canvas id="mainbg_patt" from="front 0 224 32 32" bg-css=".main"></canvas>
 	<!-- -->
 	<canvas id="tree_pattL" from="stg1bg 0 48 64 128"
 		transform="mirror:0,y" stack="y"></canvas>
@@ -365,6 +356,18 @@ input[type="radio"]:focus + label {
 			var cv = $e('gamelogo'),
 				dc = getCanvasDC(cv);
 			dc.drawImage(RES.logo_patt, 0, 0);
+		})
+	</script>
+	<!-- -->
+	<script id="gen_bgcss">
+		(function(RES) {
+			/*
+			 * canvas.toDataURL() will not work in chrome when the html file is opened in a local disk
+			 * see http://stackoverflow.com/questions/10187306/canvas-todataurl-throws-security-exception-despite-image-being-local
+			 */
+			ieach($('canvas[bg-css]'), function(i, cv, ss) {
+				ss.addRule($attr(cv, 'bg-css'), 'background: url(' + cv.toDataURL() + ')');
+			}, document.styleSheets[0]);
 		})
 	</script>
 	<!-- -->
