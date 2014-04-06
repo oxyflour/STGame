@@ -929,7 +929,7 @@ var UTIL = {
 	},
 };
 
-GAME.init = function() {
+(function() {
 	var counter = newCounter();
 	var dt =  function() {
 		return Math.min(counter(), 100);
@@ -986,7 +986,7 @@ GAME.init = function() {
 	ieach(['keydown', 'keyup'], function(i, v) {
 		window.addEventListener(v, GAME.input);
 	});
-};
+})();
 
 SPRITE.newCls('Basic', {
 	layer: 'L10',
@@ -1999,7 +1999,7 @@ function newBackground(elems) {
 	ieach(elems, function(i, e) {
 		e.object = bg;
 		e.offset = 0;
-		e.total = e.scrollHeight - parseFloat($style($('.game')[0], 'height'));
+		e.total = parseFloat($style(e, 'height')) - parseFloat($style($('.game')[0], 'height'));
 		e.speed = parseFloat($attr(e, 'bg-speed') || '0');
 		e.opacity = parseFloat(e.style.opacity || '1');
 	});
@@ -2121,6 +2121,7 @@ function killObj() {
 	})
 }
 
+STORY.statics = {};
 var hook = {
 	init: function(n, d) {
 		console.log('--> ', n)

@@ -271,8 +271,8 @@ input[type="radio"]:focus + label {
 			var cv = RES.tree_bg_tmp,
 				dc = getCanvasDC(cv),
 				elem = $e('treebg');
-			cv.width = elem.scrollWidth;
-			cv.height = elem.scrollHeight;
+			cv.width = parseInt($style(elem, 'width'));
+			cv.height = parseInt($style(elem, 'height'));
 
 			var s = 1.5;
 			ieach([RES.tree_pattL, RES.tree_pattR], function mkRepeatTexture(i, patt) {
@@ -318,8 +318,8 @@ input[type="radio"]:focus + label {
 				dc = getCanvasDC(cv),
 				patt = RES.ground_patt,
 				elem = $e('groundbg');
-			cv.width = elem.scrollWidth;
-			cv.height = elem.scrollHeight;
+			cv.width = parseInt($style(elem, 'width'));
+			cv.height = parseInt($style(elem, 'height'));
 			dc.fillWith(dc.createPattern(patt, 'repeat'));
 
 			for (var y = 0; y < cv.height; y += patt.height) {
@@ -727,10 +727,7 @@ function loadAndStart() {
 	GAME.load(tl, hook);
 	GAME.start('init');
 }
-RES.check(function() {
-	GAME.init();
-	loadAndStart();
-});
+RES.check(loadAndStart);
 
 </script>
 </body>
