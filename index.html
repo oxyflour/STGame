@@ -262,19 +262,6 @@ input[type="radio"]:focus + label {
 		})
 	</script>
 	<!-- -->
-	<script id="gen_maskbg">
-		(function(RES) {
-			ieach(['maskbg1', 'maskbg2'], function(i, c) {
-				var cv = $e(c),
-					dc = getCanvasDC(cv),
-					grad = dc.createLinearGradient(0, 0, 0, cv.height);
-				grad.addColorStop(0, 'black');
-				grad.addColorStop(1, 'transparent');
-				dc.fillWith(grad);
-			});
-		})
-	</script>
-	<!-- -->
 	<canvas id="tree_pattL" from="stg1bg 0 48 64 128"
 		transform="mirror:0,y" stack="y"></canvas>
 	<canvas id="tree_pattR" from="tree_pattL"
@@ -534,12 +521,12 @@ input[type="radio"]:focus + label {
 		<div class="relative bgimg">
 			<canvas class="ui-obj bg1 full-width" style="height:2400px;"
 				id="groundbg" bg-speed="0.02" bg-reserve="400"></canvas>
-			<canvas class="ui-obj bg1 full-width" style="height:300px;opacity:0.6;"
-				id="maskbg1"></canvas>
+			<div class="ui-obj bg1 full-width"
+				style="height:400px;background:linear-gradient(rgba(0,0,0,0.6),transparent)"></div>
 			<canvas class="ui-obj bg1 full-width" style="height:1000px"
 				id="treebg" bg-speed="0.03" bg-reserve="400"></canvas>
-			<canvas class="ui-obj bg1 full-width maskbg" style="height:200px;opacity:0.7;"
-				id="maskbg2"></canvas>
+			<div class="ui-obj bg1 full-width"
+				style="height:300px;background:linear-gradient(rgba(0,0,0,0.6),transparent)"></div>
 			<div class="ui-obj bombbg" style="background:rgba(0,0,0,0.6)"></div>
 		</div>
 	</div>
