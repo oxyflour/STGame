@@ -662,7 +662,7 @@ input[type="radio"]:focus + label {
 		<div>story: <span class="ui" ui-bind="STORY.state.n"></span></div>
 	</div>
 	<div class="screen loading absolute ui" ui-show="RES.process < 1">
-		<h3>loading: <span class="ui" ui-bind="(RES.process*100).toFixed(1)+'%'"></span></h3>
+		<h3>loading <span class="ui" ui-bind="(RES.process*100).toFixed(1)+'%'">...</span></h3>
 	</div>
 </div>
 <div class="ui" ui-bind="GAME.state" ui-bind-exec="setTimeout(checkRadios, 100)"></div>
