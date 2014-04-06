@@ -2121,7 +2121,18 @@ function killObj() {
 	})
 }
 
-STORY.statics = {};
+var STATICS = {
+	max_point: 1000000,
+	point: 0,
+	player: 7,
+	bomb: 7,
+	power: 255,
+	graze: 0,
+	dot: 0,
+
+	time: 0,
+};
+
 var hook = {
 	init: function(n, d) {
 		console.log('--> ', n)
@@ -2129,20 +2140,11 @@ var hook = {
 	quit: function(n, d) {
 	},
 	after_run: function(dt, d) {
-		STORY.statics.time += dt;
+		STATICS.time += dt;
 	},
 	before_on: function(e, v, d) {
 		if (e == STORY.events.STORY_LOAD) {
 			SPRITE.clrObj();
-			STORY.statics = {
-				max_point: 1000000,
-				point: 0,
-				player: 7,
-				bomb: 7,
-				power: 255,
-				graze: 0,
-				dot: 0,
-			};
 			newPlayer();
 			newBackground($('.bg1'));
 		}
@@ -2163,7 +2165,7 @@ var hook = {
 			}, 'Drop');
 		}
 		else if (e == STORY.events.PLAYER_HIT) {
-			STORY.statics.graze --;
+			STATICS.graze --;
 			v.state.set('juesi');
 			newEffect(v);
 			/*
@@ -2173,7 +2175,7 @@ var hook = {
 			*/
 		}
 		else if (e == STORY.events.PLAYER_GRAZE) {
-			STORY.statics.graze ++;
+			STATICS.graze ++;
 		}
 		else if (e == STORY.events.PLAYER_DYING) {
 			var x = v.data.x,
@@ -2182,11 +2184,11 @@ var hook = {
 			SPRITE.newObj('Drop', { vx:-0.5, vy:-0.85, x:x, y:y });
 			SPRITE.newObj('Drop', { vx: 0.5, vy:-0.85, x:x, y:y });
 			SPRITE.newObj('Drop', { vx:   1, vy: -0.8, x:x, y:y });
-			STORY.statics.player --;
+			STATICS.player --;
 		}
 		else if (e == STORY.events.PLAYER_DEAD) {
 			newPlayer();
-			STORY.statics.bomb = 7;
+			STATICS.bomb = 7;
 		}
 		else if (e == STORY.events.PLAYER_FIRE) {
 			if (!d.disable_fire)
@@ -2195,7 +2197,7 @@ var hook = {
 				});
 		}
 		else if (e == STORY.events.PLAYER_BOMB) {
-			STORY.statics.bomb --;
+			STATICS.bomb --;
 			v.state.set('bomb');
 			newBomb(v);
 		}
@@ -2205,7 +2207,7 @@ var hook = {
 		}
 		else if (e == STORY.events.DROP_COLLECTED) {
 			v.state.die();
-			STORY.statics.point += 10;
+			STATICS.point += 10;
 		}
 		else if (e == STORY.events.BULLET_HIT) {
 			v.state.die();
