@@ -289,10 +289,8 @@ function newTicker(t, f, d) {
 function newAnimateList() {
 	var _t = [], unused = [];
 	var cleaner = newTicker(1000, function() {
-		var len = unused.length;
-		if (len > 100 || (len > 30 && unused.last_len > 30))
+		if (unused.length > 100)
 			_t.clean();
-		unused.last_len = len;
 	});
 
 	_t.clean = function() {
