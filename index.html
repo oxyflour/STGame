@@ -88,18 +88,70 @@ input[type="radio"]:focus + label {
 	height: 64px;
 	opacity: 0.6;
 }
+.font.fa.anim {
+	-webkit-animation: fa_anim 2s linear;
+	    -ms-animation: fa_anim 2s linear;
+	   -moz-animation: fa_anim 2s linear;
+}
+@-webkit-keyframes fa_anim {
+	from { -webkit-transform: rotate(360deg); opacity:0.0; margin-left: 48px; margin-top: 48px; }
+	50%  { -webkit-transform: rotate(180deg); opacity:0.3; margin-left: 48px; margin-top:  0px; }
+}
+@-ms-keyframes fa_anim {
+	from {     -ms-transform: rotate(360deg); opacity:0.0; margin-left: 48px; margin-top: 48px; }
+	50%  {     -ms-transform: rotate(180deg); opacity:0.3; margin-left: 48px; margin-top:  0px; }
+}
+@-moz-keyframes fa_anim {
+	from {    -moz-transform: rotate(360deg); opacity:0.0; margin-left: 48px; margin-top: 48px; }
+	50%  {    -moz-transform: rotate(180deg); opacity:0.3; margin-left: 48px; margin-top:  0px; }
+}
+.font.fb.anim {
+	-webkit-animation: fb_anim 1s linear;
+	    -ms-animation: fb_anim 1s linear;
+	   -moz-animation: fb_anim 1s linear;
+}
+@-webkit-keyframes fb_anim { from { -webkit-transform: rotate(180deg); opacity:0.0; margin-top: 48px; } }
+    @-ms-keyframes fb_anim { from {     -ms-transform: rotate(180deg); opacity:0.0; margin-top: 48px; } }
+   @-moz-keyframes fb_anim { from {    -moz-transform: rotate(180deg); opacity:0.0; margin-top: 48px; } }
+.font.fc.anim {
+	-webkit-animation: fc_anim 1s linear;
+	    -ms-animation: fc_anim 1s linear;
+	   -moz-animation: fc_anim 1s linear;
+}
+@-webkit-keyframes fc_anim { from { -webkit-transform: rotate(180deg); opacity:0.0; margin-top: -60px; } }
+    @-ms-keyframes fc_anim { from {     -ms-transform: rotate(180deg); opacity:0.0; margin-top: -60px; } }
+   @-moz-keyframes fc_anim { from {    -moz-transform: rotate(180deg); opacity:0.0; margin-top: -60px; } }
+.font.fd.anim {
+	-webkit-animation: fd_anim 2s linear;
+	    -ms-animation: fd_anim 2s linear;
+	   -moz-animation: fd_anim 2s linear;
+}
+@-webkit-keyframes fd_anim {
+	from { -webkit-transform: rotate(360deg); opacity:0.0; margin-left: -60px; margin-top: -60px; }
+	50%  { -webkit-transform: rotate(180deg); opacity:0.3; margin-left: -60px; margin-top:   0px; }
+}
+@-ms-keyframes fd_anim {
+	from {     -ms-transform: rotate(360deg); opacity:0.0; margin-left: -60px; margin-top: -60px; }
+	50%  {     -ms-transform: rotate(180deg); opacity:0.3; margin-left: -60px; margin-top:   0px; }
+}
+@-moz-keyframes fd_anim {
+	from {    -moz-transform: rotate(360deg); opacity:0.0; margin-left: -60px; margin-top: -60px; }
+	50%  {    -moz-transform: rotate(180deg); opacity:0.3; margin-left: -60px; margin-top:   0px; }
+}
 .logo {
 	margin-top: 312px;
 	margin-left: 464px;
 	width: 128px;
 	height: 128px;
-	-webkit-animation: logo_anim 2s;
-	    -ms-animation: logo_anim 2s;
-	   -moz-animation: logo_anim 2s;
 }
-@-webkit-keyframes logo_anim { from { -webkit-transform: rotate(180deg); } to { -webkit-transform: rotate(0); } }
-    @-ms-keyframes logo_anim { from {     -ms-transform: rotate(180deg); } to {     -ms-transform: rotate(0); } }
-   @-moz-keyframes logo_anim { from {    -moz-transform: rotate(180deg); } to {    -moz-transform: rotate(0); } }
+.logo.anim {
+	-webkit-animation: logo_anim 4s;
+	    -ms-animation: logo_anim 4s;
+	   -moz-animation: logo_anim 4s;
+}
+@-webkit-keyframes logo_anim { from { -webkit-transform: rotate(180deg);opacity:0; } }
+    @-ms-keyframes logo_anim { from {     -ms-transform: rotate(180deg);opacity:0; } }
+   @-moz-keyframes logo_anim { from {    -moz-transform: rotate(180deg);opacity:0; } }
 .fps {
 	margin-top: 10px;
 	margin-left: 432px;
@@ -622,8 +674,8 @@ input[type="radio"]:focus + label {
 	<div class="logo absolute"></div>
 	<div class="title absolute">
 		<div class="tr">
-			<div class="td"><div class="font" style="background-position:0 0;"></div></div>
-			<div class="td"><div class="font" style="background-position:-64px 0;"></div></div>
+			<div class="td"><div class="font fa" style="background-position:0 0;"></div></div>
+			<div class="td"><div class="font fb" style="background-position:-64px 0;"></div></div>
 			<div class="td"></div>
 		</div>
 		<div class="tr">
@@ -633,8 +685,8 @@ input[type="radio"]:focus + label {
 		</div>
 		<div class="tr">
 			<div class="td"></div>
-			<div class="td"><div class="font" style="background-position:-192px 0;"></div></div>
-			<div class="td"><div class="font" style="background-position:0 -64px;"></div></div>
+			<div class="td"><div class="font fc" style="background-position:-192px 0;"></div></div>
+			<div class="td"><div class="font fd" style="background-position:0 -64px;"></div></div>
 		</div>
 	</div>
 	<div class="screen mask absolute ui" ui-show="GAME.state == GAME.states.PAUSE">
@@ -713,9 +765,19 @@ function getCanvasDC(cv) {
 	return dc;
 }
 
+function reAddClass(e, c) {
+	e.classList.remove(c);
+	// MAGIC!
+	e.offsetWidth = e.offsetWidth;
+	e.classList.add(c);
+}
+
 function loadAndStart() {
 	GAME.load(tl, hook);
 	GAME.start('init');
+	ieach($('.logo, .font'), function(i, e) {
+		reAddClass(e, 'anim');
+	});
 }
 RES.check(loadAndStart);
 
