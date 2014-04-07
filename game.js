@@ -2079,32 +2079,33 @@ function newBomb(player) {
 			return;
 		var p = bg.player;
 		var sh = SPRITE.newObj('Shield', {
-			sx: p.data.x,
-			sy: p.data.y,
-			theta: random(0, Math.PI*2),
-			dtheta: randin([-0.002, 0.002]),
-			dist: 15,
+			x: p.data.x,
+			y: p.data.y,
+			vx: random(-0.1, 0.1),
+			vy: random(-0.1, 0.1),
 			frames: RES.frames.Shield[0],
+			theta: random(0, Math.PI*2),
+			dtheta: randin([-0.09, 0.09]),
+			dv: 0.02,
 		});
 		sh.runCircle = function(dt, d, s) {
-			if (s.d.age < 1000) {
-				d.theta += d.dtheta * dt;
-				d.dist += 0.1 * dt;
-				dx = d.sx + d.dist * Math.cos(d.theta) - d.x;
-				dy = d.sy + d.dist * Math.sin(d.theta) - d.y;
-				d.vx = dx / dt;
-				d.vy = dy / dt;
-			}
 			d.r = 1 + ease_out(d.health) * 40;
 			d.scale = d.r / 30;
 		};
 		sh.anim(50, function(k, v) {
 			var d = v.data, s = v.state;
-			if (s.d.age < 4000) {
+			if (s.d.age < 1000) {
+				d.vx *= 0.9;
+				d.vy *= 0.9;
+				d.theta += d.dtheta;
+				d.vx += Math.sin(d.theta) * d.dv;
+				d.vy += Math.cos(d.theta) * d.dv;
+			}
+			else if (s.d.age < 4000) {
 				if (!d.to || d.to.finished)
 					d.to = UTIL.getNearestAlive(v, 'Enemy');
 				if (d.to && !d.to.finished)
-					redirect_object(d, d.to.data, sqrt_sum(d.vx, d.vy), 0.2);
+					redirect_object(d, d.to.data, sqrt_sum(d.vx, d.vy)+0.02, 0.2);
 			}
 		});
 		ieach([1, 2, 3], function(i, v) {
