@@ -11,18 +11,6 @@ body {
 input[type="radio"] {
 	opacity: 0;
 }
-input[type="radio"] + label {
-	-webkit-transition: all ease 0.4s;
-	    -ms-transition: all ease 0.4s;
-	   -moz-transition: all ease 0.4s;
-	opacity: 0.5;
-	font-weight: bold;
-	cursor: pointer;
-}
-input[type="radio"]:focus + label {
-	opacity: 1;
-	margin-left: -5px;
-}
 .absolute {
 	position: absolute;
 }
@@ -241,6 +229,40 @@ input[type="radio"]:focus + label {
 	float: left;
 	width: 48px;
 	height: 16px;
+}
+.menu {
+	background: url(res/ascii.png) 0 -160px;
+	width: 64px;
+	height: 16px;
+	display: inline-block;
+	cursor: pointer;
+	-webkit-transform: scale(1.5);
+	-webkit-transition: all ease 0.4s;
+	    -ms-transition: all ease 0.4s;
+	   -moz-transition: all ease 0.4s;
+	opacity: 0.4;
+}
+input[type="radio"]:focus + .menu {
+	background-image: url(res/asciis.png);
+	-webkit-transform: scale(1.8);
+	opacity: 1;
+}
+.menu-line {
+	margin: 10px;
+	margin-left: 110px;
+}
+.menu-pause {
+	margin-top: 168px;
+	margin-left: 160px;
+	margin-bottom: 5px;
+}
+.menu-pause-continue {
+	margin-top: 28px;
+	background-position: -0     -176px;
+}
+.menu-pause-quit {
+	width: 96px;
+	background-position: -0     -192px;
 }
 .num {
 	background: url(res/ascii.png) 0 -32px;
@@ -693,13 +715,21 @@ input[type="radio"]:focus + label {
 			<div class="td"><div class="font fd" style="background-position:0 -64px;"></div></div>
 		</div>
 	</div>
-	<div class="screen mask absolute ui" ui-show="GAME.state == GAME.states.PAUSE">
-		<strong><big><p class="ui text-center" ui-bind="keyfind(GAME.states, GAME.state)"></p></big></strong>
+	<div class="game mask absolute ui" ui-show="GAME.state == GAME.states.PAUSE">
+		<div class="menu menu-pause"></div>
 		<form action="javascript:eval(getRadioVal($('input[name=pause_menu]')))">
-			<p><input type="radio" name="pause_menu" value="GAME.state = GAME.states.RUNNING"><label>Continue</label></p>
-			<!--p><input type="radio" name="pause_menu" value=""><label>Back to Title</label></p-->
-			<p><input type="radio" name="pause_menu" value="loadAndStart()"><label>Restart</label></p>
-			<p><input type="radio" name="pause_menu" value="window.close()"><label>Quit</label></p>
+			<div class="menu-line">
+				<input type="radio" name="pause_menu" value="GAME.state = GAME.states.RUNNING">
+				<label class="menu menu-pause-continue"></label>
+			</div>
+			<div class="menu-line">
+				<input type="radio" name="pause_menu" value="window.close()">
+				<label class="menu menu-pause-quit"></label>
+			</div>
+			<div class="menu-line">
+				<input type="radio" name="pause_menu" value="loadAndStart()">
+				<label>Restart</label>
+			</div>
 			<input style="width:0px;opacity:0;" type="submit" />
 		</form>
 	</div>
