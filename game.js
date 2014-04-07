@@ -257,6 +257,15 @@ function $style(e, k) {
 	var style = getComputedStyle(e);
 	return style && style.getPropertyValue(k);
 }
+function $prefixStyle(s, k, v) {
+	ieach([
+		'-webkit-',
+		'-ms-',
+		'-moz-',
+	], function(i, p, s) {
+		s[p+k] = v;
+	}, s)
+}
 
 function newCounter() {
 	var t0 = Date.now();
@@ -2027,7 +2036,7 @@ function newBackground(elems) {
 function newBomb(player) {
 	var bg = SPRITE.newObj('Basic');
 	bg.player = player;
-	bg.elem = $i('.bgimg .bombbg');
+	bg.elem = $i('.bombbg');
 	bg.elem.object = bg;
 	bg.draw = return_nothing;
 	bg.anim(50, function(x, bg) {
@@ -2263,6 +2272,28 @@ var tl = {};
 tl.init = {
 	run: UTIL.newTimeRunner(5000, 'sec0'),
 	init: function(d) {
+		ieach($('.bgimg'), function(i, e) {
+			var v = e.val = {
+				bg0: {
+					persp: [700, 400],
+					rotate: [40, 50],
+					opacity: [1, 1],
+					oriy: -20,
+				},
+				bg1: {
+					persp: [700, 300],
+					rotate: [30, 80],
+					opacity: [1, 0],
+					oriy: -20,
+				}
+			}[e.id];
+			if (v) {
+				var trans = 'perspective('+v.persp[0]+'px) rotateX('+v.rotate[0]+'deg)',
+					ori = '50% '+v.oriy+'%';
+				$prefixStyle(e.style, 'transform', trans);
+				$prefixStyle(e.style, 'transform-origin', ori);
+			}
+		});
 		d.title = SPRITE.newObj('Basic', {
 			text: 'STAGE 1',
 			font: {
@@ -2314,6 +2345,20 @@ tl.sec0 = {
 };
 tl.sec1 = {
 	init: function(d) {
+		var m = 100;
+		STORY.timeout(function(e, n) {
+			var f = 1 - n / m;
+			f = (Math.sin((f - 0.5) * Math.PI) + 1) * 0.5;
+			ieach(e, function(i, e) {
+				var v = e.val,
+					p = interp(v.persp[0], v.persp[1], f),
+					r = interp(v.rotate[0], v.rotate[1], f),
+					trans = 'perspective('+p+'px) rotateX('+r+'deg)';
+				$prefixStyle(e.style, 'transform', trans);
+				e.style.opacity = interp(v.opacity[0], v.opacity[1], f);
+				e.style.display = e.style.opacity > 0.05 ? 'block' : 'none';
+			});
+		}, 50, $('.bgimg'), m);
 		STORY.timeout(function(d, n) {
 			if (n < 3) newEnemy();
 		}, 300, null, 8);
