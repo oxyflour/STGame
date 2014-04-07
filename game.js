@@ -241,6 +241,9 @@ function rgb2hsl(r, g, b) {
 function $(s, p) {
 	return (p || document).querySelectorAll(s);
 }
+function $i(s, p) {
+	return $.apply(null, arguments)[0];
+}
 function $e(id) {
 	return document.getElementById(id);
 }
@@ -2000,7 +2003,7 @@ function newBackground(elems) {
 	ieach(elems, function(i, e) {
 		e.object = bg;
 		e.offset = 0;
-		e.total = parseFloat($style(e, 'height')) - parseFloat($style($('.game')[0], 'height'));
+		e.total = parseFloat($style(e, 'height')) - parseFloat($style($i('.game'), 'height'));
 		e.speed = parseFloat($attr(e, 'bg-speed') || '0');
 		e.opacity = parseFloat(e.style.opacity || '1');
 	});
@@ -2022,7 +2025,7 @@ function newBackground(elems) {
 function newBomb(player) {
 	var bg = SPRITE.newObj('Basic');
 	bg.player = player;
-	bg.elem = $('.bgimg .bombbg')[0];
+	bg.elem = $i('.bgimg .bombbg');
 	bg.elem.object = bg;
 	bg.draw = return_nothing;
 	bg.anim(50, function(x, bg) {
