@@ -2473,7 +2473,7 @@ ieach([
 			{ v:0.1 },
 			{ fx:0.5, fy:0.5 },
 		],
-		damage_max: 100,
+		life: 100,
 		duration: 30000,
 		countdown: true,
 	},
@@ -2506,7 +2506,7 @@ ieach([
 			killCls('Dannmaku');
 			d.age = 0;
 			d.duration = v.duration || Inf;
-			d.damage_max = v.damage_max || Inf;
+			d.life = v.life || Inf;
 
 			d.boss = UTIL.getOneObj('Enemy') || newBoss();
 			if (v.pathnodes)
@@ -2534,8 +2534,8 @@ ieach([
 		},
 		run: function(dt, d) {
 			d.age += dt;
-			if (d.age > d.duration || d.boss.data.damage >= d.damage_max || d.pass) {
-				d.boss.data.damage = v.damage_max || 0;
+			if (d.age > d.duration || d.boss.data.damage >= d.life || d.pass) {
+				d.boss.data.damage = v.life || 0;
 				return n;
 			}
 		},
