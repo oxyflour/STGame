@@ -2522,11 +2522,43 @@ ieach([
 			d.boss = UTIL.getOneObj('Enemy', 'boss') || newBoss();
 			if (v.pathnodes)
 				UTIL.addPathAnim(d.boss, v.pathnodes);
+			if (!d.boss.lifebar) {
+				var bar = d.boss.lifebar = SPRITE.newObj('Basic', {
+					parent: d.boss,
+					x: GAME.rect.l+24,
+					y: GAME.rect.t+8,
+					frame: { res:'front', sx:0, sy:144, sw:48, sh:16, w:48, h:16 },
+				});
+				bar.drawBasic = function(d, s) {
+					this.drawFrame(d, s);
+					this.drawText({
+						font: {
+							res: 'ascii_yellow',
+							map: RES.fontmap,
+						},
+						text: '0',
+						x: d.x + 24 + 8,
+						y: d.y,
+					}, s);
+					var p = d.parent,
+						x = d.x + 24 + 16,
+						y = d.y + 2,
+						len = GAME.rect.r - 50 - x;
+					len *= ease_out(d.health) * (p.data.life - p.data.damage) / p.data.life;
+					DC.beginPath();
+					DC.moveTo(x, y);
+					DC.lineTo(x + len, y);
+					DC.closePath();
+					DC.strokeStyle = 'white';
+					DC.lineWidth = 5;
+					DC.stroke();
+				};
+			}
 
 			if (v.duration > 0) {
 				d.countdown = SPRITE.newObj('Basic', {
-					x: interp(GAME.rect.l, GAME.rect.r, 1)-20,
-					y: interp(GAME.rect.t, GAME.rect.b, 0)+20,
+					x: GAME.rect.r-20,
+					y: GAME.rect.t+8,
 					font: {
 						res: 'num',
 						map: RES.nummap,
