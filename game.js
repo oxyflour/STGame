@@ -2242,9 +2242,11 @@ var hook = {
 				});
 		}
 		else if (e == STORY.events.PLAYER_BOMB) {
-			STATICS.bomb --;
-			v.state.set('bomb');
-			newBomb(v);
+			if (!d.disable_fire) {
+				STATICS.bomb --;
+				v.state.set('bomb');
+				newBomb(v);
+			}
 		}
 		else if (e == STORY.events.ENEMY_KILL) {
 			if (v.data.respawn-- < 0)
