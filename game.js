@@ -268,9 +268,9 @@ function $style(e, k) {
 }
 function $prefixStyle(s, k, v) {
 	ieach([
-		'-webkit-',
-		'-ms-',
-		'-moz-',
+		'webkit',
+		'ms',
+		'Moz',
 	], function(i, p, s) {
 		s[p+k] = v;
 	}, s)
@@ -2325,8 +2325,8 @@ tl.init = {
 			if (v) {
 				var trans = 'perspective('+v.persp[0]+'px) rotateX('+v.rotate[0]+'deg)',
 					ori = '50% '+v.oriy+'%';
-				$prefixStyle(e.style, 'transform', trans);
-				$prefixStyle(e.style, 'transform-origin', ori);
+				$prefixStyle(e.style, 'Transform', trans);
+				$prefixStyle(e.style, 'TransformOrigin', ori);
 			}
 		});
 		d.title = SPRITE.newObj('Basic', {
@@ -2388,7 +2388,7 @@ tl.sec1 = {
 					p = interp(v.persp[0], v.persp[1], f),
 					r = interp(v.rotate[0], v.rotate[1], f),
 					trans = 'perspective('+p+'px) rotateX('+r+'deg)';
-				$prefixStyle(e.style, 'transform', trans);
+				$prefixStyle(e.style, 'Transform', trans);
 				e.style.opacity = interp(v.opacity[0], v.opacity[1], f);
 				e.style.display = e.style.opacity > 0.05 ? 'block' : 'none';
 			});
