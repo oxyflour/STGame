@@ -248,10 +248,12 @@ function $e(id) {
 	return document.getElementById(id);
 }
 function $attr(e, a) {
+	if (typeof(e) == typeof('')) e = $i(e);
 	var attr = e && e.attributes[a];
 	return attr && attr.textContent;
 }
 function $style(e, k) {
+	if (typeof(e) == typeof('')) e = $i(e);
 	var style = getComputedStyle(e);
 	return style && style.getPropertyValue(k);
 }
@@ -2003,7 +2005,7 @@ function newBackground(elems) {
 	ieach(elems, function(i, e) {
 		e.object = bg;
 		e.offset = 0;
-		e.total = parseFloat($style(e, 'height')) - parseFloat($style($i('.game'), 'height'));
+		e.total = parseFloat($style(e, 'height')) - parseFloat($style('.game', 'height'));
 		e.speed = parseFloat($attr(e, 'bg-speed') || '0');
 		e.opacity = parseFloat(e.style.opacity || '1');
 	});

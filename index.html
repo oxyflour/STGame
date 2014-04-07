@@ -292,7 +292,7 @@ input[type="radio"]:focus + label {
 				}
 			});
 
-			var rh = parseInt($style($i('.game'), 'height'));
+			var rh = parseInt($style('.game', 'height'));
 			dc.repeatSelf(0, cv.height - rh, cv.width, rh, 0, 0);
 		})
 	</script>
@@ -349,7 +349,7 @@ input[type="radio"]:focus + label {
 			dc.drawImage(bg, 0, 0, bg.width, bg.height, cv.width/2-w/2, cv.height - bg.height, w, bg.height);
 			dc.globalAlpha = 1;
 
-			var rh = parseInt($style($i('.game'), 'height'));
+			var rh = parseInt($style('.game', 'height'));
 			dc.repeatSelf(0, cv.height - rh, cv.width, rh, 0, 0);
 
 			/*
