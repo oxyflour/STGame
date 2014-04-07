@@ -1579,21 +1579,24 @@ function newPlayer() {
 	var p = SPRITE.newObj('Player');
 	p.onmyous = {};
 	keach({
-		'left' : { value:0.9, max:0.9, min:0.6, delta:-0.008, frames:'OnmyouR' },
-		'right': { value:0.1, max:0.4, min:0.1, delta:+0.008, frames:'Onmyou' },
+		'left' : { value:0.9, max:0.9, min:0.6, delta:-0.015, frames:'OnmyouR' },
+		'right': { value:0.1, max:0.4, min:0.1, delta:+0.015, frames:'Onmyou' },
 	}, function(k, a) {
 		a.callback = function(v) {
-			var p = v.data.parent,
-				r = 25,
-				t = this.value * Math.PI;
-			v.data.x = p.data.x + r * Math.cos(t);
-			v.data.y = p.data.y - r * Math.sin(t);
-			this.step = p.data.slowMode ? this.delta : -this.delta;
+			v.data.theta = this.value;
+			this.step = v.data.parent.data.slowMode ? this.delta : -this.delta;
 		};
 		p.onmyous[k] = SPRITE.newObj('Basic', {
 			parent: p,
 			frames: RES.frames[a.frames],
 		});
+		p.onmyous[k].runBasic = function(dt, d, s) {
+			var p = d.parent,
+				r = 25,
+				t = d.theta * Math.PI;
+			d.x = p.data.x + r * Math.cos(t);
+			d.y = p.data.y - r * Math.sin(t);
+		};
 		UTIL.addAnim(p.onmyous[k], a);
 	});
 	p.pslow = SPRITE.newObj('Basic', {
@@ -1601,14 +1604,16 @@ function newPlayer() {
 		parent: p,
 		frames: RES.frames.PSlow,
 	});
+	p.pslow.runBasic = function(dt, d, s) {
+		var p = d.parent;
+		d.x = p.data.x;
+		d.y = p.data.y;
+	};
 	UTIL.addAnim(p.pslow, {
 		delta: 1/120,
 		callback: function(v) {
-			var p = v.data.parent;
-			v.data.x = p.data.x;
-			v.data.y = p.data.y;
 			v.data.opacity = this.value;
-			this.step = p.data.slowMode ? this.delta : -this.delta;
+			this.step = v.data.parent.data.slowMode ? this.delta : -this.delta;
 		},
 	});
 }
