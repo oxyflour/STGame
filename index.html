@@ -334,9 +334,11 @@ input[type="radio"]:focus + label {
 			}
 
 			var bg = RES.tree_bg_tmp,
-				w = bg.width * 0.7;
-			dc.globalAlpha = 0.3;
-			dc.drawImage(bg, 0, 0, bg.width, bg.height, cv.width/2-w/2, cv.height - bg.height, w, bg.height);
+				hw = bg.width / 2,
+				dw = bg.width * 0.1;
+			dc.globalAlpha = 0.4;
+			dc.drawImage(bg, 0, 0, hw, bg.height, dw, cv.height - bg.height, hw, bg.height);
+			dc.drawImage(bg, hw, 0, hw, bg.height, hw-dw, cv.height - bg.height, hw, bg.height);
 			dc.globalAlpha = 1;
 
 			var rh = parseInt($style('.game', 'height'));
