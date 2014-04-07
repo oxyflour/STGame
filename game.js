@@ -2365,11 +2365,7 @@ tl.sec1 = {
 	},
 	run: function(dt, d) {
 		if (d.pass) {
-			tl.loop = (tl.loop || 0) + 1;
-			if (tl.loop >= 5)
-				return 'boss0';
-			else
-				return 'sec1';
+			return 'boss0';
 		}
 	},
 	on: function(e, v, d) {
