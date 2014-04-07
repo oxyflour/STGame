@@ -2393,7 +2393,7 @@ tl.sec1 = {
 	},
 	run: function(dt, d) {
 		if (d.pass) {
-			return 'boss0';
+			return 'boss';
 		}
 	},
 	on: function(e, v, d) {
@@ -2437,7 +2437,7 @@ ieach([
 	{ text:'x0aabbcc', x:GAME.rect.l+50, y:interp(GAME.rect.t, GAME.rect.b, 0.8) },
 	{ text:'y0aabbcc', x:GAME.rect.r-50, y:interp(GAME.rect.t, GAME.rect.b, 0.8) },
 	{ text:'x0aabbcc', x:GAME.rect.l+50, y:interp(GAME.rect.t, GAME.rect.b, 0.8) },
-	{ text:'y0aabbcc', x:GAME.rect.r-50, y:interp(GAME.rect.t, GAME.rect.b, 0.8), next:'boss' },
+	{ text:'y0aabbcc', x:GAME.rect.r-50, y:interp(GAME.rect.t, GAME.rect.b, 0.8), next:'boss0' },
 ], function(i, v, tl) {
 	var c = v.name || 'diag'+i, n = v.next || 'diag'+(i+1);
 	tl[c] = {
@@ -2465,7 +2465,7 @@ ieach([
 		},
 	}
 }, tl);
-tl.boss0 = {
+tl.boss = {
 	init: function(d) {
 		d.disable_fire = true;
 		STORY.timeout(function() {
@@ -2481,7 +2481,6 @@ tl.boss0 = {
 };
 ieach([
 	{
-		name:'boss',
 		duration: 5000,
 		scname: 'spell card 1',
 	},
