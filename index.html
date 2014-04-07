@@ -729,7 +729,7 @@ input[type="radio"]:focus + .menu {
 		<div class="menu menu-pause"></div>
 		<form action="javascript:eval(getRadioVal($('input[name=pause_menu]')))" onkeyup="checkFormKey(event, this)">
 			<div class="menu-line">
-				<input type="radio" name="pause_menu" value="GAME.state = GAME.states.RUNNING">
+				<input type="radio" name="pause_menu" value="continueGame()">
 				<label class="menu menu-pause-continue"></label>
 			</div>
 			<div class="menu-line">
@@ -819,6 +819,10 @@ function reAddClass(e, c) {
 	// MAGIC!
 	e.offsetWidth = e.offsetWidth;
 	e.classList.add(c);
+}
+
+function continueGame() {
+	GAME.state = GAME.states.RUNNING;
 }
 
 function loadAndStart() {
