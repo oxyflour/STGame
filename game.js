@@ -2004,11 +2004,11 @@ function newEffect(v) {
 				Enemy: RES.frames.EffPieceB,
 				Player: RES.frames.EffPieceG,
 			}[v.clsName]),
-			scale: 2,
+			scale: 1.5,
 			opacity: 0.5,
 			blend: 'lighter',
 			states: {
-				life: [50, 50, 750],
+				life: [50, 50, random(500, 1500)],
 			},
 		})
 		p.runCircle = function(dt, d, s) {
