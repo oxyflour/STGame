@@ -2466,6 +2466,7 @@ ieach([
 			{ fx:0.1, fy:0.1 },
 			{ fx:0.5, fy:0.1 },
 		],
+		duration: 5000,
 	},
 	{
 		pathnodes: [
@@ -2473,6 +2474,8 @@ ieach([
 			{ fx:0.5, fy:0.5 },
 		],
 		damage_max: 100,
+		duration: 30000,
+		countdown: true,
 	},
 	{
 		pathnodes: [
@@ -2480,14 +2483,20 @@ ieach([
 			{ fx:0.1, fy:0.5, v:0.2 },
 			{ fx:0.9, fy:0.5 },
 		],
+		duration: 30000,
+		countdown: true,
 	},
 	{
-		//...
+		duration: 30000,
+		countdown: true,
 	},
 	{
-		//...
+		duration: 30000,
+		countdown: true,
 	},
 	{
+		duration: 99000,
+		countdown: true,
 		next: 'end',
 	},
 ], function(i, v, tl) {
@@ -2496,29 +2505,32 @@ ieach([
 		init: function(d) {
 			killCls('Dannmaku');
 			d.age = 0;
-			d.duration = v.duration || 30000;
+			d.duration = v.duration || Inf;
 			d.damage_max = v.damage_max || Inf;
 
 			d.boss = UTIL.getOneObj('Enemy') || newBoss();
 			if (v.pathnodes)
 				UTIL.addPathAnim(d.boss, v.pathnodes);
 
-			d.countdown = SPRITE.newObj('Basic', {
-				x: interp(GAME.rect.l, GAME.rect.r, 1)-20,
-				y: interp(GAME.rect.t, GAME.rect.b, 0)+20,
-				font: {
-					res: 'num',
-					map: RES.nummap,
-				},
-			});
-			d.countdown.anim(100, function(d, v) {
-				var t = Math.max(Math.floor((d.duration - d.age) / 1000), 0);
-				v.data.font.res = (t<5 && 'num3') || (t<10 && 'num2') || (t<20 && 'num1') || 'num0';
-				v.data.text = (t < 10 ? '0' : '') + t;
-			}, d);
+			if (v.countdown) {
+				d.countdown = SPRITE.newObj('Basic', {
+					x: interp(GAME.rect.l, GAME.rect.r, 1)-20,
+					y: interp(GAME.rect.t, GAME.rect.b, 0)+20,
+					font: {
+						res: 'num',
+						map: RES.nummap,
+					},
+				});
+				d.countdown.anim(100, function(d, v) {
+					var t = Math.max(Math.floor((d.duration - d.age) / 1000), 0);
+					v.data.font.res = (t<5 && 'num3') || (t<10 && 'num2') || (t<20 && 'num1') || 'num0';
+					v.data.text = (t < 10 ? '0' : '') + t;
+				}, d);
+			}
 		},
 		quit: function(d) {
-			d.countdown.state.die();
+			if (d.countdown)
+				d.countdown.state.die();
 		},
 		run: function(dt, d) {
 			d.age += dt;
