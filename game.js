@@ -822,15 +822,16 @@ var UTIL = {
 		t = t || v.data.frtick || 50;
 		v.anim(t, function(d) {
 			if (d.callback)
-				d.frames = d.callback(v, d);
+				d.frames = d.callback(v);
 			if (d.frames) {
-				d.index = (d.index + 1) % d.frames.length;
+				d.index = (d.index + d.step) % d.frames.length;
 				v.data.frame = d.frames[d.index];
 			}
 		}, {
 			callback: fs.call && fs,
 			frames: fs.length >= 0 ? fs : [fs],
-			index: 0
+			index: 0,
+			step: 1,
 		}, 'frame');
 	},
 	// ps should be array of objects like
@@ -1318,19 +1319,19 @@ SPRITE.newCls('Player', {
 		y0: 0,
 
 		frtick: 120,
-	  	frames: function(v, d) {
+	  	frames: function(v) {
 			var fs = RES.frames.Player0;
 			if (v.state.is_dying) {
 				fs = RES.frames.PlayerD;
-				if (d.index + 1 > fs.length - 1)
-					d.index = fs.length - 2;
+				if (this.index + 1 > fs.length - 1)
+					this.index = fs.length - 2;
 			}
 			else if (Math.abs(v.data.vx) > 0.1) {
 				fs = v.data.vx < 0 ? RES.frames.PlayerL : RES.frames.PlayerR;
-				if (d.frames != fs)
-					d.index = 0;
-				if (d.index + 1 > fs.length - 1)
-					d.index = 4;
+				if (this.frames != fs)
+					this.index = 0;
+				if (this.index + 1 > fs.length - 1)
+					this.index = 4;
 			}
 			return fs;
 		},
