@@ -2158,7 +2158,7 @@ function killCls() {
 }
 function killObj() {
 	ieach(arguments, function(i, v) {
-		if (!v.state.is_dying)
+		if (v && !v.state.is_dying)
 			v.state.die();
 	})
 }
@@ -2550,10 +2550,7 @@ ieach([
 			}
 		},
 		quit: function(d) {
-			if (d.countdown)
-				d.countdown.state.die();
-			if (d.scname)
-				d.scname.state.die();
+			killObj(d.countdown, d.scname);
 		},
 		run: function(dt, d) {
 			d.age += dt;
