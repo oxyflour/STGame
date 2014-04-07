@@ -2062,22 +2062,25 @@ function newBackground(elems) {
 	return bg;
 }
 function newBomb(player) {
-	var bg = SPRITE.newObj('Basic');
-	bg.player = player;
-	bg.elem = $i('.bombbg');
-	bg.elem.object = bg;
-	bg.draw = return_nothing;
-	bg.anim(50, function(x, bg) {
-		var p = bg.player;
-		if ((p.finished || p.state.d.name !== 'bomb') && !bg.state.is_dying)
-			bg.state.die();
-		if (bg.elem.object == bg)
-			bg.elem.style.opacity = bg.data.health;
+	var bg = SPRITE.newObj('Basic', {
+		player: player,
+		elem: $i('.bombbg'),
+		story: STORY.state.n,
 	});
-	bg.anim(800, function(x, bg) {
+	bg.draw = return_nothing;
+	bg.data.elem.object = bg;
+	bg.anim(50, function(d, bg) {
+		var p = d.player;
+		if ((p.finished || p.state.d.name !== 'bomb' || d.story != STORY.state.n) &&
+				!bg.state.is_dying)
+			bg.state.die();
+		if (d.elem.object == bg)
+			d.elem.style.opacity = d.health;
+	}, bg.data);
+	bg.anim(800, function(d, bg) {
 		if (bg.state.is_dying)
 			return;
-		var p = bg.player;
+		var p = bg.data.player;
 		var sh = SPRITE.newObj('Shield', {
 			x: p.data.x,
 			y: p.data.y,
@@ -2134,7 +2137,7 @@ function newBomb(player) {
 		parent: bg,
 	});
 	sh.runCircle = function(dt, d, s) {
-		var p = d.parent.player;
+		var p = d.parent.data.player;
 		d.x = p.data.x;
 		d.y = p.data.y;
 		d.r = s.is_dying ? 400 - d.health*300 : d.health * 100;
@@ -2471,6 +2474,7 @@ ieach([
 tl.boss = {
 	init: function(d) {
 		d.disable_fire = true;
+		killCls('Dannmaku', 'Shield');
 		STORY.timeout(function() {
 			var boss = newBoss();
 			UTIL.addPathAnim(boss, [
