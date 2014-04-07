@@ -1484,7 +1484,8 @@ SPRITE.newCls('Enemy', {
 		r: 20,
 		y: interp(GAME.rect.t, GAME.rect.b, 0.1),
 		life: 2,
-		damage: 0
+		respawn: 0,
+		damage: 0,
 	}, d);
 	SPRITE.init.Circle.call(this, d);
 });
@@ -1941,6 +1942,7 @@ function newBoss() {
 		life: 300,
 		frtick: 150,
 		frames: RES.frames.EnemyX,
+		respawn: Inf,
 		id: 'boss',
 	});
 	boss.effects = array(3, function(i) {
@@ -2244,7 +2246,8 @@ var hook = {
 			newBomb(v);
 		}
 		else if (e == STORY.events.ENEMY_KILL) {
-			v.state.die();
+			if (v.data.respawn-- < 0)
+				v.state.die();
 			newEffect(v);
 		}
 		else if (e == STORY.events.DROP_COLLECTED) {
@@ -2562,8 +2565,7 @@ ieach([
 		on: function(e, v, d) {
 			if (e == STORY.events.ENEMY_KILL) {
 				d.pass = true;
-				v.state.set('living');
-			};
+			}
 		},
 	}
 }, tl);
