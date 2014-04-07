@@ -796,6 +796,13 @@ var GAME = (function() {
 
 var UTIL = {
 	getOneObj: function(c, fn) {
+		if (typeof(fn) == typeof('')) {
+			var id = fn;
+			fn = function(i, v) {
+				if (v.data.id == id)
+					return v;
+			};
+		}
 		return SPRITE.eachObj(fn || return_second, c);
 	},
 	getNearestAlive: function(v, c) {
@@ -1934,6 +1941,7 @@ function newBoss() {
 		life: 300,
 		frtick: 150,
 		frames: RES.frames.EnemyX,
+		id: 'boss',
 	});
 	boss.effects = array(3, function(i) {
 		var eff = SPRITE.newObj('Basic', {
@@ -2508,7 +2516,7 @@ ieach([
 			d.duration = v.duration || Inf;
 			d.life = v.life || Inf;
 
-			d.boss = UTIL.getOneObj('Enemy') || newBoss();
+			d.boss = UTIL.getOneObj('Enemy', 'boss') || newBoss();
 			if (v.pathnodes)
 				UTIL.addPathAnim(d.boss, v.pathnodes);
 
