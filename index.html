@@ -154,6 +154,9 @@ input[type="radio"] {
 .loading {
 	background: url(res/th06logo.png) white;
 }
+.bgimg {
+	-webkit-transform: perspective(600px) rotateX(.001deg);
+}
 .bgimg>* {
 	position: absolute;
 	width: 384px;
@@ -625,7 +628,10 @@ input[type="radio"]:focus + .menu {
 			<div class="ui-obj bg1"
 				style="height:300px;background:linear-gradient(rgba(0,0,0,0.6),transparent)"></div>
 		</div>
-		<div class="game-size absolute ui-obj bombbg" style="background:rgba(0,0,0,0.6)"></div>
+		<div class="game-size absolute bgimg">
+			<div class="ui-obj bombbg"
+				style="background:rgba(0,0,0,0.6)"></div>
+		</div>
 	</div>
 	<canvas class="game absolute" id="canv"></canvas>
 	<div class="info absolute">
