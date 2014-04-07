@@ -390,18 +390,12 @@ input[type="radio"]:focus + label {
 			_t.Player0 = array(4, function(i) {
 				return extend({ res:'player0L', sy: 0, sw:32, sh:48, w:32, h:48 }, { sx:32*i });
 			});
-			_t.PlayerL = arrcat([
-				{ res:'player0L', sx: 0, sy:0, sw:32, sh:48, w:32, h:48 },
-				{ res:'player0L', sx:32, sy:0, sw:32, sh:48, w:32, h:48 },
-			], array(7, function(i) {
+			_t.PlayerL = array(7, function(i) {
 				return extend({ res:'player0L', sy:48, sw:32, sh:48, w:32, h:48 }, { sx:32*i });
-			}));
-			_t.PlayerR = arrcat([
-				{ res:'player0L', sx: 0, sy:0, sw:32, sh:48, w:32, h:48 },
-				{ res:'player0L', sx:32, sy:0, sw:32, sh:48, w:32, h:48 },
-			], array(7, function(i) {
+			});
+			_t.PlayerR = array(7, function(i) {
 				return extend({ res:'player0R', sy:0, sw:32, sh:48, w:32, h:48 }, { sx:255-32*(i+1) });
-			}));
+			});
 			_t.PlayerD = [
 				{ res:'player0L', sx:0, sy: 0, sw:32, sh:48, w:32, h:48 },
 				{ res:'player0L', sx:0, sy: 0, sw:32, sh:48, w:30, h:50 },
