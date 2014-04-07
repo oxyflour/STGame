@@ -723,7 +723,7 @@ input[type="radio"]:focus + .menu {
 	</div>
 	<div class="game mask absolute ui" ui-show="GAME.state == GAME.states.PAUSE">
 		<div class="menu menu-pause"></div>
-		<form action="javascript:eval(getRadioVal($('input[name=pause_menu]')))">
+		<form action="javascript:eval(getRadioVal($('input[name=pause_menu]')))" onkeyup="checkFormKey(event, this)">
 			<div class="menu-line">
 				<input type="radio" name="pause_menu" value="GAME.state = GAME.states.RUNNING">
 				<label class="menu menu-pause-continue"></label>
@@ -766,6 +766,11 @@ ieach($('.ui-obj'), function(i, v) {
 	v.className += ' ui';
 	v.setAttribute('ui-show', 'this.object && !this.object.finished');
 });
+
+function checkFormKey(e, f) {
+	if (e.which == 'Z'.charCodeAt(0))
+		f.submit();
+}
 
 function checkRadios() {
 	var ls = $('input[type="radio"]');
