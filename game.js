@@ -2065,14 +2065,12 @@ function newBomb(player) {
 	var bg = SPRITE.newObj('Basic', {
 		player: player,
 		elem: $i('.bombbg'),
-		story: STORY.state.n,
 	});
 	bg.draw = return_nothing;
 	bg.data.elem.object = bg;
 	bg.anim(50, function(d, bg) {
 		var p = d.player;
-		if ((p.finished || p.state.d.name !== 'bomb' || d.story != STORY.state.n) &&
-				!bg.state.is_dying)
+		if ((p.finished || p.state.d.name !== 'bomb') && !bg.state.is_dying)
 			bg.state.die();
 		if (d.elem.object == bg)
 			d.elem.style.opacity = d.health;
