@@ -266,9 +266,13 @@ input[type="radio"]:focus + .menu {
 	margin-top: 28px;
 	background-position: -0     -176px;
 }
-.menu-pause-quit {
+.menu-pause-title {
 	width: 96px;
 	background-position: -0     -192px;
+}
+.menu-pause-quit {
+	width: 30px;
+	background-position: -48px  -208px;
 }
 .num {
 	background: url(res/ascii.png) 0 -32px;
@@ -729,12 +733,12 @@ input[type="radio"]:focus + .menu {
 				<label class="menu menu-pause-continue"></label>
 			</div>
 			<div class="menu-line">
-				<input type="radio" name="pause_menu" value="window.close()">
-				<label class="menu menu-pause-quit"></label>
+				<input type="radio" name="pause_menu" value="loadAndStart()">
+				<label class="menu menu-pause-title"></label>
 			</div>
 			<div class="menu-line">
-				<input type="radio" name="pause_menu" value="loadAndStart()">
-				<label class="menu">Restart</label>
+				<input type="radio" name="pause_menu" value="window.close()">
+				<label class="menu menu-pause-quit"></label>
 			</div>
 			<input style="width:0px;opacity:0;" type="submit" />
 		</form>
