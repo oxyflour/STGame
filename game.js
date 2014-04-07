@@ -1506,8 +1506,8 @@ SPRITE.newCls('Shield', {
 	},
 	
 	states: {
-		life: [1000, Inf, 500],
-		mkDamage: [0, 20, 20],
+		life: [2000, Inf, 500],
+		mkDamage: [20, 20, 20],
 	},
 }, function(d) {
 	SPRITE.init.Circle.call(this, d);
@@ -2087,7 +2087,7 @@ function newBomb(player) {
 			frames: RES.frames.Shield[0],
 			theta: random(0, Math.PI*2),
 			dtheta: randin([-0.09, 0.09]),
-			dv: 0.02,
+			dv: 0.01,
 		});
 		sh.runCircle = function(dt, d, s) {
 			d.r = 1 + ease_out(d.health) * 40;
@@ -2106,7 +2106,7 @@ function newBomb(player) {
 				if (!d.to || d.to.finished)
 					d.to = UTIL.getNearestAlive(v, 'Enemy');
 				if (d.to && !d.to.finished)
-					redirect_object(d, d.to.data, sqrt_sum(d.vx, d.vy)+0.02, 0.2);
+					redirect_object(d, d.to.data, sqrt_sum(d.vx, d.vy)+0.03, 0.2);
 			}
 		});
 		ieach([1, 2, 3], function(i, v) {
@@ -2119,14 +2119,15 @@ function newBomb(player) {
 				frame: RES.frames.Shield[v],
 				opacity: 0.5,
 				blend: 'lighter',
+				size: random(1.0, 1.6),
 			}).runBasic = function(dt, d, s) {
 				var p = d.parent;
 				d.dist = p.data.r * 0.4;
-				d.theta += d.dtheta * dt;
+				d.theta += d.dtheta * dt + random(-0.01, 0.01);
 				d.x = p.data.x + d.dist * Math.cos(d.theta);
 				d.y = p.data.y + d.dist * Math.sin(d.theta);
-				if (d.index > 1 && !s.is_dying)
-					d.scale = d.health * 1.5;
+				if (!s.is_dying)
+					d.scale = ease_out(d.health) * d.size;
 			};
 		});
 	});
