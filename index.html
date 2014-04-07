@@ -237,6 +237,10 @@ input[type="radio"] {
 	display: inline-block;
 	cursor: pointer;
 	-webkit-transform: scale(1.5);
+	    -ms-transform: scale(1.5);
+	   -moz-transform: scale(1.5);
+}
+input[type="radio"] + .menu {
 	-webkit-transition: all ease 0.4s;
 	    -ms-transition: all ease 0.4s;
 	   -moz-transition: all ease 0.4s;
@@ -245,6 +249,8 @@ input[type="radio"] {
 input[type="radio"]:focus + .menu {
 	background-image: url(res/asciis.png);
 	-webkit-transform: scale(1.8);
+	    -ms-transform: scale(1.8);
+	   -moz-transform: scale(1.8);
 	opacity: 1;
 }
 .menu-line {
@@ -728,7 +734,7 @@ input[type="radio"]:focus + .menu {
 			</div>
 			<div class="menu-line">
 				<input type="radio" name="pause_menu" value="loadAndStart()">
-				<label>Restart</label>
+				<label class="menu">Restart</label>
 			</div>
 			<input style="width:0px;opacity:0;" type="submit" />
 		</form>
