@@ -2434,7 +2434,7 @@ ieach([
 	{ text:'x0aabbcc', x:GAME.rect.l+50, y:interp(GAME.rect.t, GAME.rect.b, 0.8) },
 	{ text:'y0aabbcc', x:GAME.rect.r-50, y:interp(GAME.rect.t, GAME.rect.b, 0.8) },
 	{ text:'x0aabbcc', x:GAME.rect.l+50, y:interp(GAME.rect.t, GAME.rect.b, 0.8) },
-	{ text:'y0aabbcc', x:GAME.rect.r-50, y:interp(GAME.rect.t, GAME.rect.b, 0.8), next:'boss1' },
+	{ text:'y0aabbcc', x:GAME.rect.r-50, y:interp(GAME.rect.t, GAME.rect.b, 0.8), next:'boss' },
 ], function(i, v, tl) {
 	var c = v.name || 'diag'+i, n = v.next || 'diag'+(i+1);
 	tl[c] = {
@@ -2480,6 +2480,7 @@ ieach([
 	{
 		name:'boss',
 		duration: 5000,
+		scname: 'spell card 1',
 	},
 	{
 		pathnodes: [
@@ -2535,10 +2536,24 @@ ieach([
 					v.data.text = (t < 10 ? '0' : '') + t;
 				}, d);
 			}
+			if (v.scname) {
+				d.scname = SPRITE.newObj('Basic', {
+					x: interp(GAME.rect.l, GAME.rect.r, 1)-50,
+					sy: interp(GAME.rect.t, GAME.rect.b, 0)+60,
+					text: v.scname,
+					font: '15px Arial',
+				});
+				d.scname.runBasic = function(dt, d, s) {
+					if (s.is_creating)
+						d.y = d.sy - ease_in(d.health)*10;
+				};
+			}
 		},
 		quit: function(d) {
 			if (d.countdown)
 				d.countdown.state.die();
+			if (d.scname)
+				d.scname.state.die();
 		},
 		run: function(dt, d) {
 			d.age += dt;
