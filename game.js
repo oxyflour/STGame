@@ -2350,7 +2350,7 @@ tl.sec0 = {
 };
 tl.sec1 = {
 	init: function(d) {
-		var m = 100;
+		var m = 200;
 		STORY.timeout(function(e, n) {
 			var f = 1 - n / m;
 			f = (Math.sin((f - 0.5) * Math.PI) + 1) * 0.5;
