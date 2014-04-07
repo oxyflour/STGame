@@ -862,6 +862,15 @@ var UTIL = {
 	// x and y should be between 0 and 1
 	addPathAnim: function(v, ps, t) {
 		t = t || v.data.pathtick || 50;
+		ieach(ps, function(i, n, d) {
+			if (+n.v !== n.v)
+				n.v = d.v || sqrt_sum(v.data.vx, v.data.vy) || 0.1;
+			if (+n.x !== n.x && +n.fx === n.fx)
+				n.x = interp(GAME.rect.l, GAME.rect.r, n.fx);
+			if (+n.y !== n.y && +n.fy === n.fy)
+				n.y = interp(GAME.rect.t, GAME.rect.b, n.fy);
+			d.v = n.v;
+		}, {});
 		v.anim(t, function(d) {
 			var e = v.data,
 				n = d.pathnodes[d.index];
@@ -869,11 +878,6 @@ var UTIL = {
 				e.vx = e.vy = 0;
 				return true;
 			}
-
-			if (+n.x !== n.x && +n.fx === n.fx)
-				n.x = interp(GAME.rect.l, GAME.rect.r, n.fx);
-			if (+n.y !== n.y && +n.fy === n.fy)
-				n.y = interp(GAME.rect.t, GAME.rect.b, n.fy);
 
 			if (d.index == 0) {
 				d.index = 1;
@@ -2459,14 +2463,14 @@ ieach([
 		next:'diag',
 		pathnodes: [
 			{ fx:0.0, fy:0.0, v:0.1 },
-			{ fx:0.1, fy:0.1, v:0.1 },
-			{ fx:0.5, fy:0.1, v:0.1 },
+			{ fx:0.1, fy:0.1 },
+			{ fx:0.5, fy:0.1 },
 		],
 	},
 	{
 		pathnodes: [
 			{ v:0.1 },
-			{ fx:0.5, fy:0.5, v:0.1 },
+			{ fx:0.5, fy:0.5 },
 		],
 		damage_max: 100,
 	},
@@ -2474,7 +2478,7 @@ ieach([
 		pathnodes: [
 			{ v:0.1 },
 			{ fx:0.1, fy:0.5, v:0.2 },
-			{ fx:0.9, fy:0.5, v:0.2 },
+			{ fx:0.9, fy:0.5 },
 		],
 	},
 	{
