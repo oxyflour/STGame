@@ -98,6 +98,15 @@ function randin(ls) {
 		k = ks[i];
 	return ls[k];
 }
+function ease_in(f) {
+	return f * f;
+}
+function ease_out(f) {
+	return Math.sqrt(f);
+}
+function ease_in_out(f) {
+	return (Math.sin((f - 0.5) * Math.PI) + 1) * 0.5;
+}
 function limit_between(x, min, max) {
 	if (!(x <= max)) x = max;
 	if (!(x >= min)) x = min;
@@ -2003,7 +2012,7 @@ function newEffect(v) {
 			},
 		})
 		p.runCircle = function(dt, d, s) {
-			d.scale = d.health*d.health * 2 + 0.5;
+			d.scale = ease_in(d.health) * 2 + 0.5;
 		};
 		p.anim(50, function(k, v) {
 			var d = v.data;
@@ -2072,7 +2081,7 @@ function newBomb(player) {
 				d.vx = dx / dt;
 				d.vy = dy / dt;
 			}
-			d.r = 1 + Math.sqrt(d.health) * 40;
+			d.r = 1 + ease_out(d.health) * 40;
 			d.scale = d.r / 30;
 		};
 		sh.anim(50, function(k, v) {
@@ -2315,7 +2324,7 @@ tl.init = {
 			});
 			d.text.runBasic = function(dt, d, s) {
 				if (!s.is_dying)
-					d.y = d.sy - Math.sqrt(d.health)*10;
+					d.y = d.sy - ease_out(d.health)*10;
 			};
 		}, 400, d);
 	},
@@ -2352,8 +2361,7 @@ tl.sec1 = {
 	init: function(d) {
 		var m = 200;
 		STORY.timeout(function(e, n) {
-			var f = 1 - n / m;
-			f = (Math.sin((f - 0.5) * Math.PI) + 1) * 0.5;
+			var f = ease_in_out(1 - n / m);
 			ieach(e, function(i, e) {
 				var v = e.val,
 					p = interp(v.persp[0], v.persp[1], f),
