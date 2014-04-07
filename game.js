@@ -2463,17 +2463,22 @@ ieach([
 	}
 }, tl);
 tl.boss0 = {
-	run: UTIL.newTimeRunner(5000, 'boss'),
+	init: function(d) {
+		d.disable_fire = true;
+		STORY.timeout(function() {
+			var boss = newBoss();
+			UTIL.addPathAnim(boss, [
+				{ fx:0.0, fy:0.0, v:0.1 },
+				{ fx:0.1, fy:0.1 },
+				{ fx:0.5, fy:0.1 },
+			]);
+		}, 2000);
+	},
+	run: UTIL.newTimeRunner(5000, 'diag'),
 };
 ieach([
 	{
 		name:'boss',
-		next:'diag',
-		pathnodes: [
-			{ fx:0.0, fy:0.0, v:0.1 },
-			{ fx:0.1, fy:0.1 },
-			{ fx:0.5, fy:0.1 },
-		],
 		duration: 5000,
 	},
 	{
@@ -2483,7 +2488,6 @@ ieach([
 		],
 		life: 100,
 		duration: 30000,
-		countdown: true,
 	},
 	{
 		pathnodes: [
@@ -2492,19 +2496,15 @@ ieach([
 			{ fx:0.9, fy:0.5 },
 		],
 		duration: 30000,
-		countdown: true,
 	},
 	{
 		duration: 30000,
-		countdown: true,
 	},
 	{
 		duration: 30000,
-		countdown: true,
 	},
 	{
 		duration: 99000,
-		countdown: true,
 		next: 'end',
 	},
 ], function(i, v, tl) {
@@ -2520,7 +2520,7 @@ ieach([
 			if (v.pathnodes)
 				UTIL.addPathAnim(d.boss, v.pathnodes);
 
-			if (v.countdown) {
+			if (v.duration > 0) {
 				d.countdown = SPRITE.newObj('Basic', {
 					x: interp(GAME.rect.l, GAME.rect.r, 1)-20,
 					y: interp(GAME.rect.t, GAME.rect.b, 0)+20,
