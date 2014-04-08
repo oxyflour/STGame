@@ -2251,7 +2251,7 @@ var hook = {
 			}
 		}
 		else if (e == STORY.events.ENEMY_KILL) {
-			if (v.data.respawn-- < 0)
+			if (v.data.respawn-- <= 0)
 				v.state.die();
 			newEffect(v);
 		}
