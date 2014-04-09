@@ -340,6 +340,8 @@ input[type="radio"]:focus + .menu {
 	<canvas id="pslow" from="etama2 0 112 64 64"
 		transform="rotate:{{range(90, 0, 6)}}"></canvas>
 	<img id="stg1enm" src="res/stg1enm.png" />
+	<img id="stg1enm2" src="res/stg1enm2.png" />
+	<canvas id="stg1enm2R" from="stg1enm2 0 48 96 48" transform="mirror:x"></canvas>
 	<img id="stg1bg" src="res/stg1bg.png" />
 	<img id="front" src="res/front.png" />
 	<canvas id="bombs" from="player0L 0 97 63 64"
@@ -535,6 +537,18 @@ input[type="radio"]:focus + .menu {
 			_t.EnemyX = array(8, function(i) {
 				return extend({ res:'stg1enm', sy:255-48, sw:32, sh:48, w:32, h:48 }, { sx:32*i });
 			});
+			_t.Boss = { res:'stg1enm2', sx:128, sy:0, sw:32, sh:48, w:32, h:48 };
+			_t.BossF = array(5, function(i) {
+				return extend({ res:'stg1enm2', sy:0, sw:32, sh:48, w:32, h:48 }, { sx:128-32*i });
+			});
+			_t.BossL = array(3, function(i) {
+				return extend({ res:'stg1enm2', sy:48, sw:32, sh:48, w:32, h:48 }, { sx:32*i });
+			});
+			_t.BossL.unshift({ res:'stg1enm2', sx:160, sy:0, sw:32, sh:48, w:32, h:48 });
+			_t.BossR = array(3, function(i) {
+				return extend({ res:'stg1enm2R', sy:0, sw:32, sh:48, w:32, h:48 }, { sx:32*i });
+			});
+			_t.BossR.push({ res:'stg1enm2', sx:192, sy:0, sw:32, sh:48, w:32, h:48 });
 
 			_t.EffBullet = array(RES.effbullet.width/16, function(i) {
 				return { res:'effbullet', sx:i*16, sy:0, sw:16, sh:16, w:16, h:16 };

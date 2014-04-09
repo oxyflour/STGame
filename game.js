@@ -1941,7 +1941,18 @@ function newBoss() {
 		r: 24,
 		life: 300,
 		frtick: 150,
-		frames: RES.frames.EnemyX,
+		frames: function(v) {
+			var fs = [RES.frames.Boss],
+				vx = Math.abs(v.data.vx);
+			if (vx > 0.02 || vx < -0.02) {
+				fs = v.data.vx > 0 ? RES.frames.BossR : RES.frames.BossL;
+				if (this.frames != fs)
+					this.index = 0;
+				var max = vx > 0.1 ? fs.length - 2 : fs.length - 3;
+				this.index = limit_between(this.index, 0, max);
+			}
+			return fs;
+		},
 		respawn: Inf,
 		id: 'boss',
 	});
