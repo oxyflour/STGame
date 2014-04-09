@@ -1466,6 +1466,7 @@ SPRITE.newCls('Enemy', {
 			e = v.data;
 		if (!this.state.is_dying && !v.state.is_dying &&
 				v.hit_with != this && circle_intersect(d, e)) {
+			this.hit_with = v;
 			v.hit_with = this;
 			d.damage += v.state.d.mkDamage || 1;
 			if (v.clsName == SPRITE.proto.Bullet.clsName)
@@ -1500,6 +1501,7 @@ SPRITE.newCls('Shield', {
 			e = v.data;
 		if (!v.state.is_dying &&
 				v.hit_with != this && circle_intersect(d, e)) {
+			this.hit_with = v;
 			v.hit_with = this;
 			STORY.on(STORY.events.DANNMAKU_HIT, v);
 		}
@@ -2073,12 +2075,18 @@ function newBackground(elems) {
 	return bg;
 }
 function newBomb(player) {
-	var bg = SPRITE.newObj('Basic', {
+	var bg = SPRITE.newObj('Shield', {
 		player: player,
 		elem: $i('.bombbg'),
 	});
 	bg.draw = return_nothing;
 	bg.data.elem.object = bg;
+	bg.runCircle = function(dt, d, s) {
+		var p = d.player;
+		d.x = p.data.x;
+		d.y = p.data.y;
+		d.r = s.is_dying ? 400 - d.health*300 : d.health * 100;
+	};
 	bg.anim(50, function(d, bg) {
 		var p = d.player;
 		if ((p.finished || p.state.d.name !== 'bomb') && !bg.state.is_dying)
@@ -2097,8 +2105,12 @@ function newBomb(player) {
 			vy: random(-0.1, 0.1),
 			frames: RES.frames.Shield[0],
 			theta: random(0, Math.PI*2),
-			dtheta: randin([-0.09, 0.09]),
+			dtheta: randin([-0.06, 0.06]),
 			dv: 0.01,
+			states: {
+				life: [3000, 2000, 500],
+				mkDamage: [20, 20, 0],
+			},
 		});
 		sh.runCircle = function(dt, d, s) {
 			d.r = 1 + ease_out(d.health) * 40;
@@ -2106,18 +2118,16 @@ function newBomb(player) {
 		};
 		sh.anim(50, function(k, v) {
 			var d = v.data, s = v.state;
-			if (s.d.age < 1000) {
-				d.vx *= 0.9;
-				d.vy *= 0.9;
+			if (!d.to || d.to.finished)
+				d.to = UTIL.getNearestAlive(v, 'Enemy');
+			if (d.to && !d.to.finished && d.to != v.hit_with)
+				redirect_object(d, d.to.data, sqrt_sum(d.vx, d.vy)+0.04, 0.2);
+			else {
+				d.vx *= 0.92;
+				d.vy *= 0.92;
 				d.theta += d.dtheta;
 				d.vx += Math.sin(d.theta) * d.dv;
 				d.vy += Math.cos(d.theta) * d.dv;
-			}
-			else if (s.d.age < 4000) {
-				if (!d.to || d.to.finished)
-					d.to = UTIL.getNearestAlive(v, 'Enemy');
-				if (d.to && !d.to.finished)
-					redirect_object(d, d.to.data, sqrt_sum(d.vx, d.vy)+0.03, 0.2);
 			}
 		});
 		ieach([1, 2, 3], function(i, v) {
@@ -2142,17 +2152,6 @@ function newBomb(player) {
 			};
 		});
 	});
-
-	var sh = SPRITE.newObj('Shield', {
-		parent: bg,
-	});
-	sh.runCircle = function(dt, d, s) {
-		var p = d.parent.data.player;
-		d.x = p.data.x;
-		d.y = p.data.y;
-		d.r = s.is_dying ? 400 - d.health*300 : d.health * 100;
-	};
-	sh.drawCircle = return_nothing;
 
 	SPRITE.newObj('Basic', {
 		x: player.data.x,
