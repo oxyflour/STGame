@@ -2427,7 +2427,9 @@ ieach([
 	{ init:'f2', para:[0.4, 10], duration:5000, },
 	{ init:'f3', para:[1000, 5], duration:10000, },
 	{ init:'f3', para:[500, 10], duration:5000, },
-	{ init:'f4', para:[], duration:10000, next:'boss' },
+	{ init:'f4', para:[], duration:10000 },
+	{ init:'f1', para:['s0A2', 8, [[-40, 0], [0, 0]]], duration:2000 },
+	{ init:'f1', para:['s0A1', 8, [[+40, 0], [0, 0]]], duration:5000, next:'boss' },
 ], function(i, v, funcs) {
 	var c = v.name || 'sec'+i, n = v.next || 'sec'+(i+1);
 	tl[c] = {
@@ -2437,11 +2439,15 @@ ieach([
 		},
 	};
 }, {
-	f1: function(pth, count) {
+	f1: function(pth, count, offset) {
 		STORY.timeout(function (d, n) {
-			SPRITE.newObj('Enemy', {
-				frames: RES.frames.Enemy00,
-				pathnodes: RES.path[pth],
+			if (!offset)
+				offset = [[0, 0]];
+			ieach(offset, function(i, v) {
+				SPRITE.newObj('Enemy', {
+					frames: RES.frames.Enemy00,
+					pathnodes: UTIL.pathOffset(RES.path[pth], v[0], v[1]),
+				});
 			});
 		}, 250, null, count);
 	},
