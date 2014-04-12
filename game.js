@@ -617,21 +617,18 @@ var SPRITE = (function() {
 	var _t = {
 		cls: newGroupAnim(),
 		layers: newGroupAnim(),
-		init: {},
 		proto: {},
 	};
-	_t.newCls = function(c, proto, init) {
-		var from = proto.from ? new _t.init[proto.from]() : {};
-		proto = extend(from, proto);
+	_t.newCls = function(c, f, fn) {
+		var from = f.substring ? new _t.proto[f].init() : {},
+			proto = (f.call ? f : fn)(from);
+		fill(proto, from);
 		proto.clsName = c;
-
-		_t.init[c] = init;
-		_t.proto[c] = init.prototype = proto;
-
+		_t.proto[c] = proto.init.prototype = proto;
 		return proto;
 	};
 	_t.newObj = function(c, data) {
-		var obj = new _t.init[c](data);
+		var obj = new _t.proto[c].init(data);
 		_t.cls.add(c, obj);
 		_t.layers.add(obj.layer, {
 			obj: obj,
@@ -1023,7 +1020,8 @@ var UTIL = {
 	});
 })();
 
-SPRITE.newCls('Basic', {
+SPRITE.newCls('Basic', function() {
+var proto = {
 	layer: 'L10',
 	runBasic: undefined,
 	run: function(dt) {
@@ -1124,7 +1122,8 @@ SPRITE.newCls('Basic', {
 	states: {
 		life: [500,	Inf, 500],
 	},
-}, function(d) {
+};
+proto.init = function(d) {
 	this.data = d = extend({
 		x: interp(GAME.rect.l, GAME.rect.r, 0.5),
 		y: interp(GAME.rect.t, GAME.rect.b, 0.5),
@@ -1156,10 +1155,12 @@ SPRITE.newCls('Basic', {
 		UTIL.addPathAnim(this, d.pathnodes);
 	if (d.layer)
 		this.layer = d.layer;
+};
+return proto;
 });
 
-SPRITE.newCls('Circle', {
-	from: 'Basic',
+SPRITE.newCls('Circle', 'Basic', function(from) {
+var proto = {
 	runCircle: undefined,
 	mkRect: function(rt, d) {
 		rt.l = Math.min(d.x0, d.x) - d.r*1.1;
@@ -1208,7 +1209,8 @@ SPRITE.newCls('Circle', {
 		t: 40,
 		b: 20
 	},
-}, function(d) {
+};
+proto.init = function(d) {
 	d = extend({
 		r: 10,
 		vx: 0,
@@ -1216,12 +1218,14 @@ SPRITE.newCls('Circle', {
 		x0: 0,
 		y0: 0,
 	}, d);
-	SPRITE.init.Basic.call(this, d);
+	from.init.call(this, d);
 	this.rect = { l:0, t:0, r:0, b:0 };
+};
+return proto;
 });
 
-SPRITE.newCls('Player', {
-	from: 'Basic',
+SPRITE.newCls('Player', 'Basic', function(from) {
+var proto = {
 	hits: [
 		'Player',
 		'Ball',
@@ -1340,7 +1344,8 @@ SPRITE.newCls('Player', {
 		next: [1, 2, -1, 0, 2],
 		isInvinc: [1, 0, 1, 1, 1],
 	},
-}, function(d) {
+};
+proto.init = function(d) {
 	d = extend({
 		r: 15,
 		h: 1,
@@ -1370,7 +1375,7 @@ SPRITE.newCls('Player', {
 			return fs;
 		},
 	}, d);
-	SPRITE.init.Basic.call(this, d);
+	from.init.call(this, d);
 	this.rect = { l:0, t:0, r:0, b:0 };
 
 	this.state = UTIL.newAliveState(d.states || this.states, {
@@ -1390,10 +1395,12 @@ SPRITE.newCls('Player', {
 		fire_interval: 1000 / 12,
 		fire_count: 500,
 	}, this.data.conf);
+};
+return proto;
 });
 
-SPRITE.newCls('Ball', {
-	from: 'Circle',
+SPRITE.newCls('Ball', 'Circle', function(from) {
+return {
 	layer: 'L20',
 	hits: [
 		'Ball',
@@ -1409,13 +1416,15 @@ SPRITE.newCls('Ball', {
 		life: [200, Inf, 500],
 		mkDamage: [0, 1, 0],
 	},
-}, function(d) {
-	SPRITE.init.Circle.call(this, d);
-	this.data.mass = this.data.r;
+	init: function(d) {
+		from.init.call(this, d);
+		this.data.mass = this.data.r;
+	},
+};
 });
 
-SPRITE.newCls('Stick', {
-	from: 'Circle',
+SPRITE.newCls('Stick', 'Circle', function(from) {
+return {
 	layer: 'L20',
 	hits: [
 		'Ball',
@@ -1446,17 +1455,17 @@ SPRITE.newCls('Stick', {
 		life: [200, Inf, 500],
 		mkDamage: [0, 1, 0],
 	},
-}, function(d) {
-	d = extend({
-		dx: 0,
-		dy: (GAME.rect.b - GAME.rect.t)*0.2,
-	}, d);
-	SPRITE.init.Circle.call(this, d);
-	this.data.mass = 100;
+	init: function(d) {
+		fromt.init.call(this, extend({
+			dx: 0,
+			dy: (GAME.rect.b - GAME.rect.t)*0.2,
+		}, d));
+	},
+};
 });
 
-SPRITE.newCls('Enemy', {
-	from: 'Circle',
+SPRITE.newCls('Enemy', 'Circle', function(from) {
+return {
 	hits: [
 		'Bullet',
 		'Shield',
@@ -1480,19 +1489,20 @@ SPRITE.newCls('Enemy', {
 		life: [500, Inf, 500],
 		mkDamage: [0, 1, 0],
 	},
-}, function(d) {
-	d = extend({
-		r: 20,
-		y: interp(GAME.rect.t, GAME.rect.b, 0.1),
-		life: 2,
-		respawn: 0,
-		damage: 0,
-	}, d);
-	SPRITE.init.Circle.call(this, d);
+	init: function(d) {
+		from.init.call(this, extend({
+			r: 20,
+			y: interp(GAME.rect.t, GAME.rect.b, 0.1),
+			life: 2,
+			respawn: 0,
+			damage: 0,
+		}, d));
+	},
+};
 });
 
-SPRITE.newCls('Shield', {
-	from: 'Circle',
+SPRITE.newCls('Shield', 'Circle', function(from) {
+return {
 	hits: [
 		'Dannmaku',
 	],
@@ -1511,12 +1521,14 @@ SPRITE.newCls('Shield', {
 		life: [2000, Inf, 500],
 		mkDamage: [20, 20, 20],
 	},
-}, function(d) {
-	SPRITE.init.Circle.call(this, d);
+	init: function(d) {
+		from.init.call(this, d);
+	},
+};
 });
 
-SPRITE.newCls('Drop', {
-	from: 'Circle',
+SPRITE.newCls('Drop', 'Circle', function(from) {
+return {
 	layer: 'L20',
 	runCircle: function(dt, d, s) {
 		var v = d.collected;
@@ -1538,7 +1550,7 @@ SPRITE.newCls('Drop', {
 		}
 	},
 	drawBasic: function(d, s) {
-		SPRITE.proto.Circle.drawBasic.call(this, d);
+		from.drawBasic.call(this, d);
 		if (d.y < GAME.rect.t && d.frame_small) this.drawFrame({
 			x: d.x,
 			y: GAME.rect.t + 16,
@@ -1555,46 +1567,49 @@ SPRITE.newCls('Drop', {
 	states: {
 		life: [100, Inf, 50],
 	},
-}, function(d) {
-	d = extend({
-		r: 60,
-		vy: -0.4,
-		collected: undefined,
-		collected_auto: false,
-		frames: RES.frames.Drops[2],
-		frame_small: RES.frames.Drops[8],
-	}, d);
-	SPRITE.init.Circle.call(this, d);
+	init: function(d) {
+		from.init.call(this, extend({
+			r: 60,
+			vy: -0.4,
+			collected: undefined,
+			collected_auto: false,
+			frames: RES.frames.Drops[2],
+			frame_small: RES.frames.Drops[8],
+		}, d));
+	},
+};
 });
 
-SPRITE.newCls('Bullet', {
-	from: 'Circle',
+SPRITE.newCls('Bullet', 'Circle', function(from) {
+return {
 	layer: 'L20',
 	states: {
 		life: [50, Inf, 400],
 		mkDamage: [0, 1, 0],
 	},
-}, function(d) {
-	d = extend({
-		r: 5,
-		vy: -1.2,
-	}, d);
-	SPRITE.init.Circle.call(this, d);
+	init: function(d) {
+		from.init.call(this, extend({
+			r: 5,
+			vy: -1.2,
+		}, d));
+	}
+};
 });
 
-SPRITE.newCls('Dannmaku', {
-	from: 'Circle',
+SPRITE.newCls('Dannmaku', 'Circle', function(from) {
+return {
 	layer: 'L20',
 	states: {
 		life: [100, Inf, 200],
 		mkDamage: [0, 1, 0],
 	},
-}, function(d) {
-	d = extend({
-		r: 5,
-		vy: 0.3,
-	}, d);
-	SPRITE.init.Circle.call(this, d);
+	init: function(d) {
+		from.init.call(this, extend({
+			r: 5,
+			vy: 0.3,
+		}, d));
+	},
+};
 });
 
 // for test only
