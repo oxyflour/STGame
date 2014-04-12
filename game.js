@@ -8,6 +8,9 @@ function return_self(x) {
 function return_second(x0, x) {
 	return x;
 }
+function same_type(a, b) {
+	return typeof(a) === typeof(b);
+}
 function range(e, b, d, fn) {
 	var ls = [];
 	for (var i = b||0, k = d||1; i < e; i += k) {
@@ -257,12 +260,12 @@ function $e(id) {
 	return document.getElementById(id);
 }
 function $attr(e, a) {
-	if (typeof(e) == typeof('')) e = $i(e);
+	if (same_type(e, '')) e = $i(e);
 	var attr = e && e.attributes[a];
 	return attr && attr.textContent;
 }
 function $style(e, k) {
-	if (typeof(e) == typeof('')) e = $i(e);
+	if (same_type(e, '')) e = $i(e);
 	var style = getComputedStyle(e);
 	return style && style.getPropertyValue(k);
 }
@@ -793,7 +796,7 @@ var GAME = (function() {
 
 var UTIL = {
 	getOneObj: function(c, fn) {
-		if (typeof(fn) == typeof('')) {
+		if (same_type(fn, '')) {
 			var id = fn;
 			fn = function(i, v) {
 				if (v.data.id == id)
