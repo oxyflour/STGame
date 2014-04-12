@@ -1023,7 +1023,19 @@ var UTIL = {
 	});
 })();
 
-SPRITE.newCls('Basic', function() {
+SPRITE.newCls('Base', function() {
+return {
+	run: function(dt) {
+	},
+	draw: function() {
+	},
+	init: function(d) {
+		this.data = d;
+	},
+}
+});
+
+SPRITE.newCls('Basic', function(from) {
 var proto = {
 	layer: 'L10',
 	runBasic: undefined,
