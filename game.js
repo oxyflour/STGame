@@ -2404,28 +2404,26 @@ tl.init = {
 };
 ieach([
 	{ duration:1000, },
-	{ fn:'f1', para:['s0A2', 5], duration:2000, },
-	{ fn:'f1', para:['s0A1', 8], duration:2000, },
-	{ fn:'f2', para:[0.4, 10], duration:5000, },
-	{ fn:'f3', para:[1000, 5], duration:10000, },
-	{ fn:'f3', para:[500, 10], duration:5000, },
-	{ fn:'f4', para:[], duration:10000, next:'boss' },
+	{ init:'f1', para:['s0A2', 5], duration:2000, },
+	{ init:'f1', para:['s0A1', 8], duration:2000, },
+	{ init:'f2', para:[0.4, 10], duration:5000, },
+	{ init:'f3', para:[1000, 5], duration:10000, },
+	{ init:'f3', para:[500, 10], duration:5000, },
+	{ init:'f4', para:[], duration:10000, next:'boss' },
 ], function(i, v, funcs) {
 	var c = v.name || 'sec'+i, n = v.next || 'sec'+(i+1);
 	tl[c] = {
 		run: UTIL.newTimeRunner(v.duration, n),
 		init: function(d) {
-			funcs[v.fn] && funcs[v.fn].apply(funcs, v.para);
+			funcs[v.init] && funcs[v.init].apply(funcs, v.para);
 		},
 	};
 }, {
 	f1: function(pth, count) {
 		STORY.timeout(function (d, n) {
-			var ps = pth.join ?
-				UTIL.pathOffset(RES.path[pth[0]], pth[1], pth[2]) : RES.path[pth];
 			SPRITE.newObj('Enemy', {
 				frames: RES.frames.Enemy00,
-				pathnodes: ps,
+				pathnodes: RES.path[pth],
 			});
 		}, 250, null, count);
 	},
