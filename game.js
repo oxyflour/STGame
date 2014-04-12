@@ -2091,6 +2091,7 @@ function newEffect(v) {
 function newBackground(elems) {
 	var bg = SPRITE.newObj('Basic');
 	bg.elems = elems;
+	bg.imgs = $('.bgimg');
 	bg.draw = return_nothing;
 	ieach(elems, function(i, e) {
 		e.object = bg;
@@ -2098,6 +2099,28 @@ function newBackground(elems) {
 		e.total = parseFloat($style(e, 'height')) - parseFloat($style('.game', 'height'));
 		e.speed = parseFloat($attr(e, 'bg-speed') || '0');
 		e.opacity = parseFloat(e.style.opacity || '1');
+	});
+	ieach(bg.imgs, function(i, e) {
+		var v = e.val = {
+			bg0: {
+				persp: [700, 400],
+				rotate: [40, 50],
+				opacity: [1, 1],
+				oriy: -20,
+			},
+			bg1: {
+				persp: [700, 300],
+				rotate: [30, 80],
+				opacity: [1, 0],
+				oriy: -20,
+			}
+		}[e.id];
+		if (v) {
+			var trans = 'perspective('+v.persp[0]+'px) rotateX('+v.rotate[0]+'deg)',
+				ori = '50% '+v.oriy+'%';
+			$prefixStyle(e.style, 'Transform', trans);
+			$prefixStyle(e.style, 'TransformOrigin', ori);
+		}
 	});
 	bg.anim(50, function(d, v) {
 		ieach(v.elems, function(i, e) {
@@ -2111,6 +2134,23 @@ function newBackground(elems) {
 			e.style.MozTransform = trans2;
 			e.style.opacity = e.opacity * v.data.health;
 		});
+		var age = bg.state.d.age,
+			begin = 25000,
+			end = 30000;
+		if (age >= begin && age <= end) {
+			var f = ease_in_out((age - begin) / (end - begin));
+			ieach(v.imgs, function(i, e) {
+				var v = e.val;
+				if (v) {
+					var p = interp(v.persp[0], v.persp[1], f),
+						r = interp(v.rotate[0], v.rotate[1], f),
+						trans = 'perspective('+p+'px) rotateX('+r+'deg)';
+					$prefixStyle(e.style, 'Transform', trans);
+					e.style.opacity = interp(v.opacity[0], v.opacity[1], f);
+					e.style.display = e.style.opacity > 0.05 ? 'block' : 'none';
+				}
+			});
+		}
 	});
 	return bg;
 }
@@ -2356,28 +2396,6 @@ var tl = {};
 tl.init = {
 	run: UTIL.newTimeRunner(5000, 'sec0'),
 	init: function(d) {
-		ieach($('.bgimg'), function(i, e) {
-			var v = e.val = {
-				bg0: {
-					persp: [700, 400],
-					rotate: [40, 50],
-					opacity: [1, 1],
-					oriy: -20,
-				},
-				bg1: {
-					persp: [700, 300],
-					rotate: [30, 80],
-					opacity: [1, 0],
-					oriy: -20,
-				}
-			}[e.id];
-			if (v) {
-				var trans = 'perspective('+v.persp[0]+'px) rotateX('+v.rotate[0]+'deg)',
-					ori = '50% '+v.oriy+'%';
-				$prefixStyle(e.style, 'Transform', trans);
-				$prefixStyle(e.style, 'TransformOrigin', ori);
-			}
-		});
 		d.title = SPRITE.newObj('Basic', {
 			text: 'STAGE 1',
 			font: {
