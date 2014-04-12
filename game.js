@@ -892,7 +892,8 @@ var UTIL = {
 				if (+n.y === n.y) e.y = n.y;
 			}
 			else {
-				if (redirect_object(e, n, n.v) < n.v * d.tick)
+				if (+n.x === n.x && +n.y === n.y &&
+						redirect_object(e, n, n.v) < n.v * d.tick)
 					d.index ++;
 			}
 		}, {
@@ -961,6 +962,14 @@ var UTIL = {
 		s.set(0);
 
 		return s;
+	},
+	pathOffset: function(ps, dx, dy) {
+		return ieach(ps, function(i, v, d) {
+			v = extend({}, v);
+			v.x += dx;
+			v.y += dy;
+			d.push(v);
+		}, []);
 	},
 };
 
@@ -1967,6 +1976,7 @@ function newEnemy(d) {
 			genDannmaku(d);
 		}, d.generator.delay || 0, d.generator)
 	};
+	return enm;
 }
 function newBoss() {
 	var boss = SPRITE.newObj('Enemy', {
@@ -2392,6 +2402,91 @@ tl.init = {
 		killObj(d.title, d.text);
 	}
 };
+ieach([
+	{ duration:1000, },
+	{ fn:'f1', para:['s0A2', 5], duration:2000, },
+	{ fn:'f1', para:['s0A1', 8], duration:2000, },
+	{ fn:'f2', para:[0.4, 10], duration:5000, },
+	{ fn:'f3', para:[1000, 5], duration:10000, },
+	{ fn:'f3', para:[500, 10], duration:5000, },
+	{ fn:'f4', para:[], duration:10000, next:'boss' },
+], function(i, v, funcs) {
+	var c = v.name || 'sec'+i, n = v.next || 'sec'+(i+1);
+	tl[c] = {
+		run: UTIL.newTimeRunner(v.duration, n),
+		init: function(d) {
+			funcs[v.fn] && funcs[v.fn].apply(funcs, v.para);
+		},
+	};
+}, {
+	f1: function(pth, count) {
+		STORY.timeout(function (d, n) {
+			var ps = pth.join ?
+				UTIL.pathOffset(RES.path[pth[0]], pth[1], pth[2]) : RES.path[pth];
+			SPRITE.newObj('Enemy', {
+				frames: RES.frames.Enemy00,
+				pathnodes: ps,
+			});
+		}, 250, null, count);
+	},
+	f2: function(ylim, count) {
+		STORY.timeout(function (d, n) {
+			ieach([-1, 1], function(i, x) {
+				var f = 0.5 + (n+0.5)/(count+0.5)*0.5 * x,
+					dvx = 0.005 * x, dvy = -0.003;
+				var enm = SPRITE.newObj('Enemy', {
+					frames: RES.frames.Enemy00,
+					x: interp(GAME.rect.l, GAME.rect.r, f),
+					y: 0,
+					vy: 0.1,
+					vx: 0,
+					dvx: dvx,
+					dvy: dvy,
+				});
+				enm.anim(50, function(d, v) {
+					if (v.data.y > interp(GAME.rect.t, GAME.rect.b, ylim)) {
+						v.data.vx += v.data.dvx;
+						v.data.vy += v.data.dvy;
+					}
+				});
+			});
+		}, 350, null, count);
+	},
+	f3: function(tick, count) {
+		STORY.timeout(function (d, n) {
+			var enm = SPRITE.newObj('Enemy', {
+				frames: RES.frames.Enemy01,
+				x: interp(GAME.rect.l, GAME.rect.r, random(0, 1)),
+				y: 0,
+				vy: 0.1,
+				vx: 0,
+				dvy: -0.005,
+				vx0: random(-0.1, 0.1),
+			});
+			enm.anim(50, function(d, v) {
+				if (v.state.d.age > 600 && !v.fired) {
+					v.data.vy = 0;
+					v.fired = true;
+				}
+				else if (v.state.d.age > 2000) {
+					v.data.vy += v.data.dvy;
+					v.data.vx = v.data.vx0;
+				}
+			});
+		}, tick, null, count);
+	},
+	f4: function() {
+		STORY.timeout(function (d, n) {
+			var pth = RES.path[randin(['s0A1', 's0A2'])],
+				ps = UTIL.pathOffset(pth, random(-100, 100), random(-100, 100));
+			SPRITE.newObj('Enemy', {
+				frames: RES.frames.Enemy00,
+				pathnodes: ps,
+			});
+		}, 300, null, 10);
+	},
+});
+/*
 tl.sec0 = {
 	run: UTIL.newTimeRunner(20000, 'sec1'),
 	init: function(d) {
@@ -2478,6 +2573,7 @@ tl.sec1 = {
 		}
 	}
 };
+*/
 ieach([
 	{ text:'x0aabbcc', x:GAME.rect.l+50, y:interp(GAME.rect.t, GAME.rect.b, 0.8), name:'diag' },
 	{ text:'y0aabbcc', x:GAME.rect.r-50, y:interp(GAME.rect.t, GAME.rect.b, 0.8) },
