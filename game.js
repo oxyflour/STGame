@@ -903,13 +903,22 @@ var UTIL = {
 			}
 			else {
 				if (+n.x === n.x && +n.y === n.y &&
-						redirect_object(e, n, n.v) < n.v * d.tick)
-					d.index ++;
+						redirect_object(e, n, n.v) < n.v * d.tick) {
+					if (d.time < n.t) {
+						e.vx = e.vy = 0;
+						d.time += d.tick;
+					}
+					else {
+						d.index ++;
+						d.time = 0;
+					}
+				}
 			}
 		}, {
 			tick: t,
+			time: 0,
 			pathnodes: ps,
-			index: 0
+			index: 0,
 		}, 'path');
 	},
 	newTimeRunner: function(t, n) {
@@ -2438,9 +2447,9 @@ ieach([
 	{ init:'f1', para:['s0A2', 5], duration:2000, },
 	{ init:'f1', para:['s0A1', 8], duration:2000, },
 	{ init:'f2', para:[0.4, 10], duration:5000, },
-	{ init:'f3', para:[1000, 5], duration:10000, },
-	{ init:'f3', para:[500, 10], duration:10000, },
-	{ init:'f4', para:[], duration:10000 },
+	{ init:'f3', para:[1000, 5], duration:5000, },
+	{ init:'f3', para:[500, 10], duration:5000, },
+	{ init:'f4', para:[], duration:5000 },
 	{ init:'f1', para:['s0A2', 8, [[-40, 0], [0, 0]]], duration:2000 },
 	{ init:'f1', para:['s0A1', 8, [[+40, 0], [0, 0]]], duration:5000, next:'boss0' },
 	{ init:'f3', para:[1000, 20], duration:20000, name:'secH' },
@@ -2695,9 +2704,10 @@ ieach([
 	{
 		pathnodes: [
 			{ fx:0.5, fy:0.0, v:0.2 },
-			{ fx:0.8, fy:0.4 },
-			{ fx:0.8, fy:0.401, v:0.001 },
-			{ fx:0.5, fy:0.5, v:0.1 },
+			{ fx:0.8, fy:0.4, v:0.1, t:2000, },
+			{ fx:0.5, fy:0.5, v:0.1, t:2000, },
+			{ fx:0.2, fy:0.5, v:0.1, },
+			{ fx:0.2, fy:0.2, v:0.1, t:2000, },
 		],
 		duration: 30000,
 	},
