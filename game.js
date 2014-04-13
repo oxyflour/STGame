@@ -2102,7 +2102,7 @@ function newBackground(elems) {
 					persp: [700, 500],
 					rotate: [30, 80],
 					opacity: [1, 0],
-					oriy: -0,
+					oriy: -100,
 				}
 			}[e.id];
 			if (v) {

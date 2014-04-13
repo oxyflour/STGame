@@ -416,7 +416,7 @@ input[type="radio"]:focus + .menu {
 				var sw = patt.width,
 					h = patt.height / 2,
 					f = random(1),
-					x = i && (cv.width - patt.width),
+					x = i == 0 ? 10 : cv.width - patt.width - 10,
 					y = 0;
 				while (y < cv.height) {
 					var g = random(1);
@@ -445,7 +445,7 @@ input[type="radio"]:focus + .menu {
 	<canvas id="ground_tileB" from="stg1bg 128 0 64 18"></canvas>
 	<canvas id="ground_tileT" from="ground_tileB" transform="rotate:180"></canvas>
 	<canvas id="ground_brush0" from="stg1bg 208 48 48 16" transform="0,0"></canvas>
-	<canvas id="ground_brush1" from="ground_brush0" transform="offset:0 0,24 0" stack="y"></canvas>
+	<canvas id="ground_brush1" from="ground_brush0" transform="offset:0 0,16 0" stack="y"></canvas>
 	<canvas id="ground_brush2" from="ground_brush1 0 0 48 32"></canvas>
 	<canvas id="ground_bg_tmp" bg-css="#groundbg"></canvas>
 	<script id="gen_groundbg">
@@ -700,7 +700,7 @@ input[type="radio"]:focus + .menu {
 			<div class="ui-obj bg1" style="height:2400px;"
 				id="groundbg" bg-speed="0.01"></div>
 			<div class="ui-obj bg1"
-				style="height:400px;background:linear-gradient(rgba(0,0,0,0.6),transparent)"></div>
+				style="height:350px;background:linear-gradient(rgba(0,0,0,0.8),transparent)"></div>
 		</div>
 		<div class="game-size absolute bgimg no-overflow"
 			id="bg1">
