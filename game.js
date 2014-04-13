@@ -183,6 +183,8 @@ function circles_hit(cr1, cr2) {
 	cr2.x = cx - cr2.r*cos*f; cr2.y = cy - cr2.r*sin*f;
 }
 function redirect_object(from, to, v, f) {
+	if (to.x == from.x && to.y == from.y)
+		return from.vx = from.vy = 0;
 	var dx = to.x - from.x,
 		dy = to.y - from.y,
 		r = sqrt_sum(dx, dy);
@@ -190,8 +192,8 @@ function redirect_object(from, to, v, f) {
 		vy = v * dy / r;
 	if (f > 0 && f < 1) {
 		var tx = interp(from.vx, vx, f),
-			ty = interp(from.vy, vy, f);
-		tr = sqrt_sum(tx, ty);
+			ty = interp(from.vy, vy, f),
+			tr = sqrt_sum(tx, ty);
 		vx = v * tx / tr;
 		vy = v * ty / tr;
 	}
@@ -905,6 +907,8 @@ var UTIL = {
 				if (+n.x === n.x && +n.y === n.y &&
 						redirect_object(e, n, n.v) < n.v * d.tick) {
 					if (d.time < n.t) {
+						e.x = n.x;
+						e.y = n.y;
 						e.vx = e.vy = 0;
 						d.time += d.tick;
 					}
