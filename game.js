@@ -2089,38 +2089,45 @@ function newEffect(v) {
 	});
 }
 function newBackground(elems) {
+	function updateImgs(imgs, f) {
+		ieach(bg.imgs, function(i, e) {
+			var v = e.val = {
+				bg0: {
+					persp: [900, 500],
+					rotate: [50, 70],
+					opacity: [1, 1],
+					oriy: -50,
+				},
+				bg1: {
+					persp: [700, 500],
+					rotate: [30, 80],
+					opacity: [1, 0],
+					oriy: -0,
+				}
+			}[e.id];
+			if (v) {
+				var p = interp(v.persp[0], v.persp[1], f),
+					r = interp(v.rotate[0], v.rotate[1], f),
+					trans = 'perspective('+p+'px) rotateX('+r+'deg)',
+					ori = '50% '+v.oriy+'px';
+				$prefixStyle(e.style, 'Transform', trans);
+				$prefixStyle(e.style, 'TransformOrigin', ori);
+				e.style.opacity = interp(v.opacity[0], v.opacity[1], f);
+				e.style.display = e.style.opacity > 0.05 ? 'block' : 'none';
+			}
+		});
+	}
 	var bg = SPRITE.newObj('Basic');
-	bg.elems = elems;
-	bg.imgs = $('.bgimg');
 	bg.draw = return_nothing;
+	bg.imgs = $('.bgimg');
+	updateImgs(bg.imgs, 0);
+	bg.elems = elems;
 	ieach(elems, function(i, e) {
 		e.object = bg;
 		e.offset = 0;
 		e.total = parseFloat($style(e, 'height')) - parseFloat($style('.game', 'height'));
 		e.speed = parseFloat($attr(e, 'bg-speed') || '0');
 		e.opacity = parseFloat(e.style.opacity || '1');
-	});
-	ieach(bg.imgs, function(i, e) {
-		var v = e.val = {
-			bg0: {
-				persp: [900, 500],
-				rotate: [50, 70],
-				opacity: [1, 1],
-				oriy: -50,
-			},
-			bg1: {
-				persp: [700, 500],
-				rotate: [30, 80],
-				opacity: [1, 0],
-				oriy: -0,
-			}
-		}[e.id];
-		if (v) {
-			var trans = 'perspective('+v.persp[0]+'px) rotateX('+v.rotate[0]+'deg)',
-				ori = '50% '+v.oriy+'px';
-			$prefixStyle(e.style, 'Transform', trans);
-			$prefixStyle(e.style, 'TransformOrigin', ori);
-		}
 	});
 	bg.anim(50, function(d, v) {
 		ieach(v.elems, function(i, e) {
