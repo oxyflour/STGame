@@ -871,7 +871,7 @@ var UTIL = {
 		t = t || v.data.pathtick || 50;
 		ieach(ps, function(i, n, d) {
 			if (+n.v !== n.v)
-				n.v = d.v || sqrt_sum(v.data.vx, v.data.vy) || 0.1;
+				n.v = d.v || 0.1;
 			if (+n.x !== n.x && +n.fx === n.fx)
 				n.x = interp(GAME.rect.l, GAME.rect.r, n.fx);
 			if (+n.y !== n.y && +n.fy === n.fy)
@@ -887,9 +887,19 @@ var UTIL = {
 			}
 
 			if (d.index == 0) {
-				d.index = 1;
+				// directly move object to the first point
 				if (+n.x === n.x) e.x = n.x;
 				if (+n.y === n.y) e.y = n.y;
+				d.index = 1;
+				// skip points outside GAME.rect
+				while (1) {
+					var n = d.pathnodes[d.index];
+					if (n && (n.x < GAME.rect.l || n.x > GAME.rect.r ||
+							n.y < GAME.rect.t || n.y > GAME.rect.b))
+						d.index ++;
+					else
+						break;
+				}
 			}
 			else {
 				if (+n.x === n.x && +n.y === n.y &&
@@ -2509,7 +2519,7 @@ ieach([
 	f4: function() {
 		STORY.timeout(function (d, n) {
 			var pth = RES.path[randin(['s0A1', 's0A2'])],
-				ps = UTIL.pathOffset(pth, random(-100, 100), random(-100, 100));
+				ps = UTIL.pathOffset(pth, random(-200, 200), random(-200, 200));
 			SPRITE.newObj('Enemy', {
 				frames: RES.frames.Enemy00,
 				pathnodes: ps,
@@ -2690,7 +2700,7 @@ ieach([
 		pathnodes: [
 			{ fx:0.5, fy:0.0, v:0.2 },
 			{ fx:0.8, fy:0.4 },
-			{ fx:0.8, fy:0.401, v:0.001/100 },
+			{ fx:0.8, fy:0.401, v:0.001 },
 			{ fx:0.5, fy:0.5, v:0.1 },
 		],
 		duration: 30000,
@@ -2698,12 +2708,12 @@ ieach([
 	{
 		pathnodes: [
 			{ v:0.1 },
-			{ fx:0.5, fy:0.5 },
+			{ fx:0.5, fy:0.3 },
 		],
 		quitnodes: [
-			{ v:0.5 },
-			{ fx:0.5, fy:0.0, v:0.5 },
-			{ v:0.5 },
+			{ v:0.3 },
+			{ fx:0.5, fy:0.0 },
+			{ v:0.3 },
 		],
 		duration: 30000,
 		scname: 'spell card 1',
