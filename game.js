@@ -2599,26 +2599,57 @@ tl.sec1 = {
 };
 */
 ieach([
-	{ text:'x0aabbcc', x:GAME.rect.l+50, y:interp(GAME.rect.t, GAME.rect.b, 0.8), name:'diag' },
-	{ text:'y0aabbcc', x:GAME.rect.r-50, y:interp(GAME.rect.t, GAME.rect.b, 0.8) },
-	{ text:'x0aabbcc', x:GAME.rect.l+50, y:interp(GAME.rect.t, GAME.rect.b, 0.8) },
-	{ text:'y0aabbcc', x:GAME.rect.r-50, y:interp(GAME.rect.t, GAME.rect.b, 0.8) },
-	{ text:'x0aabbcc', x:GAME.rect.l+50, y:interp(GAME.rect.t, GAME.rect.b, 0.8) },
-	{ text:'y0aabbcc', x:GAME.rect.r-50, y:interp(GAME.rect.t, GAME.rect.b, 0.8), next:'boss2' },
+	{ text:'x0aabbcc', face:'f0a', float:'l', name:'diag' },
+	{ text:'x0aabbcc', face:'f0b fs', float:'l', },
+	{ text:'y0aabbcc', face:'f3a', float:'r', },
+	{ text:'x0aabbcc', face:'f0c fs', float:'l', },
+	{ text:'y0aabbcc', face:'f3a fs', float:'r', },
+	{ text:'x0aabbcc', face:'f0b', float:'l', },
+	{ text:'y0aabbcc', face:'f3a', float:'r', },
+	{ text:'x0aabbcc', face:'f0c', float:'l', },
+	{ text:'y0aabbcc', face:'f3a', float:'r', next:'boss2' },
 ], function(i, v, tl) {
 	var c = v.name || 'diag'+i, n = v.next || 'diag'+(i+1);
 	tl[c] = {
 		init: function(d) {
 			d.age = 0;
 			d.disable_fire = true;
-			d.text = SPRITE.newObj('Basic', v);
+			d.text = UTIL.getOneObj('Basic', 'diag') || SPRITE.newObj('Basic', { id: 'diag', });
+			d.text.data.text = v.text;
+
+			var bg = $i('.diag'),
+				fl = $i('.fl', bg),
+				fr = $i('.fr', bg),
+				text = $i('.text', bg),
+				face = v.float == 'l' ? fl : fr;
+			bg.object = d.text;
+			text.innerHTML = v.text;
+			$i('.face', face).className = 'face '+v.face;
+
+			d.text.anim(50, function(d, v) {
+				if (v.data.health <= 1) {
+					bg.style.opacity = v.data.health;
+					var dx = (1 - v.data.health) * -64;
+					fl.style.marginLeft = dx+'px';
+					fr.style.marginRight = dx+'px';
+				}
+				ieach([fl, fr], function(i, f) {
+					var dp = f == face ? 0.1 : -0.1;
+					f.style.opacity = limit_between(f.style.opacity-0+dp, 0.3, 1);
+					var df = 1 - f.style.opacity,
+						dx = df * (f == fl ? -20 : 20),
+						dy = df * 10;
+					$prefixStyle(f.style, 'Transform', 'translate('+dx+'px,'+dy+'px)');
+				});
+			}, null, 'face');
 		},
 		run: function(dt, d) {
 			if (d.pass || GAME.keyste.ctrlKey || (d.age+=dt) > 20000)
 				return n;
 		},
-		quit: function(d) {
-			d.text.state.die();
+		quit: function(d, n) {
+			if (n.indexOf('diag') != 0)
+				d.text.state.die();
 		},
 		on: function(e, v, d) {
 			if (e == STORY.events.GAME_INPUT) {

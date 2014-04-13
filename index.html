@@ -280,6 +280,56 @@ input[type="radio"]:focus + .menu {
 	width: 30px;
 	background-position: -48px  -208px;
 }
+.face {
+	width: 128px;
+	height: 256px;
+	margin-top: 192px;
+}
+.f0a {
+	background: url(res/face00a.png) 0 0;
+}
+.f0b {
+	background: url(res/face00b.png) 0 0;
+}
+.f0c {
+	background: url(res/face00c.png) 0 0;
+}
+.f3a {
+	background: url(res/face03a.png) 0 0;
+}
+.f3b {
+	background: url(res/face03b.png) 0 0;
+}
+.fs {
+	background-position: -128px 0;
+}
+.fl {
+	float: left;
+}
+.fr {
+	float: right;
+}
+.ft {
+	position: absolute;
+	margin-top: 320px;
+	width: 100%;
+}
+.text {
+	margin: 48px;
+	padding: 2px 20px;
+	background-color: rgba(0, 0, 0, 0.5);
+	color: silver;
+}
+.diag, .fl, .fr {
+	-webkit-transition: all linear 0.1s;
+	    -ms-transition: all linear 0.1s;
+	   -moz-transition: all linear 0.1s;
+}
+.face {
+	-webkit-transition: -webkit-transform linear 0.1s;
+	    -ms-transition:     -ms-transform linear 0.1s;
+	   -moz-transition:    -moz-transform linear 0.1s;
+}
 .num {
 	background: url(res/ascii.png) 0 -32px;
 	float: left;
@@ -665,6 +715,11 @@ input[type="radio"]:focus + .menu {
 		</div>
 	</div>
 	<canvas class="game absolute" id="canv"></canvas>
+	<div class="ui-obj game absolute no-overflow diag">
+		<div class="fl"><div class="face"></div></div>
+		<div class="fr"><div class="face"></div></div>
+		<div class="ft"><div class="text"></div></div>
+	</div>
 	<div class="info absolute">
 		<div class="line">
 			<div class="label"><div class="label-max-point"></div></div>
