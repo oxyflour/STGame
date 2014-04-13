@@ -2050,10 +2050,6 @@ function newBoss() {
 			if (v.data.z >= 0)
 				v.drawEffects();
 		});
-		DC.beginPath();
-		DC.arc(d.x, d.y, d.r*1.5, 0, (d.life-d.damage)/d.life*2*Math.PI);
-		DC.stroke();
-		DC.closePath();
 	}
 	return boss;
 }
@@ -2772,7 +2768,8 @@ ieach([
 						x = d.x + 24 + 16,
 						y = d.y + 2,
 						len = GAME.rect.r - 50 - x;
-					len *= ease_out(d.health) * (p.data.life - p.data.damage) / p.data.life;
+					len *= (s.is_creating ? ease_out(d.health) : 1) *
+						(p.data.life - p.data.damage) / p.data.life;
 					DC.beginPath();
 					DC.moveTo(x, y);
 					DC.lineTo(x + len, y);
