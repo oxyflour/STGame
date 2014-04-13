@@ -1997,7 +1997,7 @@ function newBoss() {
 			var fs = [RES.frames.Boss],
 				vx = Math.abs(v.data.vx);
 			if (vx > 0.02 || vx < -0.02) {
-				fs = v.data.vx > 0 ? RES.frames.BossR : RES.frames.BossL;
+				fs = v.data.vx > 0 ? RES.frames.BossL : RES.frames.BossR;
 				if (this.frames != fs)
 					this.index = 0;
 				var max = vx > 0.1 ? fs.length - 2 : fs.length - 3;
