@@ -2103,21 +2103,21 @@ function newBackground(elems) {
 	ieach(bg.imgs, function(i, e) {
 		var v = e.val = {
 			bg0: {
-				persp: [700, 400],
-				rotate: [40, 50],
+				persp: [900, 500],
+				rotate: [50, 70],
 				opacity: [1, 1],
-				oriy: -20,
+				oriy: -50,
 			},
 			bg1: {
-				persp: [700, 300],
+				persp: [700, 500],
 				rotate: [30, 80],
 				opacity: [1, 0],
-				oriy: -20,
+				oriy: -0,
 			}
 		}[e.id];
 		if (v) {
 			var trans = 'perspective('+v.persp[0]+'px) rotateX('+v.rotate[0]+'deg)',
-				ori = '50% '+v.oriy+'%';
+				ori = '50% '+v.oriy+'px';
 			$prefixStyle(e.style, 'Transform', trans);
 			$prefixStyle(e.style, 'TransformOrigin', ori);
 		}
