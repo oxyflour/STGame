@@ -1222,7 +1222,7 @@ return proto = {
 	hitWith: function(that) {
 		var d = this.data,
 			e = that.data;
-		if (that.clsName == SPRITE.proto.Drop.clsName && !that.is_dying) {
+		if (that.clsName == SPRITE.proto.Drop.clsName && !that.is_dying && !that.is_creating) {
 			e.collected = this;
 			if (circle_intersect(d, { x:e.x, y:e.y, r:20 }))
 				STORY.on(STORY.events.DROP_COLLECTED, that);
