@@ -1119,14 +1119,6 @@ return proto = {
 		scale: 1,
 		opacity: 1,
 
-		frtick: 50,
-		frames: undefined, // array of frames
-		pathtick: 50,
-		pathnodes: undefined, // array of objects like { x/fx:0, y/fy:0, v:1}
-
-		states: undefined,
-		layer: undefined,
-
 		// add later
 		ph: 0,		// point of health, between 0 & 1
 		dh: 1/500,	// delta of dh
