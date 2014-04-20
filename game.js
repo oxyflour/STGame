@@ -810,7 +810,7 @@ var UTIL = {
 	getNearestAlive: function(v, c) {
 		var r = Inf, t = undefined;
 		SPRITE.eachObj(function(i, u) {
-			if (u.state.is_dying)
+			if (u.is_dying)
 				return;
 			var r0 = squa_sum(u.data.x-v.data.x, u.data.y-v.data.y);
 			if (r0 < r) {
@@ -1077,16 +1077,13 @@ return proto = {
 		this.is_living = d.ph == 1;
 		//...
 
-		if (s.is_dying)
-			this.die();
-
 		s.run(dt);
 		if (!s.d.life)
 			this.finished = true;
 
 		var p = d.parent;
-		if (p && (p.finished || p.state.is_dying) && !s.is_dying) 
-			s.die();
+		if (p && (p.finished || p.is_dying) && !this.is_dying) 
+			this.die();
 
 		if (this.runBasic)
 			this.runBasic(dt, d, s);
@@ -1293,7 +1290,7 @@ return proto = {
 	hitWith: function(that) {
 		var d = this.data,
 			e = that.data;
-		if (that.clsName == SPRITE.proto.Drop.clsName && that.state.is_living) {
+		if (that.clsName == SPRITE.proto.Drop.clsName && that.is_living) {
 			e.collected = this;
 			if (circle_intersect(d, { x:e.x, y:e.y, r:20 }))
 				STORY.on(STORY.events.DROP_COLLECTED, that);
@@ -1356,7 +1353,7 @@ return proto = {
 			d.fire_tick.run(dt);
 
 		// BOMB!
-		if (GAME.keyste[d.conf.key_bomb] && (s.is_creating || s.is_living) && s.d.name !== 'bomb')
+		if (GAME.keyste[d.conf.key_bomb] && !this.is_dying && s.d.name !== 'bomb')
 			STORY.on(STORY.events.PLAYER_BOMB, this);
 
 		// AUTO COLLECT!
@@ -1369,7 +1366,7 @@ return proto = {
 			return;
 		}
 
-		if (!s.is_dying)
+		if (!this.is_dying)
 			this.runPlayer(dt, d, s);
 
 		// limit player move inside boundary
@@ -1418,7 +1415,7 @@ return proto = {
 		frtick: 120,
 	  	frames: function(v) {
 			var fs = RES.frames.Player0;
-			if (v.state.is_dying) {
+			if (v.is_dying) {
 				fs = RES.frames.PlayerD;
 				if (this.index + 1 > fs.length - 1)
 					this.index = fs.length - 2;
@@ -1437,13 +1434,6 @@ return proto = {
 		from.init.call(this, d = fill(d, proto.data0));
 		this.rect = { l:0, t:0, r:0, b:0 };
 
-		this.state = UTIL.newAliveState(d.states || this.states, {
-			data: this,
-			init: function(v, s) {
-				if (s.is_dying)
-					STORY.on(STORY.events.PLAYER_DYING, v);
-			},
-		});
 		this.data.conf = extend({
 			key_left: 37,
 			key_up: 38,
@@ -1538,7 +1528,7 @@ return proto = {
 	hitWith: function(that) {
 		var d = this.data,
 			e = that.data;
-		if (!this.state.is_dying && !that.state.is_dying &&
+		if (!this.is_dying && !that.is_dying &&
 				that.hit_with != this && circle_intersect(d, e)) {
 			this.hit_with = that;
 			that.hit_with = this;
@@ -1577,7 +1567,7 @@ return proto =  {
 	hitWith: function(that) {
 		var d = this.data,
 			e = that.data;
-		if (!that.state.is_dying &&
+		if (!that.is_dying &&
 				that.hit_with != this && circle_intersect(d, e)) {
 			this.hit_with = that;
 			that.hit_with = this;
@@ -1606,7 +1596,7 @@ return proto = {
 		var that = d.collected;
 		if (that && that.finished)
 			that = d.collected = UTIL.getOneObj('Player');
-		if (that && !that.finished && !that.state.is_dying) {
+		if (that && !that.finished && !that.is_dying) {
 			var e = that.data,
 				v = d.collected_auto ? 0.6 : sqrt_sum(d.vx, d.vy);
 			redirect_object(d, e, v);
@@ -1788,7 +1778,7 @@ function newBullet(d) {
 					s = v.state,
 					u = d.to,
 					e = u && u.data;
-				if (u && !u.finished && u.state.d.mkDamage && !s.is_dying)
+				if (u && !u.finished && u.state.d.mkDamage && !v.is_dying)
 					redirect_object(d, e, sqrt_sum(d.vx, d.vy), 0.4);
 			});
 		})
@@ -1854,7 +1844,7 @@ function newDannmaku(d) {
 			d.speed *= d.generator.count % 2 ? 1 : -1;
 		v.runCircle = function(dt, d, s) {
 			var f = d.from;
-			if (f && !f.finished && !f.state.is_dying) {
+			if (f && !f.finished && !f.is_dying) {
 				d.x = d.radius*Math.cos(d.theta) + d.source_x;
 				d.y = d.radius*Math.sin(d.theta) + d.source_y;
 				d.theta += dt*d.speed;
@@ -1966,7 +1956,7 @@ function genDannmaku(d) {
 				y:interp(GAME.rect.t, GAME.rect.b, 0.7),
 			};
 		}
-		if (!d.from || d.from.finished || d.from.state.is_dying) {
+		if (!d.from || d.from.finished || d.from.is_dying) {
 			this.finished = true;
 			return;
 		}
@@ -2232,17 +2222,17 @@ function newBomb(player) {
 		var p = d.player;
 		d.x = p.data.x;
 		d.y = p.data.y;
-		d.r = s.is_dying ? 400 - d.ph*300 : d.ph * 100;
+		d.r = this.is_dying ? 400 - d.ph*300 : d.ph * 100;
 	};
 	bg.anim(50, function(d, bg) {
 		var p = d.player;
-		if ((p.finished || p.state.d.name !== 'bomb') && !bg.state.is_dying)
-			bg.state.die();
+		if ((p.finished || p.state.d.name !== 'bomb') && !bg.is_dying)
+			bg.die();
 		if (d.elem.object == bg)
 			d.elem.style.opacity = d.ph;
 	}, bg.data);
 	bg.anim(800, function(d, bg) {
-		if (bg.state.is_dying)
+		if (bg.is_dying)
 			return;
 		var p = bg.data.player;
 		var sh = SPRITE.newObj('Shield', {
@@ -2297,7 +2287,7 @@ function newBomb(player) {
 				d.theta += d.dtheta * dt + random(-0.01, 0.01);
 				d.x = p.data.x + d.dist * Math.cos(d.theta);
 				d.y = p.data.y + d.dist * Math.sin(d.theta);
-				if (!s.is_dying)
+				if (!this.is_dying)
 					d.scale = ease_out(d.ph) * d.size;
 			};
 		});
@@ -2319,15 +2309,15 @@ function newBomb(player) {
 function killCls() {
 	ieach(arguments, function(i, c) {
 		SPRITE.eachObj(function(i, v) {
-			if (!v.state.is_dying)
-				v.state.die();
+			if (!v.is_dying)
+				v.die();
 		}, c);
 	})
 }
 function killObj() {
 	ieach(arguments, function(i, v) {
-		if (v && !v.state.is_dying)
-			v.state.die();
+		if (v && !v.is_dying)
+			v.die();
 	})
 }
 
@@ -2415,15 +2405,15 @@ var hook = {
 		}
 		else if (e == STORY.events.ENEMY_KILL) {
 			if (v.data.respawn-- <= 0)
-				v.state.die();
+				v.die();
 			newEffect(v);
 		}
 		else if (e == STORY.events.DROP_COLLECTED) {
-			v.state.die();
+			v.die();
 			STATICS.point += 10;
 		}
 		else if (e == STORY.events.BULLET_HIT) {
-			v.state.die();
+			v.die();
 			v.data.vx *= 0.05;
 			v.data.vy *= 0.05;
 			UTIL.addFrameAnim(v, RES.frames.BulletD[v.data.to ? 1 : 0]);
@@ -2446,7 +2436,7 @@ var hook = {
 			};
 		}
 		else if (e == STORY.events.DANNMAKU_HIT) {
-			v.state.die();
+			v.die();
 			v.data.vx *= 0.1;
 			v.data.vy *= 0.1;
 
@@ -2487,7 +2477,7 @@ tl.init = {
 				sy: interp(GAME.rect.t, GAME.rect.b, 0.5) + 40,
 			});
 			d.text.runBasic = function(dt, d, s) {
-				if (!s.is_dying)
+				if (!this.is_dying)
 					d.y = d.sy - ease_out(d.ph)*10;
 			};
 		}, 400, d);
@@ -2586,94 +2576,6 @@ ieach([
 		}, 300, null, 10);
 	},
 });
-/*
-tl.sec0 = {
-	run: UTIL.newTimeRunner(20000, 'sec1'),
-	init: function(d) {
-		STORY.timeout(function(d, n) {
-			newBall({
-				speed: n > 10 ? 0.05 : 0.25,
-				fy: n > 10 ? 0.6 : 0.2,
-			});
-		}, 20, null, 60);
-	},
-	quit: function(d) {
-		killCls('Ball');
-	},
-	on: function(e, v, d) {
-		if (e == STORY.events.OBJECT_OUT) {
-			if (v.clsName == SPRITE.proto.Ball.clsName) {
-				var fy = random(0.2, 0.6);
-				newBall({
-					speed: 0.6-fy,
-					fy: fy
-				});
-			}
-		}
-	}
-};
-tl.sec1 = {
-	init: function(d) {
-		var m = 200;
-		STORY.timeout(function(e, n) {
-			var f = ease_in_out(1 - n / m);
-			ieach(e, function(i, e) {
-				var v = e.val;
-				if (v) {
-					var p = interp(v.persp[0], v.persp[1], f),
-						r = interp(v.rotate[0], v.rotate[1], f),
-						trans = 'perspective('+p+'px) rotateX('+r+'deg)';
-					$prefixStyle(e.style, 'Transform', trans);
-					e.style.opacity = interp(v.opacity[0], v.opacity[1], f);
-					e.style.display = e.style.opacity > 0.05 ? 'block' : 'none';
-				}
-			});
-		}, 50, $('.bgimg'), m);
-		STORY.timeout(function(d, n) {
-			if (n < 3) newEnemy();
-		}, 300, null, 8);
-	},
-	run: function(dt, d) {
-		if (d.pass) {
-			return 'boss';
-		}
-	},
-	on: function(e, v, d) {
-		if (e == STORY.events.ENEMY_KILL) {
-			SPRITE.newObj('Drop', {
-				x: v.data.x,
-				y: v.data.y
-			});
-			var pass = true;
-			SPRITE.eachObj(function(i, v) {
-				if (!v.state.is_dying)
-					return pass = false;
-			}, 'Enemy');
-			if (pass) {
-				SPRITE.eachObj(function(i, v) {
-					v.state.die();
-					SPRITE.newObj('Drop', {
-						x: v.data.x,
-						y: v.data.y,
-						vx: v.data.vx *= 0.01,
-						vx: v.data.vy *= 0.01,
-						frames: RES.frames.Drops[1],
-					});
-				}, 'Dannmaku');
-				STORY.timeout(function(d) {
-					STORY.on(STORY.events.PLAYER_AUTOCOLLECT,
-						UTIL.getOneObj('Player'));
-					d.pass = true;
-				}, 100, d);
-			}
-		}
-		else if (e == STORY.events.OBJECT_OUT) {
-			if (v.clsName == SPRITE.proto.Enemy.clsName && !v.state.is_dying)
-				newEnemy();
-		}
-	}
-};
-*/
 ieach([
 	{ text:'x0aabbcc', face:'f0a', float:'l', name:'diag' },
 	{ text:'x0aabbcc', face:'f0b fs', float:'l', },
@@ -2725,7 +2627,7 @@ ieach([
 		},
 		quit: function(d, n) {
 			if (n.indexOf('diag') != 0)
-				d.text.state.die();
+				d.text.die();
 		},
 		on: function(e, v, d) {
 			if (e == STORY.events.GAME_INPUT) {
@@ -2832,7 +2734,7 @@ ieach([
 						x = d.x + 24 + 16,
 						y = d.y + 2,
 						len = GAME.rect.r - 50 - x;
-					len *= (s.is_creating ? ease_out(d.ph) : 1) *
+					len *= (this.is_creating ? ease_out(d.ph) : 1) *
 						(p.data.life - p.data.damage) / p.data.life;
 					DC.beginPath();
 					DC.moveTo(x, y);
@@ -2867,7 +2769,7 @@ ieach([
 					font: '15px Arial',
 				});
 				d.scname.runBasic = function(dt, d, s) {
-					if (s.is_creating)
+					if (this.is_creating)
 						d.y = d.sy - ease_in(d.ph)*10;
 				};
 			}
