@@ -1295,7 +1295,7 @@ return proto = {
 			if (circle_intersect(d, e))
 				circles_hit(d, e)
 		}
-		else if (that.state.d.mkDamage) {
+		else if (that.damage_pt) {
 			if (!this.is_invinc && circle_intersect({ x:d.x, y:d.y, r:d.h }, e))
 				STORY.on(STORY.events.PLAYER_HIT, this);
 			else if (!e.grazed && circle_intersect(d, e))
@@ -1461,10 +1461,7 @@ return proto = {
 			circles_hit(d, e);
 	},
 
-	states: {
-		life: [200, Inf, 500],
-		mkDamage: [0, 1, 0],
-	},
+	damage_pt: 1,
 	data0: {
 		dh: 1/200,
 		kh: 1/500,
@@ -1503,16 +1500,13 @@ return proto = {
 		DC.closePath();
 	},
 
-	states: {
-		life: [200, Inf, 500],
-		mkDamage: [0, 1, 0],
-	},
 	data0: {
 		dh: 1/200,
 		kh: 1/500,
 		dx: 0,
 		dy: (GAME.rect.b - GAME.rect.t)*0.2,
 	},
+	damage_pt: 1,
 	init: function(d) {
 		from.init.call(this, d = fill(d, proto.data0));
 	}
@@ -1532,7 +1526,7 @@ return proto = {
 				that.hit_with != this && circle_intersect(d, e)) {
 			this.hit_with = that;
 			that.hit_with = this;
-			d.damage += that.state.d.mkDamage || 1;
+			d.damage += that.damage_pt || 1;
 			if (that.clsName == SPRITE.proto.Bullet.clsName)
 				STORY.on(STORY.events.BULLET_HIT, that);
 			if (d.damage >= d.life)
@@ -1540,10 +1534,7 @@ return proto = {
 		}
 	},
 	
-	states: {
-		life: [500, Inf, 500],
-		mkDamage: [0, 1, 0],
-	},
+	damage_pt: 1,
 	data0: {
 		dh: 1/100,
 		kh: 1/100,
@@ -1575,10 +1566,7 @@ return proto =  {
 		}
 	},
 	
-	states: {
-		life: [2000, Inf, 500],
-		mkDamage: [20, 20, 20],
-	},
+	damage_pt: 1,
 	data0: {
 		dh: 1/2000,
 		kh: 1/500,
@@ -1649,10 +1637,7 @@ return proto = {
 SPRITE.newCls('Bullet', 'Circle', function(from, proto) {
 return proto =  {
 	layer: 'L20',
-	states: {
-		life: [50, Inf, 400],
-		mkDamage: [0, 1, 0],
-	},
+	damage_pt: 1,
 	data0: {
 		dh: 1/50,
 		kh: 1/400,
@@ -1668,10 +1653,7 @@ return proto =  {
 SPRITE.newCls('Dannmaku', 'Circle', function(from, proto) {
 return proto = {
 	layer: 'L20',
-	states: {
-		life: [100, Inf, 200],
-		mkDamage: [0, 1, 0],
-	},
+	damage_pt: 1,
 	data0: {
 		dh: 1/100,
 		kh: 1/200,
@@ -1777,7 +1759,7 @@ function newBullet(d) {
 				var d = v.data,
 					u = d.to,
 					e = u && u.data;
-				if (u && !u.finished && u.state.d.mkDamage && !v.is_dying)
+				if (u && !u.finished && u.damage_pt && !v.is_dying)
 					redirect_object(d, e, sqrt_sum(d.vx, d.vy), 0.4);
 			});
 		})
@@ -2243,14 +2225,11 @@ function newBomb(player) {
 			theta: random(0, Math.PI*2),
 			dtheta: randin([-0.06, 0.06]),
 			dv: 0.01,
-			states: {
-				life: [3000, 2000, 500],
-				mkDamage: [20, 20, 0],
-			},
 			dh: 1/3000,
 			kh: 1/500,
 			duration: 5000,
 		});
+		sh.damage_pt = 20;
 		sh.runCircle = function(dt, d) {
 			d.r = 1 + ease_out(d.ph) * 40;
 			d.scale = d.r / 30;
