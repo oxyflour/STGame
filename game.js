@@ -1252,7 +1252,7 @@ return proto = {
 	},
 	runPlayer: function(dt, d) {
 		var ks = GAME.keyste,
-			cf = d.conf;
+			cf = this.conf;
 
 		this.is_invinc = this.is_creating || this.is_dying ||
 			this.is_bomb || this.is_juesi;
@@ -1260,7 +1260,7 @@ return proto = {
 
 		d.x0 = d.x;
 		d.y0 = d.y;
-		var v = this.is_slow ? 0.12 : 0.24,
+		var v = this.is_slow ? cf.speed_low : cf.speed_high,
 			vx = 0,
 			vy = 0;
 		if (ks[cf.key_left])
@@ -1386,20 +1386,23 @@ return proto = {
 			return fs;
 		},
 	},
+	conf: {
+		key_left: 37,
+		key_up: 38,
+		key_right: 39,
+		key_down: 40,
+		key_fire: GAME.keychars.Z,
+		key_bomb: GAME.keychars.X,
+		speed_high: 0.24,
+		speed_low: 0.12,
+		fire_interval: 1000 / 12,
+		fire_count: 500,
+	},
 	init: function(d) {
 		from.init.call(this, d = fill(d, proto.data0));
 		this.rect = { l:0, t:0, r:0, b:0 };
-
-		this.data.conf = extend({
-			key_left: 37,
-			key_up: 38,
-			key_right: 39,
-			key_down: 40,
-			key_fire: GAME.keychars.Z,
-			key_bomb: GAME.keychars.X,
-			fire_interval: 1000 / 12,
-			fire_count: 500,
-		}, this.data.conf);
+		if (d.conf)
+			this.conf = fill(d.conf, proto.conf);
 	}
 }
 });
