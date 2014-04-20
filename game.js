@@ -734,7 +734,7 @@ var GAME = (function() {
 				if (c1 == c2 && j >= i)
 					return;
 				if (rect_intersect(obj1.rect, obj2.rect))
-					obj1.hit(obj2, dt);
+					obj1.hitWith(obj2, dt);
 			}, c2);
 		}, c1);
 	};
@@ -1394,7 +1394,7 @@ return proto = {
 		'Dannmaku',
 		'Drop',
 	],
-	hit: function(v) {
+	hitWith: function(v) {
 		var d = this.data,
 			e = v.data;
 		if (v.clsName == SPRITE.proto.Drop.clsName && v.state.is_living) {
@@ -1565,7 +1565,7 @@ return proto = {
 	hits: [
 		'Ball',
 	],
-	hit: function(v) {
+	hitWith: function(v) {
 		var d = this.data,
 			e = v.data;
 		if (circle_intersect(d, e))
@@ -1589,7 +1589,7 @@ return proto = {
 	hits: [
 		'Ball',
 	],
-	hit: function(v) {
+	hitWith: function(v) {
 		var d = this.data,
 			e = v.data;
 			cr = line_circle_intersect(d, e);
@@ -1630,7 +1630,7 @@ return proto = {
 		'Bullet',
 		'Shield',
 	],
-	hit: function(v) {
+	hitWith: function(v) {
 		var d = this.data,
 			e = v.data;
 		if (!this.state.is_dying && !v.state.is_dying &&
@@ -1666,7 +1666,7 @@ return proto =  {
 	hits: [
 		'Dannmaku',
 	],
-	hit: function(v) {
+	hitWith: function(v) {
 		var d = this.data,
 			e = v.data;
 		if (!v.state.is_dying &&
