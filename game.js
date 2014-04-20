@@ -1028,22 +1028,26 @@ return proto = {
 	},
 	drawBasic: undefined,
 	drawText: function(d) {
-		if (d.font && d.font.res && d.font.map) {
-			var m = d.font.map,
-				w = m.cw * d.text.length,
+		var t = d.text;
+		if (t.text && t.res && t.map) {
+			var m = t.map,
+				w = m.cw * t.text.length,
 				h = m.ch;
-			ieach(d.text, function(i, c) {
+			ieach(t.text, function(i, c) {
 				var pos = m[c];
-				DC.drawImageInt(RES[d.font.res], pos.x, pos.y, m.cw, m.ch,
+				DC.drawImageInt(RES[t.res], pos.x, pos.y, m.cw, m.ch,
 					d.x - w/2 + m.cw*i, d.y - h/2, m.cw, m.ch);
 			});
 		}
+		else if (t.text) {
+			if (t.font)
+				DC.font = t.font;
+			if (t.color)
+				DC.fillStyle = t.color;
+			DC.fillText(t.text, d.x, d.y);
+		}
 		else {
-			if (d.font)
-				DC.font = d.font;
-			if (d.color)
-				DC.fillStyle = d.color;
-			DC.fillText(d.text, d.x, d.y);
+			DC.fillText(t, d.x, d.y);
 		}
 	},
 	drawFrame: function(d) {
@@ -1077,7 +1081,7 @@ return proto = {
 			if (!this.drawBasic || this.drawBasic(d)) {
 				if (d.frame)
 					this.drawFrame(d);
-				else
+				else if (d.text)
 					this.drawText(d);
 			}
 			DC.restore();
@@ -1107,13 +1111,11 @@ return proto = {
 	data0: {
 		x: interp(GAME.rect.l, GAME.rect.r, 0.5),
 		y: interp(GAME.rect.t, GAME.rect.b, 0.5),
-		text: undefined,
-		color: undefined,
-		font: undefined,
 
 		parent: undefined, // if parent is dead, it will kill self too
 
 		frame: undefined, // i.e. {res:'player0L', sx:0, sy:0, sw:10, sh:10, w:10, h:10}
+		text: undefined, // '' or {text:'', font:'', color:''} or {text:'', res:'', map:{}}
 		blend: undefined,
 		scale: 1,
 		opacity: 1,
@@ -2371,17 +2373,19 @@ tl.init = {
 	run: UTIL.newTimeRunner(5000, 'sec0'),
 	init: function(d) {
 		d.title = SPRITE.newObj('Basic', {
-			text: 'STAGE 1',
-			font: {
+			text: {
+				text: 'STAGE 1',
 				res: 'ascii_yellow',
 				map: RES.fontmap,
 			}
 		});
 		STORY.timeout(function(d) {
 			d.text = SPRITE.newObj('Basic', {
-				text: '~ Mystic Flier ~',
-				font: '15px Arial',
-				color: 'Silver',
+				text: {
+					text: '~ Mystic Flier ~',
+					font: '15px Arial',
+					color: 'Silver',
+				},
 				sy: interp(GAME.rect.t, GAME.rect.b, 0.5) + 40,
 			});
 			d.text.runBasic = function(dt, d) {
@@ -2629,11 +2633,11 @@ ieach([
 				});
 				bar.drawBasic = function(d) {
 					this.drawText({
-						font: {
+						text: {
+							text: '0',
 							res: 'ascii_yellow',
 							map: RES.fontmap,
 						},
-						text: '0',
 						x: d.x + 24 + 8,
 						y: d.y,
 					});
@@ -2658,23 +2662,25 @@ ieach([
 				d.countdown = SPRITE.newObj('Basic', {
 					x: GAME.rect.r-20,
 					y: GAME.rect.t+8,
-					font: {
+					text: {
 						res: 'num',
 						map: RES.nummap,
 					},
 				});
 				d.countdown.anim(100, function(d, v) {
 					var t = Math.max(Math.floor((d.duration - d.age) / 1000), 0);
-					v.data.font.res = (t<5 && 'num3') || (t<10 && 'num2') || (t<20 && 'num1') || 'num0';
-					v.data.text = (t < 10 ? '0' : '') + t;
+					v.data.text.res = (t<5 && 'num3') || (t<10 && 'num2') || (t<20 && 'num1') || 'num0';
+					v.data.text.text = (t < 10 ? '0' : '') + t;
 				}, d);
 			}
 			if (v.scname) {
 				d.scname = SPRITE.newObj('Basic', {
 					x: interp(GAME.rect.l, GAME.rect.r, 1)-50,
 					sy: interp(GAME.rect.t, GAME.rect.b, 0)+60,
-					text: v.scname,
-					font: '15px Arial',
+					text: {
+						text: v.scname,
+						font: '15px Arial',
+					},
 				});
 				d.scname.runBasic = function(dt, d) {
 					if (this.is_creating)
