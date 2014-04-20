@@ -931,61 +931,6 @@ var UTIL = {
 			if (d.age > t) return n;
 		}
 	},
-	// stes: array of objects like
-	// { life:1000, [next:1] }
-	newAliveState: function(stes, hk) {
-		function init(d) {
-			d.age = 0;
-		}
-		function run(dt, d) {
-			d.age += dt;
-			if (d.age > d.life)
-				return d.next !== undefined ? d.next : -1;
-		}
-
-		if (!stes.name) stes.name = ['creating', 'living', 'dying'];
-		if (!stes.next) stes.next = [1, 2, -1];
-
-		stes = ieach(stes.life, function(i, n, d) {
-			var data = each(stes, function(k, ls, d) {
-				d[k] = ls[i];
-			}, {});
-			d[i] = { run:run, init:init, data:data };
-		}, []);
-
-		var s = newStateMachine(stes);
-
-		s.set = (function(set) {
-			return function(k) {
-				k = ieach(this.stes, function(i, v, d) {
-					if (v.data.name==k) return i;
-				}, k);
-				set.call(this, k);
-
-				this.is_creating = this.d.name == 'creating';
-				this.is_dying = this.d.name == 'dying';
-				this.is_living = !(this.is_creating || this.is_dying);
-			};
-		})(s.set);
-
-		if (hk) s.set = (function(set, hk) {
-			return function(k) {
-				hk && hk.quit && hk.quit(hk.data, this);
-				set.call(this, k);
-				hk && hk.init && hk.init(hk.data, this);
-			};
-		})(s.set, hk);
-
-		s.die = function() {
-			s.set('dying');
-		}
-		s.create = function() {
-			s.set('creating');
-		}
-		s.set(0);
-
-		return s;
-	},
 	pathOffset: function(ps, dx, dy) {
 		return ieach(ps, function(i, v, d) {
 			v = extend({}, v);
@@ -1165,9 +1110,6 @@ return proto = {
 	die: function() {
 		this.data.dh = -this.data.kh;
 	},
-	states: {
-		life: [500,	Inf, 500],
-	},
 	data0: {
 		x: interp(GAME.rect.l, GAME.rect.r, 0.5),
 		y: interp(GAME.rect.t, GAME.rect.b, 0.5),
@@ -1199,7 +1141,6 @@ return proto = {
 	},
 	init: function(d) {
 		this.data = d = fill(d, proto.data0);
-		this.state = UTIL.newAliveState(d.states || this.states);
 		if (d.frames)
 			UTIL.addFrameAnim(this, d.frames);
 		if (d.pathnodes)
@@ -1303,11 +1244,15 @@ return proto = {
 		}
 	},
 	
+	juesi: function() {
+		this.is_juesi = 100;
+	},
+	bomb: function() {
+		this.is_bomb = 5000;
+	},
 	runPlayer: function(dt, d) {
-		this.state.run(dt);
-		if (!this.state.d.life)
-			this.finished = true;
-
+		this.is_invinc = this.is_creating || this.is_dying ||
+			this.is_bomb || this.is_juesi;
 		var m = GAME.keyste.shiftKey,
 			v = m ? 0.12 : 0.24;
 		d.slowMode = m;
@@ -1352,8 +1297,23 @@ return proto = {
 		if (d.is_firing)
 			d.fire_tick.run(dt);
 
+		// JUESI!
+		if (this.is_juesi > 0) {
+			this.is_juesi -= dt;
+			if (this.is_juesi <= 0) {
+				this.die();
+				this.is_juesi = 0;
+			}
+		}
+
 		// BOMB!
-		if (GAME.keyste[d.conf.key_bomb] && !this.is_dying && this.state.d.name !== 'bomb')
+		if (this.is_bomb > 0) {
+			if (this.is_juesi > 0)
+				console.log('juesi');
+			this.is_juesi = 0;
+			this.is_bomb -= dt;
+		}
+		if (GAME.keyste[d.conf.key_bomb] && !this.is_dying && !(this.is_bomb > 0))
 			STORY.on(STORY.events.PLAYER_BOMB, this);
 
 		// AUTO COLLECT!
@@ -1392,12 +1352,6 @@ return proto = {
 			this.drawFrame(d);
 	},
 
-	states: {
-		name: ['creating', 'living', 'dying', 'bomb', 'juesi'],
-		life: [2000, Inf, 1000, 5000, 100],
-		next: [1, 2, -1, 0, 2],
-		isInvinc: [1, 0, 1, 1, 1],
-	},
 	data0: {
 		r: 15,
 		h: 1,
@@ -1613,9 +1567,6 @@ return proto = {
 		r: 40,
 		t: 300,
 		b: 20
-	},
-	states: {
-		life: [100, Inf, 50],
 	},
 	data0: {
 		dh: 1/100,
@@ -2082,9 +2033,6 @@ function newEffect(v) {
 			Enemy: RES.frames.EffEnemy,
 			Player: RES.frames.EffPlayer,
 		}[v.clsName],
-		states: {
-			life: [0, 50, 950],
-		},
 		dh: 1,
 		kh: 1/950,
 		duration: 50,
@@ -2102,9 +2050,6 @@ function newEffect(v) {
 			scale: 1.5,
 			opacity: 0.5,
 			blend: 'lighter',
-			states: {
-				life: [50, 50, random(500, 1500)],
-			},
 			dh: 50,
 			kh: 1/random(500, 1500),
 			duration: 100,
@@ -2207,7 +2152,7 @@ function newBomb(player) {
 	};
 	bg.anim(50, function(d, bg) {
 		var p = d.player;
-		if ((p.finished || p.state.d.name !== 'bomb') && !bg.is_dying)
+		if ((p.finished || !p.is_bomb) && !bg.is_dying)
 			bg.die();
 		if (d.elem.object == bg)
 			d.elem.style.opacity = d.ph;
@@ -2276,9 +2221,6 @@ function newBomb(player) {
 		y: player.data.y,
 		frames: RES.frames.EffPlayer,
 		scale: 1.5,
-		states: {
-			life: [100, 50, 850],
-		},
 		dh: 1/100,
 		kh: 1/850,
 		duration: 150,
@@ -2344,7 +2286,7 @@ var hook = {
 		}
 		else if (e == STORY.events.PLAYER_HIT) {
 			STATICS.graze --;
-			v.state.set('juesi');
+			v.juesi();
 			newEffect(v);
 			/*
 			STORY.timeout(function() {
@@ -2377,7 +2319,7 @@ var hook = {
 		else if (e == STORY.events.PLAYER_BOMB) {
 			if (!d.disable_fire) {
 				STATICS.bomb --;
-				v.state.set('bomb');
+				v.bomb();
 				newBomb(v);
 			}
 		}
@@ -2403,9 +2345,6 @@ var hook = {
 				frames: RES.frames.EffPieceR,
 				opacity: 0.6,
 				blend: 'lighter',
-				states: {
-					life: [50, 50, 550],
-				},
 				dh: 1/50,
 				kh: 1/550,
 				duration: 100,
