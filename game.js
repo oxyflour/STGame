@@ -2407,11 +2407,11 @@ ieach([
 	{ init:'f3', para:[500, 10], duration:5000, },
 	{ init:'f4', para:[], duration:5000 },
 	{ init:'f1', para:['s0A2', 8, [[-40, 0], [0, 0]]], duration:2000 },
-	{ init:'f1', para:['s0A1', 8, [[+40, 0], [0, 0]]], duration:5000, next:'boss0' },
+	{ init:'f1', para:['s0A1', 8, [[+40, 0], [0, 0]]], duration:5000, next:'bossA' },
 	{ init:'f3', para:[1000, 20], duration:20000, name:'secH' },
 	{ init:'f1', para:['s0A2', 8, [[-40, 0], [0, 0]]], duration:2000 },
 	{ init:'f1', para:['s0A1', 8, [[+40, 0], [0, 0]]], duration:2000 },
-	{ init:'f1', para:['s0A2', 8, [[-40, 0], [0, 0]]], duration:5000, next:'boss' },
+	{ init:'f1', para:['s0A2', 8, [[-40, 0], [0, 0]]], duration:5000, next:'bossB' },
 ], function(i, v, funcs) {
 	var c = v.name || 'sec'+i, n = v.next || 'sec'+(i+1);
 	tl[c] = {
@@ -2497,7 +2497,7 @@ ieach([
 	{ text:'x0aabbcc', face:'f0b', float:'l', },
 	{ text:'y0aabbcc', face:'f3a', float:'r', },
 	{ text:'x0aabbcc', face:'f0c', float:'l', },
-	{ text:'y0aabbcc', face:'f3a', float:'r', next:'boss2' },
+	{ text:'y0aabbcc', face:'f3a', float:'r', next:'bossC' },
 ], function(i, v, tl) {
 	var c = v.name || 'diag'+i, n = v.next || 'diag'+(i+1);
 	tl[c] = {
@@ -2553,21 +2553,6 @@ ieach([
 		},
 	}
 }, tl);
-tl.boss = {
-	init: function(d) {
-		d.disable_fire = true;
-		killCls('Dannmaku', 'Shield');
-		STORY.timeout(function() {
-			var boss = newBoss();
-			UTIL.addPathAnim(boss, [
-				{ fx:0.0, fy:0.0, v:0.1 },
-				{ fx:0.1, fy:0.1 },
-				{ fx:0.5, fy:0.1 },
-			]);
-		}, 2000);
-	},
-	run: UTIL.newTimeRunner(5000, 'diag'),
-};
 ieach([
 	{
 		pathnodes: [
@@ -2578,20 +2563,38 @@ ieach([
 			{ fx:0.2, fy:0.2, v:0.1, t:2000, },
 		],
 		duration: 30000,
+		name: 'bossA',
 	},
 	{
 		pathnodes: [
 			{ v:0.1 },
 			{ fx:0.5, fy:0.3 },
 		],
-		quitnodes: [
+		duration: 30000,
+		scname: 'spell card 1',
+	},
+	{
+		pathnodes: [
 			{ v:0.3 },
 			{ fx:0.5, fy:0.0 },
 			{ v:0.3 },
 		],
-		duration: 30000,
-		scname: 'spell card 1',
 		next: 'secH',
+		duration: 100,
+		no_countdown: true,
+		invinc: true,
+	},
+	{
+		pathnodes: [
+			{ fx:0.0, fy:0.0, v:0.1 },
+			{ fx:0.1, fy:0.1 },
+			{ fx:0.5, fy:0.1 },
+		],
+		duration: 2000,
+		invinc: true,
+		no_lifebar: true,
+		name: 'bossB',
+		next: 'diag',
 	},
 	{
 		pathnodes: [
@@ -2600,6 +2603,7 @@ ieach([
 			{ fx:0.9, fy:0.5 },
 		],
 		duration: 30000,
+		name: 'bossC',
 	},
 	{
 		life: 100,
@@ -2612,19 +2616,21 @@ ieach([
 		duration: 99000,
 		next: 'end',
 	},
-], function(i, v, tl) {
-	var c = v.name || 'boss'+i, n = v.next || 'boss'+(i+1);
+], function(i, para, tl) {
+	var c = para.name || 'boss'+i, n = para.next || 'boss'+(i+1);
 	tl[c] = {
 		init: function(d) {
 			killCls('Dannmaku');
 			d.age = 0;
-			d.duration = v.duration || Inf;
-			d.life = v.life || Inf;
+			d.disable_fire = para.disable_fire;
+			d.duration = para.duration || Inf;
+			d.life = para.life || Inf;
 
 			d.boss = UTIL.getOneObj('Enemy', 'boss') || newBoss();
-			if (v.pathnodes)
-				UTIL.addPathAnim(d.boss, v.pathnodes);
-			if (!d.boss.lifebar) {
+			if (para.pathnodes)
+				UTIL.addPathAnim(d.boss, para.pathnodes);
+			if (!para.no_lifebar &&
+					(!d.boss.lifebar || d.boss.lifebar.is_dying || d.boss.lifebar.finished)) {
 				var bar = d.boss.lifebar = SPRITE.newObj('Basic', {
 					parent: d.boss,
 					x: GAME.rect.l+24,
@@ -2657,8 +2663,11 @@ ieach([
 					return true;
 				};
 			}
+			else if (para.no_lifebar &&
+					(d.boss.lifebar && !d.boss.lifebar.is_dying && !d.boss.lifebar.finished))
+				d.boss.lifebar.die();
 
-			if (v.duration > 0) {
+			if (para.duration > 0 && !para.no_countdown) {
 				d.countdown = SPRITE.newObj('Basic', {
 					x: GAME.rect.r-20,
 					y: GAME.rect.t+8,
@@ -2673,12 +2682,12 @@ ieach([
 					v.data.text.text = (t < 10 ? '0' : '') + t;
 				}, d);
 			}
-			if (v.scname) {
+			if (para.scname) {
 				d.scname = SPRITE.newObj('Basic', {
 					x: interp(GAME.rect.l, GAME.rect.r, 1)-50,
 					sy: interp(GAME.rect.t, GAME.rect.b, 0)+60,
 					text: {
-						text: v.scname,
+						text: para.scname,
 						font: '15px Arial',
 					},
 				});
@@ -2690,13 +2699,13 @@ ieach([
 		},
 		quit: function(d) {
 			killObj(d.countdown, d.scname);
-			if (v.quitnodes)
-				UTIL.addPathAnim(d.boss, v.quitnodes);
 		},
 		run: function(dt, d) {
 			d.age += dt;
+			if (para.invinc)
+				d.boss.data.damage = 0;
 			if (d.age > d.duration || d.boss.data.damage >= d.life || d.pass) {
-				d.boss.data.damage = v.life || 0;
+				d.boss.data.damage = para.life || 0;
 				return n;
 			}
 		},
