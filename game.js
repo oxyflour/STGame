@@ -1285,31 +1285,32 @@ return proto = {
 	states: {
 		life: [500,	Inf, 500],
 	},
+	data0: {
+		x: interp(GAME.rect.l, GAME.rect.r, 0.5),
+		y: interp(GAME.rect.t, GAME.rect.b, 0.5),
+		text: undefined,
+		color: undefined,
+		font: undefined,
+
+		health: 0, // variable between 0 and 1
+
+		parent: undefined, // if parent is dead, it will kill self too
+
+		frame: undefined, // i.e. {res:'player0L', sx:0, sy:0, sw:10, sh:10, w:10, h:10}
+		blend: undefined,
+		scale: 1,
+		opacity: 1,
+
+		frtick: 50,
+		frames: undefined, // array of frames
+		pathtick: 50,
+		pathnodes: undefined, // array of objects like { x/fx:0, y/fy:0, v:1}
+
+		states: undefined,
+		layer: undefined,
+	},
 	init: function(d) {
-		this.data = d = extend({
-			x: interp(GAME.rect.l, GAME.rect.r, 0.5),
-			y: interp(GAME.rect.t, GAME.rect.b, 0.5),
-			text: undefined,
-			color: undefined,
-			font: undefined,
-
-			health: 0, // variable between 0 and 1
-
-			parent: undefined, // if parent is dead, it will kill self too
-
-			frame: undefined, // i.e. {res:'player0L', sx:0, sy:0, sw:10, sh:10, w:10, h:10}
-			blend: undefined,
-			scale: 1,
-			opacity: 1,
-
-			frtick: 50,
-			frames: undefined, // array of frames
-			pathtick: 50,
-			pathnodes: undefined, // array of objects like { x/fx:0, y/fy:0, v:1}
-
-			states: undefined,
-			layer: undefined,
-		}, d);
+		this.data = d = fill(d, proto.data0);
 		this.state = UTIL.newAliveState(d.states || this.states);
 		if (d.frames)
 			UTIL.addFrameAnim(this, d.frames);
@@ -1371,15 +1372,15 @@ return proto = {
 		t: 40,
 		b: 20
 	},
+	data0: {
+		r: 10,
+		vx: 0,
+		vy: 0,
+		x0: 0,
+		y0: 0,
+	},
 	init: function(d) {
-		d = extend({
-			r: 10,
-			vx: 0,
-			vy: 0,
-			x0: 0,
-			y0: 0,
-		}, d);
-		from.init.call(this, d);
+		from.init.call(this, d = fill(d, proto.data0));
 		this.rect = { l:0, t:0, r:0, b:0 };
 	}
 }
@@ -1505,37 +1506,37 @@ return proto = {
 		next: [1, 2, -1, 0, 2],
 		isInvinc: [1, 0, 1, 1, 1],
 	},
+	data0: {
+		r: 15,
+		h: 1,
+
+		x: interp(GAME.rect.l, GAME.rect.r, 0.5),
+		y: interp(GAME.rect.t, GAME.rect.b, 0.8),
+		vx: 0,
+		vy: 0,
+		x0: 0,
+		y0: 0,
+
+		frtick: 120,
+	  	frames: function(v) {
+			var fs = RES.frames.Player0;
+			if (v.state.is_dying) {
+				fs = RES.frames.PlayerD;
+				if (this.index + 1 > fs.length - 1)
+					this.index = fs.length - 2;
+			}
+			else if (Math.abs(v.data.vx) > 0.1) {
+				fs = v.data.vx < 0 ? RES.frames.PlayerL : RES.frames.PlayerR;
+				if (this.frames != fs)
+					this.index = 0;
+				if (this.index + 1 > fs.length - 1)
+					this.index = 4;
+			}
+			return fs;
+		},
+	},
 	init: function(d) {
-		d = extend({
-			r: 15,
-			h: 1,
-
-			x: interp(GAME.rect.l, GAME.rect.r, 0.5),
-			y: interp(GAME.rect.t, GAME.rect.b, 0.8),
-			vx: 0,
-			vy: 0,
-			x0: 0,
-			y0: 0,
-
-			frtick: 120,
-		  	frames: function(v) {
-				var fs = RES.frames.Player0;
-				if (v.state.is_dying) {
-					fs = RES.frames.PlayerD;
-					if (this.index + 1 > fs.length - 1)
-						this.index = fs.length - 2;
-				}
-				else if (Math.abs(v.data.vx) > 0.1) {
-					fs = v.data.vx < 0 ? RES.frames.PlayerL : RES.frames.PlayerR;
-					if (this.frames != fs)
-						this.index = 0;
-					if (this.index + 1 > fs.length - 1)
-						this.index = 4;
-				}
-				return fs;
-			},
-		}, d);
-		from.init.call(this, d);
+		from.init.call(this, d = fill(d, proto.data0));
 		this.rect = { l:0, t:0, r:0, b:0 };
 
 		this.state = UTIL.newAliveState(d.states || this.states, {
@@ -1576,9 +1577,10 @@ return proto = {
 		life: [200, Inf, 500],
 		mkDamage: [0, 1, 0],
 	},
+	data0: {
+	},
 	init: function(d) {
-		from.init.call(this, d);
-		this.data.mass = this.data.r;
+		from.init.call(this, d = fill(d, proto.data0));
 	}
 }
 });
@@ -1649,14 +1651,15 @@ return proto = {
 		life: [500, Inf, 500],
 		mkDamage: [0, 1, 0],
 	},
+	data0: {
+		r: 20,
+		y: interp(GAME.rect.t, GAME.rect.b, 0.1),
+		life: 2,
+		respawn: 0,
+		damage: 0,
+	},
 	init: function(d) {
-		from.init.call(this, extend({
-			r: 20,
-			y: interp(GAME.rect.t, GAME.rect.b, 0.1),
-			life: 2,
-			respawn: 0,
-			damage: 0,
-		}, d));
+		from.init.call(this, d = fill(d, proto.data0));
 	}
 }
 });
@@ -1681,8 +1684,10 @@ return proto =  {
 		life: [2000, Inf, 500],
 		mkDamage: [20, 20, 20],
 	},
+	data0: {
+	},
 	init: function(d) {
-		from.init.call(this, d);
+		from.init.call(this, d = fill(d, proto.data0));
 	}
 }
 });
@@ -1727,15 +1732,17 @@ return proto = {
 	states: {
 		life: [100, Inf, 50],
 	},
+	data0: {
+		r: 60,
+		vy: -0.4,
+		collected: undefined,
+		collected_auto: false,
+	},
 	init: function(d) {
-		from.init.call(this, extend({
-			r: 60,
-			vy: -0.4,
-			collected: undefined,
-			collected_auto: false,
+		from.init.call(this, d = fill(d, proto.data0, {
 			frames: RES.frames.Drops[2],
 			frame_small: RES.frames.Drops[8],
-		}, d));
+		}));
 	}
 }
 });
@@ -1747,11 +1754,12 @@ return proto =  {
 		life: [50, Inf, 400],
 		mkDamage: [0, 1, 0],
 	},
+	data0: {
+		r: 5,
+		vy: -1.2,
+	},
 	init: function(d) {
-		from.init.call(this, extend({
-			r: 5,
-			vy: -1.2,
-		}, d));
+		from.init.call(this, d = fill(d, proto.data0));
 	}
 }
 });
@@ -1763,11 +1771,12 @@ return proto = {
 		life: [100, Inf, 200],
 		mkDamage: [0, 1, 0],
 	},
+	data0: {
+		r: 5,
+		vy: 0.3,
+	},
 	init: function(d) {
-		from.init.call(this, extend({
-			r: 5,
-			vy: 0.3,
-		}, d));
+		from.init.call(this, d = fill(d, proto.data0));
 	}
 }
 });
