@@ -1057,13 +1057,129 @@ var UTIL = {
 
 SPRITE.newCls('Base', function(from, proto) {
 return proto = {
+	layer: 'L10',
 	run: function(dt) {
+		var d = this.data;
+
+		if (d.ph < 1 || d.dh <= 0)
+			d.ph = limit_between(d.ph + d.dh*dt, 0, 1);
+		if (d.ph == 0 && d.dh < 0)
+			this.finished = true;
+
+		this.is_creating = d.ph < 1 && d.dh > 0;
+		this.is_dying = d.ph < 1 && d.dh < 0;
+		this.is_healthy = d.ph == 1;
+
+		this.runBase && this.runBase(dt, d);
+
+		if (d.parent && (d.parent.finished || d.parent.data.dh < 0) && d.dh >= 0)
+			d.dh = -d.kh;
 	},
-	draw: function() {
+	draw: function(dc) {
+		var d = this.data;
+		if (d.ph == 0)
+			return;
+
+		dc.save();
+
+		if (d.ph < 1 || d.opacity < 1)
+			dc.globalAlpha = d.ph * d.opacity;
+		if (d.blend)
+			dc.globalCompositeOperation = d.blend;
+		if (d.x || d.y)
+			dc.translate(d.x, d.y);
+		if (d.rotate)
+			dc.rotate(d.rotate);
+		if (!this.drawBase || this.drawBase(dc, d)) {
+			if (d.frame)
+				this.drawFrame(dc, d.frame, d.scale_x, d.scale_y);
+			else if (d.text)
+				this.drawText(dc, d.text);
+		}
+
+		dc.restore();
+	},
+	anim: function(t, fn, x, id) {
+		var t = newTicker(t, function(obj) {
+			this.finished = obj.finished || fn(x, obj);
+		}, this);
+
+		STORY.anim.add(t);
+		t.f(t.d);
+
+		if (id) {
+			var d = this.data,
+				k = 'am#' + id;
+			if (d[k])
+				d[k].finished = true;
+			d[k] = t;
+		}
+
+		return t;
+	},
+	die: function() {
+		this.data.dh = this.data.kh;
+	},
+
+	runBase: undefined,
+	drawBase: undefined,
+	drawText: function(dc, t) {
+		if (t.substring) {
+			DC.fillText(d.text, d.x, d.y);
+		}
+		else if (t.text) {
+			if (t.res && t.map) {
+				var m = t.map,
+					w = m.cw * t.text.length,
+					h = m.ch;
+				ieach(t.text, function(i, c) {
+					var pos = m[c];
+					dc.drawImageInt(RES[t.res], pos.x, pos.y, m.cw, m.ch,
+						w/2 + m.cw*i, h/2, m.cw, m.ch);
+				});
+			}
+			else {
+				if (t.font)
+					dc.font = t.font;
+				if (t.color)
+					dc.fillStyle = t.color;
+				dc.fillText(t.text, 0, 0);
+			}
+		}
+	},
+	drawFrame: function(dc, f, scx, scy) {
+		var w = f.w * scx, h = f.h * scy;
+		dc.drawImageInt(RES[f.res], f.x, f.y, f.w, f.h,
+			-w/2, -h/2, w, h);
+	},
+
+	data0: {
+		// for run
+		x: 0,
+		y: 0,
+		ph: 0,				// point of health, will be between 1 & 0,
+		dh: 1/1000, 		// change speed of ph
+		kh: 1/1000,		// predefined speed of dying
+		parent: undefined,
+
+		// for draw
+		opacity: 1,
+		scale_x: 1,
+		scale_y: 1,
+		rotate: 0,
+		blend: '',
+		frame: undefined,	// like { res:'', x:0, y:0, w:1, h:1 }
+		text: undefined,	// '' or { font:'', color:'', text:'' } or { res:'', map:{}, text:'' }
 	},
 	init: function(d) {
-		this.data = d;
-	},
+		this.data = fill(d, proto.data0);
+		if (d.no_draw)
+			this.draw = undefined;
+		if (d.frames)
+			UTIL.addFrameAnim(this, d.frames);
+		if (d.pathnodes)
+			UTIL.addPathAnim(this, d.pathnodes);
+	}
 }
 });
 
