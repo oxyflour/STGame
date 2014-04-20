@@ -1725,11 +1725,11 @@ function newDannmaku(d) {
 		});
 		v.anim(50, function(k, v) {
 			var d = v.data;
-			if (v.age < d.decrease_duration) {
+			if (v.data.age < d.decrease_duration) {
 				d.vx *= d.decrease_by;
 				d.vy *= d.decrease_by;
 			}
-			else if (v.age < d.decrease_duration + d.duration) {
+			else if (v.data.age < d.decrease_duration + d.duration) {
 				if (d.target && !d.target.finished) {
 					var e = d.target.data,
 						dx = e.x - d.x + d.offset_x,
@@ -2108,7 +2108,7 @@ function newBackground(elems) {
 			e.style.MozTransform = trans2;
 			e.style.opacity = e.opacity * v.data.ph;
 		});
-		var age = bg.age,
+		var age = bg.data.age,
 			begin = 25000,
 			end = 30000;
 		if (age >= begin && age <= end) {
@@ -2462,11 +2462,11 @@ ieach([
 				vx0: random(-0.1, 0.1),
 			});
 			enm.anim(50, function(d, v) {
-				if (v.age > 600 && !v.fired) {
+				if (v.data.age > 600 && !v.fired) {
 					v.data.vy = 0;
 					v.fired = true;
 				}
-				else if (v.age > 2000) {
+				else if (v.data.age > 2000) {
 					v.data.vy += v.data.dvy;
 					v.data.vx = v.data.vx0;
 				}
