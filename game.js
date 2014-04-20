@@ -1060,7 +1060,7 @@ return proto = {
 	layer: 'L10',
 	runBasic: undefined,
 	run: function(dt) {
-		var d = this.data, s = this.state;
+		var d = this.data;
 
 		// will replace this.state later
 		if (d.ph < 1 || d.dh <= 0)
@@ -1077,22 +1077,18 @@ return proto = {
 		this.is_living = d.ph == 1;
 		//...
 
-		s.run(dt);
-		if (!s.d.life)
-			this.finished = true;
-
 		var p = d.parent;
 		if (p && (p.finished || p.is_dying) && !this.is_dying) 
 			this.die();
 
 		if (this.runBasic)
-			this.runBasic(dt, d, s);
+			this.runBasic(dt, d);
 
 		if (d.x + d.y !== d.y + d.x)
 			this.finished = true;
 	},
 	drawBasic: undefined,
-	drawText: function(d, s) {
+	drawText: function(d) {
 		if (d.font && d.font.res && d.font.map) {
 			var m = d.font.map,
 				w = m.cw * d.text.length,
@@ -1111,7 +1107,7 @@ return proto = {
 			DC.fillText(d.text, d.x, d.y);
 		}
 	},
-	drawFrame: function(d, s) {
+	drawFrame: function(d) {
 		var f = d.frame,
 			w = (f.w || f.sw) * d.scale,
 			h = (f.h || f.sh) * d.scale;
@@ -1131,7 +1127,7 @@ return proto = {
 			d.x-w/2, d.y-h/2, w, h);
 	},
 	draw: function() {
-		var d = this.data, s = this.state;
+		var d = this.data;
 		if (d.ph > 0) {
 			DC.save();
 			if (d.ph < 1 || d.opacity < 1)
@@ -1140,11 +1136,11 @@ return proto = {
 				DC.globalCompositeOperation = d.blend;
 
 			if (this.drawBasic)
-				this.drawBasic(d, s);
+				this.drawBasic(d);
 			else if (d.frame)
-				this.drawFrame(d, s);
+				this.drawFrame(d);
 			else
-				this.drawText(d, s);
+				this.drawText(d);
 			DC.restore();
 		}
 	},
@@ -1232,11 +1228,11 @@ return proto = {
 			STORY.on(STORY.events.OBJECT_OUT, this);
 		}
 	},
-	runBasic: function(dt, d, s) {
+	runBasic: function(dt, d) {
 		d.x0 = d.x;
 		d.y0 = d.y;
 		if (this.runCircle)
-			this.runCircle(dt, d, s);
+			this.runCircle(dt, d);
 		d.x += d.vx * dt;
 		d.y += d.vy * dt;
 
@@ -1244,7 +1240,7 @@ return proto = {
 		this.mkRect(rt, d);
 		this.checkPosition(rt, sp);
 	},
-	drawCircle: function(d, s) {
+	drawCircle: function(d) {
 		if (d.color)
 			DC.fillStyle = d.color;
 		DC.beginPath();
@@ -1252,11 +1248,11 @@ return proto = {
 		DC.closePath();
 		DC.fill();
 	},
-	drawBasic: function(d, s) {
+	drawBasic: function(d) {
 		if (d.frame)
-			this.drawFrame(d, s);
+			this.drawFrame(d);
 		else
-			this.drawCircle(d, s);
+			this.drawCircle(d);
 	},
 	space: {
 		l: 40,
@@ -1300,14 +1296,18 @@ return proto = {
 				circles_hit(d, e)
 		}
 		else if (that.state.d.mkDamage) {
-			if (!this.state.d.isInvinc && circle_intersect({ x:d.x, y:d.y, r:d.h }, e))
+			if (!this.is_invinc && circle_intersect({ x:d.x, y:d.y, r:d.h }, e))
 				STORY.on(STORY.events.PLAYER_HIT, this);
 			else if (!e.grazed && circle_intersect(d, e))
 				STORY.on(STORY.events.PLAYER_GRAZE, e.grazed = this);
 		}
 	},
 	
-	runPlayer: function(dt, d, s) {
+	runPlayer: function(dt, d) {
+		this.state.run(dt);
+		if (!this.state.d.life)
+			this.finished = true;
+
 		var m = GAME.keyste.shiftKey,
 			v = m ? 0.12 : 0.24;
 		d.slowMode = m;
@@ -1353,21 +1353,21 @@ return proto = {
 			d.fire_tick.run(dt);
 
 		// BOMB!
-		if (GAME.keyste[d.conf.key_bomb] && !this.is_dying && s.d.name !== 'bomb')
+		if (GAME.keyste[d.conf.key_bomb] && !this.is_dying && this.state.d.name !== 'bomb')
 			STORY.on(STORY.events.PLAYER_BOMB, this);
 
 		// AUTO COLLECT!
 		if (d.y < interp(GAME.rect.t, GAME.rect.b, 0.3))
 			STORY.on(STORY.events.PLAYER_AUTOCOLLECT, this);
 	},
-	runBasic: function(dt, d, s) {
+	runBasic: function(dt, d) {
 		if (this.finished) {
 			STORY.on(STORY.events.PLAYER_DEAD, this);
 			return;
 		}
 
 		if (!this.is_dying)
-			this.runPlayer(dt, d, s);
+			this.runPlayer(dt, d);
 
 		// limit player move inside boundary
 		if (d.x-d.r < GAME.rect.l)
@@ -1384,12 +1384,12 @@ return proto = {
 		this.rect.r = d.x + d.r*1.1;
 		this.rect.b = d.y + d.r*1.1;
 	},
-	drawBasic: function(d, s) {
-		if (this.state.d.isInvinc)
+	drawBasic: function(d) {
+		if (this.is_invinc)
 			DC.globalAlpha = 0.5;
 
 		if (d.frame)
-			this.drawFrame(d, s);
+			this.drawFrame(d);
 	},
 
 	states: {
@@ -1494,7 +1494,7 @@ return proto = {
 		rt.r = Math.max(d.x0, d.x, d.x + d.dx);
 		rt.b = Math.max(d.y0, d.y, d.y + d.dy);
 	},
-	drawBasic: function(d, s) {
+	drawBasic: function(d) {
 		DC.beginPath();
 		DC.moveTo(d.x, d.y);
 		DC.lineTo(d.x + d.dx, d.y + d.dy);
@@ -1592,7 +1592,7 @@ return proto =  {
 SPRITE.newCls('Drop', 'Circle', function(from, proto) {
 return proto = {
 	layer: 'L20',
-	runCircle: function(dt, d, s) {
+	runCircle: function(dt, d) {
 		var that = d.collected;
 		if (that && that.finished)
 			that = d.collected = UTIL.getOneObj('Player');
@@ -1611,14 +1611,14 @@ return proto = {
 			d.vx = 0;
 		}
 	},
-	drawBasic: function(d, s) {
+	drawBasic: function(d) {
 		from.drawBasic.call(this, d);
 		if (d.y < GAME.rect.t && d.frame_small) this.drawFrame({
 			x: d.x,
 			y: GAME.rect.t + 16,
 			scale: 1,
 			frame: d.frame_small,
-		}, s);
+		});
 	},
 	space: {
 		l: 40,
@@ -1700,7 +1700,7 @@ function newPlayer() {
 			parent: p,
 			frames: RES.frames[a.frames],
 		});
-		p.onmyous[k].runBasic = function(dt, d, s) {
+		p.onmyous[k].runBasic = function(dt, d) {
 			var p = d.parent,
 				r = 25,
 				t = d.theta * Math.PI;
@@ -1714,7 +1714,7 @@ function newPlayer() {
 		parent: p,
 		frames: RES.frames.PSlow,
 	});
-	p.pslow.runBasic = function(dt, d, s) {
+	p.pslow.runBasic = function(dt, d) {
 		var p = d.parent;
 		d.x = p.data.x;
 		d.y = p.data.y;
@@ -1775,7 +1775,6 @@ function newBullet(d) {
 				opacity: 0.7,
 			}).anim(50, function(k, v) {
 				var d = v.data,
-					s = v.state,
 					u = d.to,
 					e = u && u.data;
 				if (u && !u.finished && u.state.d.mkDamage && !v.is_dying)
@@ -1801,12 +1800,12 @@ function newDannmaku(d) {
 			offset_y: 0,
 		});
 		v.anim(50, function(k, v) {
-			var d = v.data, s = v.state;
-			if (s.d.age < d.decrease_duration) {
+			var d = v.data;
+			if (v.age < d.decrease_duration) {
 				d.vx *= d.decrease_by;
 				d.vy *= d.decrease_by;
 			}
-			else if (s.d.age < d.decrease_duration + d.duration) {
+			else if (v.age < d.decrease_duration + d.duration) {
 				if (d.target && !d.target.finished) {
 					var e = d.target.data,
 						dx = e.x - d.x + d.offset_x,
@@ -1842,7 +1841,7 @@ function newDannmaku(d) {
 			d.theta += d.generator.count * d.offset_count;
 		if (d.flip_each_count && d.generator)
 			d.speed *= d.generator.count % 2 ? 1 : -1;
-		v.runCircle = function(dt, d, s) {
+		v.runCircle = function(dt, d) {
 			var f = d.from;
 			if (f && !f.finished && !f.is_dying) {
 				d.x = d.radius*Math.cos(d.theta) + d.source_x;
@@ -1905,7 +1904,7 @@ function newDannmaku(d) {
 				parent: last,
 			});
 			last.space = v.space;
-			last.runCircle = function(dt, d, s) {
+			last.runCircle = function(dt, d) {
 				var pd = d.head.data;
 				d.x = pd.x + d.dist * Math.cos(pd.theta);
 				d.y = pd.y + d.dist * Math.sin(pd.theta);
@@ -2059,7 +2058,7 @@ function newBoss() {
 				radius2: 10,
 			}
 		});
-		eff.runBasic = function(dt, d, s) {
+		eff.runBasic = function(dt, d) {
 			var p = d.parent,
 				r = d.rot;
 			r.theta += r.dtheta * dt;
@@ -2077,13 +2076,13 @@ function newBoss() {
 		eff.draw = return_nothing;
 		return eff;
 	});
-	boss.drawBasic = function(d, s) {
+	boss.drawBasic = function(d) {
 		ieach(boss.effects, function(i, v) {
 			if (v.data.z < 0)
 				v.drawEffects();
 		});
 		if (d.frame)
-			this.drawFrame(d, s);
+			this.drawFrame(d);
 		ieach(boss.effects, function(i, v) {
 			if (v.data.z >= 0)
 				v.drawEffects();
@@ -2128,7 +2127,7 @@ function newEffect(v) {
 			kh: 1/random(500, 1500),
 			duration: 100,
 		})
-		p.runCircle = function(dt, d, s) {
+		p.runCircle = function(dt, d) {
 			d.scale = ease_in(d.ph) * 2 + 0.5;
 		};
 		p.anim(50, function(k, v) {
@@ -2191,7 +2190,7 @@ function newBackground(elems) {
 			e.style.MozTransform = trans2;
 			e.style.opacity = e.opacity * v.data.ph;
 		});
-		var age = bg.state.d.age,
+		var age = bg.age,
 			begin = 25000,
 			end = 30000;
 		if (age >= begin && age <= end) {
@@ -2218,7 +2217,7 @@ function newBomb(player) {
 	});
 	bg.draw = return_nothing;
 	bg.data.elem.object = bg;
-	bg.runCircle = function(dt, d, s) {
+	bg.runCircle = function(dt, d) {
 		var p = d.player;
 		d.x = p.data.x;
 		d.y = p.data.y;
@@ -2252,12 +2251,12 @@ function newBomb(player) {
 			kh: 1/500,
 			duration: 5000,
 		});
-		sh.runCircle = function(dt, d, s) {
+		sh.runCircle = function(dt, d) {
 			d.r = 1 + ease_out(d.ph) * 40;
 			d.scale = d.r / 30;
 		};
 		sh.anim(50, function(k, v) {
-			var d = v.data, s = v.state;
+			var d = v.data;
 			if (!d.to || d.to.finished)
 				d.to = UTIL.getNearestAlive(v, 'Enemy');
 			if (d.to && !d.to.finished && d.to != v.hit_with)
@@ -2281,7 +2280,7 @@ function newBomb(player) {
 				opacity: 0.5,
 				blend: 'lighter',
 				size: random(1.0, 1.6),
-			}).runBasic = function(dt, d, s) {
+			}).runBasic = function(dt, d) {
 				var p = d.parent;
 				d.dist = p.data.r * 0.4;
 				d.theta += d.dtheta * dt + random(-0.01, 0.01);
@@ -2429,9 +2428,9 @@ var hook = {
 					life: [50, 50, 550],
 				},
 				dh: 1/50,
-				kh: 1/50,
+				kh: 1/550,
 				duration: 100,
-			}).runCircle = function(dt, d, s) {
+			}).runCircle = function(dt, d) {
 				d.scale = 0.5 + d.ph;
 			};
 		}
@@ -2476,7 +2475,7 @@ tl.init = {
 				color: 'Silver',
 				sy: interp(GAME.rect.t, GAME.rect.b, 0.5) + 40,
 			});
-			d.text.runBasic = function(dt, d, s) {
+			d.text.runBasic = function(dt, d) {
 				if (!this.is_dying)
 					d.y = d.sy - ease_out(d.ph)*10;
 			};
@@ -2554,11 +2553,11 @@ ieach([
 				vx0: random(-0.1, 0.1),
 			});
 			enm.anim(50, function(d, v) {
-				if (v.state.d.age > 600 && !v.fired) {
+				if (v.age > 600 && !v.fired) {
 					v.data.vy = 0;
 					v.fired = true;
 				}
-				else if (v.state.d.age > 2000) {
+				else if (v.age > 2000) {
 					v.data.vy += v.data.dvy;
 					v.data.vx = v.data.vx0;
 				}
@@ -2719,8 +2718,8 @@ ieach([
 					y: GAME.rect.t+8,
 					frame: { res:'front', sx:0, sy:144, sw:48, sh:16, w:48, h:16 },
 				});
-				bar.drawBasic = function(d, s) {
-					this.drawFrame(d, s);
+				bar.drawBasic = function(d) {
+					this.drawFrame(d);
 					this.drawText({
 						font: {
 							res: 'ascii_yellow',
@@ -2729,7 +2728,7 @@ ieach([
 						text: '0',
 						x: d.x + 24 + 8,
 						y: d.y,
-					}, s);
+					});
 					var p = d.parent,
 						x = d.x + 24 + 16,
 						y = d.y + 2,
@@ -2768,7 +2767,7 @@ ieach([
 					text: v.scname,
 					font: '15px Arial',
 				});
-				d.scname.runBasic = function(dt, d, s) {
+				d.scname.runBasic = function(dt, d) {
 					if (this.is_creating)
 						d.y = d.sy - ease_in(d.ph)*10;
 				};
