@@ -1190,6 +1190,21 @@ return proto = {
 	run: function(dt) {
 		var d = this.data, s = this.state;
 
+		// will replace this.state later
+		if (d.ph < 1 || d.dh <= 0)
+			d.ph = limit_between(d.ph + d.dh*dt, 0, 1);
+		if (d.ph == 0 && d.dh < 0)
+			this.finished = true;
+
+		d.age += dt;
+		if (d.age > d.duration)
+			d.dh = -d.kh;
+
+		this.is_creating = d.ph < 1 && d.dh > 0;
+		this.is_dying = d.ph < 1 && d.dh < 0;
+		this.is_healthy = d.ph == 1;
+		//...
+
 		s.run(dt);
 		if (!s.d.life)
 			this.finished = true;
@@ -1282,6 +1297,9 @@ return proto = {
 
 		return t;
 	},
+	die: function() {
+		this.data.dh = this.data.kh;
+	},
 	states: {
 		life: [500,	Inf, 500],
 	},
@@ -1308,6 +1326,13 @@ return proto = {
 
 		states: undefined,
 		layer: undefined,
+
+		// add later
+		ph: 0,		// point of health, between 0 & 1
+		dh: 1/100,	// delta of dh
+		kh: 1/100,	// dh=-kh when call die();
+		age: 0,
+		duration: Inf,
 	},
 	init: function(d) {
 		this.data = d = fill(d, proto.data0);
