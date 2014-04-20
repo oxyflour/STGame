@@ -1074,12 +1074,12 @@ return proto = {
 			if (d.blend)
 				DC.globalCompositeOperation = d.blend;
 
-			if (this.drawBasic)
-				this.drawBasic(d);
-			else if (d.frame)
-				this.drawFrame(d);
-			else
-				this.drawText(d);
+			if (!this.drawBasic || this.drawBasic(d)) {
+				if (d.frame)
+					this.drawFrame(d);
+				else
+					this.drawText(d);
+			}
 			DC.restore();
 		}
 	},
@@ -1167,7 +1167,8 @@ return proto = {
 		this.mkRect(rt, d);
 		this.checkPosition(rt, sp);
 	},
-	drawCircle: function(d) {
+	drawCircle: undefined,
+	drawRound: function(d) {
 		if (d.color)
 			DC.fillStyle = d.color;
 		DC.beginPath();
@@ -1176,10 +1177,12 @@ return proto = {
 		DC.fill();
 	},
 	drawBasic: function(d) {
-		if (d.frame)
-			this.drawFrame(d);
-		else
-			this.drawCircle(d);
+		if (!this.drawCircle || this.drawCircle(d)) {
+			if (d.frame)
+				return true;
+			else
+				this.drawRound(d);
+		}
 	},
 	space: {
 		l: 40,
@@ -1334,9 +1337,7 @@ return proto = {
 	drawBasic: function(d) {
 		if (this.is_invinc)
 			DC.globalAlpha = 0.5;
-
-		if (d.frame)
-			this.drawFrame(d);
+		return true;
 	},
 
 	data0: {
@@ -1544,13 +1545,13 @@ return proto = {
 		}
 	},
 	drawBasic: function(d) {
-		from.drawBasic.call(this, d);
 		if (d.y < GAME.rect.t && d.frame_small) this.drawFrame({
 			x: d.x,
 			y: GAME.rect.t + 16,
 			scale: 1,
 			frame: d.frame_small,
 		});
+		return true;
 	},
 	space: {
 		l: 40,
@@ -2627,7 +2628,6 @@ ieach([
 					frame: { res:'front', sx:0, sy:144, sw:48, sh:16, w:48, h:16 },
 				});
 				bar.drawBasic = function(d) {
-					this.drawFrame(d);
 					this.drawText({
 						font: {
 							res: 'ascii_yellow',
@@ -2650,6 +2650,7 @@ ieach([
 					DC.strokeStyle = 'white';
 					DC.lineWidth = 5;
 					DC.stroke();
+					return true;
 				};
 			}
 
