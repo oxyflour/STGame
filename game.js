@@ -130,8 +130,8 @@ function sqrt_sum(x, y) {
 	return Math.sqrt(squa_sum(x, y));
 }
 function rect_intersect(rt1, rt2) {
-	return !(rt1.l > rt2.r || rt1.r < rt2.l ||
-		rt1.t > rt2.b || rt1.b < rt2.t);
+	return rt1.l < rt2.r && rt2.l < rt1.r &&
+		rt1.t < rt2.b && rt2.t < rt1.b;
 }
 function circle_intersect(cr1, cr2) {
 	return squa_sum(cr1.x - cr2.x, cr1.y - cr2.y) < 
