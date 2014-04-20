@@ -1529,7 +1529,7 @@ return proto = {
 		var that = d.collected;
 		if (that && that.finished)
 			that = d.collected = UTIL.getOneObj('Player');
-		if (that && !that.finished && !that.is_dying) {
+		if (that && !that.finished && !that.is_dying && !this.is_creating) {
 			var e = that.data,
 				v = d.collected_auto ? 0.6 : sqrt_sum(d.vx, d.vy);
 			redirect_object(d, e, v);
@@ -1560,7 +1560,7 @@ return proto = {
 		b: 20
 	},
 	data0: {
-		dh: 1/100,
+		dh: 1/500,
 		kh: 1/50,
 		r: 60,
 		vy: -0.4,
