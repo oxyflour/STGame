@@ -1205,6 +1205,9 @@ return proto = {
 		this.is_healthy = d.ph == 1;
 		//...
 
+		if (s.is_dying)
+			this.die();
+
 		s.run(dt);
 		if (!s.d.life)
 			this.finished = true;
@@ -1263,10 +1266,10 @@ return proto = {
 	},
 	draw: function() {
 		var d = this.data, s = this.state;
-		if (d.health > 0) {
+		if (d.ph > 0) {
 			DC.save();
-			if (d.health < 1 || d.opacity < 1)
-				DC.globalAlpha = d.health*d.opacity;
+			if (d.ph < 1 || d.opacity < 1)
+				DC.globalAlpha = d.ph*d.opacity;
 			if (d.blend)
 				DC.globalCompositeOperation = d.blend;
 
@@ -1298,7 +1301,7 @@ return proto = {
 		return t;
 	},
 	die: function() {
-		this.data.dh = this.data.kh;
+		this.data.dh = -this.data.kh;
 	},
 	states: {
 		life: [500,	Inf, 500],
@@ -1329,8 +1332,8 @@ return proto = {
 
 		// add later
 		ph: 0,		// point of health, between 0 & 1
-		dh: 1/100,	// delta of dh
-		kh: 1/100,	// dh=-kh when call die();
+		dh: 1/500,	// delta of dh
+		kh: 1/500,	// dh=-kh when call die();
 		age: 0,
 		duration: Inf,
 	},
@@ -1542,6 +1545,9 @@ return proto = {
 		x0: 0,
 		y0: 0,
 
+		dh: 1/2000,
+		kh: 1/1000,
+
 		frtick: 120,
 	  	frames: function(v) {
 			var fs = RES.frames.Player0;
@@ -1603,6 +1609,8 @@ return proto = {
 		mkDamage: [0, 1, 0],
 	},
 	data0: {
+		dh: 1/200,
+		kh: 1/500,
 	},
 	init: function(d) {
 		from.init.call(this, d = fill(d, proto.data0));
@@ -1642,11 +1650,14 @@ return proto = {
 		life: [200, Inf, 500],
 		mkDamage: [0, 1, 0],
 	},
+	data0: {
+		dh: 1/200,
+		kh: 1/500,
+		dx: 0,
+		dy: (GAME.rect.b - GAME.rect.t)*0.2,
+	},
 	init: function(d) {
-		fromt.init.call(this, extend({
-			dx: 0,
-			dy: (GAME.rect.b - GAME.rect.t)*0.2,
-		}, d));
+		from.init.call(this, d = fill(d, proto.data0));
 	}
 }
 });
@@ -1677,6 +1688,8 @@ return proto = {
 		mkDamage: [0, 1, 0],
 	},
 	data0: {
+		dh: 1/100,
+		kh: 1/100,
 		r: 20,
 		y: interp(GAME.rect.t, GAME.rect.b, 0.1),
 		life: 2,
@@ -1710,6 +1723,8 @@ return proto =  {
 		mkDamage: [20, 20, 20],
 	},
 	data0: {
+		dh: 1/2000,
+		kh: 1/500,
 	},
 	init: function(d) {
 		from.init.call(this, d = fill(d, proto.data0));
@@ -1758,6 +1773,8 @@ return proto = {
 		life: [100, Inf, 50],
 	},
 	data0: {
+		dh: 1/100,
+		kh: 1/50,
 		r: 60,
 		vy: -0.4,
 		collected: undefined,
@@ -1780,6 +1797,8 @@ return proto =  {
 		mkDamage: [0, 1, 0],
 	},
 	data0: {
+		dh: 1/50,
+		kh: 1/400,
 		r: 5,
 		vy: -1.2,
 	},
@@ -1797,6 +1816,8 @@ return proto = {
 		mkDamage: [0, 1, 0],
 	},
 	data0: {
+		dh: 1/100,
+		kh: 1/200,
 		r: 5,
 		vy: 0.3,
 	},
@@ -2226,6 +2247,9 @@ function newEffect(v) {
 		states: {
 			life: [0, 50, 950],
 		},
+		dh: 1,
+		kh: 1/950,
+		duration: 50,
 	});
 	array(8, function(i) {
 		var p = SPRITE.newObj('Circle', {
@@ -2243,9 +2267,12 @@ function newEffect(v) {
 			states: {
 				life: [50, 50, random(500, 1500)],
 			},
+			dh: 50,
+			kh: 1/random(500, 1500),
+			duration: 100,
 		})
 		p.runCircle = function(dt, d, s) {
-			d.scale = ease_in(d.health) * 2 + 0.5;
+			d.scale = ease_in(d.ph) * 2 + 0.5;
 		};
 		p.anim(50, function(k, v) {
 			var d = v.data;
@@ -2305,7 +2332,7 @@ function newBackground(elems) {
 			e.style.webkitTransform = trans2;
 			e.style.msTransform = trans;
 			e.style.MozTransform = trans2;
-			e.style.opacity = e.opacity * v.data.health;
+			e.style.opacity = e.opacity * v.data.ph;
 		});
 		var age = bg.state.d.age,
 			begin = 25000,
@@ -2338,14 +2365,14 @@ function newBomb(player) {
 		var p = d.player;
 		d.x = p.data.x;
 		d.y = p.data.y;
-		d.r = s.is_dying ? 400 - d.health*300 : d.health * 100;
+		d.r = s.is_dying ? 400 - d.ph*300 : d.ph * 100;
 	};
 	bg.anim(50, function(d, bg) {
 		var p = d.player;
 		if ((p.finished || p.state.d.name !== 'bomb') && !bg.state.is_dying)
 			bg.state.die();
 		if (d.elem.object == bg)
-			d.elem.style.opacity = d.health;
+			d.elem.style.opacity = d.ph;
 	}, bg.data);
 	bg.anim(800, function(d, bg) {
 		if (bg.state.is_dying)
@@ -2364,9 +2391,12 @@ function newBomb(player) {
 				life: [3000, 2000, 500],
 				mkDamage: [20, 20, 0],
 			},
+			dh: 1/3000,
+			kh: 1/500,
+			duration: 5000,
 		});
 		sh.runCircle = function(dt, d, s) {
-			d.r = 1 + ease_out(d.health) * 40;
+			d.r = 1 + ease_out(d.ph) * 40;
 			d.scale = d.r / 30;
 		};
 		sh.anim(50, function(k, v) {
@@ -2401,7 +2431,7 @@ function newBomb(player) {
 				d.x = p.data.x + d.dist * Math.cos(d.theta);
 				d.y = p.data.y + d.dist * Math.sin(d.theta);
 				if (!s.is_dying)
-					d.scale = ease_out(d.health) * d.size;
+					d.scale = ease_out(d.ph) * d.size;
 			};
 		});
 	});
@@ -2414,6 +2444,9 @@ function newBomb(player) {
 		states: {
 			life: [100, 50, 850],
 		},
+		dh: 1/100,
+		kh: 1/850,
+		duration: 150,
 	});
 }
 function killCls() {
@@ -2537,9 +2570,12 @@ var hook = {
 				blend: 'lighter',
 				states: {
 					life: [50, 50, 550],
-				}
+				},
+				dh: 1/50,
+				kh: 1/50,
+				duration: 100,
 			}).runCircle = function(dt, d, s) {
-				d.scale = 0.5 + d.health;
+				d.scale = 0.5 + d.ph;
 			};
 		}
 		else if (e == STORY.events.DANNMAKU_HIT) {
@@ -2585,7 +2621,7 @@ tl.init = {
 			});
 			d.text.runBasic = function(dt, d, s) {
 				if (!s.is_dying)
-					d.y = d.sy - ease_out(d.health)*10;
+					d.y = d.sy - ease_out(d.ph)*10;
 			};
 		}, 400, d);
 	},
@@ -2800,9 +2836,9 @@ ieach([
 			$i('.face', face).className = 'face '+v.face;
 
 			d.text.anim(50, function(d, v) {
-				if (v.data.health <= 1) {
-					bg.style.opacity = v.data.health;
-					var dx = (1 - v.data.health) * -64;
+				if (v.data.ph <= 1) {
+					bg.style.opacity = v.data.ph;
+					var dx = (1 - v.data.ph) * -64;
 					fl.style.marginLeft = dx+'px';
 					fr.style.marginRight = dx+'px';
 				}
@@ -2929,7 +2965,7 @@ ieach([
 						x = d.x + 24 + 16,
 						y = d.y + 2,
 						len = GAME.rect.r - 50 - x;
-					len *= (s.is_creating ? ease_out(d.health) : 1) *
+					len *= (s.is_creating ? ease_out(d.ph) : 1) *
 						(p.data.life - p.data.damage) / p.data.life;
 					DC.beginPath();
 					DC.moveTo(x, y);
@@ -2965,7 +3001,7 @@ ieach([
 				});
 				d.scname.runBasic = function(dt, d, s) {
 					if (s.is_creating)
-						d.y = d.sy - ease_in(d.health)*10;
+						d.y = d.sy - ease_in(d.ph)*10;
 				};
 			}
 		},
