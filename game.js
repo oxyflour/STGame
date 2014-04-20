@@ -1150,10 +1150,10 @@ SPRITE.newCls('Circle', 'Basic', function(from, proto) {
 return proto = {
 	runCircle: undefined,
 	mkRect: function(rt, d) {
-		rt.l = Math.min(d.x0, d.x) - d.r*1.1;
-		rt.t = Math.min(d.y0, d.y) - d.r*1.1;
-		rt.r = Math.max(d.x0, d.x) + d.r*1.1;
-		rt.b = Math.max(d.y0, d.y) + d.r*1.1;
+		rt.l = (d.x0 < d.x ? d.x0 : d.x) - d.r;
+		rt.r = (d.x0 > d.x ? d.x0 : d.x) + d.r;
+		rt.t = (d.y0 < d.y ? d.y0 : d.y) - d.r;
+		rt.b = (d.y0 > d.y ? d.y0 : d.y) + d.r;
 	},
 	checkPosition: function(rt, sp) {
 		if (rt.r+sp.l < GAME.rect.l ||
@@ -1326,20 +1326,23 @@ return proto = {
 		if (!this.is_dying)
 			this.runPlayer(dt, d);
 
-		// limit player move inside boundary
-		if (d.x-d.r < GAME.rect.l)
-			d.x = GAME.rect.l + d.r;
-		if (d.x+d.r > GAME.rect.r)
-			d.x = GAME.rect.r - d.r;
-		if (d.y-d.r < GAME.rect.t)
-			d.y = GAME.rect.t + d.r;
-		if (d.y+d.r > GAME.rect.b)
-			d.y = GAME.rect.b - d.r;
+		var rt = this.rect;
+		rt.l = d.x - d.r;
+		rt.r = d.x + d.r;
+		rt.t = d.y - d.r;
+		rt.b = d.y + d.r;
 
-		this.rect.l = d.x - d.r*1.1;
-		this.rect.t = d.y - d.r*1.1;
-		this.rect.r = d.x + d.r*1.1;
-		this.rect.b = d.y + d.r*1.1;
+		// limit player move inside boundary
+		var gt = GAME.rect;
+		if (rt.l < gt.l)
+			d.x = gt.l + d.r;
+		if (rt.r > gt.r)
+			d.x = gt.r - d.r;
+		if (rt.t < gt.t)
+			d.y = gt.t + d.r;
+		if (rt.b > gt.b)
+			d.y = gt.b - d.r;
+
 	},
 	drawBasic: function(d) {
 		if (this.is_invinc)
