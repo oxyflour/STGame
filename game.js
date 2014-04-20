@@ -1005,26 +1005,21 @@ return proto = {
 	layer: 'L10',
 	runBasic: undefined,
 	run: function(dt) {
-		var d = this.data;
+		var d = this.data,
+			p = d.parent;
+		if (p && (p.finished || p.is_dying)) 
+			d.dh = -d.kh;
+		d.age += dt;
+		if (d.age > d.duration)
+			d.dh = -d.kh;
 
-		// will replace this.state later
 		if (d.ph < 1 || d.dh <= 0)
 			d.ph = limit_between(d.ph + d.dh*dt, 0, 1);
 		if (d.ph == 0 && d.dh < 0)
 			this.finished = true;
 
-		d.age += dt;
-		if (d.age > d.duration)
-			d.dh = -d.kh;
-
 		this.is_creating = d.ph < 1 && d.dh > 0;
 		this.is_dying = d.ph < 1 && d.dh < 0;
-		this.is_living = d.ph == 1;
-		//...
-
-		var p = d.parent;
-		if (p && (p.finished || p.is_dying) && !this.is_dying) 
-			this.die();
 
 		if (this.runBasic)
 			this.runBasic(dt, d);
@@ -1227,7 +1222,7 @@ return proto = {
 	hitWith: function(that) {
 		var d = this.data,
 			e = that.data;
-		if (that.clsName == SPRITE.proto.Drop.clsName && that.is_living) {
+		if (that.clsName == SPRITE.proto.Drop.clsName && !that.is_dying) {
 			e.collected = this;
 			if (circle_intersect(d, { x:e.x, y:e.y, r:20 }))
 				STORY.on(STORY.events.DROP_COLLECTED, that);
