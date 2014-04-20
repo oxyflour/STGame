@@ -1394,19 +1394,19 @@ return proto = {
 		'Dannmaku',
 		'Drop',
 	],
-	hitWith: function(v) {
+	hitWith: function(that) {
 		var d = this.data,
-			e = v.data;
-		if (v.clsName == SPRITE.proto.Drop.clsName && v.state.is_living) {
+			e = that.data;
+		if (that.clsName == SPRITE.proto.Drop.clsName && that.state.is_living) {
 			e.collected = this;
 			if (circle_intersect(d, { x:e.x, y:e.y, r:20 }))
-				STORY.on(STORY.events.DROP_COLLECTED, v);
+				STORY.on(STORY.events.DROP_COLLECTED, that);
 		}
-		else if (v.clsName == SPRITE.proto.Player.clsName) {
+		else if (that.clsName == SPRITE.proto.Player.clsName) {
 			if (circle_intersect(d, e))
 				circles_hit(d, e)
 		}
-		else if (v.state.d.mkDamage) {
+		else if (that.state.d.mkDamage) {
 			if (!this.state.d.isInvinc && circle_intersect({ x:d.x, y:d.y, r:d.h }, e))
 				STORY.on(STORY.events.PLAYER_HIT, this);
 			else if (!e.grazed && circle_intersect(d, e))
@@ -1565,9 +1565,9 @@ return proto = {
 	hits: [
 		'Ball',
 	],
-	hitWith: function(v) {
+	hitWith: function(that) {
 		var d = this.data,
-			e = v.data;
+			e = that.data;
 		if (circle_intersect(d, e))
 			circles_hit(d, e);
 	},
@@ -1589,9 +1589,9 @@ return proto = {
 	hits: [
 		'Ball',
 	],
-	hitWith: function(v) {
+	hitWith: function(that) {
 		var d = this.data,
-			e = v.data;
+			e = that.data;
 			cr = line_circle_intersect(d, e);
 		if (cr)
 			circles_hit(cr, e);
@@ -1630,16 +1630,16 @@ return proto = {
 		'Bullet',
 		'Shield',
 	],
-	hitWith: function(v) {
+	hitWith: function(that) {
 		var d = this.data,
-			e = v.data;
-		if (!this.state.is_dying && !v.state.is_dying &&
-				v.hit_with != this && circle_intersect(d, e)) {
-			this.hit_with = v;
-			v.hit_with = this;
-			d.damage += v.state.d.mkDamage || 1;
-			if (v.clsName == SPRITE.proto.Bullet.clsName)
-				STORY.on(STORY.events.BULLET_HIT, v);
+			e = that.data;
+		if (!this.state.is_dying && !that.state.is_dying &&
+				that.hit_with != this && circle_intersect(d, e)) {
+			this.hit_with = that;
+			that.hit_with = this;
+			d.damage += that.state.d.mkDamage || 1;
+			if (that.clsName == SPRITE.proto.Bullet.clsName)
+				STORY.on(STORY.events.BULLET_HIT, that);
 			if (d.damage >= d.life)
 				STORY.on(STORY.events.ENEMY_KILL, this);
 		}
@@ -1666,14 +1666,14 @@ return proto =  {
 	hits: [
 		'Dannmaku',
 	],
-	hitWith: function(v) {
+	hitWith: function(that) {
 		var d = this.data,
-			e = v.data;
-		if (!v.state.is_dying &&
-				v.hit_with != this && circle_intersect(d, e)) {
-			this.hit_with = v;
-			v.hit_with = this;
-			STORY.on(STORY.events.DANNMAKU_HIT, v);
+			e = that.data;
+		if (!that.state.is_dying &&
+				that.hit_with != this && circle_intersect(d, e)) {
+			this.hit_with = that;
+			that.hit_with = this;
+			STORY.on(STORY.events.DANNMAKU_HIT, that);
 		}
 	},
 	
@@ -1691,11 +1691,11 @@ SPRITE.newCls('Drop', 'Circle', function(from, proto) {
 return proto = {
 	layer: 'L20',
 	runCircle: function(dt, d, s) {
-		var v = d.collected;
-		if (v && v.finished)
-			v = d.collected = UTIL.getOneObj('Player');
-		if (v && !v.finished && !v.state.is_dying) {
-			var e = v.data,
+		var that = d.collected;
+		if (that && that.finished)
+			that = d.collected = UTIL.getOneObj('Player');
+		if (that && !that.finished && !that.state.is_dying) {
+			var e = that.data,
 				v = d.collected_auto ? 0.6 : sqrt_sum(d.vx, d.vy);
 			redirect_object(d, e, v);
 			if (!d.collected_auto)
