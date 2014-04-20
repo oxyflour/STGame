@@ -1251,24 +1251,26 @@ return proto = {
 		this.is_bomb = 5000;
 	},
 	runPlayer: function(dt, d) {
+		var ks = GAME.keyste,
+			cf = d.conf;
+
 		this.is_invinc = this.is_creating || this.is_dying ||
 			this.is_bomb || this.is_juesi;
-		var m = GAME.keyste.shiftKey,
-			v = m ? 0.12 : 0.24;
-		d.slowMode = m;
+		this.is_slow = ks.shiftKey;
+
 		d.x0 = d.x;
 		d.y0 = d.y;
-
-		var vx = 0,
+		var v = this.is_slow ? 0.12 : 0.24,
+			vx = 0,
 			vy = 0;
-		if (GAME.keyste[d.conf.key_left])
-			vx = -v;
-		else if (GAME.keyste[d.conf.key_right])
-			vx = +v;
-		if (GAME.keyste[d.conf.key_up])
-			vy = -v;
-		else if (GAME.keyste[d.conf.key_down])
-			vy = +v;
+		if (ks[cf.key_left])
+			vx += -v;
+		if (ks[cf.key_right])
+			vx += +v;
+		if (ks[cf.key_up])
+			vy += -v;
+		if (ks[cf.key_down])
+			vy += +v;
 		if (vx && vy) {
 			vx /= 1.414;
 			vy /= 1.414
@@ -1279,15 +1281,15 @@ return proto = {
 		d.y += d.vy * dt;
 
 		// FIRE!
-		if (GAME.keyste[d.conf.key_fire]) {
+		if (ks[cf.key_fire]) {
 			if (!d.is_firing) {
-				d.fire_tick = newTicker(d.conf.fire_interval, function(v) {
+				d.fire_tick = newTicker(cf.fire_interval, function(v) {
 					STORY.on(STORY.events.PLAYER_FIRE, v);
 				}, this);
 				d.fire_tick.f(this);
 			}
 			d.is_firing = true;
-			d.fire_count = d.conf.fire_count;
+			d.fire_count = cf.fire_count;
 		}
 		else if (d.is_firing) {
 			d.fire_count -= dt;
@@ -1313,7 +1315,7 @@ return proto = {
 			this.is_juesi = 0;
 			this.is_bomb -= dt;
 		}
-		if (GAME.keyste[d.conf.key_bomb] && !this.is_dying && !(this.is_bomb > 0))
+		if (ks[cf.key_bomb] && !this.is_dying && !(this.is_bomb > 0))
 			STORY.on(STORY.events.PLAYER_BOMB, this);
 
 		// AUTO COLLECT!
@@ -1627,7 +1629,7 @@ function newPlayer() {
 	}, function(k, a) {
 		a.callback = function(v) {
 			v.data.theta = this.value;
-			this.step = v.data.parent.data.slowMode ? this.delta : -this.delta;
+			this.step = v.data.parent.is_slow ? this.delta : -this.delta;
 		};
 		p.onmyous[k] = SPRITE.newObj('Basic', {
 			parent: p,
@@ -1656,7 +1658,7 @@ function newPlayer() {
 		delta: 1/120,
 		callback: function(v) {
 			v.data.opacity = this.value;
-			this.step = v.data.parent.data.slowMode ? this.delta : -this.delta;
+			this.step = v.data.parent.is_slow ? this.delta : -this.delta;
 		},
 	});
 }
@@ -1694,7 +1696,7 @@ function newBullet(d) {
 		array(4, function(i) {
 			var x = i % 2 ? -1 : 1,
 				v1 = random(0.4, 0.5),
-				t = (d.from.data.slowMode ? random(-5, 5) : random(10, 20)-i*5) * Math.PI / 180,
+				t = (d.from.is_slow ? random(-5, 5) : random(10, 20)-i*5) * Math.PI / 180,
 				onmyou = x > 0 ? d.from.onmyous.right : d.from.onmyous.left;
 			SPRITE.newObj('Bullet', {
 				x: onmyou.data.x,
