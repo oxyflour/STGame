@@ -1295,18 +1295,14 @@ return proto = {
 			d.fire_tick.run(dt);
 
 		// JUESI!
-		if (this.is_juesi > 0) {
-			this.is_juesi -= dt;
-			if (this.is_juesi <= 0) {
-				this.die();
-				this.is_juesi = 0;
-			}
+		if (this.is_juesi > 0 && (this.is_juesi -= dt) <= 0) {
+			this.is_juesi = 0;
+			this.die();
+			STORY.on(STORY.events.PLAYER_DYING, this);
 		}
 
 		// BOMB!
 		if (this.is_bomb > 0) {
-			if (this.is_juesi > 0)
-				console.log('juesi');
 			this.is_juesi = 0;
 			this.is_bomb -= dt;
 		}
