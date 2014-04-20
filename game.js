@@ -1009,8 +1009,7 @@ return proto = {
 			p = d.parent;
 		if (p && (p.finished || p.is_dying)) 
 			d.dh = -d.kh;
-		d.age += dt;
-		if (d.age > d.duration)
+		if ((d.age += dt) > d.duration)
 			d.dh = -d.kh;
 
 		if (d.ph < 1 || d.dh <= 0)
