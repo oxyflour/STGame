@@ -1012,7 +1012,7 @@ return proto = {
 		if ((d.age += dt) > d.duration)
 			d.dh = -d.kh;
 
-		if (d.ph < 1 || d.dh <= 0)
+		if (d.ph < 1 || d.dh < 0)
 			d.ph = limit_between(d.ph + d.dh*dt, 0, 1);
 		if (d.ph == 0 && d.dh < 0)
 			this.finished = true;
