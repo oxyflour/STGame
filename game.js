@@ -1785,6 +1785,7 @@ function newBomb(player) {
 		duration: 150,
 	});
 }
+
 /*
 function newBall(d) {
 	var t = random(-0.6, 0.6) * Math.PI / 2,
@@ -2042,6 +2043,74 @@ function newEnemy(d) {
 	return enm;
 }
 */
+
+function newSec1(pth, count, offset) {
+	STORY.timeout(function (d, n) {
+		ieach(offset || [[0, 0]], function(i, v) {
+			SPRITE.newObj('Enemy', {
+				frames: RES.frames.Enemy00,
+				pathnodes: UTIL.pathOffset(RES.path[pth], v[0], v[1]),
+			});
+		});
+	}, 250, null, count);
+}
+function newSec2(ylim, count) {
+	STORY.timeout(function (d, n) {
+		ieach([-1, 1], function(i, x) {
+			var f = 0.5 + (n+0.5)/(count+0.5)*0.5 * x,
+				dvx = 0.005 * x, dvy = -0.003;
+			var enm = SPRITE.newObj('Enemy', {
+				frames: RES.frames.Enemy00,
+				x: interp(GAME.rect.l, GAME.rect.r, f),
+				y: 0,
+				vy: 0.1,
+				vx: 0,
+				dvx: dvx,
+				dvy: dvy,
+			});
+			enm.anim(50, function(d, v) {
+				if (v.data.y > interp(GAME.rect.t, GAME.rect.b, ylim)) {
+					v.data.vx += v.data.dvx;
+					v.data.vy += v.data.dvy;
+				}
+			});
+		});
+	}, 350, null, count);
+}
+function newSec3(tick, count) {
+	STORY.timeout(function (d, n) {
+		var enm = SPRITE.newObj('Enemy', {
+			frames: RES.frames.Enemy01,
+			x: interp(GAME.rect.l, GAME.rect.r, random(0, 1)),
+			y: 0,
+			vy: 0.1,
+			vx: 0,
+			dvy: -0.005,
+			vx0: random(-0.1, 0.1),
+		});
+		enm.anim(50, function(d, v) {
+			if (v.data.age > 600 && !v.fired) {
+				v.data.vy = 0;
+				v.fired = true;
+			}
+			else if (v.data.age > 2000) {
+				v.data.vy += v.data.dvy;
+				v.data.vx = v.data.vx0;
+			}
+		});
+	}, tick, null, count);
+}
+function newSec4() {
+	STORY.timeout(function (d, n) {
+		var pth = RES.path[randin(['s0A1', 's0A2'])],
+			ps = UTIL.pathOffset(pth, random(-200, 200), random(-200, 200));
+		SPRITE.newObj('Enemy', {
+			frames: RES.frames.Enemy00,
+			pathnodes: ps,
+		});
+	}, 300, null, 10);
+}
+
 function newBoss() {
 	var boss = SPRITE.newObj('Enemy', {
 		r: 24,
@@ -2107,6 +2176,72 @@ function newBoss() {
 	}
 	return boss;
 }
+function newLifeBar(boss) {
+	var bar = SPRITE.newObj('Basic', {
+		parent: boss,
+		x: GAME.rect.l+24,
+		y: GAME.rect.t+8,
+		frame: { res:'front', sx:0, sy:144, sw:48, sh:16, w:48, h:16 },
+	});
+	bar.drawBasic = function(d) {
+		this.drawText({
+			text: {
+				text: '0',
+				res: 'ascii_yellow',
+				map: RES.fontmap,
+			},
+			x: d.x + 24 + 8,
+			y: d.y,
+		});
+		var p = d.parent,
+			x = d.x + 24 + 16,
+			y = d.y + 2,
+			len = GAME.rect.r - 50 - x;
+		len *= (this.is_creating ? ease_out(d.ph) : 1) *
+			(p.data.life - p.data.damage) / p.data.life;
+		DC.beginPath();
+		DC.moveTo(x, y);
+		DC.lineTo(x + len, y);
+		DC.closePath();
+		DC.strokeStyle = 'white';
+		DC.lineWidth = 5;
+		DC.stroke();
+		return true;
+	};
+	return bar;
+}
+function newCountDown(data) {
+	var countdown = SPRITE.newObj('Basic', {
+		x: GAME.rect.r-20,
+		y: GAME.rect.t+8,
+		text: {
+			res: 'num',
+			map: RES.nummap,
+		},
+	});
+	countdown.anim(100, function(d, v) {
+		var t = Math.max(Math.floor((d.duration - d.age) / 1000), 0);
+		v.data.text.res = (t<5 && 'num3') || (t<10 && 'num2') || (t<20 && 'num1') || 'num0';
+		v.data.text.text = (t < 10 ? '0' : '') + t;
+	}, data);
+	return countdown;
+}
+function newSCName(scname) {
+	var scname = SPRITE.newObj('Basic', {
+		x: interp(GAME.rect.l, GAME.rect.r, 1)-50,
+		sy: interp(GAME.rect.t, GAME.rect.b, 0)+60,
+		text: {
+			text: scname,
+			font: '15px Arial',
+		},
+	});
+	scname.runBasic = function(dt, d) {
+		if (this.is_creating)
+			d.y = d.sy - ease_in(d.ph)*10;
+	};
+	return scname;
+}
+
 function newEffect(v) {
 	SPRITE.newObj('Circle', {
 		x: v.data.x,
@@ -2402,94 +2537,27 @@ tl.init = {
 };
 ieach([
 	{ duration:1000, },
-	{ init:'f1', para:['s0A2', 5], duration:2000, },
-	{ init:'f1', para:['s0A1', 8], duration:2000, },
-	{ init:'f2', para:[0.4, 10], duration:5000, },
-	{ init:'f3', para:[1000, 5], duration:5000, },
-	{ init:'f3', para:[500, 10], duration:5000, },
-	{ init:'f4', para:[], duration:5000 },
-	{ init:'f1', para:['s0A2', 8, [[-40, 0], [0, 0]]], duration:2000 },
-	{ init:'f1', para:['s0A1', 8, [[+40, 0], [0, 0]]], duration:5000, next:'bossA' },
-	{ init:'f3', para:[1000, 20], duration:20000, name:'secH' },
-	{ init:'f1', para:['s0A2', 8, [[-40, 0], [0, 0]]], duration:2000 },
-	{ init:'f1', para:['s0A1', 8, [[+40, 0], [0, 0]]], duration:2000 },
-	{ init:'f1', para:['s0A2', 8, [[-40, 0], [0, 0]]], duration:5000, next:'bossB' },
-], function(i, para, funcs) {
+	{ init:newSec1, para:['s0A2', 5], duration:2000, },
+	{ init:newSec1, para:['s0A1', 8], duration:2000, },
+	{ init:newSec2, para:[0.4, 10], duration:5000, },
+	{ init:newSec3, para:[1000, 5], duration:5000, },
+	{ init:newSec3, para:[500, 10], duration:5000, },
+	{ init:newSec4, para:[], duration:5000 },
+	{ init:newSec1, para:['s0A2', 8, [[-40, 0], [0, 0]]], duration:2000 },
+	{ init:newSec1, para:['s0A1', 8, [[+40, 0], [0, 0]]], duration:5000, next:'bossA' },
+	{ init:newSec3, para:[1000, 20], duration:20000, name:'secH' },
+	{ init:newSec1, para:['s0A2', 8, [[-40, 0], [0, 0]]], duration:2000 },
+	{ init:newSec1, para:['s0A1', 8, [[+40, 0], [0, 0]]], duration:2000 },
+	{ init:newSec1, para:['s0A2', 8, [[-40, 0], [0, 0]]], duration:5000, next:'bossB' },
+], function(i, para, tl) {
 	var c = para.name || 'sec'+i, n = para.next || 'sec'+(i+1);
 	tl[c] = {
 		run: UTIL.newTimeRunner(para.duration, n),
 		init: function(d) {
-			funcs[para.init] && funcs[para.init].apply(funcs, para.para);
+			para.init && para.init.apply(null, para.para);
 		},
 	};
-}, {
-	f1: function(pth, count, offset) {
-		STORY.timeout(function (d, n) {
-			ieach(offset || [[0, 0]], function(i, v) {
-				SPRITE.newObj('Enemy', {
-					frames: RES.frames.Enemy00,
-					pathnodes: UTIL.pathOffset(RES.path[pth], v[0], v[1]),
-				});
-			});
-		}, 250, null, count);
-	},
-	f2: function(ylim, count) {
-		STORY.timeout(function (d, n) {
-			ieach([-1, 1], function(i, x) {
-				var f = 0.5 + (n+0.5)/(count+0.5)*0.5 * x,
-					dvx = 0.005 * x, dvy = -0.003;
-				var enm = SPRITE.newObj('Enemy', {
-					frames: RES.frames.Enemy00,
-					x: interp(GAME.rect.l, GAME.rect.r, f),
-					y: 0,
-					vy: 0.1,
-					vx: 0,
-					dvx: dvx,
-					dvy: dvy,
-				});
-				enm.anim(50, function(d, v) {
-					if (v.data.y > interp(GAME.rect.t, GAME.rect.b, ylim)) {
-						v.data.vx += v.data.dvx;
-						v.data.vy += v.data.dvy;
-					}
-				});
-			});
-		}, 350, null, count);
-	},
-	f3: function(tick, count) {
-		STORY.timeout(function (d, n) {
-			var enm = SPRITE.newObj('Enemy', {
-				frames: RES.frames.Enemy01,
-				x: interp(GAME.rect.l, GAME.rect.r, random(0, 1)),
-				y: 0,
-				vy: 0.1,
-				vx: 0,
-				dvy: -0.005,
-				vx0: random(-0.1, 0.1),
-			});
-			enm.anim(50, function(d, v) {
-				if (v.data.age > 600 && !v.fired) {
-					v.data.vy = 0;
-					v.fired = true;
-				}
-				else if (v.data.age > 2000) {
-					v.data.vy += v.data.dvy;
-					v.data.vx = v.data.vx0;
-				}
-			});
-		}, tick, null, count);
-	},
-	f4: function() {
-		STORY.timeout(function (d, n) {
-			var pth = RES.path[randin(['s0A1', 's0A2'])],
-				ps = UTIL.pathOffset(pth, random(-200, 200), random(-200, 200));
-			SPRITE.newObj('Enemy', {
-				frames: RES.frames.Enemy00,
-				pathnodes: ps,
-			});
-		}, 300, null, 10);
-	},
-});
+}, tl);
 ieach([
 	{ text:'x0aabbcc', face:'f0a', float:'l', name:'diag' },
 	{ text:'x0aabbcc', face:'f0b fs', float:'l', },
@@ -2618,7 +2686,7 @@ ieach([
 		duration: 99000,
 		next: 'end',
 	},
-], function(i, para, funcs) {
+], function(i, para, tl) {
 	var c = para.name || 'boss'+i, n = para.next || 'boss'+(i+1);
 	tl[c] = {
 		init: function(d) {
@@ -2633,15 +2701,15 @@ ieach([
 				UTIL.addPathAnim(d.boss, para.pathnodes);
 			if (!para.no_lifebar &&
 					(!d.boss.lifebar || d.boss.lifebar.is_dying || d.boss.lifebar.finished))
-				d.boss.lifebar = funcs.newLifeBar(d.boss);
+				d.boss.lifebar = newLifeBar(d.boss);
 			else if (para.no_lifebar &&
 					(d.boss.lifebar && !d.boss.lifebar.is_dying && !d.boss.lifebar.finished))
 				d.boss.lifebar.die();
 
 			if (para.duration > 0 && !para.no_countdown)
-				d.countdown = funcs.newCountDown(d);
+				d.countdown = newCountDown(d);
 			if (para.scname)
-				d.scname = funcs.newSCName(para.scname);
+				d.scname = newSCName(para.scname);
 		},
 		quit: function(d) {
 			killObj(d.countdown, d.scname);
@@ -2661,73 +2729,7 @@ ieach([
 			}
 		},
 	}
-}, {
-	newLifeBar: function(boss) {
-		var bar = SPRITE.newObj('Basic', {
-			parent: boss,
-			x: GAME.rect.l+24,
-			y: GAME.rect.t+8,
-			frame: { res:'front', sx:0, sy:144, sw:48, sh:16, w:48, h:16 },
-		});
-		bar.drawBasic = function(d) {
-			this.drawText({
-				text: {
-					text: '0',
-					res: 'ascii_yellow',
-					map: RES.fontmap,
-				},
-				x: d.x + 24 + 8,
-				y: d.y,
-			});
-			var p = d.parent,
-				x = d.x + 24 + 16,
-				y = d.y + 2,
-				len = GAME.rect.r - 50 - x;
-			len *= (this.is_creating ? ease_out(d.ph) : 1) *
-				(p.data.life - p.data.damage) / p.data.life;
-			DC.beginPath();
-			DC.moveTo(x, y);
-			DC.lineTo(x + len, y);
-			DC.closePath();
-			DC.strokeStyle = 'white';
-			DC.lineWidth = 5;
-			DC.stroke();
-			return true;
-		};
-		return bar;
-	},
-	newCountDown: function(data) {
-		var countdown = SPRITE.newObj('Basic', {
-			x: GAME.rect.r-20,
-			y: GAME.rect.t+8,
-			text: {
-				res: 'num',
-				map: RES.nummap,
-			},
-		});
-		countdown.anim(100, function(d, v) {
-			var t = Math.max(Math.floor((d.duration - d.age) / 1000), 0);
-			v.data.text.res = (t<5 && 'num3') || (t<10 && 'num2') || (t<20 && 'num1') || 'num0';
-			v.data.text.text = (t < 10 ? '0' : '') + t;
-		}, data);
-		return countdown;
-	},
-	newSCName: function(scname) {
-		var scname = SPRITE.newObj('Basic', {
-			x: interp(GAME.rect.l, GAME.rect.r, 1)-50,
-			sy: interp(GAME.rect.t, GAME.rect.b, 0)+60,
-			text: {
-				text: scname,
-				font: '15px Arial',
-			},
-		});
-		scname.runBasic = function(dt, d) {
-			if (this.is_creating)
-				d.y = d.sy - ease_in(d.ph)*10;
-		};
-		return scname;
-	}
-});
+}, tl);
 tl.end = {
 	init: function(d) {
 		killCls('Enemy', 'Dannmaku');
