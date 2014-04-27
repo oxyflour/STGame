@@ -1653,36 +1653,36 @@ function newPlayer() {
 		},
 	});
 }
-function newBullet(d) {
-	d.from.bullet1_idx = ((d.from.bullet1_idx || 0) + 1) % 6;
+function newBullet(from, to) {
+	from.bullet1_idx = ((from.bullet1_idx || 0) + 1) % 6;
 	array(2, function(i, para) {
 		var x = i % 2 ? -1 : 1;
 		SPRITE.newObj('Bullet', {
-			x: d.from.data.x + x*5,
-			y: d.from.data.y,
+			x: from.data.x + x*5,
+			y: from.data.y,
 			vx: 0.02*x,
 			vy: -0.72,
-			from: d.from,
+			from: from,
 			frtick: 1000/36,
 			frames: RES.frames.Bullet0,
 			opacity: 0.7,
 		});
 	});
-	if (d.from.bullet1_idx == 0) {
-		if (!d.to)
-			d.to = UTIL.getNearestAlive(d.from, 'Enemy');
+	if (from.bullet1_idx == 0) {
+		if (!to)
+			to = UTIL.getNearestAlive(from, 'Enemy');
 		array(4, function(i) {
 			var x = i % 2 ? -1 : 1,
 				v1 = random(0.4, 0.5),
-				t = (d.from.is_slow ? random(-5, 5) : random(10, 20)-i*5) * Math.PI / 180,
-				onmyou = x > 0 ? d.from.onmyous.right : d.from.onmyous.left;
+				t = (from.is_slow ? random(-5, 5) : random(10, 20)-i*5) * Math.PI / 180,
+				onmyou = x > 0 ? from.onmyous.right : from.onmyous.left;
 			SPRITE.newObj('Bullet', {
 				x: onmyou.data.x,
 				y: onmyou.data.y,
 				vy: -v1*Math.cos(t),
 				vx: x*v1*Math.sin(t),
-				from: d.from,
-				to: d.to,
+				from: from,
+				to: to,
 				frtick: 1000/36,
 				frames: RES.frames.Bullet1,
 				opacity: 0.7,
@@ -2242,30 +2242,30 @@ function newSCName(scname) {
 	return scname;
 }
 
-function newEffect(v) {
+function newEffect(from) {
 	SPRITE.newObj('Circle', {
-		x: v.data.x,
-		y: v.data.y,
-		vx: v.data.vx*=0.1,
-		vy: v.data.vy*=0.1,
+		x: from.data.x,
+		y: from.data.y,
+		vx: from.data.vx*=0.1,
+		vy: from.data.vy*=0.1,
 		frames: {
 			Enemy: RES.frames.EffEnemy,
 			Player: RES.frames.EffPlayer,
-		}[v.clsName],
+		}[from.clsName],
 		dh: 1,
 		kh: 1/950,
 		duration: 50,
 	});
 	array(8, function(i) {
 		var p = SPRITE.newObj('Circle', {
-			x: v.data.x + random(10),
-			y: v.data.y + random(10),
+			x: from.data.x + random(10),
+			y: from.data.y + random(10),
 			vx: random(-0.2, 0.2),
 			vy: random(-0.2, 0.2),
 			frames: randin({
 				Enemy: RES.frames.EffPieceB,
 				Player: RES.frames.EffPieceG,
-			}[v.clsName]),
+			}[from.clsName]),
 			scale: 1.5,
 			opacity: 0.5,
 			blend: 'lighter',
@@ -2442,9 +2442,7 @@ var hook = {
 		}
 		else if (e == STORY.events.PLAYER_FIRE) {
 			if (!d.disable_fire)
-				newBullet({
-					from: v,
-				});
+				newBullet(v);
 		}
 		else if (e == STORY.events.PLAYER_BOMB) {
 			if (!d.disable_fire) {
