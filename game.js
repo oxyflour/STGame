@@ -2616,7 +2616,7 @@ ieach([
 		duration: 99000,
 		next: 'end',
 	},
-], function(i, para, tl) {
+], function(i, para, funcs) {
 	var c = para.name || 'boss'+i, n = para.next || 'boss'+(i+1);
 	tl[c] = {
 		init: function(d) {
@@ -2631,71 +2631,16 @@ ieach([
 				UTIL.addPathAnim(d.boss, para.pathnodes);
 			if (!para.no_lifebar &&
 					(!d.boss.lifebar || d.boss.lifebar.is_dying || d.boss.lifebar.finished)) {
-				var bar = d.boss.lifebar = SPRITE.newObj('Basic', {
-					parent: d.boss,
-					x: GAME.rect.l+24,
-					y: GAME.rect.t+8,
-					frame: { res:'front', sx:0, sy:144, sw:48, sh:16, w:48, h:16 },
-				});
-				bar.drawBasic = function(d) {
-					this.drawText({
-						text: {
-							text: '0',
-							res: 'ascii_yellow',
-							map: RES.fontmap,
-						},
-						x: d.x + 24 + 8,
-						y: d.y,
-					});
-					var p = d.parent,
-						x = d.x + 24 + 16,
-						y = d.y + 2,
-						len = GAME.rect.r - 50 - x;
-					len *= (this.is_creating ? ease_out(d.ph) : 1) *
-						(p.data.life - p.data.damage) / p.data.life;
-					DC.beginPath();
-					DC.moveTo(x, y);
-					DC.lineTo(x + len, y);
-					DC.closePath();
-					DC.strokeStyle = 'white';
-					DC.lineWidth = 5;
-					DC.stroke();
-					return true;
-				};
+				d.boss.lifebar = funcs.newLifeBar(d.boss);
 			}
 			else if (para.no_lifebar &&
 					(d.boss.lifebar && !d.boss.lifebar.is_dying && !d.boss.lifebar.finished))
 				d.boss.lifebar.die();
 
-			if (para.duration > 0 && !para.no_countdown) {
-				d.countdown = SPRITE.newObj('Basic', {
-					x: GAME.rect.r-20,
-					y: GAME.rect.t+8,
-					text: {
-						res: 'num',
-						map: RES.nummap,
-					},
-				});
-				d.countdown.anim(100, function(d, v) {
-					var t = Math.max(Math.floor((d.duration - d.age) / 1000), 0);
-					v.data.text.res = (t<5 && 'num3') || (t<10 && 'num2') || (t<20 && 'num1') || 'num0';
-					v.data.text.text = (t < 10 ? '0' : '') + t;
-				}, d);
-			}
-			if (para.scname) {
-				d.scname = SPRITE.newObj('Basic', {
-					x: interp(GAME.rect.l, GAME.rect.r, 1)-50,
-					sy: interp(GAME.rect.t, GAME.rect.b, 0)+60,
-					text: {
-						text: para.scname,
-						font: '15px Arial',
-					},
-				});
-				d.scname.runBasic = function(dt, d) {
-					if (this.is_creating)
-						d.y = d.sy - ease_in(d.ph)*10;
-				};
-			}
+			if (para.duration > 0 && !para.no_countdown)
+				d.countdown = funcs.newCountDown(d);
+			if (para.scname)
+				d.scname = funcs.newSCName(para.scname);
 		},
 		quit: function(d) {
 			killObj(d.countdown, d.scname);
@@ -2715,7 +2660,73 @@ ieach([
 			}
 		},
 	}
-}, tl);
+}, {
+	newLifeBar: function(boss) {
+		var bar = SPRITE.newObj('Basic', {
+			parent: boss,
+			x: GAME.rect.l+24,
+			y: GAME.rect.t+8,
+			frame: { res:'front', sx:0, sy:144, sw:48, sh:16, w:48, h:16 },
+		});
+		bar.drawBasic = function(d) {
+			this.drawText({
+				text: {
+					text: '0',
+					res: 'ascii_yellow',
+					map: RES.fontmap,
+				},
+				x: d.x + 24 + 8,
+				y: d.y,
+			});
+			var p = d.parent,
+				x = d.x + 24 + 16,
+				y = d.y + 2,
+				len = GAME.rect.r - 50 - x;
+			len *= (this.is_creating ? ease_out(d.ph) : 1) *
+				(p.data.life - p.data.damage) / p.data.life;
+			DC.beginPath();
+			DC.moveTo(x, y);
+			DC.lineTo(x + len, y);
+			DC.closePath();
+			DC.strokeStyle = 'white';
+			DC.lineWidth = 5;
+			DC.stroke();
+			return true;
+		};
+		return bar;
+	},
+	newCountDown: function(data) {
+		var countdown = SPRITE.newObj('Basic', {
+			x: GAME.rect.r-20,
+			y: GAME.rect.t+8,
+			text: {
+				res: 'num',
+				map: RES.nummap,
+			},
+		});
+		countdown.anim(100, function(d, v) {
+			var t = Math.max(Math.floor((d.duration - d.age) / 1000), 0);
+			v.data.text.res = (t<5 && 'num3') || (t<10 && 'num2') || (t<20 && 'num1') || 'num0';
+			v.data.text.text = (t < 10 ? '0' : '') + t;
+		}, data);
+		return countdown;
+	},
+	newSCName: function(scname) {
+		var scname = SPRITE.newObj('Basic', {
+			x: interp(GAME.rect.l, GAME.rect.r, 1)-50,
+			sy: interp(GAME.rect.t, GAME.rect.b, 0)+60,
+			text: {
+				text: scname,
+				font: '15px Arial',
+			},
+		});
+		scname.runBasic = function(dt, d) {
+			if (this.is_creating)
+				d.y = d.sy - ease_in(d.ph)*10;
+		};
+		return scname;
+	}
+});
 tl.end = {
 	init: function(d) {
 		killCls('Enemy', 'Dannmaku');
