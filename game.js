@@ -2099,9 +2099,13 @@ function newSec3(tick, count) {
 function newSec4() {
 	STORY.timeout(function (d, n) {
 		var pth = RES.path[randin(['s0A1', 's0A2'])],
-			ps = UTIL.pathOffset(pth, random(-200, 200), random(-200, 200));
+			ps = UTIL.pathOffset(pth, random(-200, 200), random(0, 200));
+			px = ps[0].x;
+		ps[0].x = ps[0].y = undefined;
 		SPRITE.newObj('Enemy', {
 			frames: RES.frames.Enemy00,
+			x: px,
+			y: GAME.rect.t,
 			pathnodes: ps,
 		});
 	}, 300, null, 10);
