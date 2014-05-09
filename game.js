@@ -1626,12 +1626,13 @@ function newPlayer() {
 			parent: p,
 			frames: RES.frames[a.frames],
 		});
-		p.onmyous[k].runBasic = function(dt, d) {
+		p.onmyous[k].drawBasic = function(d) {
 			var p = d.parent,
 				r = 25,
 				t = d.theta * Math.PI;
 			d.x = p.data.x + r * Math.cos(t);
 			d.y = p.data.y - r * Math.sin(t);
+			return true;
 		};
 		UTIL.addAnim(p.onmyous[k], a);
 	});
@@ -1640,7 +1641,7 @@ function newPlayer() {
 		parent: p,
 		frames: RES.frames.PSlow,
 	});
-	p.pslow.runBasic = function(dt, d) {
+	p.pslow.drawBasic = function(d) {
 		var p = d.parent;
 		d.x = p.data.x;
 		d.y = p.data.y;
@@ -1703,11 +1704,12 @@ function newBomb(player) {
 	});
 	bg.draw = return_nothing;
 	bg.data.elem.object = bg;
-	bg.runCircle = function(dt, d) {
+	bg.drawCircle = function(d) {
 		var p = d.player;
 		d.x = p.data.x;
 		d.y = p.data.y;
 		d.r = this.is_dying ? 400 - d.ph*300 : d.ph * 100;
+		return true;
 	};
 	bg.anim(50, function(d, bg) {
 		var p = d.player;
@@ -1734,9 +1736,10 @@ function newBomb(player) {
 			duration: 5000,
 		});
 		sh.damage_pt = 20;
-		sh.runCircle = function(dt, d) {
+		sh.drawCircle = function(d) {
 			d.r = 1 + ease_out(d.ph) * 40;
 			d.scale = d.r / 30;
+			return true;
 		};
 		sh.anim(50, function(k, v) {
 			var d = v.data;
@@ -2235,9 +2238,10 @@ function newSCName(scname) {
 			font: '15px Arial',
 		},
 	});
-	scname.runBasic = function(dt, d) {
+	scname.drawBasic = function(d) {
 		if (this.is_creating)
 			d.y = d.sy - ease_in(d.ph)*10;
+		return true;
 	};
 	return scname;
 }
@@ -2273,8 +2277,9 @@ function newEffect(from) {
 			kh: 1/random(500, 1500),
 			duration: 100,
 		})
-		p.runCircle = function(dt, d) {
+		p.drawCircle = function(d) {
 			d.scale = ease_in(d.ph) * 2 + 0.5;
+			return true;
 		};
 		p.anim(50, function(k, v) {
 			var d = v.data;
@@ -2476,8 +2481,9 @@ var hook = {
 				dh: 1/50,
 				kh: 1/550,
 				duration: 100,
-			}).runCircle = function(dt, d) {
+			}).drawCircle = function(d) {
 				d.scale = 0.5 + d.ph;
+				return true;
 			};
 		}
 		else if (e == STORY.events.DANNMAKU_HIT) {
@@ -2523,9 +2529,10 @@ tl.init = {
 				},
 				sy: interp(GAME.rect.t, GAME.rect.b, 0.5) + 40,
 			});
-			d.text.runBasic = function(dt, d) {
+			d.text.drawBasic = function(d) {
 				if (!this.is_dying)
 					d.y = d.sy - ease_out(d.ph)*10;
+				return true;
 			};
 		}, 400, d);
 	},
