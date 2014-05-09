@@ -619,6 +619,9 @@ var SPRITE = (function() {
 				return fn(i, v);
 		});
 	}
+	function draw() {
+		(this.finished = this.obj.finished) || this.obj.draw();
+	}
 	var _t = {
 		cls: newGroupAnim(),
 		layers: newGroupAnim(),
@@ -632,15 +635,10 @@ var SPRITE = (function() {
 		_t.proto[c] = proto.init.prototype = proto;
 		return proto;
 	};
-	_t.newObj = function(c, data) {
-		var obj = new _t.proto[c].init(data);
+	_t.newObj = function(c, d) {
+		var obj = new _t.proto[c].init(d);
 		_t.cls.add(c, obj);
-		_t.layers.add(obj.layer, {
-			obj: obj,
-			run: function() {
-				(this.finished = this.obj.finished) || this.obj.draw();
-			}
-		});
+		_t.layers.add(obj.layer, { obj:obj, run:draw });
 		return obj;
 	};
 	_t.eachObj = function(fn, c) {
@@ -1613,46 +1611,41 @@ return proto = {
 // for test only
 function newPlayer() {
 	var p = SPRITE.newObj('Player');
-	p.onmyous = {};
-	keach({
-		'left' : { value:0.9, max:0.9, min:0.6, delta:-0.015, frames:'OnmyouR' },
-		'right': { value:0.1, max:0.4, min:0.1, delta:+0.015, frames:'Onmyou' },
-	}, function(k, a) {
-		a.callback = function(v) {
-			v.data.theta = this.value;
-			this.step = v.data.parent.is_slow ? this.delta : -this.delta;
-		};
-		p.onmyous[k] = SPRITE.newObj('Basic', {
-			parent: p,
-			frames: RES.frames[a.frames],
-		});
-		p.onmyous[k].drawBasic = function(d) {
-			var p = d.parent,
-				r = 25,
-				t = d.theta * Math.PI;
-			d.x = p.data.x + r * Math.cos(t);
-			d.y = p.data.y - r * Math.sin(t);
-			return true;
-		};
-		UTIL.addAnim(p.onmyous[k], a);
+	p.onmyous = {
+		left: newOnmyou(p, 'OnmyouR', { x:-25, y:0 }, { x:-8, y:-28 }),
+		right: newOnmyou(p, 'Onmyou', { x:+25, y:0 }, { x:+8, y:-28 }),
+	};
+	p.pslow = newPSlow(p);
+	return p;
+}
+function newOnmyou(player, frames, pos1, pos2) {
+	var obj = SPRITE.newObj('Basic', {
+		parent: player,
+		frames: RES.frames[frames],
 	});
-	p.pslow = SPRITE.newObj('Basic', {
+	obj.runBasic = function(dt, d) {
+		var p = d.parent;
+			v = p.is_slow ? 1 : -1;
+		d.pos = limit_between(d.pos + 0.003*v*dt, 0, 1);
+		d.x = p.data.x + interp(pos1.x, pos2.x, d.pos);
+		d.y = p.data.y + interp(pos1.y, pos2.y, d.pos);
+	};
+	return obj;
+}
+function newPSlow(player) {
+	var obj = SPRITE.newObj('Basic', {
 		layer: 'L20',
-		parent: p,
+		parent: player,
 		frames: RES.frames.PSlow,
 	});
-	p.pslow.drawBasic = function(d) {
-		var p = d.parent;
+	obj.runBasic = function(dt, d) {
+		var p = d.parent,
+			v = p.is_slow ? 1 : -1;
 		d.x = p.data.x;
 		d.y = p.data.y;
+		d.opacity = limit_between(d.opacity + 0.003*v*dt, 0, 1);
 	};
-	UTIL.addAnim(p.pslow, {
-		delta: 1/120,
-		callback: function(v) {
-			v.data.opacity = this.value;
-			this.step = v.data.parent.is_slow ? this.delta : -this.delta;
-		},
-	});
+	return obj;
 }
 function newBullet(from, to) {
 	from.bullet1_idx = ((from.bullet1_idx || 0) + 1) % 6;
