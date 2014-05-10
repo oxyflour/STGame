@@ -818,6 +818,12 @@ var UTIL = {
 		}, c);
 		return t;
 	},
+	getGamePosX: function(f) {
+		return interp(GAME.rect.l, GAME.rect.r, f);
+	},
+	getGamePosY: function(f) {
+		return interp(GAME.rect.t, GAME.rect.b, f);
+	},
 	addAnim: function(v, d, t, id) {
 		fill(d, {
 			value: 0,
@@ -873,9 +879,9 @@ var UTIL = {
 			if (+n.v !== n.v)
 				n.v = d.v || 0.1;
 			if (+n.x !== n.x && +n.fx === n.fx)
-				n.x = interp(GAME.rect.l, GAME.rect.r, n.fx);
+				n.x = UTIL.getGamePosX(n.fx);
 			if (+n.y !== n.y && +n.fy === n.fy)
-				n.y = interp(GAME.rect.t, GAME.rect.b, n.fy);
+				n.y = UTIL.getGamePosY(n.fy);
 			d.v = n.v;
 		}, {});
 		v.anim(t, function(d) {
@@ -1107,8 +1113,8 @@ return proto = {
 		this.data.dh = -this.data.kh;
 	},
 	data0: {
-		x: interp(GAME.rect.l, GAME.rect.r, 0.5),
-		y: interp(GAME.rect.t, GAME.rect.b, 0.5),
+		x: UTIL.getGamePosX(0.5),
+		y: UTIL.getGamePosY(0.5),
 
 		parent: undefined, // if parent is dead, it will kill self too
 
@@ -1304,7 +1310,7 @@ return proto = {
 			STORY.on(STORY.events.PLAYER_BOMB, this);
 
 		// AUTO COLLECT!
-		if (d.y < interp(GAME.rect.t, GAME.rect.b, 0.3))
+		if (d.y < UTIL.getGamePosY(0.3))
 			STORY.on(STORY.events.PLAYER_AUTOCOLLECT, this);
 	},
 	runBasic: function(dt, d) {
@@ -1344,8 +1350,8 @@ return proto = {
 		r: 15,
 		h: 1,
 
-		x: interp(GAME.rect.l, GAME.rect.r, 0.5),
-		y: interp(GAME.rect.t, GAME.rect.b, 0.8),
+		x: UTIL.getGamePosX(0.5),
+		y: UTIL.getGamePosY(0.8),
 		vx: 0,
 		vy: 0,
 		x0: 0,
@@ -1484,7 +1490,7 @@ return proto = {
 		dh: 1/100,
 		kh: 1/100,
 		r: 20,
-		y: interp(GAME.rect.t, GAME.rect.b, 0.1),
+		y: GAME.rect.t,
 		life: 2,
 		respawn: 0,
 		damage: 0,
@@ -2057,7 +2063,7 @@ function newSec2(ylim, count) {
 				dvx = 0.005 * x, dvy = -0.003;
 			var enm = SPRITE.newObj('Enemy', {
 				frames: RES.frames.Enemy00,
-				x: interp(GAME.rect.l, GAME.rect.r, f),
+				x: UTIL.getGamePosX(f),
 				y: 0,
 				vy: 0.1,
 				vx: 0,
@@ -2065,7 +2071,7 @@ function newSec2(ylim, count) {
 				dvy: dvy,
 			});
 			enm.anim(50, function(d, v) {
-				if (v.data.y > interp(GAME.rect.t, GAME.rect.b, ylim)) {
+				if (v.data.y > UTIL.getGamePosY(ylim)) {
 					v.data.vx += v.data.dvx;
 					v.data.vy += v.data.dvy;
 				}
@@ -2077,7 +2083,7 @@ function newSec3(tick, count) {
 	STORY.timeout(function (d, n) {
 		var enm = SPRITE.newObj('Enemy', {
 			frames: RES.frames.Enemy01,
-			x: interp(GAME.rect.l, GAME.rect.r, random(0, 1)),
+			x: UTIL.getGamePosX(random(0, 1)),
 			y: 0,
 			vy: 0.1,
 			vx: 0,
@@ -2118,11 +2124,11 @@ function newDanns1(from) {
 		n = 5;
 	array(n, function(i) {
 		var rt = (i - (n-1)/2)*0.15 * Math.PI,
-			obj = newDannmaku(from, to, 25, rt, 0.4, 0);
+			obj = newDannmaku(from, to, 25, rt, 0.5, 0);
 		obj && obj.anim(50, function(d, v) {
 			if (d.n-- > 0) {
-				v.data.vx *= 0.8;
-				v.data.vy *= 0.8;
+				v.data.vx *= 0.85;
+				v.data.vy *= 0.85;
 			}
 			else
 				return true;
@@ -2135,8 +2141,8 @@ function newDannmaku(from, to, r, rt, v, vt, ext) {
 	if (!to || !to.data) {
 		to = {}
 		to.data = {
-			x: interp(GAME.rect.l, GAME.rect.r, 0.5),
-			y: interp(GAME.rect.t, GAME.rect.b, 0.5),
+			x: UTIL.getGamePosX(0.5),
+			y: UTIL.getGamePosY(0.5),
 		}
 	}
 	var rt0 = Math.atan2(to.data.y - from.data.y, to.data.x - from.data.x),
@@ -2281,8 +2287,8 @@ function newCountDown(data) {
 }
 function newSCName(scname) {
 	var scname = SPRITE.newObj('Basic', {
-		x: interp(GAME.rect.l, GAME.rect.r, 1)-50,
-		sy: interp(GAME.rect.t, GAME.rect.b, 0)+60,
+		x: GAME.rect.r-50,
+		sy: GAME.rect.t+60,
 		text: {
 			text: scname,
 			font: '15px Arial',
@@ -2577,7 +2583,7 @@ tl.init = {
 					font: '15px Arial',
 					color: 'Silver',
 				},
-				sy: interp(GAME.rect.t, GAME.rect.b, 0.5) + 40,
+				sy: UTIL.getGamePosY(0.5) + 40,
 			});
 			d.text.drawBasic = function(d) {
 				if (!this.is_dying)
