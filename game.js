@@ -2054,8 +2054,8 @@ function newSec1(pth, count, offset) {
 				pathnodes: UTIL.pathOffset(RES.path[pth], v[0], v[1]),
 			});
 			STORY.timeout(function() {
-				obj.anim(2000, newDanns1, obj);
-			}, random(2000));
+				obj.anim(1500, newDanns1, obj);
+			}, random(1500));
 		});
 	}, 250, null, count);
 }
@@ -2099,10 +2099,10 @@ function newSec3(tick, count) {
 		});
 		enm.anim(50, function(d, v) {
 			if (v.data.age > 600 && !v.is_fire) {
-				v.data.vy = 0;
 				v.is_fire = true;
+				v.data.vy = 0;
+				STORY.timeout(newDanns2, 500, v, 2)
 				UTIL.addFrameAnim(enm, RES.frames.Enemy11);
-				newDanns2(v);
 			}
 			else if (v.data.age > 2000) {
 				v.data.vy += v.data.dvy;
@@ -2124,8 +2124,8 @@ function newSec4() {
 			pathnodes: ps,
 		});
 		STORY.timeout(function() {
-			obj.anim(2000, newDanns1, obj);
-		}, random(2000));
+			obj.anim(1500, newDanns1, obj);
+		}, random(1500));
 	}, 300, null, 10);
 }
 
@@ -2138,9 +2138,9 @@ function newDanns1(from) {
 }
 function newDanns2(from) {
 	var to = UTIL.getNearestAlive(from, 'Player'),
-		n = 5;
+		n = 9;
 	if (!from.is_dying) array(n, function(i) {
-		var rt = (i - (n-1)/2)*0.15 * Math.PI;
+		var rt = (i - (n-1)/2)*0.1 * Math.PI;
 		var obj = newDannmaku(from, to, 25, rt, 0.5, 0, {
 			frames: RES.frames.TamaA[2],
 			frame_dead: RES.frames.TamaDead[1],
