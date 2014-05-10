@@ -2131,7 +2131,7 @@ function newSec4() {
 
 function newDanns1(from) {
 	var to = UTIL.getNearestAlive(from, 'Player');
-	newDannmaku(from, to, 0, 0, 0.2, 0, {
+	if (!from.is_dying) newDannmaku(from, to, 0, 0, 0.2, 0, {
 		frames: RES.frames.TamaSmall[2],
 		frame_dead: RES.frames.TamaDead[2],
 	})
@@ -2139,13 +2139,13 @@ function newDanns1(from) {
 function newDanns2(from) {
 	var to = UTIL.getNearestAlive(from, 'Player'),
 		n = 5;
-	array(n, function(i) {
+	if (!from.is_dying) array(n, function(i) {
 		var rt = (i - (n-1)/2)*0.15 * Math.PI;
 		var obj = newDannmaku(from, to, 25, rt, 0.5, 0, {
 			frames: RES.frames.TamaA[2],
 			frame_dead: RES.frames.TamaDead[1],
 		});
-		obj && obj.anim(50, function(d, v) {
+		obj.anim(50, function(d, v) {
 			if (d.n-- > 0) {
 				v.data.vx *= 0.85;
 				v.data.vy *= 0.85;
@@ -2715,6 +2715,7 @@ ieach([
 		],
 		duration: 30000,
 		name: 'bossA',
+		clear_enemy: true,
 	},
 	{
 		pathnodes: [
@@ -2746,6 +2747,7 @@ ieach([
 		no_lifebar: true,
 		name: 'bossB',
 		next: 'diag',
+		clear_enemy: true,
 	},
 	{
 		pathnodes: [
@@ -2772,6 +2774,8 @@ ieach([
 	tl[c] = {
 		init: function(d) {
 			killCls('Dannmaku');
+			if (para.clear_enemy)
+				killCls('Enemy');
 			d.age = 0;
 			d.disable_fire = para.disable_fire;
 			d.duration = para.duration || Inf;
