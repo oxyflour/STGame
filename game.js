@@ -1603,7 +1603,7 @@ return proto = {
 	layer: 'L20',
 	damage_pt: 1,
 	data0: {
-		dh: 1/100,
+		dh: 1/300,
 		kh: 1/300,
 		r: 5,
 		vy: 0.3,
@@ -2133,18 +2133,22 @@ function newSec4() {
 
 function newDanns1(from) {
 	var to = UTIL.getNearestAlive(from, 'Player');
-	if (!from.is_dying) newDannmaku(from, to, 0, 0, 0.2, 0, {
-		frames: RES.frames.TamaSmall[2],
-		frame_dead: RES.frames.TamaDead[2],
-	})
+	if (!from.is_dying) {
+		newDannmaku(from, to, 0, 0, 0.2, 0, {
+			frames: RES.frames.TamaFire[3],
+			frame_new: RES.frames.TamaSmall[2],
+			frame_dead: RES.frames.TamaDead[2],
+		});
+	}
 }
 function newDanns2(from) {
 	var to = UTIL.getNearestAlive(from, 'Player'),
 		n = 9;
 	if (!from.is_dying) array(n, function(i) {
 		var rt = (i - (n-1)/2)*0.1 * Math.PI;
-		var obj = newDannmaku(from, to, 25, rt, 0.5, 0, {
-			frames: RES.frames.TamaA[2],
+		var obj = newDannmaku(from, to, 0, rt, 0.5, 0, {
+			frames: RES.frames.TamaFire[1],
+			frame_new: RES.frames.TamaA[2],
 			frame_dead: RES.frames.TamaDead[1],
 			decrease_count: 10,
 		});
@@ -2162,10 +2166,10 @@ function newDannmaku(from, to, r, rt, v, vt, ext) {
 	if (!from || !from.data)
 		return;
 	if (!to || !to.data) {
-		to = {}
+		to = {};
 		to.data = {
 			x: UTIL.getGamePosX(0.5),
-			y: UTIL.getGamePosY(0.5),
+			y: UTIL.getGamePosY(0.9),
 		}
 	}
 	var rt0 = Math.atan2(to.data.y - from.data.y, to.data.x - from.data.x),
@@ -2180,6 +2184,29 @@ function newDannmaku(from, to, r, rt, v, vt, ext) {
 		vy: v * sinv,
 	}));
 	obj.runCircle = function(dt, d) {
+		if (this.is_creating) {
+			if (!d.scale0) {
+				d.vx0 = d.vx;
+				d.vy0 = d.vy;
+				d.vx = d.vx0 * 0.1;
+				d.vy = d.vy0 * 0.1;
+				d.scale0 = d.scale;
+			}
+			d.scale = 3 - 2 * d.ph * d.scale0;
+		}
+		else {
+			if (d.frame_new) {
+				UTIL.addFrameAnim(this, d.frame_new);
+				d.frame_new = undefined;
+			}
+			if (d.scale0) {
+				d.scale = d.scale0;
+				d.vx = d.vx0;
+				d.vy = d.vy0;
+				d.vx0 = d.vy0 = 0;
+				d.scale0 = 0;
+			}
+		}
 		if (this.is_dying) {
 			if (d.frame_dead) {
 				if (d.frame && d.frame.w)
@@ -2241,7 +2268,7 @@ function newBossGadgets(boss) {
 			theta: 0,
 			dtheta: random(0.05, 0.10) / 30,
 			phi: random(1),
-			dphi: random(0.01, 0.05) / 50,
+			dphi: random(0.01, 0.05) / 30,
 			radius1: random(50, 30),
 			radius2: 10,
 		}
