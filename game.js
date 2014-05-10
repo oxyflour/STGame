@@ -1604,7 +1604,7 @@ return proto = {
 	damage_pt: 1,
 	data0: {
 		dh: 1/100,
-		kh: 1/200,
+		kh: 1/300,
 		r: 5,
 		vy: 0.3,
 	},
@@ -2049,10 +2049,13 @@ function newEnemy(d) {
 function newSec1(pth, count, offset) {
 	STORY.timeout(function (d, n) {
 		ieach(offset || [[0, 0]], function(i, v) {
-			SPRITE.newObj('Enemy', {
+			var obj = SPRITE.newObj('Enemy', {
 				frames: RES.frames.Enemy00,
 				pathnodes: UTIL.pathOffset(RES.path[pth], v[0], v[1]),
 			});
+			STORY.timeout(function() {
+				obj.anim(2000, newDanns1, obj);
+			}, random(2000));
 		});
 	}, 250, null, count);
 }
@@ -2061,7 +2064,7 @@ function newSec2(ylim, count) {
 		ieach([-1, 1], function(i, x) {
 			var f = 0.5 + (n+0.5)/(count+0.5)*0.5 * x,
 				dvx = 0.005 * x, dvy = -0.003;
-			var enm = SPRITE.newObj('Enemy', {
+			var obj = SPRITE.newObj('Enemy', {
 				frames: RES.frames.Enemy00,
 				x: UTIL.getGamePosX(f),
 				y: 0,
@@ -2070,10 +2073,14 @@ function newSec2(ylim, count) {
 				dvx: dvx,
 				dvy: dvy,
 			});
-			enm.anim(50, function(d, v) {
+			obj.anim(50, function(d, v) {
 				if (v.data.y > UTIL.getGamePosY(ylim)) {
 					v.data.vx += v.data.dvx;
 					v.data.vy += v.data.dvy;
+				}
+				if (v.data.age > 200 && !v.is_fire) {
+					v.is_fire = true;
+					newDanns1(v);
 				}
 			});
 		});
@@ -2091,11 +2098,11 @@ function newSec3(tick, count) {
 			vx0: random(-0.1, 0.1),
 		});
 		enm.anim(50, function(d, v) {
-			if (v.data.age > 600 && !v.fired) {
+			if (v.data.age > 600 && !v.is_fire) {
 				v.data.vy = 0;
-				v.fired = true;
+				v.is_fire = true;
 				UTIL.addFrameAnim(enm, RES.frames.Enemy11);
-				newDanns1(v);
+				newDanns2(v);
 			}
 			else if (v.data.age > 2000) {
 				v.data.vy += v.data.dvy;
@@ -2110,21 +2117,34 @@ function newSec4() {
 			ps = UTIL.pathOffset(pth, random(-200, 200), random(0, 200));
 			px = ps[0].x;
 		ps[0].x = ps[0].y = undefined;
-		SPRITE.newObj('Enemy', {
+		var obj = SPRITE.newObj('Enemy', {
 			frames: RES.frames.Enemy00,
 			x: px,
 			y: GAME.rect.t,
 			pathnodes: ps,
 		});
+		STORY.timeout(function() {
+			obj.anim(2000, newDanns1, obj);
+		}, random(2000));
 	}, 300, null, 10);
 }
 
 function newDanns1(from) {
+	var to = UTIL.getNearestAlive(from, 'Player');
+	newDannmaku(from, to, 0, 0, 0.2, 0, {
+		frames: RES.frames.TamaSmall[2],
+		frame_dead: RES.frames.TamaDead[2],
+	})
+}
+function newDanns2(from) {
 	var to = UTIL.getNearestAlive(from, 'Player'),
 		n = 5;
 	array(n, function(i) {
-		var rt = (i - (n-1)/2)*0.15 * Math.PI,
-			obj = newDannmaku(from, to, 25, rt, 0.5, 0);
+		var rt = (i - (n-1)/2)*0.15 * Math.PI;
+		var obj = newDannmaku(from, to, 25, rt, 0.5, 0, {
+			frames: RES.frames.TamaA[2],
+			frame_dead: RES.frames.TamaDead[1],
+		});
 		obj && obj.anim(50, function(d, v) {
 			if (d.n-- > 0) {
 				v.data.vx *= 0.85;
@@ -2155,14 +2175,16 @@ function newDannmaku(from, to, r, rt, v, vt, ext) {
 		y: from.data.y + r * sin,
 		vx: v * cosv,
 		vy: v * sinv,
-		frames: RES.frames.TamaA[2],
-		frame_dead: RES.frames.TamaDead[1],
 	}));
 	obj.runCircle = function(dt, d) {
 		if (this.is_dying) {
-			if (!this.is_dead_frame) {
-				this.is_dead_frame = true;
-				UTIL.addFrameAnim(d.frame_dead);
+			if (!this.is_showdead) {
+				this.is_showdead = true;
+				if (d.frame_dead) {
+					if (d.frame && d.frame.w)
+						d.scale = d.frame.w / d.frame_dead.w;
+					UTIL.addFrameAnim(this, d.frame_dead);
+				}
 			}
 			d.scale = 1 + (1 - d.ph)*0.2;
 		}
@@ -2479,11 +2501,9 @@ var hook = {
 			STATICS.graze --;
 			v.juesi();
 			newEffect(v);
-			/*
 			STORY.timeout(function() {
 				killCls('Dannmaku');
-			}, 10, null, 80);
-			*/
+			}, 30, null, 20);
 		}
 		else if (e == STORY.events.PLAYER_GRAZE) {
 			STATICS.graze ++;
