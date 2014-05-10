@@ -718,11 +718,11 @@ input[type="radio"]:focus + .menu {
 			_t.s0A1 = ieach(px, function(i, v, d) {
 				d.push({x:px[i]-32, y:py[i]-36, v:0.12});
 			}, []);
-			_t.s0A1.push({v:0.12});
+			_t.s0A1.push({fy:2, v:0.12});
 			_t.s0A2 = ieach(_t.s0A1, function(i, v, d) {
 				d.push({x:GAME.rect.r+GAME.rect.l-v.x, y:v.y, v:v.v});
 			}, []);
-			_t.s0A2.push({v:0.12});
+			_t.s0A2.push({fy:2, v:0.12});
 			return _t;
 		})
 	</script>

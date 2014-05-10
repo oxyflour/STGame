@@ -628,6 +628,7 @@ var SPRITE = (function() {
 		cls: newGroupAnim(),
 		layers: newGroupAnim(),
 		proto: {},
+		elems: {},
 	};
 	_t.newCls = function(c, f, fn) {
 		var from = f.substring ? new _t.proto[f].init() : {},
@@ -641,6 +642,11 @@ var SPRITE = (function() {
 		var obj = new _t.proto[c].init(d);
 		_t.cls.add(c, obj);
 		_t.layers.add(obj.layer, { obj:obj, run:draw });
+		if (obj.id) {
+			if (_t.elems[obj.id])
+				_t.elems[obj.id].finished = true;
+			_t.elems[obj.id] = obj;
+		}
 		return obj;
 	};
 	_t.eachObj = function(fn, c) {
@@ -2729,11 +2735,11 @@ ieach([
 	{ init:newSec3, para:[500, 10], duration:5000, },
 	{ init:newSec4, para:[], duration:5000 },
 	{ init:newSec1, para:['s0A2', 8, [[-40, 0], [0, 0]]], duration:2000 },
-	{ init:newSec1, para:['s0A1', 8, [[+40, 0], [0, 0]]], duration:5000, next:'bossA' },
+	{ init:newSec1, para:['s0A1', 8, [[+40, 0], [0, 0]]], duration:10000, next:'bossA' },
 	{ init:newSec3, para:[1000, 20], duration:20000, name:'secH' },
 	{ init:newSec1, para:['s0A2', 8, [[-40, 0], [0, 0]]], duration:2000 },
 	{ init:newSec1, para:['s0A1', 8, [[+40, 0], [0, 0]]], duration:2000 },
-	{ init:newSec1, para:['s0A2', 8, [[-40, 0], [0, 0]]], duration:5000, next:'bossB' },
+	{ init:newSec1, para:['s0A2', 8, [[-40, 0], [0, 0]]], duration:10000, next:'diagA' },
 ], function(i, para, tl) {
 	var c = para.name || 'sec'+i, n = para.next || 'sec'+(i+1);
 	tl[c] = {
@@ -2744,15 +2750,15 @@ ieach([
 	};
 }, tl);
 ieach([
-	{ text:'x0aabbcc', face:'f0a', float:'l', name:'diag' },
-	{ text:'x0aabbcc', face:'f0b fs', float:'l', },
+	{ text:'x0aabbcc', face:'f0a', float:'l', name:'diagA' },
+	{ text:'x0aabbcc', face:'f0b fs', float:'l', next:'bossB', },
 	{ text:'y0aabbcc', face:'f3a', float:'r', },
 	{ text:'x0aabbcc', face:'f0c fs', float:'l', },
-	{ text:'y0aabbcc', face:'f3a fs', float:'r', },
+	{ text:'y0aabbcc', face:'f3a fs', float:'r', name:'diagB', },
 	{ text:'x0aabbcc', face:'f0b', float:'l', },
 	{ text:'y0aabbcc', face:'f3a', float:'r', },
 	{ text:'x0aabbcc', face:'f0c', float:'l', },
-	{ text:'y0aabbcc', face:'f3a', float:'r', next:'bossC' },
+	{ text:'y0aabbcc', face:'f3a', float:'r', next:'bossC', ended:true },
 ], function(i, para, tl) {
 	var c = para.name || 'diag'+i, n = para.next || 'diag'+(i+1);
 	tl[c] = {
@@ -2793,7 +2799,7 @@ ieach([
 				return n;
 		},
 		quit: function(d, n) {
-			if (n.indexOf('diag') != 0)
+			if (para.ended)
 				d.text.die();
 		},
 		on: function(e, v, d) {
@@ -2836,8 +2842,8 @@ ieach([
 		],
 		duration: 25000,
 		name: 'bossA',
-		clear_enemy: true,
 	},
+	/*
 	{
 		pathnodes: [
 			{ v:0.1 },
@@ -2846,6 +2852,7 @@ ieach([
 		duration: 30000,
 		scname: 'spell card 1',
 	},
+	*/
 	{
 		pathnodes: [
 			{ v:0.3 },
@@ -2853,22 +2860,22 @@ ieach([
 			{ fy:-1, v:0.3 },
 		],
 		next: 'secH',
-		duration: 100,
+		duration: 500,
 		no_countdown: true,
 		invinc: true,
 	},
 	{
 		pathnodes: [
-			{ fx:0.0, fy:0.0, v:0.1 },
+			{ fx:0.0, fy:0.0, v:0.2 },
 			{ fx:0.1, fy:0.1 },
 			{ fx:0.5, fy:0.1 },
 		],
 		duration: 2000,
 		invinc: true,
 		no_lifebar: true,
+		disable_fire: true,
 		name: 'bossB',
-		next: 'diag',
-		clear_enemy: true,
+		next: 'diagB',
 	},
 	{
 		pathnodes: [
@@ -2895,8 +2902,6 @@ ieach([
 	tl[c] = {
 		init: function(d) {
 			killCls('Dannmaku');
-			if (para.clear_enemy)
-				killCls('Enemy');
 			d.age = 0;
 			d.disable_fire = para.disable_fire;
 			d.duration = para.duration || Inf;
