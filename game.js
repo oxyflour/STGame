@@ -2214,32 +2214,7 @@ function newBoss() {
 		id: 'boss',
 	});
 	boss.effects = array(3, function(i) {
-		var eff = SPRITE.newObj('Basic', {
-			parent: boss,
-			frames: RES.frames.EffBoss,
-			rot: {
-				theta: 0,
-				dtheta: random(0.05, 0.10) / 50,
-				phi: random(1),
-				dphi: random(0.01, 0.05) / 50,
-				radius1: 30,
-				radius2: 10,
-			}
-		});
-		eff.runBasic = function(dt, d) {
-			var p = d.parent,
-				r = d.rot;
-			r.theta += r.dtheta * dt;
-			r.phi += r.dphi * dt;
-			d.x = p.data.x +
-				r.radius1*Math.cos(r.theta)*Math.cos(r.phi) -
-				r.radius2*Math.sin(r.theta)*Math.sin(r.phi);
-			d.y = p.data.y +
-				r.radius1*Math.cos(r.theta)*Math.sin(r.phi) +
-				r.radius2*Math.sin(r.theta)*Math.cos(r.phi);
-			d.z = Math.sin(r.theta);
-			d.scale = 1.0 + 0.4*Math.sin(r.theta);
-		};
+		var eff = newBossGadgets(boss);
 		eff.drawEffects = eff.draw;
 		eff.draw = return_nothing;
 		return eff;
@@ -2257,6 +2232,35 @@ function newBoss() {
 		});
 	}
 	return boss;
+}
+function newBossGadgets(boss) {
+	var eff = SPRITE.newObj('Basic', {
+		parent: boss,
+		frames: RES.frames.EffBoss,
+		rot: {
+			theta: 0,
+			dtheta: random(0.05, 0.10) / 30,
+			phi: random(1),
+			dphi: random(0.01, 0.05) / 50,
+			radius1: random(50, 30),
+			radius2: 10,
+		}
+	});
+	eff.runBasic = function(dt, d) {
+		var p = d.parent,
+			r = d.rot;
+		r.theta += r.dtheta * dt;
+		r.phi += r.dphi * dt;
+		d.x = p.data.x +
+			r.radius1*Math.cos(r.theta)*Math.cos(r.phi) -
+			r.radius2*Math.sin(r.theta)*Math.sin(r.phi);
+		d.y = p.data.y +
+			r.radius1*Math.cos(r.theta)*Math.sin(r.phi) +
+			r.radius2*Math.sin(r.theta)*Math.cos(r.phi);
+		d.z = Math.sin(r.theta);
+		d.scale = 1.0 + 0.4*Math.sin(r.theta);
+	};
+	return eff;
 }
 function newLifeBar(boss) {
 	var bar = SPRITE.newObj('Basic', {
