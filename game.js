@@ -2103,7 +2103,7 @@ function newSec3(tick, count) {
 			if (d.age > 600 && !this.is_fire) {
 				this.is_fire = true;
 				d.vy = 0;
-				STORY.timeout(newDanns2, 500, this, 2)
+				STORY.timeout(newDanns2, 300, this, 2)
 				UTIL.addFrameAnim(enm, RES.frames.Enemy11);
 			}
 			else if (d.age > 2000) {
@@ -2181,15 +2181,13 @@ function newDannmaku(from, to, r, rt, v, vt, ext) {
 	}));
 	obj.runCircle = function(dt, d) {
 		if (this.is_dying) {
-			if (!this.is_showdead) {
-				this.is_showdead = true;
-				if (d.frame_dead) {
-					if (d.frame && d.frame.w)
-						d.scale = d.frame.w / d.frame_dead.w;
-					UTIL.addFrameAnim(this, d.frame_dead);
-				}
+			if (d.frame_dead) {
+				if (d.frame && d.frame.w)
+					d.scale = d.frame.w / d.frame_dead.w;
+				UTIL.addFrameAnim(this, d.frame_dead);
+				d.frame_dead = undefined;
 			}
-			d.scale = 1 + (1 - d.ph)*0.5;
+			d.scale += 0.005;
 		}
 	};
 	return obj;
