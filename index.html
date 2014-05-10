@@ -591,6 +591,26 @@ input[type="radio"]:focus + .menu {
 			_t.TamaFire = array(8, function(i) {
 				return { res:'etama3', sx:32*i, sy:257-32, sw:32, sh:32, w:32, h:32 }
 			});
+			_t.TamaColorNew = {
+				k: _t.TamaFire[0],
+				r: _t.TamaFire[1],
+				m: _t.TamaFire[2],
+				b: _t.TamaFire[3],
+				c: _t.TamaFire[4],
+				g: _t.TamaFire[5],
+				y: _t.TamaFire[6],
+				w: _t.TamaFire[7],
+			};
+			_t.TamaColorDead = {
+				k: _t.TamaDead[0],
+				r: _t.TamaDead[1],
+				m: _t.TamaDead[1],
+				b: _t.TamaDead[2],
+				c: _t.TamaDead[2],
+				g: _t.TamaDead[3],
+				y: _t.TamaDead[4],
+				w: _t.TamaDead[0],
+			}
 
 			ieach([0, 128], function(i, x) {
 				ieach([0, 32, 64], function(j, y) {

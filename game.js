@@ -878,11 +878,13 @@ var UTIL = {
 		ieach(ps, function(i, n, d) {
 			if (+n.v !== n.v)
 				n.v = d.v || 0.1;
-			if (+n.x !== n.x && +n.fx === n.fx)
-				n.x = UTIL.getGamePosX(n.fx);
-			if (+n.y !== n.y && +n.fy === n.fy)
-				n.y = UTIL.getGamePosY(n.fy);
+			if (+n.x !== n.x)
+				n.x = +n.fx===n.fx ? UTIL.getGamePosX(n.fx) : d.x;
+			if (+n.y !== n.y)
+				n.y = +n.fy===n.fy ? UTIL.getGamePosY(n.fy) : d.y;
 			d.v = n.v;
+			d.x = n.x;
+			d.y = n.y;
 		}, {});
 		v.anim(t, function(d) {
 			var e = v.data,
@@ -925,10 +927,8 @@ var UTIL = {
 			}
 
 			if (i !== d.index) {
-				n = d.pathnodes[i];
-				n && n.quit && n.quit(v);
 				n = d.pathnodes[d.index];
-				n && n.init && n.init(v);
+				n && n.fn && n.fn(v);
 			}
 		}, {
 			tick: t,
@@ -2143,9 +2143,8 @@ function newDanns1(from) {
 	var to = UTIL.getNearestAlive(from, 'Player');
 	if (!from.is_dying) {
 		newDannmaku(from, to, 0, 0, 0.2, 0, {
-			frames: RES.frames.TamaFire[3],
-			frame_new: RES.frames.TamaSmallX[0],
-			frame_dead: RES.frames.TamaDead[2],
+			color: 'b',
+			frames: RES.frames.TamaSmallX[5],
 		});
 	}
 }
@@ -2155,13 +2154,11 @@ function newDanns2(from) {
 	if (!from.is_dying) array(n, function(i) {
 		var rt = (i - (n-1)/2)*0.1 * Math.PI;
 		var obj = newDannmaku(from, to, 0, rt, 0.5, 0, {
-			frames: RES.frames.TamaFire[1],
-			frame_new: RES.frames.TamaA[2],
-			frame_dead: RES.frames.TamaDead[1],
-			decrease_count: 10,
+			color: 'r',
+			frames: RES.frames.TamaA[2],
 		});
 		obj.anim(50, function(d) {
-			if (d.decrease_count-- > 0) {
+			if (d.age < 500) {
 				d.vx *= 0.85;
 				d.vy *= 0.85;
 			}
@@ -2193,33 +2190,30 @@ function newDannmaku(from, to, r, rt, v, vt, ext) {
 	}));
 	obj.runCircle = function(dt, d) {
 		if (this.is_creating) {
-			if (!d.scale0) {
+			if (!this.is_freezed && (this.is_freezed = true)) {
 				d.vx0 = d.vx;
 				d.vy0 = d.vy;
 				d.vx = d.vx0 * 0.1;
 				d.vy = d.vy0 * 0.1;
 				d.scale0 = d.scale;
 			}
+			if (d.color && !this.is_color_set && (this.is_color_set = true))
+				UTIL.addFrameAnim(this, RES.frames.TamaColorNew[d.color]);
 			d.scale = 2.5 - d.ph * d.scale0;
 		}
 		else {
-			if (d.frame_new) {
-				UTIL.addFrameAnim(this, d.frame_new);
-				d.frame_new = undefined;
-			}
-			if (d.scale0) {
-				d.scale = d.scale0;
+			if (this.is_freezed && !(this.is_freezed = false)) {
 				d.vx = d.vx0;
 				d.vy = d.vy0;
 				d.vx0 = d.vy0 = 0;
-				d.scale0 = 0;
+				d.scale = d.scale0;
 			}
+			if (d.frames && !this.is_frame_set && (this.is_frame_set = true))
+				UTIL.addFrameAnim(this, d.frames);
 		}
 		if (this.is_dying) {
-			if (d.frame_dead) {
-				UTIL.addFrameAnim(this, d.frame_dead);
-				d.frame_dead = undefined;
-			}
+			if (d.color && !this.is_color_dead && (this.is_color_dead = true))
+				UTIL.addFrameAnim(this, RES.frames.TamaColorDead[d.color]);
 			d.scale += 0.005;
 		}
 	};
@@ -2369,9 +2363,8 @@ function newBossDanns1(from) {
 		var rt = i/n * 2*Math.PI;
 		array(m, function(j) {
 			newDannmaku(from, to, 0, rt, 0.1+j*0.01, 0, {
-				frames: RES.frames.TamaFire[3],
-				frame_new: RES.frames.TamaA[5],
-				frame_dead: RES.frames.TamaDead[2],
+				color: 'b',
+				frames: RES.frames.TamaA[5],
 			})
 		})
 	})
@@ -2380,21 +2373,20 @@ function newBossDanns2(from) {
 	var to = UTIL.getNearestAlive(from, 'Player'),
 		n = 15;
 	var ds = [
-		[ RES.frames.TamaFire[3], RES.frames.TamaSmallX[0], RES.frames.TamaDead[2] ],
-		[ RES.frames.TamaFire[3], RES.frames.TamaSmallX[1], RES.frames.TamaDead[2] ],
-		[ RES.frames.TamaFire[3], RES.frames.TamaSmallX[2], RES.frames.TamaDead[2] ],
-		[ RES.frames.TamaFire[3], RES.frames.TamaSmallX[3], RES.frames.TamaDead[2] ],
-		[ RES.frames.TamaFire[3], RES.frames.TamaSmallX[4], RES.frames.TamaDead[2] ],
-		[ RES.frames.TamaFire[3], RES.frames.TamaSmallX[5], RES.frames.TamaDead[2] ],
-		[ RES.frames.TamaFire[3], RES.frames.TamaSmallX[6], RES.frames.TamaDead[2] ],
+		{ color:'k', frames:RES.frames.TamaSmallX[0] },
+		{ color:'r', frames:RES.frames.TamaSmallX[1] },
+		{ color:'r', frames:RES.frames.TamaSmallX[2] },
+		{ color:'m', frames:RES.frames.TamaSmallX[3] },
+		{ color:'m', frames:RES.frames.TamaSmallX[4] },
+		{ color:'b', frames:RES.frames.TamaSmallX[5] },
+		{ color:'b', frames:RES.frames.TamaSmallX[6] },
 	];
 	STORY.timeout(function(d, j) {
 		array(n, function(i) {
 			var rt = i/n * 2*Math.PI + j*0.1;
 			var obj = newDannmaku(from, to, 0, rt, 0.1, 0, {
-				frames: d[j][0],
-				frame_new: d[j][1],
-				frame_dead: d[j][2],
+				color: d[j].color,
+				frames: d[j].frames,
 			});
 			obj.anim(50, function(d) {
 				if (d.age < 2000) {
@@ -2404,8 +2396,8 @@ function newBossDanns2(from) {
 				else if (d.age > 2500) {
 					var v = sqrt_sum(d.vx, d.vy);
 					if (v < 0.2) {
-						d.vx += d.vx / v * 0.02;
-						d.vy += d.vy / v * 0.02;
+						d.vx += d.vx / v * 0.01;
+						d.vy += d.vy / v * 0.01;
 					}
 				}
 			}, obj.data);
@@ -2656,7 +2648,7 @@ var hook = {
 			v.data.vy *= 0.1;
 
 			var f0 = v.data.frame;
-				f = v.data.frame_dead || RES.frames.BulletD[1],
+				f = RES.frames.BulletD[1],
 				h = f.h || f.sh;
 				h0 = f0 ? (f0.h || f0.sh) : h,
 			v.data.scale *= h / h0;
@@ -2795,13 +2787,15 @@ ieach([
 ieach([
 	{
 		pathnodes: [
-			{ fx:0.5, fy:0.0, v:0.2, },
-			{ fx:0.8, fy:0.4, v:0.1, t:1000, },
-			{ fx:0.8, fy:0.4, v:0.1, t:1000, init:newBossDanns1, },
-			{ fx:0.5, fy:0.5, v:0.1, t:1000, },
-			{ fx:0.5, fy:0.5, v:0.1, t:2500, init:newBossDanns2, },
-			{ fx:0.2, fy:0.5, v:0.1, },
-			{ fx:0.2, fy:0.2, v:0.1, t:2000, },
+			{ fx:0.50, fy:0.00, v:0.2, },
+			{ fx:0.83, fy:0.28, v:0.2, t:1000, },
+			{ t:1000, fn:newBossDanns1, },
+			{ fx:0.50, fy:0.10, v:0.1, t:1000, },
+			{ t:2500, fn:newBossDanns2, },
+			{ fx:0.17, fy:0.28, v:0.1, },
+			{ t: 500, fn:newBossDanns1, },
+			{ t:5000, fn:newBossDanns1, },
+			{ fx:0.50, fy:0.10, v:0.1, t:2000, },
 		],
 		duration: 30000,
 		name: 'bossA',
@@ -2819,7 +2813,7 @@ ieach([
 		pathnodes: [
 			{ v:0.3 },
 			{ fx:0.5, fy:0.0 },
-			{ v:0.3 },
+			{ fy:-1, v:0.3 },
 		],
 		next: 'secH',
 		duration: 100,
