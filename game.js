@@ -1,4 +1,6 @@
-var Inf = parseFloat('Infinity');
+var Inf = parseFloat('Infinity'),
+	PI = Math.PI,
+	PI2 = Math.PI * 2;
 
 function return_nothing() {
 }
@@ -108,7 +110,7 @@ function ease_out(f) {
 	return Math.sqrt(f);
 }
 function ease_in_out(f) {
-	return (Math.sin((f - 0.5) * Math.PI) + 1) * 0.5;
+	return (Math.sin((f - 0.5) * PI) + 1) * 0.5;
 }
 function limit_between(x, min, max) {
 	if (!(x <= max)) x = max;
@@ -528,7 +530,7 @@ var RES = (function(res) {
 			}
 			else if (t.k == 'rotate') {
 				dc.translate(sc.w/2, sc.h/2);
-				dc.rotate(parseInt(t.v)*Math.PI/180);
+				dc.rotate(parseInt(t.v)*PI/180);
 				dc.drawImage(sc.s, sc.x, sc.y, sc.w, sc.h,
 					-sc.w/2, -sc.h/2, sc.w, sc.h);
 			}
@@ -928,7 +930,7 @@ var UTIL = {
 
 			if (i !== d.index) {
 				n = d.pathnodes[d.index];
-				n && n.fn && n.fn(v);
+				n && n.fn && n.fn(v, n.arg);
 			}
 		}, {
 			tick: t,
@@ -1070,7 +1072,7 @@ return proto = {
 			f.rotate = 0;
 		if (f.rotate) {
 			var t = +f.rotate===f.rotate ? f.rotate :
-				Math.PI*1.5 + Math.atan2(d.vy, d.vx);
+				PI*1.5 + Math.atan2(d.vy, d.vx);
 			DC.translate(d.x, d.y);
 			DC.rotate(t);
 			DC.drawImageInt(RES[f.res],
@@ -1186,7 +1188,7 @@ return proto = {
 		if (d.color)
 			DC.fillStyle = d.color;
 		DC.beginPath();
-		DC.arc(d.x, d.y, d.r, 0, 2*Math.PI);
+		DC.arc(d.x, d.y, d.r, 0, PI2);
 		DC.closePath();
 		DC.fill();
 	},
@@ -1682,7 +1684,7 @@ function newBullet(from, to) {
 		array(4, function(i) {
 			var x = i % 2 ? -1 : 1,
 				v1 = random(0.4, 0.5),
-				t = (from.is_slow ? random(-5, 5) : random(10, 20)-i*5) * Math.PI / 180,
+				t = (from.is_slow ? random(-5, 5) : random(10, 20)-i*5) * PI / 180,
 				onmyou = x > 0 ? from.onmyous.right : from.onmyous.left;
 			SPRITE.newObj('Bullet', {
 				x: onmyou.data.x,
@@ -1748,7 +1750,7 @@ function newShield(bg) {
 		vx: random(-0.1, 0.1),
 		vy: random(-0.1, 0.1),
 		frames: RES.frames.Shield[0],
-		theta: random(0, Math.PI*2),
+		theta: random(0, PI2),
 		dtheta: randin([-0.06, 0.06]),
 		dv: 0.01,
 		dh: 1/2000,
@@ -1778,7 +1780,7 @@ function newShield(bg) {
 	ieach([1, 2, 3], function(i, v) {
 		SPRITE.newObj('Basic', {
 			index: v,
-			theta: random(0, Math.PI*2),
+			theta: random(0, PI2),
 			dtheta: random(-0.005, 0.005),
 			dist: random(10, 15),
 			parent: sh,
@@ -2149,11 +2151,9 @@ function newDanns1(from) {
 	}
 }
 function newDanns2(from) {
-	var to = UTIL.getNearestAlive(from, 'Player'),
-		n = 9;
-	if (!from.is_dying) array(n, function(i) {
-		var rt = (i - (n-1)/2)*0.1 * Math.PI;
-		var obj = newDannmaku(from, to, 0, rt, 0.5, 0, {
+	var to = UTIL.getNearestAlive(from, 'Player');
+	if (!from.is_dying) range(0.501, -0.5, 1/8, function(f) {
+		var obj = newDannmaku(from, to, 0, f*PI*0.6, 0.5, 0, {
 			color: 'r',
 			frames: RES.frames.TamaA[2],
 		});
@@ -2193,9 +2193,9 @@ function newDannmaku(from, to, r, rt, v, vt, ext) {
 			if (!this.is_freezed && (this.is_freezed = true)) {
 				d.vx0 = d.vx;
 				d.vy0 = d.vy;
+				d.scale0 = d.scale;
 				d.vx = d.vx0 * 0.1;
 				d.vy = d.vy0 * 0.1;
-				d.scale0 = d.scale;
 			}
 			if (d.color && !this.is_color_set && (this.is_color_set = true))
 				UTIL.addFrameAnim(this, RES.frames.TamaColorNew[d.color]);
@@ -2205,7 +2205,6 @@ function newDannmaku(from, to, r, rt, v, vt, ext) {
 			if (this.is_freezed && !(this.is_freezed = false)) {
 				d.vx = d.vx0;
 				d.vy = d.vy0;
-				d.vx0 = d.vy0 = 0;
 				d.scale = d.scale0;
 			}
 			if (d.frames && !this.is_frame_set && (this.is_frame_set = true))
@@ -2356,22 +2355,20 @@ function newSCName(scname) {
 	return scname;
 }
 
-function newBossDanns1(from) {
+function newBossDanns1(from, color) {
 	var to = UTIL.getNearestAlive(from, 'Player'),
-		n = 15, m = 7;
-	array(n, function(i) {
-		var rt = i/n * 2*Math.PI;
-		array(m, function(j) {
-			newDannmaku(from, to, 0, rt, 0.1+j*0.01, 0, {
-				color: 'b',
-				frames: RES.frames.TamaA[5],
+		frame = RES.frames.TamaA[('k rm b c g  y  w').indexOf(color)];
+	array(7, function(j) {
+		range(1, 0.001, 1/15, function(f) {
+			newDannmaku(from, to, 0, f*PI2, 0.1+j*0.01, 0, {
+				color: color,
+				frames: frame,
 			})
 		})
 	})
 }
 function newBossDanns2(from) {
-	var to = UTIL.getNearestAlive(from, 'Player'),
-		n = 15;
+	var to = UTIL.getNearestAlive(from, 'Player');
 	var ds = [
 		{ color:'k', frames:RES.frames.TamaSmallX[0] },
 		{ color:'r', frames:RES.frames.TamaSmallX[1] },
@@ -2382,16 +2379,16 @@ function newBossDanns2(from) {
 		{ color:'b', frames:RES.frames.TamaSmallX[6] },
 	];
 	STORY.timeout(function(d, j) {
-		array(n, function(i) {
-			var rt = i/n * 2*Math.PI + j*0.1;
-			var obj = newDannmaku(from, to, 0, rt, 0.1, 0, {
-				color: d[j].color,
-				frames: d[j].frames,
+		var para = d[j];
+		range(1, 0.001, 1/15, function(f) {
+			var obj = newDannmaku(from, to, 0, f*PI2+j*0.1, 0.1, 0, {
+				color: para.color,
+				frames: para.frames,
 			});
 			obj.anim(50, function(d) {
 				if (d.age < 2000) {
-					d.vx *= 0.9;
-					d.vy *= 0.9;
+					d.vx *= 0.95;
+					d.vy *= 0.95;
 				}
 				else if (d.age > 2500) {
 					var v = sqrt_sum(d.vx, d.vy);
@@ -2402,7 +2399,34 @@ function newBossDanns2(from) {
 				}
 			}, obj.data);
 		});
-	}, 200, ds, ds.length);
+	}, 150, ds, ds.length);
+}
+function newBossDanns3(from) {
+	var to = UTIL.getNearestAlive(from, 'Player');
+	var ds = [
+		{ color:'b', frames1:RES.frames.TamaSmallX[5], frames2:RES.frames.LongA[6], },
+		{ color:'r', frames1:RES.frames.TamaSmallX[1], frames2:RES.frames.LongA[2], },
+		{ color:'g', frames1:RES.frames.TamaSmallY[2], frames2:RES.frames.LongA[9], },
+		{ color:'y', frames1:RES.frames.TamaSmallY[4], frames2:RES.frames.LongA[12], },
+		{ color:'y', frames1:RES.frames.TamaSmallY[5], frames2:RES.frames.LongA[14], },
+	];
+	STORY.timeout(function(d, j) {
+		var para = d[j],
+			dt1 = random(0.1),
+			dt2 = random(0.1),
+			v1 = random(0.06, 0.15),
+			v2 = random(0.06, 0.15);
+		range(1, 0.001, 1/20, function(f) {
+			para.frames1 && newDannmaku(from, to, 0, f*PI2+dt1, v1, 0, {
+				color: para.color,
+				frames: para.frames1,
+			});
+			para.frames2 && newDannmaku(from, to, 0, f*PI2+dt2, v2, 0, {
+				color: para.color,
+				frames: para.frames2,
+			});
+		});
+	}, 150, ds, ds.length);
 }
 
 function newEffect(from) {
@@ -2788,16 +2812,29 @@ ieach([
 	{
 		pathnodes: [
 			{ fx:0.50, fy:0.00, v:0.2, },
-			{ fx:0.83, fy:0.28, v:0.2, t:1000, },
-			{ t:1000, fn:newBossDanns1, },
-			{ fx:0.50, fy:0.10, v:0.1, t:1000, },
-			{ t:2500, fn:newBossDanns2, },
-			{ fx:0.17, fy:0.28, v:0.1, },
-			{ t: 500, fn:newBossDanns1, },
-			{ t:5000, fn:newBossDanns1, },
-			{ fx:0.50, fy:0.10, v:0.1, t:2000, },
+			{ t:1000, fx:0.83, fy:0.28, v:0.2, },
+			{ t:1000, fn:newBossDanns1, arg:'b', },
+			{ t: 500, fx:0.50, fy:0.10, v:0.2, },
+			{ t:2000, fn:newBossDanns2, },
+			{ t: 500, fx:0.17, fy:0.28, v:0.2, },
+			{ t: 500, fn:newBossDanns1, arg:'g', },
+			{ t:1000, fn:newBossDanns1, arg:'y', },
+			{ t: 500, fx:0.50, fy:0.10, v:0.2, },
+			{ t:2000, fn:newBossDanns3, },
+			{ t: 500, fx:0.83, fy:0.28, v:0.2, },
+			{ t: 500, fn:newBossDanns1, arg:'b', },
+			{ t:1000, fn:newBossDanns1, arg:'r', },
+			{ t: 500, fx:0.50, fy:0.10, v:0.2, },
+			{ t:2000, fn:newBossDanns2, },
+			{ t: 500, fx:0.17, fy:0.28, v:0.2, },
+			{ t: 500, fn:newBossDanns1, arg:'g', },
+			{ t:1000, fn:newBossDanns1, arg:'y', },
+			{ t: 500, fx:0.50, fy:0.10, v:0.2, },
+			{ t:2000, fn:newBossDanns3, },
+			{ t: 500, fx:0.83, fy:0.28, v:0.2, },
+			{ t: 500, fn:newBossDanns1, arg:'b', },
 		],
-		duration: 30000,
+		duration: 25000,
 		name: 'bossA',
 		clear_enemy: true,
 	},
