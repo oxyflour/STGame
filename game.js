@@ -2088,6 +2088,8 @@ function newSec3(tick, count) {
 			if (v.data.age > 600 && !v.fired) {
 				v.data.vy = 0;
 				v.fired = true;
+				UTIL.addFrameAnim(enm, RES.frames.Enemy11);
+				newDanns1(v);
 			}
 			else if (v.data.age > 2000) {
 				v.data.vy += v.data.dvy;
@@ -2109,6 +2111,57 @@ function newSec4() {
 			pathnodes: ps,
 		});
 	}, 300, null, 10);
+}
+
+function newDanns1(from) {
+	var to = UTIL.getNearestAlive(from, 'Player'),
+		n = 5;
+	array(n, function(i) {
+		var rt = (i - (n-1)/2)*0.15 * Math.PI,
+			obj = newDannmaku(from, to, 25, rt, 0.4, 0);
+		obj && obj.anim(50, function(d, v) {
+			if (d.n-- > 0) {
+				v.data.vx *= 0.8;
+				v.data.vy *= 0.8;
+			}
+			else
+				return true;
+		}, { n:10 });
+	})
+}
+function newDannmaku(from, to, r, rt, v, vt, ext) {
+	if (!from || !from.data)
+		return;
+	if (!to || !to.data) {
+		to = {}
+		to.data = {
+			x: interp(GAME.rect.l, GAME.rect.r, 0.5),
+			y: interp(GAME.rect.t, GAME.rect.b, 0.5),
+		}
+	}
+	var rt0 = Math.atan2(to.data.y - from.data.y, to.data.x - from.data.x),
+		cos = Math.cos(rt0 + rt),
+		sin = Math.sin(rt0 + rt),
+		cosv = Math.cos(rt0 + rt + vt),
+		sinv = Math.sin(rt0 + rt + vt);
+	var obj = SPRITE.newObj('Dannmaku', fill(ext, {
+		x: from.data.x + r * cos,
+		y: from.data.y + r * sin,
+		vx: v * cosv,
+		vy: v * sinv,
+		frames: RES.frames.TamaA[2],
+		frame_dead: RES.frames.TamaDead[1],
+	}));
+	obj.runCircle = function(dt, d) {
+		if (this.is_dying) {
+			if (!this.is_dead_frame) {
+				this.is_dead_frame = true;
+				UTIL.addFrameAnim(d.frame_dead);
+			}
+			d.scale = 1 + (1 - d.ph)*0.2;
+		}
+	};
+	return obj;
 }
 
 function newBoss() {

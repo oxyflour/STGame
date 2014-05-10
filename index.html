@@ -573,6 +573,12 @@ input[type="radio"]:focus + .menu {
 					return { res:'etama3', sx:16*j, sy:i*16, sw:16, sh:16, w:16, h:16, rotate:k.indexOf('Long')==0 }
 				});
 			});
+			_t.TamaSmall = array(5, function(i) {
+				return { res:'etama3', sx:16*i+4, sy:112, sw:16, sh:16, w:16, h:16 }
+			})
+			_t.TamaDead = array(5, function(i) {
+				return { res:'etama3', sx:16*i+9, sy:112, sw:16, sh:16, w:16, h:16 }
+			})
 			_t.TamaLarge = array(8, function(i) {
 				return { res:'etama3', sx:32*i, sy:128, sw:32, sh:32, w:32, h:32 }
 			});
