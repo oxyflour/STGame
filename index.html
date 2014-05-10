@@ -582,8 +582,14 @@ input[type="radio"]:focus + .menu {
 			_t.TamaLarge = array(8, function(i) {
 				return { res:'etama3', sx:32*i, sy:128, sw:32, sh:32, w:32, h:32 }
 			});
+			_t.TamaSmallX = array(8, function(i) {
+				return { res:'etama3', sx:8*i+128, sy:208, sw:8, sh:8, w:8, h:8 }
+			});
+			_t.TamaSmallY = array(8, function(i) {
+				return { res:'etama3', sx:8*i+128, sy:208+8, sw:8, sh:8, w:8, h:8 }
+			});
 			_t.TamaFire = array(8, function(i) {
-				return { res:'etama3', sx:32*i, sy:256-32, sw:32, sh:32, w:32, h:32 }
+				return { res:'etama3', sx:32*i, sy:257-32, sw:32, sh:32, w:32, h:32 }
 			});
 
 			ieach([0, 128], function(i, x) {
