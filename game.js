@@ -1093,7 +1093,7 @@ return proto = {
 	},
 	anim: function(t, fn, x, id) {
 		var t = newTicker(t, function(obj) {
-			this.finished = obj.finished || fn(x, obj);
+			this.finished = obj.finished || fn.call(obj, x);
 		}, this);
 
 		STORY.anim.add(t);
@@ -1686,11 +1686,11 @@ function newBullet(from, to) {
 				frtick: 1000/36,
 				frames: RES.frames.Bullet1,
 				opacity: 0.7,
-			}).anim(50, function(k, v) {
-				var d = v.data,
-					u = d.to,
-					e = u && u.data;
-				if (u && !u.finished && u.damage_pt && !v.is_dying)
+			}).anim(50, function(k) {
+				var d = this.data,
+					that = d.to,
+					e = that && that.data;
+				if (that && !that.finished && that.damage_pt && !this.is_dying)
 					redirect_object(d, e, sqrt_sum(d.vx, d.vy), 0.4);
 			});
 		})
@@ -1710,14 +1710,14 @@ function newBomb(player) {
 		d.r = this.is_dying ? 400 - d.ph*300 : d.ph * 100;
 		return true;
 	};
-	bg.anim(50, function(d, bg) {
+	bg.anim(50, function(d) {
 		var p = d.player;
 		if ((p.finished || !p.is_bomb) && !bg.is_dying)
 			bg.die();
 		if (d.elem.object == bg)
 			d.elem.style.opacity = limit_between(parseFloat(d.elem.style.opacity)+d.dh*50, 0, 1);
 	}, bg.data);
-	bg.anim(800, function(d, bg) {
+	bg.anim(800, function(d) {
 		if (!bg.is_dying)
 			newShield(bg);
 	});
@@ -1753,11 +1753,11 @@ function newShield(bg) {
 		d.scale = d.r / 30;
 		return true;
 	};
-	sh.anim(50, function(k, v) {
-		var d = v.data;
+	sh.anim(50, function(k) {
+		var d = this.data;
 		if (!d.to || d.to.finished)
-			d.to = UTIL.getNearestAlive(v, 'Enemy');
-		if (d.to && d.to != v.hit_with)
+			d.to = UTIL.getNearestAlive(this, 'Enemy');
+		if (d.to && d.to != this.hit_with)
 			redirect_object(d, d.to.data, sqrt_sum(d.vx, d.vy)+0.04, 0.2);
 		else {
 			d.vx *= 0.92;
@@ -2075,16 +2075,16 @@ function newSec2(ylim, count) {
 				dvx: dvx,
 				dvy: dvy,
 			});
-			obj.anim(50, function(d, v) {
-				if (v.data.y > UTIL.getGamePosY(ylim)) {
-					v.data.vx += v.data.dvx;
-					v.data.vy += v.data.dvy;
+			obj.anim(50, function(d) {
+				if (d.y > UTIL.getGamePosY(ylim)) {
+					d.vx += d.dvx;
+					d.vy += d.dvy;
 				}
-				if (v.data.age > 200 && !v.is_fire) {
-					v.is_fire = true;
-					newDanns1(v);
+				if (d.age > 200 && !this.is_fire) {
+					this.is_fire = true;
+					newDanns1(this);
 				}
-			});
+			}, obj.data);
 		});
 	}, 350, null, count);
 }
@@ -2099,18 +2099,18 @@ function newSec3(tick, count) {
 			dvy: -0.005,
 			vx0: random(-0.1, 0.1),
 		});
-		enm.anim(50, function(d, v) {
-			if (v.data.age > 600 && !v.is_fire) {
-				v.is_fire = true;
-				v.data.vy = 0;
-				STORY.timeout(newDanns2, 500, v, 2)
+		enm.anim(50, function(d) {
+			if (d.age > 600 && !this.is_fire) {
+				this.is_fire = true;
+				d.vy = 0;
+				STORY.timeout(newDanns2, 500, this, 2)
 				UTIL.addFrameAnim(enm, RES.frames.Enemy11);
 			}
-			else if (v.data.age > 2000) {
-				v.data.vy += v.data.dvy;
-				v.data.vx = v.data.vx0;
+			else if (d.age > 2000) {
+				d.vy += d.dvy;
+				d.vx = d.vx0;
 			}
-		});
+		}, enm.data);
 	}, tick, null, count);
 }
 function newSec4() {
@@ -2146,15 +2146,16 @@ function newDanns2(from) {
 		var obj = newDannmaku(from, to, 25, rt, 0.5, 0, {
 			frames: RES.frames.TamaA[2],
 			frame_dead: RES.frames.TamaDead[1],
+			decrease_count: 10,
 		});
-		obj.anim(50, function(d, v) {
-			if (d.n-- > 0) {
-				v.data.vx *= 0.85;
-				v.data.vy *= 0.85;
+		obj.anim(50, function(d) {
+			if (d.decrease_count-- > 0) {
+				d.vx *= 0.85;
+				d.vy *= 0.85;
 			}
 			else
 				return true;
-		}, { n:10 });
+		}, obj.data);
 	})
 }
 function newDannmaku(from, to, r, rt, v, vt, ext) {
@@ -2188,7 +2189,7 @@ function newDannmaku(from, to, r, rt, v, vt, ext) {
 					UTIL.addFrameAnim(this, d.frame_dead);
 				}
 			}
-			d.scale = 1 + (1 - d.ph)*0.2;
+			d.scale = 1 + (1 - d.ph)*0.5;
 		}
 	};
 	return obj;
@@ -2302,10 +2303,10 @@ function newCountDown(data) {
 			map: RES.nummap,
 		},
 	});
-	countdown.anim(100, function(d, v) {
+	countdown.anim(100, function(d) {
 		var t = Math.max(Math.floor((d.duration - d.age) / 1000), 0);
-		v.data.text.res = (t<5 && 'num3') || (t<10 && 'num2') || (t<20 && 'num1') || 'num0';
-		v.data.text.text = (t < 10 ? '0' : '') + t;
+		this.data.text.res = (t<5 && 'num3') || (t<10 && 'num2') || (t<20 && 'num1') || 'num0';
+		this.data.text.text = (t < 10 ? '0' : '') + t;
 	}, data);
 	return countdown;
 }
@@ -2361,11 +2362,10 @@ function newEffect(from) {
 			d.scale = ease_in(d.ph) * 2 + 0.5;
 			return true;
 		};
-		p.anim(50, function(k, v) {
-			var d = v.data;
+		p.anim(50, function(d) {
 			d.vx *= 0.97;
 			d.vy *= 0.97;
-		});
+		}, p.data);
 	});
 }
 function newBackground(elems) {
@@ -2409,8 +2409,8 @@ function newBackground(elems) {
 		e.speed = parseFloat($attr(e, 'bg-speed') || '0');
 		e.opacity = parseFloat(e.style.opacity || '1');
 	});
-	bg.anim(50, function(d, v) {
-		ieach(v.elems, function(i, e) {
+	bg.anim(50, function(d) {
+		ieach(this.elems, function(i, e) {
 			e.offset += e.speed * 50;
 			if (e.offset > 0)
 				e.offset -= e.total;
@@ -2419,14 +2419,14 @@ function newBackground(elems) {
 			e.style.webkitTransform = trans2;
 			e.style.msTransform = trans;
 			e.style.MozTransform = trans2;
-			e.style.opacity = e.opacity * v.data.ph;
+			e.style.opacity = e.opacity * bg.data.ph;
 		});
 		var age = bg.data.age,
 			begin = 25000,
 			end = 30000;
 		if (age >= begin && age <= end) {
 			var f = ease_in_out((age - begin) / (end - begin));
-			ieach(v.imgs, function(i, e) {
+			ieach(this.imgs, function(i, e) {
 				var v = e.val;
 				if (v) {
 					var p = interp(v.persp[0], v.persp[1], f),
@@ -2494,9 +2494,9 @@ var hook = {
 			}
 		}
 		else if (e == STORY.events.PLAYER_AUTOCOLLECT) {
-			SPRITE.eachObj(function(i, u) {
-				u.data.collected = v;
-				u.data.collected_auto = true;
+			SPRITE.eachObj(function(i, that) {
+				that.data.collected = v;
+				that.data.collected_auto = true;
 			}, 'Drop');
 		}
 		else if (e == STORY.events.PLAYER_HIT) {
@@ -2669,10 +2669,10 @@ ieach([
 			text.innerHTML = para.text;
 			$i('.face', face).className = 'face '+para.face;
 
-			d.text.anim(50, function(d, v) {
-				if (v.data.ph <= 1) {
-					bg.style.opacity = v.data.ph;
-					var dx = (1 - v.data.ph) * -64;
+			d.text.anim(50, function(d) {
+				if (this.data.ph <= 1) {
+					bg.style.opacity = this.data.ph;
+					var dx = (1 - this.data.ph) * -64;
 					fl.style.marginLeft = dx+'px';
 					fr.style.marginRight = dx+'px';
 				}
