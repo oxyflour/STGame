@@ -2803,7 +2803,7 @@ var hook = {
 			STATICS.bomb = 7;
 		}
 		else if (e == STORY.events.PLAYER_FIRE) {
-			if (!d.disable_fire)
+			if (!d.disable_fire && !v.is_dying)
 				newBullet(v);
 		}
 		else if (e == STORY.events.PLAYER_BOMB) {
@@ -2827,7 +2827,7 @@ var hook = {
 			v.data.vx *= 0.05;
 			v.data.vy *= 0.05;
 			UTIL.addFrameAnim(v, RES.frames.BulletD[v.data.to ? 1 : 0]);
-			
+
 			SPRITE.newObj('Circle', {
 				x: v.data.x,
 				y: v.data.y,
