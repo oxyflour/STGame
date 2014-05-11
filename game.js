@@ -1230,11 +1230,9 @@ SPRITE.newCls('Player', 'Basic', function(from, proto) {
 return proto = {
 	hits: [
 		'Player',
-		'Ball',
 		'Enemy',
 		'Dannmaku',
 		'Drop',
-		'Stick',
 	],
 	hitWith: function(that) {
 		var d = this.data,
@@ -1249,10 +1247,11 @@ return proto = {
 				circles_hit(d, e)
 		}
 		else if (that.damage_pt) {
-			if (!this.is_invinc && circle_intersect({ x:d.x, y:d.y, r:d.h }, e))
+			var u = { x:d.x, y:d.y, r:d.h };
+			if (!this.is_invinc && (that.is_line ? line_circle_intersect(e, u) : circle_intersect(e, u)))
 				STORY.on(STORY.events.PLAYER_HIT, this);
-			else if (!e.grazed && circle_intersect(d, e))
-				STORY.on(STORY.events.PLAYER_GRAZE, e.grazed = this);
+			else if (!that.grazed && (that.is_line ? line_circle_intersect(e, d) : circle_intersect(e, d)))
+				STORY.on(STORY.events.PLAYER_GRAZE, that.grazed = this);
 		}
 	},
 	
@@ -1416,6 +1415,7 @@ return proto = {
 }
 });
 
+/*
 SPRITE.newCls('Ball', 'Circle', function(from, proto) {
 return proto = {
 	layer: 'L20',
@@ -1474,12 +1474,14 @@ return proto = {
 		dx: 0,
 		dy: (GAME.rect.b - GAME.rect.t)*0.2,
 	},
+	is_line: 1,
 	damage_pt: 1,
 	init: function(d) {
 		from.init.call(this, d = fill(d, proto.data0));
 	}
 }
 });
+*/
 
 SPRITE.newCls('Enemy', 'Circle', function(from, proto) {
 return proto = {
@@ -2175,15 +2177,9 @@ function newDanns2(from) {
 	})
 }
 function newDannmaku(from, to, r, rt, v, vt, ext) {
-	if (!from || !from.data)
-		return;
-	if (!to || !to.data) {
-		to = {};
-		to.data = {
-			x: UTIL.getGamePosX(0.5),
-			y: UTIL.getGamePosY(0.9),
-		}
-	}
+	if (!to || !to.data) to = {
+		data: { x: UTIL.getGamePosX(0.5), y: UTIL.getGamePosY(0.9), },
+	};
 	var rt0 = Math.atan2(to.data.y - from.data.y, to.data.x - from.data.x),
 		cos = Math.cos(rt0 + rt),
 		sin = Math.sin(rt0 + rt),
@@ -2224,6 +2220,54 @@ function newDannmaku(from, to, r, rt, v, vt, ext) {
 		}
 	};
 	return obj;
+}
+function newLaser(from, to) {
+	if (!to || !to.data) to = {
+		data: { x: UTIL.getGamePosX(0.5), y: UTIL.getGamePosY(0.9), },
+	};
+	var to = UTIL.getNearestAlive(from, 'Player') || {
+		data: { x:UTIL.getGamePosX(0.5), y:GAME.rect.b, },
+	}
+	var px = from.data.x + random(-50, 50),
+		py = from.data.y + random(-50, 50),
+		dy = (GAME.rect.b - GAME.rect.t),
+		dx = dy * (to.data.x - px) / (to.data.y - py);
+	var obj = SPRITE.newObj('Dannmaku', {
+		r: 10,
+		x: px,
+		y: py,
+		vx: 0,
+		vy: 0,
+		dx: dx,
+		dy: dy,
+		frames: RES.frames.TamaFire[2],
+		duration: 5000,
+		dh: 1/3000,
+		kh: 1/800,
+	});
+	obj.is_line = true;
+	obj.mkRect = function(rt, d) {
+		rt.l = Math.min(d.x0, d.x, d.x + d.dx);
+		rt.t = Math.min(d.y0, d.y, d.y + d.dy);
+		rt.r = Math.max(d.x0, d.x, d.x + d.dx);
+		rt.b = Math.max(d.y0, d.y, d.y + d.dy);
+	};
+	obj.runCircle = function(dt, d) {
+		this.damage_pt = this.is_creating || this.is_dying ? 0 : 1;
+	};
+	obj.drawCircle = function(d) {
+		DC.beginPath();
+		DC.moveTo(d.x, d.y);
+		DC.lineTo(d.x + d.dx, d.y + d.dy);
+		DC.strokeStyle = 'white';
+		DC.lineWidth = d.r * d.ph;
+		DC.stroke();
+		DC.strokeStyle = 'blue';
+		DC.lineWidth = 3;
+		DC.stroke();
+		DC.closePath();
+		return true;
+	};
 }
 
 function newBoss() {
@@ -2473,20 +2517,86 @@ function newBossDanns5(from, color, direction) {
 		});
 	}, 30, null, n);
 }
-function newBossDanns6(from, color, count, angular, rad) {
+function newBossDanns6(from, color, count, angular, rad, v0, dr) {
 	var to = UTIL.getNearestAlive(from, 'Player');
 	var frame = {
 		'g': RES.frames.TamaA[10],
 		'r': RES.frames.LongA[2],
+		'y': RES.frames.LongA[13],
 	}[color || 'r'];
 	array(count || 10, function(j) {
 		range(0.501, -0.5, 1/((angular || 5) - 1), function(f) {
-			newDannmaku(from, to, 0, f*(rad || 0.03)*PI2, 0.1+j*0.03, 0, {
+			newDannmaku(from, to, 0, f*(rad || 0.03)*PI2 + (dr || 0)*j, (v0 || 0.1)+j*0.03, 0, {
 				color: color,
 				frames: frame,
 			});
 		});
 	});
+}
+function newBossDanns7(from) {
+	var to = UTIL.getNearestAlive(from, 'Player');
+	newLaser(from, to);
+}
+function newBossDanns8(from, color) {
+	var to = UTIL.getNearestAlive(from, 'Player');
+	var frame = {
+		'g': RES.frames.LongA[10],
+		'r': RES.frames.LongA[2],
+		'b': RES.frames.LongA[6],
+	}[color || 'r'];
+	array(2, function(j) {
+		var i = j;
+		range(1, 0.001, 1/60, function(f) {
+			var obj = newDannmaku(from, to, 0, f*PI2, 0.12+0.06*j, 0, {
+				sx: from.data.x,
+				sy: from.data.y,
+				dv: 0.001 - j*0.00015,
+				vr: 0,
+				vt: i ++ % 2 ? 0.1 : -0.1,
+				color: color,
+				frames: frame,
+			});
+			obj.anim(50, function(d) {
+				if (d.age < 2000) {
+					d.vx *= 0.92;
+					d.vy *= 0.92;
+				}
+				else {
+					d.vr += d.dv;
+					d.vt *= 0.99;
+					var r = sqrt_sum(d.x - d.sx, d.y - d.sy),
+						cos = (d.x - d.sx) / r,
+						sin = (d.y - d.sy) / r;
+					d.vx = d.vr * cos + d.vt * sin;
+					d.vy = d.vr * sin - d.vt * cos;
+				}
+			}, obj.data);
+		})
+	});
+}
+function newBossDanns9(from, direction) {
+	var to = UTIL.getNearestAlive(from, 'Player');
+	var n = 30;
+	STORY.timeout(function(d, j) {
+		var k = 1 - j/(n-1),
+			f = direction > 0 ? k - 0.2 : 0.2 - k;
+		var obj = newDannmaku(from, to, 0, f*0.15*PI2, 0.1+k*0.2, 0, {
+			release: 2000 + j*30,
+			color: 'b',
+			frames: RES.frames.TamaA[6],
+		});
+		obj.anim(50, function(d) {
+			if (d.age < 2000) {
+				d.vx *= 0.95;
+				d.vy *= 0.95;
+			}
+			else if (d.age > d.release && d.age < 4000) {
+				var e = to && to.data || { x:UTIL.getGamePosX(0.5), y:UTIL.getGamePosY(0.9) };
+				d.vx += (e.x - d.x) * 2e-4;
+				d.vy += (e.y - d.y) * 2e-4;
+			}
+		}, obj.data);
+	}, 30, null, n);
 }
 
 function newEffect(from) {
@@ -3006,14 +3116,98 @@ ieach([
 	},
 	{
 		pathnodes: [
-			{ t:2000, v:0.1 },
+			{ v:0.05 },
 			{ t: 500, fx:0.50, fy:0.10, },
 			{ t: 100, fn:newBossDanns6, args:['g', 8, 7, 0.1], },
+			{ t: 200, fn:newBossDanns7, },
+			{ t: 200, fn:newBossDanns7, },
+			{ t: 200, fn:newBossDanns7, },
+			{ t: 200, fn:newBossDanns7, },
+			{ t: 200, fn:newBossDanns7, },
+			{ t: 200, fn:newBossDanns7, },
+			{ t: 200, fx:0.70, fy:0.20, },
+			{ t: 200, fn:newBossDanns5, args:['g', -1], },
+			{ t: 200, fn:newBossDanns5, args:['g', -1], },
+			{ t: 200, fn:newBossDanns5, args:['g', -1], },
+			{ t: 200, fn:newBossDanns5, args:['g', -1], },
+			{ t: 500, },
+			{ t: 500, fx:0.50, fy:0.10, },
+			{ t: 100, fn:newBossDanns6, args:['y', 3, 15, 0.3, 0.05, 0.1], },
+			{ t: 100, fn:newBossDanns6, args:['y', 3, 20, 0.4, 0.08, 0.1], },
+			{ t: 500, },
+			{ t: 200, fx:0.70, fy:0.20, },
+			{ t: 200, fn:newBossDanns5, args:['g', -1], },
+			{ t: 200, fn:newBossDanns5, args:['g', -1], },
+			{ t: 200, fn:newBossDanns5, args:['g', -1], },
+			{ t: 200, fn:newBossDanns5, args:['g', -1], },
+			{ t: 500, fx:0.50, fy:0.10, },
+			{ t: 100, fn:newBossDanns6, args:['y', 3, 15, 0.3, 0.05, 0.1], },
+			{ t: 100, fn:newBossDanns6, args:['y', 3, 20, 0.4, 0.08, 0.1], },
+			{ t: 500, },
+			{ t: 500, fx:0.60, fy:0.30, },
+			{ t:1500, fn:newBossDanns3, args:['ggg'], },
+			{ t: 500, fx:0.70, fy:0.20, },
+			{ t: 100, fn:newBossDanns6, args:['g', 8, 7, 0.1], },
+			{ t: 200, fn:newBossDanns7, },
+			{ t: 200, fn:newBossDanns7, },
+			{ t: 200, fn:newBossDanns7, },
+			{ t: 200, fn:newBossDanns7, },
+			{ t: 200, fn:newBossDanns7, },
+			{ t: 200, fn:newBossDanns7, },
+			{ t: 500, fx:0.60, fy:0.30, },
+			{ t: 200, fn:newBossDanns5, args:['g', -1], },
+			{ t: 200, fn:newBossDanns5, args:['g', -1], },
+			{ t: 200, fn:newBossDanns5, args:['g', -1], },
+			{ t: 200, fn:newBossDanns5, args:['g', -1], },
 		],
 		duration: 30000,
 	},
 	{
-		duration: 99000,
+		pathnodes: [
+			{ v:0.05 },
+			{ t: NaN, fx:0.50, fy:0.20, },
+			{ t:1000, fn:newBossDanns8, args:['b'], },
+			{ t:1000, fn:newBossDanns8, args:['g'], },
+			{ t:1000, fn:newBossDanns8, args:['r'], },
+			{ t: 200, fx:0.70, fy:0.30, },
+			{ t: 300, fn:newBossDanns9, args:[ 1], },
+			{ t: 300, fn:newBossDanns9, args:[-1], },
+			{ t: 300, fn:newBossDanns9, args:[ 1], },
+			{ t: 300, fn:newBossDanns9, args:[-1], },
+			{ t: NaN, fx:0.60, fy:0.20, },
+			{ t:1000, fn:newBossDanns8, args:['b'], },
+			{ t:1000, fn:newBossDanns8, args:['g'], },
+			{ t:1000, fn:newBossDanns8, args:['r'], },
+			{ t: 200, fx:0.30, fy:0.20, },
+			{ t: 300, fn:newBossDanns9, args:[ 1], },
+			{ t: 300, fn:newBossDanns9, args:[-1], },
+			{ t: 300, fn:newBossDanns9, args:[ 1], },
+			{ t: 300, fn:newBossDanns9, args:[-1], },
+			{ t: NaN, fx:0.50, fy:0.30, },
+			{ t:1000, fn:newBossDanns8, args:['b'], },
+			{ t:1000, fn:newBossDanns8, args:['g'], },
+			{ t:1000, fn:newBossDanns8, args:['r'], },
+			{ t: 200, fx:0.60, fy:0.10, },
+			{ t: 300, fn:newBossDanns9, args:[ 1], },
+			{ t: 300, fn:newBossDanns9, args:[-1], },
+			{ t: 300, fn:newBossDanns9, args:[ 1], },
+			{ t: 300, fn:newBossDanns9, args:[-1], },
+			{ t: NaN, fx:0.60, fy:0.20, },
+			{ t:1000, fn:newBossDanns8, args:['b'], },
+			{ t:1000, fn:newBossDanns8, args:['g'], },
+			{ t:1000, fn:newBossDanns8, args:['r'], },
+			{ t: 200, fx:0.50, fy:0.10, },
+			{ t: 300, fn:newBossDanns9, args:[ 1], },
+			{ t: 300, fn:newBossDanns9, args:[-1], },
+			{ t: 300, fn:newBossDanns9, args:[ 1], },
+			{ t: 300, fn:newBossDanns9, args:[-1], },
+			{ t: NaN, fx:0.60, fy:0.10, },
+			{ t:1000, fn:newBossDanns8, args:['b'], },
+			{ t:1000, fn:newBossDanns8, args:['g'], },
+			{ t:1000, fn:newBossDanns8, args:['r'], },
+		],
+		duration: 25000,
+		scname: 'jingjiexian',
 		next: 'end',
 	},
 ], function(i, para, tl) {
