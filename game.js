@@ -2827,6 +2827,7 @@ var hook = {
 			v.data.vx *= 0.05;
 			v.data.vy *= 0.05;
 			UTIL.addFrameAnim(v, RES.frames.BulletD[v.data.to ? 1 : 0]);
+			
 			SPRITE.newObj('Circle', {
 				x: v.data.x,
 				y: v.data.y,
@@ -2847,14 +2848,6 @@ var hook = {
 			v.die();
 			v.data.vx *= 0.1;
 			v.data.vy *= 0.1;
-
-			var f0 = v.data.frame;
-				f = RES.frames.BulletD[1],
-				h = f.h || f.sh;
-				h0 = f0 ? (f0.h || f0.sh) : h,
-			v.data.scale *= h / h0;
-			v.data.opacity = 0.5;
-			UTIL.addFrameAnim(v, f);
 
 			SPRITE.newObj('Drop', {
 				x: v.data.x,
@@ -3033,6 +3026,7 @@ ieach([
 		],
 		duration: 2000,
 		invinc: true,
+		no_countdown: true,
 		no_lifebar: true,
 		disable_fire: true,
 		name: 'bossB',
@@ -3261,6 +3255,9 @@ ieach([
 		on: function(e, v, d) {
 			if (e == STORY.events.ENEMY_KILL) {
 				d.pass = true;
+				SPRITE.eachObj(function(i, obj) {
+					STORY.on(STORY.events.DANNMAKU_HIT, obj);
+				}, 'Dannmaku');
 			}
 		},
 	}
