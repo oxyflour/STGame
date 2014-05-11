@@ -919,13 +919,13 @@ var UTIL = {
 				}
 			}
 			else {
-				if (+n.x === n.x && +n.y === n.y &&
-						redirect_object(e, n, n.v) < n.v * d.tick) {
+				d.time += d.tick;
+				if (d.time > n.t || (+n.x === n.x && +n.y === n.y &&
+						redirect_object(e, n, n.v) < n.v * d.tick)) {
 					if (d.time < n.t) {
 						e.x = n.x;
 						e.y = n.y;
 						e.vx = e.vy = 0;
-						d.time += d.tick;
 					}
 					else {
 						d.index ++;
@@ -936,7 +936,7 @@ var UTIL = {
 
 			if (i !== d.index) {
 				n = d.pathnodes[d.index];
-				n && n.fn && n.fn(v, n.arg);
+				n && n.fn && n.fn.apply(n, n.args ? arrcat([v], n.args) : [v]);
 			}
 		}, {
 			tick: t,
@@ -1234,6 +1234,7 @@ return proto = {
 		'Enemy',
 		'Dannmaku',
 		'Drop',
+		'Stick',
 	],
 	hitWith: function(that) {
 		var d = this.data,
@@ -2361,12 +2362,12 @@ function newSCName(scname) {
 	return scname;
 }
 
-function newBossDanns1(from, color) {
+function newBossDanns1(from, color, count, angular, dv) {
 	var to = UTIL.getNearestAlive(from, 'Player'),
 		frame = RES.frames.TamaA[('k rm b c g  y  w').indexOf(color)];
-	array(7, function(j) {
-		range(1, 0.001, 1/15, function(f) {
-			newDannmaku(from, to, 0, f*PI2, 0.1+j*0.01, 0, {
+	array(count || 7, function(j) {
+		range(1, 0.001, 1/(angular || 15), function(f) {
+			newDannmaku(from, to, 0, f*PI2, 0.1+j*(dv || 0.01), 0, {
 				color: color,
 				frames: frame,
 			})
@@ -2407,15 +2408,19 @@ function newBossDanns2(from) {
 		});
 	}, 150, ds, ds.length);
 }
-function newBossDanns3(from) {
+function newBossDanns3(from, colors) {
 	var to = UTIL.getNearestAlive(from, 'Player');
-	var ds = [
-		{ color:'b', frames1:RES.frames.TamaSmallX[5], frames2:RES.frames.LongA[6], },
-		{ color:'r', frames1:RES.frames.TamaSmallX[1], frames2:RES.frames.LongA[2], },
-		{ color:'g', frames1:RES.frames.TamaSmallY[2], frames2:RES.frames.LongA[9], },
-		{ color:'y', frames1:RES.frames.TamaSmallY[4], frames2:RES.frames.LongA[12], },
-		{ color:'y', frames1:RES.frames.TamaSmallY[5], frames2:RES.frames.LongA[14], },
-	];
+	var df = {
+		'b': { color:'b', frames1:RES.frames.TamaSmallX[5], frames2:RES.frames.LongA[6], },
+		'r': { color:'r', frames1:RES.frames.TamaSmallX[1], frames2:RES.frames.LongA[2], },
+		'g': { color:'g', frames1:RES.frames.TamaSmallY[2], frames2:RES.frames.LongA[9], },
+		'y': { color:'y', frames1:RES.frames.TamaSmallY[4], frames2:RES.frames.LongA[12], },
+		'Y': { color:'y', frames1:RES.frames.TamaSmallY[5], frames2:RES.frames.LongA[14], },
+		'B': { color:'b', frames1:RES.frames.TamaSmallX[5], frames2:RES.frames.TamaA[5], },
+	};
+	var ds = ieach(colors, function(i, c, d) {
+		if (df[c]) d.push(df[c]);
+	}, []);
 	STORY.timeout(function(d, j) {
 		var para = d[j],
 			dt1 = random(0.1),
@@ -2433,6 +2438,55 @@ function newBossDanns3(from) {
 			});
 		});
 	}, 150, ds, ds.length);
+}
+function newBossDanns4(from, count) {
+	var to = UTIL.getNearestAlive(from, 'Player');
+	STORY.timeout(function(d, k) {
+		c = count - k;
+		array(10, function(j) {
+			array(c, function(i) {
+				var f = (i - (c-1) / 2)*0.015;
+				newDannmaku(from, to, 0, f*PI2, 0.1+j*0.03, 0, {
+					color: 'r',
+					frames: RES.frames.TamaB[2],
+				});
+			});
+		});
+	}, 200, null, count);
+}
+function newBossDanns5(from, color, direction) {
+	var to = UTIL.getNearestAlive(from, 'Player');
+	var frame = {
+		'g': RES.frames.TamaA[10],
+		'b': RES.frames.TamaA[6],
+		'c': RES.frames.TamaA[8],
+	}[color];
+	var n = 15;
+	STORY.timeout(function(d, j) {
+		var k = 1 - j/(n-1),
+			f = direction > 0 ? k - 0.2 : 0.2 - k;
+		array(3, function(i) {
+			newDannmaku(from, to, 0, f*0.2*PI2+i*0.05-k*0.01, 0.05+(i+0.2)*k*0.05, 0, {
+				color: color,
+				frames: frame,
+			});
+		});
+	}, 30, null, n);
+}
+function newBossDanns6(from, color, count, angular, rad) {
+	var to = UTIL.getNearestAlive(from, 'Player');
+	var frame = {
+		'g': RES.frames.TamaA[10],
+		'r': RES.frames.LongA[2],
+	}[color || 'r'];
+	array(count || 10, function(j) {
+		range(0.501, -0.5, 1/((angular || 5) - 1), function(f) {
+			newDannmaku(from, to, 0, f*(rad || 0.03)*PI2, 0.1+j*0.03, 0, {
+				color: color,
+				frames: frame,
+			});
+		});
+	});
 }
 
 function newEffect(from) {
@@ -2819,40 +2873,30 @@ ieach([
 		pathnodes: [
 			{ fx:0.50, fy:0.00, v:0.2, },
 			{ t:1000, fx:0.83, fy:0.28, v:0.2, },
-			{ t:1000, fn:newBossDanns1, arg:'b', },
+			{ t:1000, fn:newBossDanns1, args:['b'], },
 			{ t: 500, fx:0.50, fy:0.10, v:0.2, },
 			{ t:2000, fn:newBossDanns2, },
 			{ t: 500, fx:0.17, fy:0.28, v:0.2, },
-			{ t: 500, fn:newBossDanns1, arg:'g', },
-			{ t:1000, fn:newBossDanns1, arg:'y', },
+			{ t: 500, fn:newBossDanns1, args:['g'], },
+			{ t:1000, fn:newBossDanns1, args:['y'], },
 			{ t: 500, fx:0.50, fy:0.10, v:0.2, },
-			{ t:2000, fn:newBossDanns3, },
+			{ t:2000, fn:newBossDanns3, args:['brgyY'], },
 			{ t: 500, fx:0.83, fy:0.28, v:0.2, },
-			{ t: 500, fn:newBossDanns1, arg:'b', },
-			{ t:1000, fn:newBossDanns1, arg:'r', },
+			{ t: 500, fn:newBossDanns1, args:['b'], },
+			{ t:1000, fn:newBossDanns1, args:['r'], },
 			{ t: 500, fx:0.50, fy:0.10, v:0.2, },
 			{ t:2000, fn:newBossDanns2, },
 			{ t: 500, fx:0.17, fy:0.28, v:0.2, },
-			{ t: 500, fn:newBossDanns1, arg:'g', },
-			{ t:1000, fn:newBossDanns1, arg:'y', },
+			{ t: 500, fn:newBossDanns1, args:['g'], },
+			{ t:1000, fn:newBossDanns1, args:['y'], },
 			{ t: 500, fx:0.50, fy:0.10, v:0.2, },
-			{ t:2000, fn:newBossDanns3, },
+			{ t:2000, fn:newBossDanns3, args:['brgyY'], },
 			{ t: 500, fx:0.83, fy:0.28, v:0.2, },
-			{ t: 500, fn:newBossDanns1, arg:'b', },
+			{ t: 500, fn:newBossDanns1, args:['b'], },
 		],
 		duration: 25000,
 		name: 'bossA',
 	},
-	/*
-	{
-		pathnodes: [
-			{ v:0.1 },
-			{ fx:0.5, fy:0.3 },
-		],
-		duration: 30000,
-		scname: 'spell card 1',
-	},
-	*/
 	{
 		pathnodes: [
 			{ v:0.3 },
@@ -2866,9 +2910,9 @@ ieach([
 	},
 	{
 		pathnodes: [
-			{ fx:0.0, fy:0.0, v:0.2 },
-			{ fx:0.1, fy:0.1 },
-			{ fx:0.5, fy:0.1 },
+			{ fx:0.00, fy:0.00, v:0.2 },
+			{ fx:0.10, fy:0.10 },
+			{ fx:0.50, fy:0.18 },
 		],
 		duration: 2000,
 		invinc: true,
@@ -2879,18 +2923,93 @@ ieach([
 	},
 	{
 		pathnodes: [
-			{ v:0.1 },
-			{ fx:0.1, fy:0.5, v:0.2 },
-			{ fx:0.9, fy:0.5 },
+			{ t:2000, v:0.2 },
+			{ t: 500, fx:0.50, fy:0.10, v:0.2, fn:newBossDanns4, args:[5], },
+			{ t: 200, fx:0.40, fy:0.30, v:0.1, },
+			{ t: 200, fn:newBossDanns5, args:['g', 1], },
+			{ t: 200, fn:newBossDanns5, args:['g', 1], },
+			{ t: 200, fn:newBossDanns5, args:['g', 1], },
+			{ t: 400, },
+			{ t:1000, fx:0.60, fy:0.20, fn:newBossDanns4, args:[5], },
+			{ t: 500, fx:0.60, fy:0.30, },
+			{ t:1500, fn:newBossDanns3, args:['BBBBBBB'], },
+			{ t: 500, fx:0.50, fy:0.10, },
+			{ t: 100, fn:newBossDanns6, },
+			{ t: 500, fn:newBossDanns1, args:['b', 3, 30, 0.02], },
+			{ t: 200, fx:0.60, fy:0.30, },
+			{ t: 200, fn:newBossDanns5, args:['g', -1], },
+			{ t: 200, fn:newBossDanns5, args:['g', -1], },
+			{ t: 200, fn:newBossDanns5, args:['g', -1], },
+			{ t: 400, },
+			{ t: 500, fx:0.50, fy:0.30, },
+			{ t: 100, fn:newBossDanns6, },
+			{ t: 500, fn:newBossDanns1, args:['b', 3, 30, 0.02], },
+			{ t: 200, fx:0.60, fy:0.20, },
+			{ t: 200, fn:newBossDanns5, args:['g', 1], },
+			{ t: 200, fn:newBossDanns5, args:['g', 1], },
+			{ t: 200, fn:newBossDanns5, args:['g', 1], },
+			{ t: 400, },
+			{ t:1000, fx:0.50, fy:0.30, fn:newBossDanns4, args:[5], },
+			{ t: 500, fx:0.20, fy:0.20, },
+			{ t:1500, fn:newBossDanns3, args:['BBBBBBB'], },
+			{ t: 200, fx:0.40, fy:0.10, },
+			{ t: 200, fn:newBossDanns5, args:['g', 1], },
+			{ t: 200, fn:newBossDanns5, args:['g', 1], },
+			{ t: 200, fn:newBossDanns5, args:['g', 1], },
+			{ t: 400, },
 		],
-		duration: 30000,
+		duration: 35000,
 		name: 'bossC',
 	},
 	{
-		life: 100,
-		duration: 30000,
+		pathnodes: [
+			{ t:2000, v:0.1 },
+			{ t: 500, fx:0.50, fy:0.20, },
+			{ t:1000, fn:newBossDanns5, args:['b', -1], },
+			{ t:1000, fn:newBossDanns5, args:['c',  1], },
+			{ t:1000, fn:newBossDanns5, args:['b', -1], },
+			{ t:1000, fn:newBossDanns5, args:['c',  1], },
+			{ t:1000, fn:newBossDanns5, args:['b', -1], },
+			{ t:1000, fn:newBossDanns5, args:['c',  1], },
+			{ t:1000, fn:newBossDanns5, args:['b', -1], },
+			{ t:1000, fn:newBossDanns5, args:['c',  1], },
+			{ t: 200, fx:0.30, fy:0.10, v:0.05, },
+			{ t:1000, fn:newBossDanns5, args:['b', -1], },
+			{ t:1000, fn:newBossDanns5, args:['c',  1], },
+			{ t:1000, fn:newBossDanns5, args:['b', -1], },
+			{ t:1000, fn:newBossDanns5, args:['c',  1], },
+			{ t:1000, fn:newBossDanns5, args:['b', -1], },
+			{ t:1000, fn:newBossDanns5, args:['c',  1], },
+			{ t:1000, fn:newBossDanns5, args:['b', -1], },
+			{ t:1000, fn:newBossDanns5, args:['c',  1], },
+			{ t: 200, fx:0.40, fy:0.30, },
+			{ t:1000, fn:newBossDanns5, args:['b', -1], },
+			{ t:1000, fn:newBossDanns5, args:['c',  1], },
+			{ t:1000, fn:newBossDanns5, args:['b', -1], },
+			{ t:1000, fn:newBossDanns5, args:['c',  1], },
+			{ t:1000, fn:newBossDanns5, args:['b', -1], },
+			{ t:1000, fn:newBossDanns5, args:['c',  1], },
+			{ t:1000, fn:newBossDanns5, args:['b', -1], },
+			{ t:1000, fn:newBossDanns5, args:['c',  1], },
+			{ t: 200, fx:0.60, fy:0.20, },
+			{ t:1000, fn:newBossDanns5, args:['b', -1], },
+			{ t:1000, fn:newBossDanns5, args:['c',  1], },
+			{ t:1000, fn:newBossDanns5, args:['b', -1], },
+			{ t:1000, fn:newBossDanns5, args:['c',  1], },
+			{ t:1000, fn:newBossDanns5, args:['b', -1], },
+			{ t:1000, fn:newBossDanns5, args:['c',  1], },
+			{ t:1000, fn:newBossDanns5, args:['b', -1], },
+			{ t:1000, fn:newBossDanns5, args:['c',  1], },
+		],
+		duration: 25000,
+		scname: 'yeque',
 	},
 	{
+		pathnodes: [
+			{ t:2000, v:0.1 },
+			{ t: 500, fx:0.50, fy:0.10, },
+			{ t: 100, fn:newBossDanns6, args:['g', 8, 7, 0.1], },
+		],
 		duration: 30000,
 	},
 	{
