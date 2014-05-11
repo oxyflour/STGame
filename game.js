@@ -1300,22 +1300,13 @@ return proto = {
 
 		// FIRE!
 		if (ks[cf.key_fire]) {
-			if (!d.is_firing) {
-				d.fire_tick = newTicker(cf.fire_interval, function(v) {
-					STORY.on(STORY.events.PLAYER_FIRE, v);
-				}, this);
-				d.fire_tick.f(this);
-			}
-			d.is_firing = true;
-			d.fire_count = cf.fire_count;
+			if (!this.is_firing) this.anim(cf.fire_interval, function() {
+				this.is_firing && STORY.on(STORY.events.PLAYER_FIRE, this);
+			}, null, 'fire');
+			this.is_firing = cf.fire_count;
 		}
-		else if (d.is_firing) {
-			d.fire_count -= dt;
-			if (d.fire_count <= 0)
-				d.is_firing = false;
-		}
-		if (d.is_firing)
-			d.fire_tick.run(dt);
+		else if (this.is_firing && (this.is_firing -= dt) <= 0)
+			this.is_firing = 0;
 
 		// JUESI!
 		if (this.is_juesi > 0 && (this.is_juesi -= dt) <= 0) {
@@ -2104,10 +2095,8 @@ function newSec2(ylim, count) {
 					d.vx += d.dvx;
 					d.vy += d.dvy;
 				}
-				if (d.age > 200 && !this.is_firing) {
-					this.is_firing = true;
+				if (d.age > 200 && !this.is_firing && (this.is_firing = true))
 					newDanns1(this);
-				}
 			}, obj.data);
 		});
 	}, 350, null, count);
@@ -2124,8 +2113,7 @@ function newSec3(tick, count) {
 			vx0: random(-0.1, 0.1),
 		});
 		enm.anim(50, function(d) {
-			if (d.age > 600 && !this.is_firing) {
-				this.is_firing = true;
+			if (d.age > 600 && !this.is_firing && (this.is_firing = true)) {
 				d.vy = 0;
 				STORY.timeout(newDanns2, 300, this, 2)
 				UTIL.addFrameAnim(enm, RES.frames.Enemy11);
