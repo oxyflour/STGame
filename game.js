@@ -832,6 +832,7 @@ var UTIL = {
 	getGamePosY: function(f) {
 		return interp(GAME.rect.t, GAME.rect.b, f);
 	},
+	/*
 	addAnim: function(v, d, t, id) {
 		fill(d, {
 			value: 0,
@@ -861,17 +862,20 @@ var UTIL = {
 			d.value += d.step;
 		}, d, id);
 	},
+	*/
 	// fs can be function, frame array, or a single frame
 	addFrameAnim: function(v, fs, t) {
 		t = t || v.data.frtick || 50;
-		v.anim(t, function(d) {
+		if (fs.push && fs.length == 1) {
+			v.data.frame = fs[0];
+			v.anim(0, 0, 0, 'frame');
+		}
+		else v.anim(t, function(d) {
 			if (d.callback)
 				d.frames = d.callback(v);
 			if (d.frames) {
 				d.index = (d.index + d.step) % d.frames.length;
 				v.data.frame = d.frames[d.index];
-				if (d.frames.length == 1 && !d.callback)
-					return true;
 			}
 		}, {
 			callback: fs.call && fs,
@@ -1109,20 +1113,21 @@ return proto = {
 			DC.restore();
 		}
 	},
-	anim: function(t, fn, x, id) {
-		var t = newTicker(t, function(obj) {
-			this.finished = obj.finished || fn.call(obj, x);
-		}, this);
+	anim: function(t, fn, d, id) {
+		if (t > 0) {
+			t = newTicker(t, function(obj) {
+				this.finished = obj.finished || fn.call(obj, d);
+			}, this);
 
-		STORY.anim.add(t);
-		t.f(t.d);
+			STORY.anim.add(t);
+			t.f(t.d);
+		}
 
 		if (id) {
-			var d = this.data,
-				k = 'am#' + id;
-			if (d[k])
-				d[k].finished = true;
-			d[k] = t;
+			var k = 'anim_' + id;
+			if (this[k])
+				this[k].finished = true;
+			this[k] = t;
 		}
 
 		return t;
@@ -1651,7 +1656,7 @@ function newOnmyou(player, frames, pos1, pos2) {
 	obj.runBasic = function(dt, d) {
 		var p = d.parent;
 			v = p.is_slow ? 1 : -1;
-		d.pos = limit_between(d.pos + 0.003*v*dt, 0, 1);
+		d.pos = limit_between((d.pos || 0) + 0.003*v*dt, 0, 1);
 		d.x = p.data.x + interp(pos1.x, pos2.x, d.pos);
 		d.y = p.data.y + interp(pos1.y, pos2.y, d.pos);
 	};
