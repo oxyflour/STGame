@@ -2416,7 +2416,7 @@ function newBossBackground(boss) {
 function newBossDanns1(from, color, count, angular, dv) {
 	var to = UTIL.getNearestAlive(from, 'Player'),
 		frame = RES.frames.TamaA[('k rm b c g  y  w').indexOf(color)];
-	array(count || 7, function(j) {
+	if (!from.is_dying) array(count || 7, function(j) {
 		range(1, 0.001, 1/(angular || 15), function(f) {
 			newDannmaku(from, to, 0, f*PI2, 0.1+j*(dv || 0.01), 0, {
 				color: color,
@@ -2436,7 +2436,7 @@ function newBossDanns2(from) {
 		{ color:'b', frames:RES.frames.TamaSmallX[5] },
 		{ color:'b', frames:RES.frames.TamaSmallX[6] },
 	];
-	STORY.timeout(function(d, j) {
+	if (!from.is_dying) STORY.timeout(function(d, j) {
 		var para = d[j];
 		range(1, 0.001, 1/15, function(f) {
 			var obj = newDannmaku(from, to, 0, f*PI2+j*0.1, 0.1, 0, {
@@ -2472,7 +2472,7 @@ function newBossDanns3(from, colors) {
 	var ds = ieach(colors, function(i, c, d) {
 		if (df[c]) d.push(df[c]);
 	}, []);
-	STORY.timeout(function(d, j) {
+	if (!from.is_dying) STORY.timeout(function(d, j) {
 		var para = d[j],
 			dt1 = random(0.1),
 			dt2 = random(0.1),
@@ -2492,7 +2492,7 @@ function newBossDanns3(from, colors) {
 }
 function newBossDanns4(from, count) {
 	var to = UTIL.getNearestAlive(from, 'Player');
-	STORY.timeout(function(d, k) {
+	if (!from.is_dying) STORY.timeout(function(d, k) {
 		c = count - k;
 		array(10, function(j) {
 			array(c, function(i) {
@@ -2513,7 +2513,7 @@ function newBossDanns5(from, color, direction) {
 		'c': RES.frames.TamaA[8],
 	}[color];
 	var n = 15;
-	STORY.timeout(function(d, j) {
+	if (!from.is_dying) STORY.timeout(function(d, j) {
 		var k = 1 - j/(n-1),
 			f = direction > 0 ? k - 0.2 : 0.2 - k;
 		array(3, function(i) {
@@ -2531,7 +2531,7 @@ function newBossDanns6(from, color, count, angular, rad, v0, dr) {
 		'r': RES.frames.LongA[2],
 		'y': RES.frames.LongA[13],
 	}[color || 'r'];
-	array(count || 10, function(j) {
+	if (!from.is_dying) array(count || 10, function(j) {
 		range(0.501, -0.5, 1/((angular || 5) - 1), function(f) {
 			newDannmaku(from, to, 0, f*(rad || 0.03)*PI2 + (dr || 0)*j, (v0 || 0.1)+j*0.03, 0, {
 				color: color,
@@ -2542,7 +2542,7 @@ function newBossDanns6(from, color, count, angular, rad, v0, dr) {
 }
 function newBossDanns7(from) {
 	var to = UTIL.getNearestAlive(from, 'Player');
-	newLaser(from, to);
+	if (!from.is_dying) newLaser(from, to);
 }
 function newBossDanns8(from, color) {
 	var to = UTIL.getNearestAlive(from, 'Player');
@@ -2551,7 +2551,7 @@ function newBossDanns8(from, color) {
 		'r': RES.frames.LongA[2],
 		'b': RES.frames.LongA[6],
 	}[color || 'r'];
-	array(2, function(j) {
+	if (!from.is_dying) array(2, function(j) {
 		var i = j;
 		range(1, 0.001, 1/60, function(f) {
 			var obj = newDannmaku(from, to, 0, f*PI2, 0.12+0.06*j, 0, {
@@ -2584,7 +2584,7 @@ function newBossDanns8(from, color) {
 function newBossDanns9(from, direction) {
 	var to = UTIL.getNearestAlive(from, 'Player');
 	var n = 30;
-	STORY.timeout(function(d, j) {
+	if (!from.is_dying) STORY.timeout(function(d, j) {
 		var k = 1 - j/(n-1),
 			f = direction > 0 ? k - 0.2 : 0.2 - k;
 		var obj = newDannmaku(from, to, 0, f*0.15*PI2, 0.1+k*0.2, 0, {
