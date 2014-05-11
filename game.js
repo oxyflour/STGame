@@ -2607,11 +2607,12 @@ function newBossDanns9(from, direction) {
 }
 
 function newEffect(from) {
+	var d = from.data;
 	SPRITE.newObj('Circle', {
-		x: from.data.x,
-		y: from.data.y,
-		vx: from.data.vx*=0.1,
-		vy: from.data.vy*=0.1,
+		x: d.x,
+		y: d.y,
+		vx: d.vx*=0.1,
+		vy: d.vy*=0.1,
 		frames: {
 			Enemy: RES.frames.EffEnemy,
 			Player: RES.frames.EffPlayer,
@@ -2620,32 +2621,35 @@ function newEffect(from) {
 		kh: 1/950,
 		duration: 50,
 	});
-	array(8, function(i) {
-		var p = SPRITE.newObj('Circle', {
-			x: from.data.x + random(10),
-			y: from.data.y + random(10),
-			vx: random(-0.2, 0.2),
-			vy: random(-0.2, 0.2),
-			frames: randin({
-				Enemy: RES.frames.EffPieceB,
-				Player: RES.frames.EffPieceG,
-			}[from.clsName]),
-			scale: 1.5,
-			opacity: 0.5,
-			blend: 'lighter',
-			dh: 50,
-			kh: 1/random(500, 1500),
-			duration: 100,
-		})
-		p.drawCircle = function(d) {
-			d.scale = ease_in(d.ph) * 2 + 0.5;
-			return true;
-		};
-		p.anim(50, function(d) {
-			d.vx *= 0.97;
-			d.vy *= 0.97;
-		}, p.data);
-	});
+}
+function newEffectPiece(from, color) {
+	var frame = {
+		'r': RES.frames.EffPieceR,
+		'g': RES.frames.EffPieceG,
+		'b': RES.frames.EffPieceB,
+	}[color] || RES.frames.EffPiece;
+	var p = SPRITE.newObj('Circle', {
+		x: from.data.x + random(10),
+		y: from.data.y + random(10),
+		vx: random(-0.2, 0.2),
+		vy: random(-0.2, 0.2),
+		frames: randin(frame),
+		scale: 1.5,
+		opacity: 0.5,
+		blend: 'lighter',
+		dh: 50,
+		kh: 1/random(500, 1000),
+		duration: 100,
+	})
+	p.drawCircle = function(d) {
+		d.scale = ease_in(d.ph) * 1.5 + 0.5;
+		return true;
+	};
+	p.anim(50, function(d) {
+		d.vx *= 0.97;
+		d.vy *= 0.97;
+	}, p.data);
+	return p;
 }
 function newBackground(elems) {
 	function updateImgs(imgs, f) {
@@ -2782,6 +2786,9 @@ var hook = {
 			STATICS.graze --;
 			v.juesi();
 			newEffect(v);
+			array(8, function() {
+				newEffectPiece(v, 'g');
+			});
 			STORY.timeout(function() {
 				killCls('Dannmaku');
 			}, 30, null, 20);
@@ -2817,6 +2824,9 @@ var hook = {
 			if (v.data.respawn-- <= 0)
 				v.die();
 			newEffect(v);
+			array(8, function() {
+				newEffectPiece(v, 'b');
+			});
 		}
 		else if (e == STORY.events.DROP_COLLECTED) {
 			v.die();
@@ -2827,22 +2837,7 @@ var hook = {
 			v.data.vx *= 0.05;
 			v.data.vy *= 0.05;
 			UTIL.addFrameAnim(v, RES.frames.BulletD[v.data.to ? 1 : 0]);
-
-			SPRITE.newObj('Circle', {
-				x: v.data.x,
-				y: v.data.y,
-				vx: random(-0.2, 0.2),
-				vy: random(-0.2, 0.2),
-				frames: RES.frames.EffPieceR,
-				opacity: 0.6,
-				blend: 'lighter',
-				dh: 1/50,
-				kh: 1/550,
-				duration: 100,
-			}).drawCircle = function(d) {
-				d.scale = 0.5 + d.ph;
-				return true;
-			};
+			newEffectPiece(v, 'r');
 		}
 		else if (e == STORY.events.DANNMAKU_HIT) {
 			v.die();
