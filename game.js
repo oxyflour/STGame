@@ -1496,7 +1496,6 @@ return proto = {
 			e = that.data;
 		if (!this.is_dying && !that.is_dying &&
 				that.hit_with != this && circle_intersect(d, e)) {
-			this.hit_with = that;
 			that.hit_with = this;
 			d.damage += that.damage_pt || 1;
 			if (that.clsName == SPRITE.proto.Bullet.clsName)
@@ -1532,7 +1531,6 @@ return proto =  {
 			e = that.data;
 		if (!that.is_dying &&
 				that.hit_with != this && circle_intersect(d, e)) {
-			this.hit_with = that;
 			that.hit_with = this;
 			STORY.on(STORY.events.DANNMAKU_HIT, that);
 		}
