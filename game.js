@@ -2789,9 +2789,6 @@ var hook = {
 			array(8, function() {
 				newEffectPiece(v, 'g');
 			});
-			STORY.timeout(function() {
-				killCls('Dannmaku');
-			}, 30, null, 20);
 		}
 		else if (e == STORY.events.PLAYER_GRAZE) {
 			STATICS.graze ++;
@@ -2804,6 +2801,9 @@ var hook = {
 			SPRITE.newObj('Drop', { vx: 0.5, vy:-0.85, x:x, y:y });
 			SPRITE.newObj('Drop', { vx:   1, vy: -0.8, x:x, y:y });
 			STATICS.player --;
+			STORY.timeout(function() {
+				killCls('Dannmaku');
+			}, 30, null, 20);
 		}
 		else if (e == STORY.events.PLAYER_DEAD) {
 			newPlayer();
