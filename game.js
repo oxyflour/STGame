@@ -2407,6 +2407,20 @@ function newSCName(scname) {
 	};
 	return scname;
 }
+function newBossBackground(boss) {
+	var st = STORY.state.n;
+	var obj = SPRITE.newObj('Basic', {
+		x: 0,
+		y: 0,
+		elem: $i('.bossbg'),
+	})
+	obj.data.elem.object = obj;
+	obj.anim(50, function(d) {
+		d.elem.style.opacity = d.ph;
+		d.elem.style['background-position'] = '0 '+(-d.age*0.1)+'px';
+	}, obj.data)
+	return obj;
+}
 
 function newBossDanns1(from, color, count, angular, dv) {
 	var to = UTIL.getNearestAlive(from, 'Player'),
@@ -3115,6 +3129,7 @@ ieach([
 		],
 		duration: 25000,
 		scname: 'yeque',
+		background: newBossBackground,
 	},
 	{
 		pathnodes: [
@@ -3210,6 +3225,7 @@ ieach([
 		],
 		duration: 25000,
 		scname: 'jingjiexian',
+		background: newBossBackground,
 		next: 'end',
 	},
 ], function(i, para, tl) {
@@ -3236,9 +3252,11 @@ ieach([
 				d.countdown = newCountDown(d);
 			if (para.scname)
 				d.scname = newSCName(para.scname);
+			if (para.background)
+				d.background = para.background(d.boss);
 		},
 		quit: function(d) {
-			killObj(d.countdown, d.scname);
+			killObj(d.countdown, d.scname, d.background);
 		},
 		run: function(dt, d) {
 			d.age += dt;

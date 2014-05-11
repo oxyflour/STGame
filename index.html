@@ -38,6 +38,11 @@ input[type="radio"] {
 .float-left {
 	float: left;
 }
+.anim-all {
+	-webkit-transition: all linear 0.1s;
+	    -ms-transition: all linear 0.1s;
+	   -moz-transition: all linear 0.1s;
+}
 
 .main {
 	margin: 0 auto;
@@ -745,7 +750,9 @@ input[type="radio"]:focus + .menu {
 				style="height:300px;background:linear-gradient(rgba(0,0,0,0.6),transparent)"></div>
 		</div>
 		<div class="game-size absolute bgimg">
-			<div class="ui-obj bombbg"
+			<div class="ui-obj bossbg anim-all"
+				style="background:url(res/eff01.png);opacity:0"></div>
+			<div class="ui-obj bombbg anim-all"
 				style="background:rgba(0,0,0,0.6);opacity:0"></div>
 		</div>
 	</div>
