@@ -870,6 +870,8 @@ var UTIL = {
 			if (d.frames) {
 				d.index = (d.index + d.step) % d.frames.length;
 				v.data.frame = d.frames[d.index];
+				if (d.frames.length == 1 && !d.callback)
+					return true;
 			}
 		}, {
 			callback: fs.call && fs,
