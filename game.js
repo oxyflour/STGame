@@ -46,6 +46,9 @@ function reduce(ls, fn, r) {
 		d.$ = fn(i, v, d.$);
 	}, {$:r}).$;
 }
+function last(ls) {
+	return ls[ls.length - 1];
+}
 function dictflip(a) {
 	return each(a, function(i, v, d) {
 		d[v] = i;
@@ -866,6 +869,7 @@ var UTIL = {
 	// fs can be function, frame array, or a single frame
 	addFrameAnim: function(v, fs, t) {
 		t = t || v.data.frtick || 50;
+		// only one frame ?
 		if (fs.push && fs.length == 1) {
 			v.data.frame = fs[0];
 			v.anim(0, 0, 0, 'frame');
@@ -874,14 +878,15 @@ var UTIL = {
 			if (d.callback)
 				d.frames = d.callback(v);
 			if (d.frames) {
-				d.index = (d.index + d.step) % d.frames.length;
+				var f = d.frames[d.index];
+				d.index = (f && f.next >= 0) ? f.next :
+					(d.index + 1) % d.frames.length;
 				v.data.frame = d.frames[d.index];
 			}
 		}, {
 			callback: fs.call && fs,
 			frames: fs.length >= 0 ? fs : [fs],
 			index: 0,
-			step: 1,
 		}, 'frame');
 	},
 	// ps should be array of objects like
@@ -1375,15 +1380,15 @@ return proto = {
 			var fs = RES.frames.Player0;
 			if (v.is_dying) {
 				fs = RES.frames.PlayerD;
-				if (this.index + 1 > fs.length - 1)
-					this.index = fs.length - 2;
 			}
 			else if (Math.abs(v.data.vx) > 0.1) {
 				fs = v.data.vx < 0 ? RES.frames.PlayerL : RES.frames.PlayerR;
 				if (this.frames != fs)
 					this.index = 0;
-				if (this.index + 1 > fs.length - 1)
-					this.index = 4;
+			}
+			else {
+				if (this.frames === RES.frames.PlayerL || this.frames === RES.frames.PlayerR)
+					this.index = this.frames.reset_index;
 			}
 			return fs;
 		},
