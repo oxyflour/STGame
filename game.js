@@ -334,7 +334,8 @@ function newAnimateList() {
 	};
 	_t.add = function(t) { // t should be object like { run: function(){} }
 		t.finished = false;
-		_t[unused.length ? unused.pop() : _t.length] = t;
+		//_t[unused.length ? unused.pop() : _t.length] = t;
+		_t.push(t);
 	};
 	_t.run = function(dt) {
 		for (var i = 0, n = _t.length; i < n; i ++) {
