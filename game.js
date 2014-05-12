@@ -631,8 +631,8 @@ var SPRITE = (function() {
 	var _t = {
 		cls: newGroupAnim(),
 		layers: newGroupAnim(),
+		anim: newAnimateList(),
 		proto: {},
-		elems: {},
 	};
 	_t.newCls = function(c, f, fn) {
 		var from = f.substring ? new _t.proto[f].init() : {},
@@ -669,7 +669,11 @@ var SPRITE = (function() {
 })();
 
 var STORY = (function() {
-	var _t = {};
+	var _t = {
+		state: newStateMachine({}),
+		timer: newAnimateList(),
+		hook: {},
+	};
 	_t.events = dictflip([
 		'STORY_LOAD',
 		'GAME_INPUT',
@@ -687,7 +691,6 @@ var STORY = (function() {
 		'DANNMAKU_HIT',
 		'ENEMY_KILL'
 	]);
-	_t.state = _t.anim = _t.hook = {};
 	_t.load = function(tl, hook) {
 		_t.state = newStateMachine(tl);
 		_t.anim = newAnimateList();
@@ -712,7 +715,7 @@ var STORY = (function() {
 	_t.timeout = function(f, t, d, n) {
 		var s = _t.state.s;
 		n = (n >= 0) ? n : 1;
-		_t.anim.add(newTicker(t, function(d) {
+		_t.timer.add(newTicker(t, function(d) {
 			this.finished = _t.state.s != s || f(d, --n) || n <= 0;
 		}, d));
 	}
@@ -723,7 +726,7 @@ var STORY = (function() {
 		if (_t.hook.after_run)
 			_t.hook.after_run(dt, _t.state.d, _t.state.s);
 
-		_t.anim.run(dt);
+		_t.timer.run(dt);
 	};
 	_t.on = function(e, v) {
 		var sm = _t.state;
@@ -778,6 +781,7 @@ var GAME = (function() {
 			});
 		});
 		SPRITE.cls.run(dt);
+		SPRITE.anim.run(dt);
 		STORY.run(dt);
 	};
 	_t.draw = function() {
@@ -1121,7 +1125,7 @@ return proto = {
 				this.finished = obj.finished || fn.call(obj, d);
 			}, this);
 
-			STORY.anim.add(t);
+			SPRITE.anim.add(t);
 			t.f(t.d);
 		}
 
