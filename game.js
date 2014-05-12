@@ -968,10 +968,6 @@ var UTIL = {
 };
 
 (function() {
-	var counter = newCounter();
-	var dt =  function() {
-		return Math.min(counter(), 100);
-	};
 	var gameTick = newTicker(5, function() {
 		if (GAME.state == GAME.states.RUNNING)
 			GAME.run(5);
@@ -1006,14 +1002,14 @@ var UTIL = {
 			};
 		}],
 	]);
+	var counter = newCounter();
 	setInterval(function() {
-		var t = dt();
-		gameTick.run(t);
-		uiTick.run(t);
-		GAME.tick = t;
+		var dt = GAME.tick = counter();
+		if (dt > 100) dt = 100;
+		gameTick.run(dt);
+		uiTick.run(dt);
 	}, 5);
 
-	GAME.fps = 0;
 	var fpsCounter = newFPSCounter();
 	requestAnimationFrame(function render(t) {
 		GAME.fps = fpsCounter(t);
