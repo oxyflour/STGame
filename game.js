@@ -2558,14 +2558,14 @@ function newBossDanns8(from, color) {
 		'b': RES.frames.LongA[6],
 	}[color || 'r'];
 	if (!from.is_dying) array(2, function(j) {
-		var i = j;
+		var i = j % 2 ? -1 : 1;
 		range(1, 0.001, 1/60, function(f) {
 			var obj = newDannmaku(from, to, 0, f*PI2, 0.12+0.06*j, 0, {
 				sx: from.data.x,
 				sy: from.data.y,
 				dv: 0.001 - j*0.00015,
 				vr: 0,
-				vt: i ++ % 2 ? 0.1 : -0.1,
+				vt: (i *= -1)*0.1 - j*0.002,
 				color: color,
 				frames: frame,
 			});
@@ -2593,8 +2593,7 @@ function newBossDanns9(from, direction) {
 	if (!from.is_dying) STORY.timeout(function(d, j) {
 		var k = 1 - j/(n-1),
 			f = direction > 0 ? k - 0.2 : 0.2 - k;
-		var obj = newDannmaku(from, to, 0, f*0.15*PI2, 0.1+k*0.2, 0, {
-			release: 2000 + j*30,
+		var obj = newDannmaku(from, to, 0, f*0.10*PI2, 0.1+k*0.2, 0, {
 			color: 'b',
 			frames: RES.frames.TamaA[6],
 		});
@@ -2603,11 +2602,13 @@ function newBossDanns9(from, direction) {
 				d.vx *= 0.95;
 				d.vy *= 0.95;
 			}
-			else if (d.age > d.release && d.age < 4000) {
+			else if (d.age > 2000 && d.age < 4000) {
 				var e = to && to.data || { x:UTIL.getGamePosX(0.5), y:UTIL.getGamePosY(0.9) };
 				d.vx += (e.x - d.x) * 2e-4;
 				d.vy += (e.y - d.y) * 2e-4;
 			}
+			else
+				return;
 		}, obj.data);
 	}, 30, null, n);
 }
