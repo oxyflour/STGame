@@ -2231,6 +2231,17 @@ function newLaser(from, to) {
 		py = from.data.y + random(-50, 50),
 		dy = (GAME.rect.b - GAME.rect.t),
 		dx = dy * (to.data.x - px) / (to.data.y - py);
+	var dot = SPRITE.newObj('Dannmaku', {
+		r: 10,
+		x: px,
+		y: py,
+		vx: 0,
+		vy: 0,
+		frame: RES.frames.TamaFire[2],
+		scale: 1.5,
+		blend: 'lighter',
+		duration: 5000,
+	});
 	var obj = SPRITE.newObj('Dannmaku', {
 		r: 10,
 		x: px,
@@ -2239,10 +2250,11 @@ function newLaser(from, to) {
 		vy: 0,
 		dx: dx,
 		dy: dy,
-		frames: RES.frames.TamaFire[2],
-		duration: 5000,
+		frame: RES.frames.LaserLong[6],
+		blend: 'lighter',
+		duration: 4500,
 		dh: 1/3000,
-		kh: 1/800,
+		kh: 1/500,
 	});
 	obj.is_line = true;
 	obj.mkRect = function(rt, d) {
@@ -2255,17 +2267,13 @@ function newLaser(from, to) {
 		this.damage_pt = this.is_creating || this.is_dying ? 0 : 1;
 	};
 	obj.drawCircle = function(d) {
-		DC.beginPath();
-		DC.moveTo(d.x, d.y);
-		DC.lineTo(d.x + d.dx, d.y + d.dy);
-		DC.strokeStyle = 'white';
-		DC.lineWidth = d.r * d.ph;
-		DC.stroke();
-		DC.strokeStyle = 'blue';
-		DC.lineWidth = 3;
-		DC.stroke();
-		DC.closePath();
-		return true;
+		var f = d.frame,
+			w = f.w * (this.is_creating ? Math.max(d.ph*3-2, 0.1) : d.ph);
+		DC.translate(d.x, d.y);
+		DC.rotate(-Math.atan2(d.dx, d.dy));
+		DC.drawImage(RES[f.res],
+			f.sx, f.sy, f.sw, f.sh,
+			-w/2, 0, w, f.h);
 	};
 }
 

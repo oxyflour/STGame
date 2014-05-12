@@ -386,6 +386,8 @@ input[type="radio"]:focus + .menu {
 		transform="rotate:{{range(360, 0, 20)}}"></canvas>
 	<img id="etama2" src="res/etama2.png" />
 	<img id="etama3" src="res/etama3.png" />
+	<canvas id="lasers" from="etama3 0 16 256 16"
+		transform="mirror:{{array(50)}}" stack="y"></canvas>
 	<img id="etama4" src="res/etama4.png" />
 	<img id="eff00" src="res/eff00.png" />
 	<canvas id="effboss" from="eff00 16 48 16 16"
@@ -629,6 +631,9 @@ input[type="radio"]:focus + .menu {
 				y: _t.TamaDead[4],
 				w: _t.TamaDead[0],
 			}
+			_t.LaserLong = array(16, function(j) {
+				return { res:'lasers', sx:16*j, sy:0, sw:16, sh:RES.lasers.height, w:16, h:RES.lasers.height };
+			});
 
 			ieach([0, 128], function(i, x) {
 				ieach([0, 32, 64], function(j, y) {
