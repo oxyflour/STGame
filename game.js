@@ -2087,6 +2087,7 @@ function newSec2(ylim, count) {
 				vx: 0,
 				dvx: dvx,
 				dvy: dvy,
+				power_pt: random(1) > 0.5 ? 1 : 0,
 			});
 			obj.anim(50, function(d) {
 				if (d.y > UTIL.getGamePosY(ylim)) {
@@ -2109,6 +2110,7 @@ function newSec3(tick, count) {
 			vx: 0,
 			dvy: -0.005,
 			vx0: random(-0.1, 0.1),
+			power_pt: random(1) > 0.3 ? 1 : 0,
 		});
 		enm.anim(50, function(d) {
 			if (d.age > 600 && !this.is_firing && (this.is_firing = true)) {
@@ -2839,8 +2841,14 @@ var hook = {
 			}
 		}
 		else if (e == STORY.events.ENEMY_KILL) {
-			if (v.data.respawn-- <= 0)
+			if (v.data.respawn-- <= 0) {
 				v.die();
+				if (v.data.power_pt) SPRITE.newObj('Drop', {
+					x: v.data.x,
+					y: v.data.y,
+					power_pt: v.data.power_pt,
+				});
+			}
 			newEffect(v);
 			array(8, function() {
 				newEffectPiece(v, 'b');
@@ -2850,9 +2858,12 @@ var hook = {
 			v.die();
 			STATICS.point += v.data.point_pt || 10;
 			STATICS.power += v.data.power_pt || 0;
-			if (STATICS.power >= 8 && !v.onmyous) v.onmyous = {
-				left: newOnmyou(v, 'OnmyouR', { x:-25, y:0 }, { x:-8, y:-28 }),
-				right: newOnmyou(v, 'Onmyou', { x:+25, y:0 }, { x:+8, y:-28 }),
+			if (STATICS.power >= 8) {
+				var p = v.data.collected;
+				if (p && !p.onmyous) p.onmyous = {
+					left: newOnmyou(p, 'OnmyouR', { x:-25, y:0 }, { x:-8, y:-28 }),
+					right: newOnmyou(p, 'Onmyou', { x:+25, y:0 }, { x:+8, y:-28 }),
+				};
 			}
 		}
 		else if (e == STORY.events.BULLET_HIT) {
@@ -2866,7 +2877,6 @@ var hook = {
 			v.die();
 			v.data.vx *= 0.1;
 			v.data.vy *= 0.1;
-
 			SPRITE.newObj('Drop', {
 				x: v.data.x,
 				y: v.data.y,
