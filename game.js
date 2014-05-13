@@ -1256,7 +1256,7 @@ return proto = {
 			if (circle_intersect(d, e))
 				circles_hit(d, e)
 		}
-		else if (that.damage_pt) {
+		else if (e.damage_pt) {
 			var u = { x:d.x, y:d.y, r:d.h };
 			if (!this.is_invinc && (that.is_line ? line_circle_intersect(e, u) : circle_intersect(e, u)))
 				STORY.on(STORY.events.PLAYER_HIT, this);
@@ -1430,8 +1430,8 @@ return proto = {
 			circles_hit(d, e);
 	},
 
-	damage_pt: 1,
 	data0: {
+		damage_pt: 1,
 		dh: 1/200,
 		kh: 1/500,
 	},
@@ -1470,13 +1470,13 @@ return proto = {
 	},
 
 	data0: {
+		damage_pt: 1,
 		dh: 1/200,
 		kh: 1/500,
 		dx: 0,
 		dy: (GAME.rect.b - GAME.rect.t)*0.2,
 	},
 	is_line: 1,
-	damage_pt: 1,
 	init: function(d) {
 		from.init.call(this, d = fill(d, proto.data0));
 	}
@@ -1496,7 +1496,7 @@ return proto = {
 		if (!this.is_dying && !that.is_dying &&
 				that.hit_with != this && circle_intersect(d, e)) {
 			that.hit_with = this;
-			d.damage += that.damage_pt || 1;
+			d.damage += e.damage_pt || 1;
 			if (that.clsName == SPRITE.proto.Bullet.clsName)
 				STORY.on(STORY.events.BULLET_HIT, that);
 			if (d.damage >= d.life)
@@ -1504,8 +1504,8 @@ return proto = {
 		}
 	},
 	
-	damage_pt: 1,
 	data0: {
+		damage_pt: 1,
 		dh: 1/100,
 		kh: 1/100,
 		r: 20,
@@ -1535,8 +1535,8 @@ return proto =  {
 		}
 	},
 	
-	damage_pt: 1,
 	data0: {
+		damage_pt: 1,
 		dh: 1/2000,
 		kh: 1/500,
 	},
@@ -1603,8 +1603,8 @@ return proto = {
 SPRITE.newCls('Bullet', 'Circle', function(from, proto) {
 return proto =  {
 	layer: 'L20',
-	damage_pt: 1,
 	data0: {
+		damage_pt: 1,
 		dh: 1/50,
 		kh: 1/400,
 		r: 5,
@@ -1619,8 +1619,8 @@ return proto =  {
 SPRITE.newCls('Dannmaku', 'Circle', function(from, proto) {
 return proto = {
 	layer: 'L20',
-	damage_pt: 1,
 	data0: {
+		damage_pt: 1,
 		dh: 1/300,
 		kh: 1/300,
 		r: 5,
@@ -1635,10 +1635,6 @@ return proto = {
 // for test only
 function newPlayer() {
 	var p = SPRITE.newObj('Player');
-	p.onmyous = {
-		left: newOnmyou(p, 'OnmyouR', { x:-25, y:0 }, { x:-8, y:-28 }),
-		right: newOnmyou(p, 'Onmyou', { x:+25, y:0 }, { x:+8, y:-28 }),
-	};
 	p.pslow = newPSlow(p);
 	return p;
 }
@@ -1671,46 +1667,50 @@ function newPSlow(player) {
 	};
 	return obj;
 }
-function newBullet(from, to) {
-	from.bullet1_idx = ((from.bullet1_idx || 0) + 1) % 6;
-	array(2, function(i, para) {
-		var x = i % 2 ? -1 : 1;
-		SPRITE.newObj('Bullet', {
-			x: from.data.x + x*5,
-			y: from.data.y,
-			vx: 0.02*x,
-			vy: -0.72,
-			from: from,
-			frtick: 1000/36,
-			frames: RES.frames.Bullet0,
-			opacity: 0.7,
-		});
+function newBulletA(x, y, vx, vy) {
+	return SPRITE.newObj('Bullet', {
+		x: x,
+		y: y,
+		vx: vx,
+		vy: vy,
+		frames: RES.frames.Bullet0,
+		opacity: 0.7,
 	});
-	if (from.bullet1_idx == 0) {
-		if (!to)
-			to = UTIL.getNearestAlive(from, 'Enemy');
+}
+function newBulletB(to, x, y, vx, vy) {
+	var obj = SPRITE.newObj('Bullet', {
+		x: x,
+		y: y,
+		vy: vx,
+		vx: vy,
+		to: to,
+		frtick: 1000/36,
+		frames: RES.frames.Bullet1,
+		opacity: 0.7,
+	})
+	obj.anim(50, function(d) {
+		var that = d.to,
+			e = that && that.data;
+		if (that && !that.finished && e.damage_pt && !this.is_dying)
+			redirect_object(d, e, sqrt_sum(d.vx, d.vy), 0.4);
+	}, obj.data);
+	return obj;
+}
+function newBullet1(from) {
+	newBulletA(from.data.x, from.data.y, 0, -0.72);
+}
+function newBullet2(from) {
+	newBulletA(from.data.x-5, from.data.y, -0.02, -0.72);
+	newBulletA(from.data.x+5, from.data.y, +0.02, -0.72);
+	from.bullet1_idx = ((from.bullet1_idx || 0) + 1) % 6;
+	if (from.bullet1_idx == 0 && from.onmyous) {
+		var to = UTIL.getNearestAlive(from, 'Enemy');
 		array(4, function(i) {
 			var x = i % 2 ? -1 : 1,
 				v1 = random(0.4, 0.5),
 				t = (from.is_slow ? random(-5, 5) : random(10, 20)-i*5) * PI / 180,
 				onmyou = x > 0 ? from.onmyous.right : from.onmyous.left;
-			SPRITE.newObj('Bullet', {
-				x: onmyou.data.x,
-				y: onmyou.data.y,
-				vy: -v1*Math.cos(t),
-				vx: x*v1*Math.sin(t),
-				from: from,
-				to: to,
-				frtick: 1000/36,
-				frames: RES.frames.Bullet1,
-				opacity: 0.7,
-			}).anim(50, function(k) {
-				var d = this.data,
-					that = d.to,
-					e = that && that.data;
-				if (that && !that.finished && that.damage_pt && !this.is_dying)
-					redirect_object(d, e, sqrt_sum(d.vx, d.vy), 0.4);
-			});
+			newBulletB(to, onmyou.data.x, onmyou.data.y, -v1*Math.cos(t), x*v1*Math.sin(t));
 		})
 	}
 }
@@ -1764,8 +1764,8 @@ function newShield(bg) {
 		dh: 1/2000,
 		kh: 1/1000,
 		duration: 5000,
+		damage_pt: 20,
 	});
-	sh.damage_pt = 20;
 	sh.drawCircle = function(d) {
 		d.r = 1 + ease_out(d.ph) * 40;
 		d.scale = d.r / 30;
@@ -2261,7 +2261,7 @@ function newLaser(from, to) {
 		rt.b = Math.max(d.y0, d.y, d.y + d.dy);
 	};
 	obj.runCircle = function(dt, d) {
-		this.damage_pt = this.is_creating || this.is_dying ? 0 : 1;
+		d.damage_pt = this.is_creating || this.is_dying ? 0 : 1;
 	};
 	obj.drawCircle = function(d) {
 		var f = d.frame,
@@ -2760,7 +2760,7 @@ var STATICS = {
 	point: 0,
 	player: 7,
 	bomb: 7,
-	power: 255,
+	power: 0,
 	graze: 0,
 	dot: 0,
 
@@ -2812,10 +2812,10 @@ var hook = {
 		else if (e == STORY.events.PLAYER_DYING) {
 			var x = v.data.x,
 				y = v.data.y;
-			SPRITE.newObj('Drop', { vx:  -1, vy: -0.8, x:x, y:y });
-			SPRITE.newObj('Drop', { vx:-0.5, vy:-0.85, x:x, y:y });
-			SPRITE.newObj('Drop', { vx: 0.5, vy:-0.85, x:x, y:y });
-			SPRITE.newObj('Drop', { vx:   1, vy: -0.8, x:x, y:y });
+			SPRITE.newObj('Drop', { vx:  -1, vy: -0.8, x:x, y:y, power_pt:1, });
+			SPRITE.newObj('Drop', { vx:-0.5, vy:-0.85, x:x, y:y, power_pt:1, });
+			SPRITE.newObj('Drop', { vx: 0.5, vy:-0.85, x:x, y:y, power_pt:1, });
+			SPRITE.newObj('Drop', { vx:   1, vy: -0.8, x:x, y:y, power_pt:1, });
 			STATICS.player --;
 			STORY.timeout(function() {
 				killCls('Dannmaku');
@@ -2824,10 +2824,21 @@ var hook = {
 		else if (e == STORY.events.PLAYER_DEAD) {
 			newPlayer();
 			STATICS.bomb = 7;
+			STATICS.power = 0;
 		}
 		else if (e == STORY.events.PLAYER_FIRE) {
-			if (!d.disable_fire && !v.is_dying)
-				newBullet(v);
+			if (!d.disable_fire && !v.is_dying) {
+				if (STATICS.power >= 8 && !v.onmyous) v.onmyous = {
+					left: newOnmyou(v, 'OnmyouR', { x:-25, y:0 }, { x:-8, y:-28 }),
+					right: newOnmyou(v, 'Onmyou', { x:+25, y:0 }, { x:+8, y:-28 }),
+				}
+				if (STATICS.power < 8)
+					newBullet1(v);
+				else if (STATICS.power < 16)
+					newBullet2(v);
+				else // full power
+					newBullet2(v);
+			}
 		}
 		else if (e == STORY.events.PLAYER_BOMB) {
 			if (!d.disable_fire) {
@@ -2846,7 +2857,8 @@ var hook = {
 		}
 		else if (e == STORY.events.DROP_COLLECTED) {
 			v.die();
-			STATICS.point += 10;
+			STATICS.point += v.data.point_pt || 10;
+			STATICS.power += v.data.power_pt || 0;
 		}
 		else if (e == STORY.events.BULLET_HIT) {
 			v.die();
