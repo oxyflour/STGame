@@ -912,7 +912,7 @@ input[type="radio"]:focus + .menu {
 		</form>
 	</div>
 	<div class="fps absolute" style="color:white">
-		<div>fps: <span class="ui" ui-bind="GAME.fps.toFixed(2)+' / '+GAME.tick"></span></div>
+		<div>fps: <span class="ui" ui-bind="(+GAME.fps).toFixed(2)+' / '+GAME.tick"></span></div>
 		<div>story: <span class="ui" ui-bind="STORY.state.n"></span></div>
 	</div>
 	<div class="screen loading absolute ui" ui-show="RES.process < 1">
