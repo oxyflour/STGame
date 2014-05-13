@@ -1245,9 +1245,10 @@ return proto = {
 		var d = this.data,
 			e = that.data;
 		if (that.clsName == SPRITE.proto.Drop.clsName && !that.is_dying && !that.is_creating) {
-			e.collected = this;
-			if (circle_intersect(d, { x:e.x, y:e.y, r:20 }))
+			if (circle_intersect(d, { x:e.x, y:e.y, r:10 }))
 				STORY.on(STORY.events.DROP_COLLECTED, that);
+			else if (circle_intersect(d, e))
+				e.to = this;
 		}
 		else if (that.clsName == SPRITE.proto.Player.clsName) {
 			if (circle_intersect(d, e))
@@ -1322,10 +1323,6 @@ return proto = {
 		}
 		if (ks[cf.key_bomb] && !this.is_dying && !(this.is_bomb > 0))
 			STORY.on(STORY.events.PLAYER_BOMB, this);
-
-		// AUTO COLLECT!
-		if (d.y < UTIL.getGamePosY(0.3))
-			STORY.on(STORY.events.PLAYER_AUTOCOLLECT, this);
 	},
 	runBasic: function(dt, d) {
 		if (this.finished) {
@@ -1404,12 +1401,17 @@ return proto = {
 		fire_duration: 500,
 		juesi_duration: 100,
 		bomb_duration: 5000,
+		collect_ylim: 0.3,
 	},
 	init: function(d) {
 		from.init.call(this, d = fill(d, proto.data0));
 		this.rect = { l:0, t:0, r:0, b:0 };
 		if (d.conf)
 			this.conf = fill(d.conf, proto.conf);
+		if (this.conf.collect_ylim) this.anim(50, function(d) {
+			if (d.y < UTIL.getGamePosY(this.conf.collect_ylim))
+				STORY.on(STORY.events.PLAYER_AUTOCOLLECT, this);
+		}, this.data);
 	}
 }
 });
@@ -1546,30 +1548,10 @@ return proto =  {
 
 SPRITE.newCls('Drop', 'Circle', function(from, proto) {
 return proto = {
-	layer: 'L20',
-	runCircle: function(dt, d) {
-		var that = d.collected;
-		if (that && that.finished)
-			that = d.collected = UTIL.getOneObj('Player');
-		if (that && !that.finished && !that.is_dying && !this.is_creating) {
-			var e = that.data,
-				v = d.collected_auto ? 0.6 : sqrt_sum(d.vx, d.vy);
-			redirect_object(d, e, v);
-			if (!d.collected_auto)
-				d.collected = undefined;
-		}
-		else if (d.vy < 0.15) {
-			d.vy += 0.001 * dt;
-			d.vx *= 0.9;
-		}
-		else {
-			d.vx = 0;
-		}
-	},
 	drawBasic: function(d) {
 		if (d.y < GAME.rect.t && d.frame_small) this.drawFrame({
 			x: d.x,
-			y: GAME.rect.t + 16,
+			y: GAME.rect.t + 8,
 			scale: 1,
 			frame: d.frame_small,
 		});
@@ -1585,15 +1567,22 @@ return proto = {
 		dh: 1/500,
 		kh: 1/50,
 		r: 60,
-		vy: -0.4,
-		collected: undefined,
-		collected_auto: false,
+		vy: -0.1,
 	},
 	init: function(d) {
-		from.init.call(this, d = fill(d, proto.data0, {
-			frames: RES.frames.Drops[2],
-			frame_small: RES.frames.Drops[8],
-		}));
+		from.init.call(this, d = fill(d, proto.data0));
+		this.anim(50, function(d) {
+			var that = d.to;
+			if (that && !that.finished && !that.is_dying) {
+				redirect_object(d, that.data, d.keep ? 0.5 : sqrt_sum(d.vx, d.vy));
+				d.to = d.keep ? d.to : undefined;
+			}
+			else {
+				if (d.vy < 0.15)
+					d.vy += 0.01;
+				d.vx *= 0.9;
+			}
+		}, this.data);
 	}
 }
 });
@@ -1839,6 +1828,22 @@ function newShield(bomb) {
 				d.scale = ease_out(d.ph) * d.size;
 		};
 	});
+}
+function newDrop(type, x, y, extra) {
+	var power_pt = 0;
+	if (type == 0)
+		power_pt = 1;
+	else if (type == 2)
+		power_pt = 8;
+	else if (type == 4)
+		power_pt = 128;
+	return SPRITE.newObj('Drop', fill(extra, {
+		x: x,
+		y: y,
+		power_pt: power_pt,
+		frames: RES.frames.Drops[type],
+		frame_small: RES.frames.Drops[type+8],
+	}));
 }
 
 /*
@@ -2827,8 +2832,8 @@ var hook = {
 		}
 		else if (e == STORY.events.PLAYER_AUTOCOLLECT) {
 			SPRITE.eachObj(function(i, that) {
-				that.data.collected = v;
-				that.data.collected_auto = true;
+				that.data.to = v;
+				that.data.keep = true;
 			}, 'Drop');
 		}
 		else if (e == STORY.events.PLAYER_HIT) {
@@ -2845,15 +2850,8 @@ var hook = {
 		else if (e == STORY.events.PLAYER_DYING) {
 			var x = v.data.x,
 				y = v.data.y;
-			ieach([1, 1, 1, 1, 8], function(i, pt) {
-				SPRITE.newObj('Drop', {
-					vx: random(-0.5, 0.5),
-					vy: random(-0.8, -0.7),
-					x: x,
-					y: y,
-					power_pt: pt,
-					frames: RES.frames.Drops[pt > 1 ? 2 : 0],
-				});
+			ieach([0, 0, 0, 0, 2], function(i, type) {
+				newDrop(type, x, y, { vx:random(-0.2, 0.2), vy:random(-0.25, -0.3) });
 			})
 			STATICS.player --;
 			STATICS.bomb = 7;
@@ -2888,20 +2886,12 @@ var hook = {
 		else if (e == STORY.events.ENEMY_KILL) {
 			if (v.data.respawn-- <= 0) {
 				v.die();
-				var pt = v.data.power_pt || (random(1) > 0.6 ? 1 : 0),
-					fs = RES.frames.Drops[1];
-				if (pt >= 128)
-					fs = RES.frames.Drops[4];
-				else if (pt >= 8)
-					fs = RES.frames.Drops[2];
-				else if (pt)
-					fs = RES.frames.Drops[0];
-				SPRITE.newObj('Drop', {
-					x: v.data.x,
-					y: v.data.y,
-					frames: fs,
-					power_pt: pt,
-				})
+				var type;
+				if (v.data.power_pt)
+					type = v.data.power_pt >= 128 ? 4 : (v.data.power_pt >= 8 ? 2 : 0);
+				else
+					type = random(1) > 0.6 ? 0 : 1;
+				newDrop(type, v.data.x, v.data.y);
 			}
 			newEffect(v);
 			array(4, function() {
@@ -2914,7 +2904,7 @@ var hook = {
 			if (v.data.power_pt) {
 				STATICS.power = limit_between(STATICS.power+v.data.power_pt, 0, 128);
 				if (STATICS.power >= 8) {
-					var p = v.data.collected;
+					var p = v.data.to;
 					if (p && !p.onmyous) p.onmyous = {
 						left: newOnmyou(p, 'OnmyouR', { x:-25, y:0 }, { x:-8, y:-28 }),
 						right: newOnmyou(p, 'Onmyou', { x:+25, y:0 }, { x:+8, y:-28 }),
@@ -2933,12 +2923,9 @@ var hook = {
 			v.die();
 			v.data.vx *= 0.1;
 			v.data.vy *= 0.1;
-			SPRITE.newObj('Drop', {
-				x: v.data.x,
-				y: v.data.y,
-				frames: RES.frames.Drops[6],
-				collected: UTIL.getOneObj('Player'),
-				collected_auto: true,
+			newDrop(6, v.data.x, v.data.y, {
+				to: UTIL.getOneObj('Player'),
+				keep: true,
 			});
 		}
 	}
