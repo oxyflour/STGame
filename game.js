@@ -1261,10 +1261,10 @@ return proto = {
 	},
 	
 	juesi: function() {
-		this.is_juesi = 100;
+		this.is_juesi = this.conf.juesi_duration;
 	},
 	bomb: function() {
-		this.is_bomb = 5000;
+		this.is_bomb = this.conf.bomb_duration;
 	},
 	runPlayer: function(dt, d) {
 		var ks = GAME.keyste,
@@ -1301,7 +1301,7 @@ return proto = {
 			if (!this.is_firing) this.anim(cf.fire_interval, function() {
 				this.is_firing && STORY.on(STORY.events.PLAYER_FIRE, this);
 			}, null, 'fire');
-			this.is_firing = cf.fire_count;
+			this.is_firing = cf.fire_duration;
 		}
 		else if (this.is_firing && (this.is_firing -= dt) <= 0)
 			this.is_firing = 0;
@@ -1350,7 +1350,6 @@ return proto = {
 			d.y = gt.t + d.r;
 		if (rt.b > gt.b)
 			d.y = gt.b - d.r;
-
 	},
 	drawBasic: function(d) {
 		if (this.is_invinc)
@@ -1400,7 +1399,9 @@ return proto = {
 		speed_high: 0.24,
 		speed_low: 0.12,
 		fire_interval: 1000 / 12,
-		fire_count: 500,
+		fire_duration: 500,
+		juesi_duration: 100,
+		bomb_duration: 5000,
 	},
 	init: function(d) {
 		from.init.call(this, d = fill(d, proto.data0));
