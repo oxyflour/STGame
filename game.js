@@ -2828,10 +2828,6 @@ var hook = {
 		}
 		else if (e == STORY.events.PLAYER_FIRE) {
 			if (!d.disable_fire && !v.is_dying) {
-				if (STATICS.power >= 8 && !v.onmyous) v.onmyous = {
-					left: newOnmyou(v, 'OnmyouR', { x:-25, y:0 }, { x:-8, y:-28 }),
-					right: newOnmyou(v, 'Onmyou', { x:+25, y:0 }, { x:+8, y:-28 }),
-				}
 				if (STATICS.power < 8)
 					newBullet1(v);
 				else if (STATICS.power < 16)
@@ -2859,6 +2855,10 @@ var hook = {
 			v.die();
 			STATICS.point += v.data.point_pt || 10;
 			STATICS.power += v.data.power_pt || 0;
+			if (STATICS.power >= 8 && !v.onmyous) v.onmyous = {
+				left: newOnmyou(v, 'OnmyouR', { x:-25, y:0 }, { x:-8, y:-28 }),
+				right: newOnmyou(v, 'Onmyou', { x:+25, y:0 }, { x:+8, y:-28 }),
+			}
 		}
 		else if (e == STORY.events.BULLET_HIT) {
 			v.die();
