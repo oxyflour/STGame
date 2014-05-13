@@ -46,9 +46,6 @@ function reduce(ls, fn, r) {
 		d.$ = fn(i, v, d.$);
 	}, {$:r}).$;
 }
-function last(ls) {
-	return ls[ls.length - 1];
-}
 function dictflip(a) {
 	return each(a, function(i, v, d) {
 		d[v] = i;

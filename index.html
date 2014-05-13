@@ -535,22 +535,22 @@ input[type="radio"]:focus + .menu {
 			_t.Player0 = array(4, function(i) {
 				return extend({ res:'player0L', sy: 0, sw:32, sh:48, w:32, h:48 }, { sx:32*i });
 			});
-			last(_t.Player0).next = 0;
+			lastOfArray(_t.Player0).next = 0;
 			_t.PlayerL = array(7, function(i) {
 				return extend({ res:'player0L', sy:48, sw:32, sh:48, w:32, h:48 }, { sx:32*i });
 			});
-			last(_t.PlayerL).next = 4;
+			lastOfArray(_t.PlayerL).next = 4;
 			_t.PlayerR = array(7, function(i) {
 				return extend({ res:'player0R', sy:0, sw:32, sh:48, w:32, h:48 }, { sx:255-32*(i+1) });
 			});
-			last(_t.PlayerR).next = 4;
+			lastOfArray(_t.PlayerR).next = 4;
 
 			ieach([_t.PlayerL, _t.PlayerR], function(i, ls, ls0) {
 				ls.reset_index = ls0.length;
 				ieach(range(3).reverse(), function(x, i) {
 					ls0.push(extend({}, ls[i]));
 				});
-				last(ls0).next = 0;
+				lastOfArray(ls0).next = 0;
 			}, _t.Player0);
 
 			_t.PlayerD = [
@@ -563,7 +563,7 @@ input[type="radio"]:focus + .menu {
 				{ res:'player0L', sx:0, sy: 0, sw:32, sh:48, w:1, h:93 },
 				{ res:'player0L', sx:0, sy: 0, sw:0, sh:0, w:0, h:0 },
 			];
-			last(_t.PlayerD).next = _t.PlayerD.length - 1;
+			lastOfArray(_t.PlayerD).next = _t.PlayerD.length - 1;
 
 			_t.Bullet0 = array(RES.bullet0.width/16, function(i) {
 				return extend({ res:'bullet0', sy:0, sw:16, sh:16, w:16, h:16 }, { sx:16*i });
@@ -925,6 +925,10 @@ ieach($('.ui-obj'), function(i, v) {
 	v.className += ' ui';
 	v.setAttribute('ui-show', 'this.object && !this.object.finished');
 });
+
+function lastOfArray(ls) {
+	return ls[ls.length - 1];
+}
 
 function checkFormKey(e, f) {
 	if (e.which == 'Z'.charCodeAt(0))
