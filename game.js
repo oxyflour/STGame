@@ -1240,6 +1240,8 @@ return proto = {
 		'Drop',
 	],
 	hitWith: function(that) {
+		if (this.is_dying)
+			return;
 		var d = this.data,
 			e = that.data;
 		if (that.clsName == SPRITE.proto.Drop.clsName && !that.is_dying && !that.is_creating) {
@@ -1692,44 +1694,79 @@ function newBulletB(to, x, y, vx, vy) {
 	}, obj.data);
 	return obj;
 }
-function newBullet1(from) {
-	newBulletA(from.data.x, from.data.y, 0, -0.72);
+function newBulletC(from, to, x) {
+	var v1 = random(0.4, 0.5),
+		t = (from.is_slow ? random(-5, 5) : random(10, 20)) * PI / 180,
+		onmyou = x > 0 ? from.onmyous.right : from.onmyous.left;
+	return newBulletB(to, onmyou.data.x, onmyou.data.y, -v1*Math.cos(t), x*v1*Math.sin(t));
 }
-function newBullet2(from) {
-	newBulletA(from.data.x-5, from.data.y, -0.02, -0.72);
-	newBulletA(from.data.x+5, from.data.y, +0.02, -0.72);
-	from.bullet1_idx = ((from.bullet1_idx || 0) + 1) % 6;
+function newBulletD(from, freq) {
+	from.bullet1_idx = ((from.bullet1_idx || 0) + 1) % freq;
 	if (from.bullet1_idx == 0 && from.onmyous) {
 		var to = UTIL.getNearestAlive(from, 'Enemy');
-		array(4, function(i) {
-			var x = i % 2 ? -1 : 1,
-				v1 = random(0.4, 0.5),
-				t = (from.is_slow ? random(-5, 5) : random(10, 20)-i*5) * PI / 180,
-				onmyou = x > 0 ? from.onmyous.right : from.onmyous.left;
-			newBulletB(to, onmyou.data.x, onmyou.data.y, -v1*Math.cos(t), x*v1*Math.sin(t));
-		})
+		newBulletC(from, to, 1);
+		newBulletC(from, to, -1);
+		newBulletC(from, to, 1);
+		newBulletC(from, to, -1);
 	}
+}
+function newBullet1(from) {
+	newBulletA(from.data.x, from.data.y, 0, -0.73);
+}
+function newBullet2(from) {
+	newBulletA(from.data.x, from.data.y, 0, -0.73);
+	newBulletD(from, 6);
+}
+function newBullet3(from) {
+	newBulletA(from.data.x-5, from.data.y, -0.02, -0.72);
+	newBulletA(from.data.x+5, from.data.y, +0.02, -0.72);
+	newBulletD(from, 6);
+}
+function newBullet4(from) {
+	newBulletA(from.data.x, from.data.y, 0, -0.73);
+	newBulletA(from.data.x-5, from.data.y, -0.05, -0.70);
+	newBulletA(from.data.x+5, from.data.y, +0.05, -0.70);
+	newBulletD(from, 6);
+}
+function newBullet5(from) {
+	newBulletA(from.data.x, from.data.y, 0, -0.73);
+	newBulletA(from.data.x-5, from.data.y, -0.05, -0.70);
+	newBulletA(from.data.x+5, from.data.y, +0.05, -0.70);
+	newBulletD(from, 4);
+}
+function newBullet5(from) {
+	newBulletA(from.data.x, from.data.y, 0, -0.73);
+	newBulletA(from.data.x-5, from.data.y, -0.05, -0.70);
+	newBulletA(from.data.x+5, from.data.y, +0.05, -0.70);
+	newBulletD(from, 2);
+}
+function newBullet8(from) {
+	newBulletA(from.data.x-5, from.data.y, -0.02, -0.72);
+	newBulletA(from.data.x+5, from.data.y, +0.02, -0.72);
+	newBulletA(from.data.x-5, from.data.y, -0.05, -0.70);
+	newBulletA(from.data.x+5, from.data.y, +0.05, -0.70);
+	newBulletD(from, 2);
 }
 function newBomb(player) {
 	var bg = SPRITE.newObj('Shield', {
-		player: player,
+		parent: player,
 		elem: $i('.bombbg'),
+		duration: player.conf.bomb_duration,
 	});
 	bg.draw = return_nothing;
 	bg.data.elem.object = bg;
 	bg.drawCircle = function(d) {
-		var p = d.player;
+		var p = d.parent;
 		d.x = p.data.x;
 		d.y = p.data.y;
 		d.r = this.is_dying ? 400 - d.ph*300 : d.ph * 100;
 		return true;
 	};
 	bg.anim(50, function(d) {
-		var p = d.player;
-		if ((p.finished || !p.is_bomb) && !bg.is_dying)
-			bg.die();
-		if (d.elem.object == bg)
-			d.elem.style.opacity = limit_between(parseFloat(d.elem.style.opacity)+d.dh*50, 0, 1);
+		if (d.elem.object == bg) {
+			var s = d.elem.style;
+			s.opacity = limit_between(parseFloat(s.opacity)+d.dh*50, 0, 1);
+		}
 	}, bg.data);
 	bg.anim(800, function(d) {
 		if (!bg.is_dying)
@@ -1746,8 +1783,8 @@ function newBomb(player) {
 		duration: 150,
 	});
 }
-function newShield(bg) {
-	var p = bg.data.player;
+function newShield(bomb) {
+	var p = bomb.data.parent;
 	var sh = SPRITE.newObj('Shield', {
 		x: p.data.x,
 		y: p.data.y,
@@ -1759,7 +1796,7 @@ function newShield(bg) {
 		dv: 0.01,
 		dh: 1/2000,
 		kh: 1/1000,
-		duration: 5000,
+		parent: bomb,
 		damage_pt: 20,
 	});
 	sh.drawCircle = function(d) {
@@ -2088,7 +2125,6 @@ function newSec2(ylim, count) {
 				vx: 0,
 				dvx: dvx,
 				dvy: dvy,
-				power_pt: random(1) > 0.5 ? 1 : 0,
 			});
 			obj.anim(50, function(d) {
 				if (d.y > UTIL.getGamePosY(ylim)) {
@@ -2111,7 +2147,6 @@ function newSec3(tick, count) {
 			vx: 0,
 			dvy: -0.005,
 			vx0: random(-0.1, 0.1),
-			power_pt: random(1) > 0.3 ? 1 : 0,
 		});
 		enm.anim(50, function(d) {
 			if (d.age > 600 && !this.is_firing && (this.is_firing = true)) {
@@ -2810,28 +2845,37 @@ var hook = {
 		else if (e == STORY.events.PLAYER_DYING) {
 			var x = v.data.x,
 				y = v.data.y;
-			SPRITE.newObj('Drop', { vx:  -1, vy: -0.8, x:x, y:y, power_pt:1, });
-			SPRITE.newObj('Drop', { vx:-0.5, vy:-0.85, x:x, y:y, power_pt:1, });
-			SPRITE.newObj('Drop', { vx: 0.5, vy:-0.85, x:x, y:y, power_pt:1, });
-			SPRITE.newObj('Drop', { vx:   1, vy: -0.8, x:x, y:y, power_pt:1, });
+			ieach([1, 1, 1, 1, 8], function(i, pt) {
+				SPRITE.newObj('Drop', {
+					vx: random(-0.5, 0.5),
+					vy: random(-0.8, -0.7),
+					x: x,
+					y: y,
+					power_pt: pt,
+					frames: RES.frames.Drops[pt > 1 ? 2 : 0],
+				});
+			})
 			STATICS.player --;
+			STATICS.bomb = 7;
+			STATICS.power = limit_between(STATICS.power - 16, 0, 128);
 			STORY.timeout(function() {
 				killCls('Dannmaku');
 			}, 30, null, 20);
 		}
 		else if (e == STORY.events.PLAYER_DEAD) {
 			newPlayer();
-			STATICS.bomb = 7;
-			STATICS.power = 0;
 		}
 		else if (e == STORY.events.PLAYER_FIRE) {
 			if (!d.disable_fire && !v.is_dying) {
-				if (STATICS.power < 8)
-					newBullet1(v);
-				else if (STATICS.power < 16)
-					newBullet2(v);
-				else // full power
-					newBullet2(v);
+				if (STATICS.power < 8)		  newBullet1(v);
+				else if (STATICS.power <  16) newBullet2(v);
+				else if (STATICS.power <  32) newBullet3(v);
+				else if (STATICS.power <  48) newBullet3(v);
+				else if (STATICS.power <  60) newBullet4(v);
+				else if (STATICS.power <  80) newBullet4(v);
+				else if (STATICS.power < 100) newBullet5(v);
+				else if (STATICS.power < 127) newBullet5(v);
+				else 						  newBullet8(v);
 			}
 		}
 		else if (e == STORY.events.PLAYER_BOMB) {
@@ -2844,27 +2888,38 @@ var hook = {
 		else if (e == STORY.events.ENEMY_KILL) {
 			if (v.data.respawn-- <= 0) {
 				v.die();
-				if (v.data.power_pt) SPRITE.newObj('Drop', {
+				var pt = v.data.power_pt || (random(1) > 0.6 ? 1 : 0),
+					fs = RES.frames.Drops[1];
+				if (pt >= 128)
+					fs = RES.frames.Drops[4];
+				else if (pt >= 8)
+					fs = RES.frames.Drops[2];
+				else if (pt)
+					fs = RES.frames.Drops[0];
+				SPRITE.newObj('Drop', {
 					x: v.data.x,
 					y: v.data.y,
-					power_pt: v.data.power_pt,
-				});
+					frames: fs,
+					power_pt: pt,
+				})
 			}
 			newEffect(v);
-			array(8, function() {
+			array(4, function() {
 				newEffectPiece(v, 'b');
 			});
 		}
 		else if (e == STORY.events.DROP_COLLECTED) {
 			v.die();
 			STATICS.point += v.data.point_pt || 10;
-			STATICS.power += v.data.power_pt || 0;
-			if (STATICS.power >= 8) {
-				var p = v.data.collected;
-				if (p && !p.onmyous) p.onmyous = {
-					left: newOnmyou(p, 'OnmyouR', { x:-25, y:0 }, { x:-8, y:-28 }),
-					right: newOnmyou(p, 'Onmyou', { x:+25, y:0 }, { x:+8, y:-28 }),
-				};
+			if (v.data.power_pt) {
+				STATICS.power = limit_between(STATICS.power+v.data.power_pt, 0, 128);
+				if (STATICS.power >= 8) {
+					var p = v.data.collected;
+					if (p && !p.onmyous) p.onmyous = {
+						left: newOnmyou(p, 'OnmyouR', { x:-25, y:0 }, { x:-8, y:-28 }),
+						right: newOnmyou(p, 'Onmyou', { x:+25, y:0 }, { x:+8, y:-28 }),
+					};
+				}
 			}
 		}
 		else if (e == STORY.events.BULLET_HIT) {
