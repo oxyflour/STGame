@@ -2298,10 +2298,7 @@ function newBoss() {
 		id: 'boss',
 	});
 	boss.effects = array(3, function(i) {
-		var eff = newBossGadgets(boss);
-		eff.drawEffects = eff.draw;
-		eff.draw = return_nothing;
-		return eff;
+		return newBossGadgets(boss);
 	});
 	boss.drawBasic = function(d) {
 		ieach(boss.effects, function(i, v) {
@@ -2344,6 +2341,8 @@ function newBossGadgets(boss) {
 		d.z = Math.sin(r.theta);
 		d.scale = 1.0 + 0.4*Math.sin(r.theta);
 	};
+	eff.drawEffects = eff.draw;
+	eff.draw = return_nothing;
 	return eff;
 }
 function newLifeBar(boss) {
