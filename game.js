@@ -2280,7 +2280,7 @@ function newBoss() {
 		life: 300,
 		frtick: 150,
 		frames: function(v) {
-			var fs = [RES.frames.Boss],
+			var fs = RES.frames.Boss,
 				vx = Math.abs(v.data.vx);
 			if (vx > 0.02 || vx < -0.02) {
 				fs = v.data.vx > 0 ? RES.frames.BossL : RES.frames.BossR;
@@ -2288,6 +2288,9 @@ function newBoss() {
 					this.index = 0;
 				var max = vx > 0.1 ? fs.length - 2 : fs.length - 3;
 				this.index = limit_between(this.index, 0, max);
+			}
+			else if (v.data.is_firing && !(v.data.is_firing = false)) {
+				this.index = fs.reset_index;
 			}
 			return fs;
 		},
@@ -2425,6 +2428,7 @@ function newBossBackground(boss) {
 }
 
 function newBossDanns1(from, color, count, angular, dv) {
+	from.data.is_firing = true;
 	var to = UTIL.getNearestAlive(from, 'Player'),
 		frame = RES.frames.TamaA[('k rm b c g  y  w').indexOf(color)];
 	if (!from.is_dying) array(count || 7, function(j) {
@@ -2437,6 +2441,7 @@ function newBossDanns1(from, color, count, angular, dv) {
 	})
 }
 function newBossDanns2(from) {
+	from.data.is_firing = true;
 	var to = UTIL.getNearestAlive(from, 'Player');
 	var ds = [
 		{ color:'k', frames:RES.frames.TamaSmallX[0] },

@@ -645,14 +645,24 @@ input[type="radio"]:focus + .menu {
 			_t.EnemyX = array(8, function(i) {
 				return extend({ res:'stg1enm', sy:255-48, sw:32, sh:48, w:32, h:48 }, { sx:32*i });
 			});
-			_t.Boss = { res:'stg1enm2', sx:128, sy:0, sw:32, sh:48, w:32, h:48 };
-			_t.BossF = array(5, function(i) {
-				return extend({ res:'stg1enm2', sy:0, sw:32, sh:48, w:32, h:48 }, { sx:128-32*i });
+
+			_t.Boss = [{ res:'stg1enm2', sx:128, sy:0, sw:32, sh:48, w:32, h:48 }];
+			lastOfArray(_t.Boss).next = 0;
+
+			_t.Boss.reset_index = _t.Boss.length;
+			array(5, function(i) {
+				_t.Boss.push(extend({ res:'stg1enm2', sy:0, sw:32, sh:48, w:32, h:48 }, { sx:128-32*i }));
 			});
+			array(5, function(i) {
+				_t.Boss.push(extend({ res:'stg1enm2', sy:0, sw:32, sh:48, w:32, h:48 }, { sx:32*i }));
+			});
+			lastOfArray(_t.Boss).next = 0;
+
 			_t.BossL = array(3, function(i) {
 				return extend({ res:'stg1enm2', sy:48, sw:32, sh:48, w:32, h:48 }, { sx:32*i });
 			});
 			_t.BossL.unshift({ res:'stg1enm2', sx:160, sy:0, sw:32, sh:48, w:32, h:48 });
+
 			_t.BossR = array(3, function(i) {
 				return extend({ res:'stg1enm2R', sy:0, sw:32, sh:48, w:32, h:48 }, { sx:32*i });
 			});
