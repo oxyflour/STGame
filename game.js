@@ -622,8 +622,12 @@ var SPRITE = (function() {
 				return fn(i, v);
 		});
 	}
+	function loop_fn(i, ls, fn) {
+		return loop(ls, fn);
+	}
 	function draw() {
-		(this.finished = this.obj.finished) || this.obj.draw();
+		if (!(this.finished = this.obj.finished))
+			this.obj.draw();
 	}
 	var _t = {
 		cls: newGroupAnim(),
@@ -633,29 +637,20 @@ var SPRITE = (function() {
 	};
 	_t.newCls = function(c, f, fn) {
 		var from = f.substring ? new _t.proto[f].init() : {},
-			proto = (f.call ? f : fn)(from);
-		fill(proto, from);
-		proto.clsName = c;
-		_t.proto[c] = proto.init.prototype = proto;
-		return proto;
+			proto = f.call ? f(from) : fn(from);
+		proto = fill({ clsName:c }, proto, from);
+		return _t.proto[c] = proto.init.prototype = proto;
 	};
 	_t.newObj = function(c, d) {
 		var obj = new _t.proto[c].init(d);
-		_t.cls.add(c, obj);
+		_t.cls.add(obj.clsName, obj);
 		_t.layers.add(obj.layer, { obj:obj, run:draw });
-		if (obj.id) {
-			if (_t.elems[obj.id])
-				_t.elems[obj.id].finished = true;
-			_t.elems[obj.id] = obj;
-		}
 		return obj;
 	};
 	_t.eachObj = function(fn, c) {
-		if (c)
-			return loop(_t.cls.groups[c], fn);
-		else return ieach(_t.cls, function(i, ls) {
-			return loop(ls, fn);
-		});
+		return c ?
+			loop(_t.cls.groups[c], fn) :
+			ieach(_t.cls, loop_fn, fn);
 	};
 	_t.clrObj = function(c) {
 		_t.eachObj(function(i, v) {
