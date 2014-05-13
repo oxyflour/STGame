@@ -563,7 +563,7 @@ input[type="radio"]:focus + .menu {
 				{ res:'player0L', sx:0, sy: 0, sw:32, sh:48, w:1, h:93 },
 				{ res:'player0L', sx:0, sy: 0, sw:0, sh:0, w:0, h:0 },
 			];
-			lastOfArray(_t.PlayerD).next = _t.PlayerD.length - 1;
+			stayLastFrame(_t.PlayerD);
 
 			_t.Bullet0 = array(RES.bullet0.width/16, function(i) {
 				return extend({ res:'bullet0', sy:0, sw:16, sh:16, w:16, h:16 }, { sx:16*i });
@@ -674,12 +674,15 @@ input[type="radio"]:focus + .menu {
 			_t.EffBoss = array(RES.effboss.width/16, function(i) {
 				return { res:'effboss', sx:i*16, sy:0, sw:16, sh:16, w:16, h:16 };
 			});
+			stayLastFrame(_t.EffBoss);
 			_t.EffEnemy = ieach([32,42,52,62,60,58,56,54,52,50,48,46,44,42,40,38,36,34,32,30,28,26], function(i, d, ls) {
 				ls.push(extend({ res:'eff00', sx:32, sy:0, sw:32, sh:32, rotate:-i*0.5 }, { w:d, h:d }));
 			}, []);
+			stayLastFrame(_t.EffEnemy);
 			_t.EffPlayer = ieach([32,42,52,62,67,72,76,80,83,86,89,92,95,98,101,104,107,110,113,116,119,122], function(i, d, ls) {
 				ls.push(extend({ res:'eff00', sx:0, sy:0, sw:32, sh:32 }, { w:d*1.5, h:d*1.5 }));
 			}, []);
+			stayLastFrame(_t.EffPlayer);
 			ieach(['EffPiece', 'EffPieceR', 'EffPieceG', 'EffPieceB'], function(i, k) {
 				_t[k] = array(4, function(j) {
 					return { res:'eff00', sx:i*64+j*16, sy:32, sw:16, sh:16, w:16, h:16 };
@@ -845,7 +848,7 @@ input[type="radio"]:focus + .menu {
 				<div class="ui" ui-bind="'ui num n'+getNum(STATICS.power, 1)" ui-bind-attr="this.className"></div>
 				<div class="ui" ui-bind="'ui num n'+getNum(STATICS.power, 2)" ui-bind-attr="this.className"></div>
 			</div>
-			<div class="ui power-max" ui-show="STATICS.power >= 255"></div>
+			<div class="ui power-max" ui-show="STATICS.power >= 128"></div>
 		</div>
 		<div class="line-small">
 			<div class="label"><div class="label-graze"></div></div>
@@ -938,6 +941,9 @@ ieach($('.ui-obj'), function(i, v) {
 
 function lastOfArray(ls) {
 	return ls[ls.length - 1];
+}
+function stayLastFrame(fs) {
+	lastOfArray(fs).next = fs.length - 1;
 }
 
 function checkFormKey(e, f) {
