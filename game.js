@@ -2477,7 +2477,7 @@ function newBossBackground(boss) {
 	obj.data.elem.object = obj;
 	obj.anim(50, function(d) {
 		d.elem.style.opacity = d.ph;
-		d.elem.style['background-position'] = '0 '+(-d.age*0.1)+'px';
+		d.elem.style.backgroundPosition = '0 '+(-d.age*0.1)+'px';
 	}, obj.data)
 	return obj;
 }
