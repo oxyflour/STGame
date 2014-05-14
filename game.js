@@ -2995,57 +2995,47 @@ ieach([
 	};
 }, tl);
 ieach([
-	{ text:'x0aabbcc', face:'f0a', float:'l', name:'diagA' },
-	{ text:'x0aabbcc', face:'f0b fs', float:'l', next:'bossB', },
-	{ text:'y0aabbcc', face:'f3a', float:'r', },
-	{ text:'x0aabbcc', face:'f0c fs', float:'l', },
-	{ text:'y0aabbcc', face:'f3a fs', float:'r', name:'diagB', },
-	{ text:'x0aabbcc', face:'f0b', float:'l', },
-	{ text:'y0aabbcc', face:'f3a', float:'r', },
-	{ text:'x0aabbcc', face:'f0c', float:'l', },
-	{ text:'y0aabbcc', face:'f3a', float:'r', next:'bossC', ended:true },
+	{ text:'x0aabbcc', pos:'.fl', face:'.f0a', name:'diagA' },
+	{ text:'x0aabbcc', pos:'.fl', face:'.f0a.f2', next:'bossB', },
+	{ text:'y0aabbcc', pos:'.fr', face:'.f0a', },
+	{ text:'x0aabbcc', pos:'.fl', face:'.f0a.f2', },
+	{ text:'y0aabbcc', pos:'.fr', face:'.f0a.f2', name:'diagB', },
+	{ text:'x0aabbcc', pos:'.fl', face:'.f0a', },
+	{ text:'y0aabbcc', pos:'.fr', face:'.f0a', },
+	{ text:'x0aabbcc', pos:'.fl', face:'.f0a', },
+	{ text:'y0aabbcc', pos:'.fr', face:'.f0a', next:'bossC', ended:true },
 ], function(i, para, tl) {
 	var c = para.name || 'diag'+i, n = para.next || 'diag'+(i+1);
 	tl[c] = {
 		init: function(d) {
 			d.age = 0;
 			d.disable_fire = true;
-			d.text = UTIL.getOneObj('Basic', 'diag') || SPRITE.newObj('Basic', { id: 'diag', });
-			d.text.data.text = para.text;
 
 			var bg = $i('.diag'),
-				fl = $i('.fl', bg),
-				fr = $i('.fr', bg),
-				text = $i('.text', bg),
-				face = para.float == 'l' ? fl : fr;
-			bg.object = d.text;
+				pos = $i(para.pos, bg),
+				face = $i(para.face, pos),
+				text = $i('.text', bg);
+			var filter = function(i, e, d) {
+				e === d ? e.classList.add('active') : e.classList.remove('active');
+			};
+			bg.style.display = 'block';
+			bg.classList.add('active');
+			ieach($('.fr, .fl', bg), filter, pos);
+			ieach($('.face', pos), filter, face);
 			text.innerHTML = para.text;
-			$i('.face', face).className = 'face '+para.face;
-
-			d.text.anim(50, function(d) {
-				if (this.data.ph <= 1) {
-					bg.style.opacity = this.data.ph;
-					var dx = (1 - this.data.ph) * -64;
-					fl.style.marginLeft = dx+'px';
-					fr.style.marginRight = dx+'px';
-				}
-				ieach([fl, fr], function(i, f) {
-					var dp = f == face ? 0.1 : -0.1;
-					f.style.opacity = limit_between(f.style.opacity-0+dp, 0.3, 1);
-					var df = 1 - f.style.opacity,
-						dx = df * (f == fl ? -20 : 20),
-						dy = df * 10;
-					$prefixStyle(f.style, 'Transform', 'translate('+dx+'px,'+dy+'px)');
-				});
-			}, null, 'face');
 		},
 		run: function(dt, d) {
 			if (d.pass || GAME.keyste.ctrlKey || (d.age+=dt) > 20000)
 				return n;
 		},
 		quit: function(d, n) {
-			if (para.ended)
-				d.text.die();
+			if (para.ended) {
+				var bg = $i('.diag');
+				bg.classList.remove('active');
+				STORY.timer.add(newTicker(1000, function() {
+					return bg.style.display = 'none';
+				}))
+			}
 		},
 		on: function(e, v, d) {
 			if (e == STORY.events.GAME_INPUT) {

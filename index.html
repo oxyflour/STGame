@@ -287,10 +287,60 @@ input[type="radio"]:focus + .menu {
 	width: 30px;
 	background-position: -48px  -208px;
 }
+.fl, .fr, .ft {
+	position: absolute;
+	-webkit-transition: all ease 0.6s;
+	    -ms-transition: all ease 0.6s;
+	   -moz-transition: all ease 0.6s;
+}
+.fl, .fr {
+	margin-top: 192px;
+}
+.fr {
+	margin-left: 256px;
+}
 .face {
+	position: absolute;
+	opacity: 0;
 	width: 128px;
 	height: 256px;
-	margin-top: 192px;
+	-webkit-transition: all linear 0.3s;
+	    -ms-transition: all linear 0.3s;
+	   -moz-transition: all linear 0.3s;
+}
+.diag .fl {
+	-webkit-transform: translate(-128px, 10px);
+	    -ms-transform: translate(-128px, 10px);
+	   -moz-transform: translate(-128px, 10px);
+}
+.diag .fr {
+	-webkit-transform: translate( 128px, 10px);
+	    -ms-transform: translate( 128px, 10px);
+	   -moz-transform: translate( 128px, 10px);
+}
+.diag.active .fl {
+	-webkit-transform: translate(-20px, 10px);
+	    -ms-transform: translate(-20px, 10px);
+	   -moz-transform: translate(-20px, 10px);
+}
+.diag.active .fr {
+	-webkit-transform: translate( 20px, 10px);
+	    -ms-transform: translate( 20px, 10px);
+	   -moz-transform: translate( 20px, 10px);
+}
+.diag.active .fl.active,
+.diag.active .fr.active {
+	-webkit-transform: none;
+	    -ms-transform: none;
+	   -moz-transform: none;
+}
+.diag.active .fl .face.active,
+.diag.active .fr .face.active {
+	opacity: 0.3;
+}
+.diag.active .fl.active .face.active,
+.diag.active .fr.active .face.active {
+	opacity: 1;
 }
 .f0a {
 	background: url(res/face00a.png) 0 0;
@@ -307,35 +357,22 @@ input[type="radio"]:focus + .menu {
 .f3b {
 	background: url(res/face03b.png) 0 0;
 }
-.fs {
+.f2 {
 	background-position: -128px 0;
 }
-.fl {
-	float: left;
-}
-.fr {
-	float: right;
-}
 .ft {
-	position: absolute;
 	margin-top: 320px;
 	width: 100%;
+	opacity: 0;
 }
-.text {
+.diag.active .ft {
+	opacity: 1;
+}
+.ft .text {
 	margin: 48px;
 	padding: 2px 20px;
 	background-color: rgba(0, 0, 0, 0.5);
 	color: silver;
-}
-.diag, .fl, .fr {
-	-webkit-transition: all linear 0.1s;
-	    -ms-transition: all linear 0.1s;
-	   -moz-transition: all linear 0.1s;
-}
-.face {
-	-webkit-transition: -webkit-transform linear 0.1s;
-	    -ms-transition:     -ms-transform linear 0.1s;
-	   -moz-transition:    -moz-transform linear 0.1s;
 }
 .num {
 	background: url(res/ascii.png) 0 -32px;
@@ -790,10 +827,22 @@ input[type="radio"]:focus + .menu {
 		</div>
 	</div>
 	<canvas class="game absolute" id="canv"></canvas>
-	<div class="ui-obj game absolute no-overflow diag">
-		<div class="fl"><div class="face"></div></div>
-		<div class="fr"><div class="face"></div></div>
-		<div class="ft"><div class="text"></div></div>
+	<div class="game absolute no-overflow diag">
+		<div class="fl">
+			<div class="face f0a"></div>
+			<div class="face f0a f2"></div>
+			<div class="face f1a"></div>
+			<div class="face f2a f2"></div>
+		</div>
+		<div class="fr">
+			<div class="face f0a"></div>
+			<div class="face f0a f2"></div>
+			<div class="face f1a"></div>
+			<div class="face f2a f2"></div>
+		</div>
+		<div class="ft">
+			<div class="text"></div>
+		</div>
 	</div>
 	<div class="info absolute">
 		<div class="line">
