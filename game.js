@@ -1309,13 +1309,6 @@ return proto = {
 		else if (this.is_firing && (this.is_firing -= dt) <= 0)
 			this.is_firing = 0;
 
-		// JUESI!
-		if (this.is_juesi > 0 && (this.is_juesi -= dt) <= 0) {
-			this.is_juesi = 0;
-			this.die();
-			STORY.on(STORY.events.PLAYER_DYING, this);
-		}
-
 		// BOMB!
 		if (this.is_bomb > 0) {
 			this.is_juesi = 0;
@@ -1323,6 +1316,13 @@ return proto = {
 		}
 		if (ks[cf.key_bomb] && !this.is_dying && !(this.is_bomb > 0))
 			STORY.on(STORY.events.PLAYER_BOMB, this);
+
+		// JUESI!
+		if (this.is_juesi > 0 && (this.is_juesi -= dt) <= 0) {
+			this.is_juesi = 0;
+			this.die();
+			STORY.on(STORY.events.PLAYER_DYING, this);
+		}
 	},
 	runBasic: function(dt, d) {
 		if (this.finished) {
