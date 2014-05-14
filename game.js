@@ -1762,6 +1762,16 @@ function newBomb(player) {
 			newShield(bg);
 	});
 
+	SPRITE.anim.add(newTicker(100, function(d) {
+		if (d.n -- > 0) {
+			DC.setTransform(1, 0, 0, 1, random(-3, 3), random(-3, 3));
+		}
+		else {
+			DC.setTransform(1, 0, 0, 1, 0, 0);
+			this.finished = true;
+		}
+	}, { n:40 }));
+
 	SPRITE.newObj('Basic', {
 		x: player.data.x,
 		y: player.data.y,
