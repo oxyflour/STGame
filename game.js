@@ -539,9 +539,18 @@ var RES = (function(res) {
 					-sc.w/2, -sc.h/2, sc.w, sc.h);
 			}
 			else if (t.k == 'offset') {
-				var st = t.v.split(' ').map(parseFloat);
-				dc.drawImage(sc.s, sc.x + st[0], sc.y + st[1], sc.w, sc.h,
+				var st = t.v.split(' '),
+					dx = st[0] ? parseFloat(st[0]) : 0,
+					dy = st[1] ? parseFloat(st[1]) : 0;
+				dc.drawImage(sc.s, sc.x + dx, sc.y + dy, sc.w, sc.h,
 					0, 0, sc.w, sc.h);
+			}
+			else if (t.k == 'scale') {
+				var st = t.v.split(' '),
+					sx = st[0] ? parseFloat(st[0]) : 0,
+					sy = st[1] ? parseFloat(st[1]) : sx;
+				dc.drawImage(sc.s, sc.x, sc.y, sc.w, sc.h,
+					0, 0, sc.w * sx, sc.h * sy);
 			}
 			else if (t.k == 'colormask') {
 				dc.drawImage(sc.s, sc.x, sc.y, sc.w, sc.h,
