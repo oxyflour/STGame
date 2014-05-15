@@ -590,7 +590,7 @@ var RES = (function(res) {
 					updateCanvas(v);
 				d[v.id] = v;
 			}
-			else if (v.tagName == 'IMG') {
+			else if (v.tagName == 'IMG' || v.tagName == 'AUDIO') {
 				d[v.id] = v;
 			}
 			else if (v.tagName == 'SCRIPT') {
@@ -600,7 +600,7 @@ var RES = (function(res) {
 	}
 	_t.check = function check(fn) {
 		var ls = ieach(res.children, function(i, v, d) {
-			if (v.tagName == 'IMG')
+			if (v.tagName == 'IMG' || v.tagName == 'AUDIO')
 				d.push(v.complete ? 1 : 0);
 		}, []);
 		_t.process = sum(ls) / ls.length;
@@ -2864,6 +2864,7 @@ var hook = {
 		}
 		else if (e == STORY.events.PLAYER_GRAZE) {
 			STATICS.graze ++;
+			RES.se_graze.play();
 		}
 		else if (e == STORY.events.PLAYER_DYING) {
 			var x = v.data.x,
@@ -2877,6 +2878,7 @@ var hook = {
 			STORY.timeout(function() {
 				killCls('Dannmaku');
 			}, 30, null, 20);
+			RES.se_pldead00.play();
 		}
 		else if (e == STORY.events.PLAYER_DEAD) {
 			newPlayer();
