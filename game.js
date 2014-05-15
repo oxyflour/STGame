@@ -112,6 +112,9 @@ function ease_out(f) {
 function ease_in_out(f) {
 	return (Math.sin((f - 0.5) * PI) + 1) * 0.5;
 }
+function decrease_to_zero(v, d) {
+	return (v -= d) > 0 ? v : 0;
+}
 function limit_between(x, min, max) {
 	if (!(x <= max)) x = max;
 	if (!(x >= min)) x = min;
@@ -672,7 +675,6 @@ var STORY = (function() {
 		'OBJECT_OUT',
 		'PLAYER_HIT',
 		'PLAYER_DYING',
-		'PLAYER_DEAD',
 		'PLAYER_AUTOCOLLECT',
 		'PLAYER_GRAZE',
 		'PLAYER_FIRE',
@@ -1268,13 +1270,16 @@ return proto = {
 	},
 	bomb: function() {
 		this.is_bomb = this.conf.bomb_duration;
+		this.is_invinc = 8000;
+		if (this.is_juesi)
+			this.is_juesi = 0;
 	},
 	runPlayer: function(dt, d) {
 		var ks = GAME.keyste,
 			cf = this.conf;
 
-		this.is_invinc = this.is_creating || this.is_dying ||
-			this.is_bomb || this.is_juesi;
+		this.is_invinc = this.is_invinc > 0 ? decrease_to_zero(this.is_invinc, dt) :
+			this.is_creating || this.is_dying || this.is_bomb || this.is_juesi;
 		this.is_slow = ks.shiftKey;
 
 		d.x0 = d.x;
@@ -1306,30 +1311,22 @@ return proto = {
 			}, null, 'fire');
 			this.is_firing = cf.fire_duration;
 		}
-		else if (this.is_firing && (this.is_firing -= dt) <= 0)
-			this.is_firing = 0;
+		if (this.is_firing > 0)
+			this.is_firing = decrease_to_zero(this.is_firing, dt);
 
 		// BOMB!
-		if (this.is_bomb > 0) {
-			this.is_juesi = 0;
-			this.is_bomb -= dt;
-		}
-		if (ks[cf.key_bomb] && !this.is_dying && !(this.is_bomb > 0))
+		if (ks[cf.key_bomb] && !this.is_dying && !this.is_bomb)
 			STORY.on(STORY.events.PLAYER_BOMB, this);
+		if (this.is_bomb > 0)
+			this.is_bomb = decrease_to_zero(this.is_bomb, dt);
 
 		// JUESI!
-		if (this.is_juesi > 0 && (this.is_juesi -= dt) <= 0) {
-			this.is_juesi = 0;
-			this.die();
+		if (this.is_juesi > 0 && this.is_juesi <= dt)
 			STORY.on(STORY.events.PLAYER_DYING, this);
-		}
+		if (this.is_juesi > 0)
+			this.is_juesi = decrease_to_zero(this.is_juesi, dt);
 	},
 	runBasic: function(dt, d) {
-		if (this.finished) {
-			STORY.on(STORY.events.PLAYER_DEAD, this);
-			return;
-		}
-
 		if (!this.is_dying)
 			this.runPlayer(dt, d);
 
@@ -1353,6 +1350,9 @@ return proto = {
 	drawBasic: function(d) {
 		if (this.is_invinc)
 			DC.globalAlpha = 0.5;
+		var f = d.frame;
+		f.w = f.sw * d.ph;
+		f.h = f.sh * (2 - d.ph);
 		return true;
 	},
 
@@ -1367,16 +1367,10 @@ return proto = {
 		x0: 0,
 		y0: 0,
 
-		dh: 1/2000,
-		kh: 1/1000,
-
-		frtick: 120,
+		frtick: 100,
 	  	frames: function(v) {
 			var fs = RES.frames.Player0;
-			if (v.is_dying) {
-				fs = RES.frames.PlayerD;
-			}
-			else if (Math.abs(v.data.vx) > 0.1) {
+			if (Math.abs(v.data.vx) > 0.1) {
 				fs = v.data.vx < 0 ? RES.frames.PlayerL : RES.frames.PlayerR;
 				if (this.frames != fs)
 					this.index = 0;
@@ -1406,6 +1400,7 @@ return proto = {
 	init: function(d) {
 		from.init.call(this, d = fill(d, proto.data0));
 		this.rect = { l:0, t:0, r:0, b:0 };
+		this.is_invinc = 2000;
 		if (d.conf)
 			this.conf = fill(d.conf, proto.conf);
 		if (this.conf.collect_ylim) this.anim(50, function(d) {
@@ -2867,6 +2862,7 @@ var hook = {
 			RES.se_graze.play();
 		}
 		else if (e == STORY.events.PLAYER_DYING) {
+			v.die();
 			var x = v.data.x,
 				y = v.data.y;
 			ieach([0, 0, 0, 0, 2], function(i, type) {
@@ -2875,13 +2871,12 @@ var hook = {
 			STATICS.player --;
 			STATICS.bomb = 7;
 			STATICS.power = limit_between(STATICS.power - 16, 0, 128);
-			STORY.timeout(function() {
+			STORY.timer.add(newTicker(100, function() {
 				killCls('Dannmaku');
-			}, 30, null, 20);
+				if (this.finished = v.finished)
+					newPlayer();
+			}));
 			RES.se_pldead00.play();
-		}
-		else if (e == STORY.events.PLAYER_DEAD) {
-			newPlayer();
 		}
 		else if (e == STORY.events.PLAYER_FIRE) {
 			if (!d.disable_fire && !v.is_dying) {
