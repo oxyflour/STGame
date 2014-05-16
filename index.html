@@ -66,18 +66,18 @@ input[type="radio"] {
 	margin-top: 58px;
 	margin-left: 432px;
 }
-.title {
+.logo-text {
 	margin-top: 294px;
 	margin-left: 446px;
 	width: 168px;
 	height: 168px;
 }
-.title .td {
+.logo-text .td {
 	float: left;
 	width: 56px;
 	height: 56px;
 }
-.title .font {
+.logo-text .font {
 	position: absolute;
 	background-image: url(res/front.png);
 	margin-left: -6px;
@@ -86,7 +86,23 @@ input[type="radio"] {
 	height: 64px;
 	opacity: 0.6;
 }
-.font.fa.anim {
+.logo-text .fa {
+	background-position: 0 0;
+}
+.logo-text .fb {
+	background-position: -64px 0;
+}
+.logo-text .fc {
+	background-position:-128px 0;
+	opacity: 1;
+}
+.logo-text .fd {
+	background-position:-192px 0;
+}
+.logo-text .fe {
+	background-position: 0 -64px;
+}
+.logo-text .fa.anim {
 	-webkit-animation: fa_anim 2s linear;
 	    -ms-animation: fa_anim 2s linear;
 	   -moz-animation: fa_anim 2s linear;
@@ -103,7 +119,7 @@ input[type="radio"] {
 	from {    -moz-transform: rotate(360deg); opacity:0.0; margin-left: 48px; margin-top: 48px; }
 	50%  {    -moz-transform: rotate(180deg); opacity:0.3; margin-left: 48px; margin-top:  0px; }
 }
-.font.fb.anim {
+.logo-text .fb.anim {
 	-webkit-animation: fb_anim 1s linear;
 	    -ms-animation: fb_anim 1s linear;
 	   -moz-animation: fb_anim 1s linear;
@@ -111,7 +127,7 @@ input[type="radio"] {
 @-webkit-keyframes fb_anim { from { -webkit-transform: rotate(-180deg); opacity:0.0; margin-top: 48px; } }
     @-ms-keyframes fb_anim { from {     -ms-transform: rotate(-180deg); opacity:0.0; margin-top: 48px; } }
    @-moz-keyframes fb_anim { from {    -moz-transform: rotate(-180deg); opacity:0.0; margin-top: 48px; } }
-.font.fc.anim {
+.logo-text .fd.anim {
 	-webkit-animation: fc_anim 1s linear;
 	    -ms-animation: fc_anim 1s linear;
 	   -moz-animation: fc_anim 1s linear;
@@ -119,7 +135,7 @@ input[type="radio"] {
 @-webkit-keyframes fc_anim { from { -webkit-transform: rotate(180deg); opacity:0.0; margin-top: -60px; } }
     @-ms-keyframes fc_anim { from {     -ms-transform: rotate(180deg); opacity:0.0; margin-top: -60px; } }
    @-moz-keyframes fc_anim { from {    -moz-transform: rotate(180deg); opacity:0.0; margin-top: -60px; } }
-.font.fd.anim {
+.logo-text .fe.anim {
 	-webkit-animation: fd_anim 2s linear;
 	    -ms-animation: fd_anim 2s linear;
 	   -moz-animation: fd_anim 2s linear;
@@ -243,9 +259,9 @@ input[type="radio"] {
 	width: 48px;
 	height: 16px;
 }
-.menu {
-	background: url(res/ascii.png) 0 -160px;
-	width: 64px;
+.menu-pause .menu,
+.menu-pause-text {
+	background-image: url(res/ascii.png);
 	height: 16px;
 	display: inline-block;
 	cursor: pointer;
@@ -253,13 +269,13 @@ input[type="radio"] {
 	    -ms-transform: scale(1.5);
 	   -moz-transform: scale(1.5);
 }
-input[type="radio"] + .menu {
+.menu-pause input[type="radio"] + .menu {
 	-webkit-transition: all ease 0.4s;
 	    -ms-transition: all ease 0.4s;
 	   -moz-transition: all ease 0.4s;
 	opacity: 0.4;
 }
-input[type="radio"]:focus + .menu {
+.menu-pause input[type="radio"]:focus + .menu {
 	background-image: url(res/asciis.png);
 	-webkit-transform: scale(1.8);
 	    -ms-transform: scale(1.8);
@@ -270,12 +286,15 @@ input[type="radio"]:focus + .menu {
 	margin: 10px;
 	margin-left: 110px;
 }
-.menu-pause {
+.menu-pause-text {
+	width: 64px;
 	margin-top: 168px;
 	margin-left: 160px;
 	margin-bottom: 5px;
+	background-position:  0		-160px;
 }
 .menu-pause-continue {
+	width: 64px;
 	margin-top: 28px;
 	background-position: -0     -176px;
 }
@@ -409,6 +428,121 @@ input[type="radio"]:focus + .menu {
 }
 .n9 {
 	background-position: -144px -48px;
+}
+
+.title {
+	background: url(res/title00.png) white;
+}
+.title-eng {
+	width: 512px;
+	height: 32px;
+	margin-top: -170px;
+	margin-left: -190px;
+	-webkit-transform: rotate(67.5deg);
+	    -ms-transform: rotate(67.5deg);
+	   -moz-transform: rotate(67.5deg);
+}
+.title-eng .text {
+	width: 256px;
+	height: 32px;
+	float: left;
+	background: url(res/title03.png);
+}
+.title-eng .text1 {
+	background-position: 0 -192px;
+}
+.title-eng .text2 {
+	background-position: 0 -224px;
+}
+.title-text {
+	margin-top: 44px;
+	margin-left: 64px;
+}
+.title-text .font {
+	width: 96px;
+	height: 96px;
+	margin-top: -20px;
+	background: url(res/title02.png);
+}
+.title-text .fa {
+	background-position: 0 0;
+}
+.title-text .fb {
+	background-position:-96px 0;
+}
+.title-text .fc {
+	background: url(res/title03.png);
+	background-position: 0 0;
+	-webkit-transform: rotate(25deg);
+	    -ms-transform: rotate(25deg);
+	   -moz-transform: rotate(25deg);
+}
+.title-text .fd {
+	background-position: 0 -96px;
+}
+.title-text .fe {
+	background-position: -96px -96px;
+}
+.menu-title {
+	margin-left: 422px;
+	margin-top: 207px;
+}
+.menu-title .menu-line {
+	margin: 0;
+	margin-top: -8px;
+}
+.menu-title-start {
+	background-position: 0 0;
+	width: 80px;
+}
+.menu-title-extra-start {
+	background-position: -79px 2px;
+	width: 180px;
+	margin-left: -10px;
+}
+.menu-title-practice-start {
+	background-position: 2px -192px;
+	width: 180px;
+	margin-left: -20px;
+}
+.menu-title-replay {
+	background-position: 2px -32px;
+	width: 100px;
+	margin-left: -30px;
+}
+.menu-title-score {
+	background-position: -95px -32px;
+	width: 80px;
+	margin-left: -40px;
+}
+.menu-title-music-room {
+	background-position: -95px -160px;
+	width: 160px;
+	margin-left: -50px;
+}
+.menu-title-option {
+	background-position: 2px -64px;
+	width: 100px;
+	margin-left: -60px;
+}
+.menu-title-quit {
+	background-position: -192px -32px;
+	width: 60px;
+	margin-left: -70px;
+}
+.menu-title input[type="radio"] + .menu {
+	background-image: url(res/title01.png);
+	display: inline-block;
+	height: 32px;
+	opacity: 0.5;
+	cursor: pointer;
+}
+.menu-title input[type="radio"]:focus + .menu {
+	background-image: url(res/title01s.png);
+	opacity: 1;
+	-webkit-transform: translate(-3px, -3px);
+	    -ms-transform: translate(-3px, -3px);
+	   -moz-transform: translate(-3px, -3px);
 }
 </style>
 </head>
@@ -917,26 +1051,27 @@ input[type="radio"]:focus + .menu {
 		</div>
 	</div>
 	<div class="logo absolute"></div>
-	<div class="title absolute">
+	<div class="logo-text absolute">
 		<div class="tr">
-			<div class="td"><div class="font fa" style="background-position:0 0;"></div></div>
-			<div class="td"><div class="font fb" style="background-position:-64px 0;"></div></div>
+			<div class="td"><div class="font fa"></div></div>
+			<div class="td"><div class="font fb"></div></div>
 			<div class="td"></div>
 		</div>
 		<div class="tr">
 			<div class="td"></div>
-			<div class="td"><div class="font" style="background-position:-128px 0;opacity:1"></div></div>
+			<div class="td"><div class="font fc"></div></div>
 			<div class="td"></div>
 		</div>
 		<div class="tr">
 			<div class="td"></div>
-			<div class="td"><div class="font fc" style="background-position:-192px 0;"></div></div>
-			<div class="td"><div class="font fd" style="background-position:0 -64px;"></div></div>
+			<div class="td"><div class="font fd"></div></div>
+			<div class="td"><div class="font fe"></div></div>
 		</div>
 	</div>
 	<div class="game mask absolute ui" ui-show="GAME.state == GAME.states.PAUSE">
-		<div class="menu menu-pause"></div>
-		<form action="javascript:eval(getRadioVal($('input[name=pause_menu]')))" onkeyup="checkFormKey(event, this)">
+		<div class="menu menu-pause-text"></div>
+		<form class="menu-pause" action="javascript:eval(getRadioVal($('input[name=pause_menu]')))"
+			onkeyup="checkFormKey(event, this)">
 			<div class="menu-line">
 				<input type="radio" name="pause_menu" value="continueGame()">
 				<label class="menu menu-pause-continue"></label>
@@ -956,11 +1091,59 @@ input[type="radio"]:focus + .menu {
 		<div>fps: <span class="ui" ui-bind="(+GAME.fps).toFixed(2)+' / '+GAME.tick"></span></div>
 		<div>story: <span class="ui" ui-bind="STORY.state.n"></span></div>
 	</div>
+	<div class="screen title absolute ui" ui-show="GAME.state == GAME.states.READY">
+		<div class="title-text absolute">
+			<div class="font fa"></div>
+			<div class="font fb"></div>
+			<div class="font fc"></div>
+			<div class="font fd"></div>
+			<div class="font fe"></div>
+			<div class="title-eng absolute">
+				<div class="text text1"></div>
+				<div class="text text2"></div>
+			</div>
+		</div>
+		<form class="menu-title" action="javascript:eval(getRadioVal($('input[name=title_menu]')))"
+			onkeyup="checkFormKey(event, this)">
+			<div class="menu-line">
+				<input type="radio" name="title_menu" value="loadAndStart()">
+				<label class="menu menu-title-start"></label>
+			</div>
+			<div class="menu-line">
+				<input type="radio" name="title_menu">
+				<label class="menu menu-title-extra-start"></label>
+			</div>
+			<div class="menu-line">
+				<input type="radio" name="title_menu">
+				<label class="menu menu-title-practice-start"></label>
+			</div>
+			<div class="menu-line">
+				<input type="radio" name="title_menu">
+				<label class="menu menu-title-replay"></label>
+			</div>
+			<div class="menu-line">
+				<input type="radio" name="title_menu">
+				<label class="menu menu-title-score"></label>
+			</div>
+			<div class="menu-line">
+				<input type="radio" name="title_menu">
+				<label class="menu menu-title-music-room"></label>
+			</div>
+			<div class="menu-line">
+				<input type="radio" name="title_menu">
+				<label class="menu menu-title-option"></label>
+			</div>
+			<div class="menu-line">
+				<input type="radio" name="title_menu">
+				<label class="menu menu-title-quit"></label>
+			</div>
+			<input style="width:0px;opacity:0;" type="submit" />
+		</form>
+	</div>
 	<div class="screen loading absolute ui" ui-show="RES.process < 1">
 		<h3>loading <span class="ui" ui-bind="(RES.process*100).toFixed(1)+'%'">...</span></h3>
 	</div>
 </div>
-<div class="ui" ui-bind="GAME.state" ui-bind-exec="setTimeout(checkRadios, 100)"></div>
 <script src="game.js"></script>
 <script>
 ieach($('input[type="radio"]'), function(i, v) {
@@ -993,9 +1176,12 @@ function checkFormKey(e, f) {
 }
 
 function checkRadios() {
-	var ls = $('input[type="radio"]');
+	var ls = ieach($('input[type="radio"]'), function(i, v, d) {
+		if (v.scrollHeight)
+			d.push(v);
+	}, []);
 	var r = ieach(ls, function(i, v) {
-		if (v.scrollHeight > 0 && v.checked)
+		if (v.checked)
 			return v;
 	}, ls[0]);
 	if (r) {
@@ -1003,6 +1189,13 @@ function checkRadios() {
 		r.focus();
 	}
 }
+setInterval(function() {
+	if (GAME.state != GAME.states.RUNNING) {
+		var f = $i(':focus');
+		if (!f || !f.scrollHeight)
+			checkRadios();
+	}
+}, 300);
 
 function getRadioVal(ls) {
 	return ieach(ls, function(i, v) {
@@ -1048,7 +1241,9 @@ function loadAndStart() {
 		reAddClass(e, 'anim');
 	});
 }
-RES.check(loadAndStart);
+RES.check(function() {
+	GAME.state = GAME.states.READY;
+});
 
 </script>
 </body>
