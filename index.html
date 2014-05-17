@@ -529,10 +529,10 @@
 	</div>
 	<div class="game mask absolute show-game-pause">
 		<div class="menu menu-pause-text"></div>
-		<form class="menu-pause" action="javascript:void(eval(getRadioVal($('input[name=pause_menu]'))))"
+		<form class="menu-pause" action="javascript:evalRadioVal('pause_menu')"
 			onkeyup="checkFormKey(event, this)">
 			<div class="menu-line">
-				<input type="radio" name="pause_menu" value="continueGame()" checked
+				<input type="radio" name="pause_menu" value="GAME.state = GAME.states.RUNNING" checked
 					class="ui" ui-focus="GAME.state == GAME.states.PAUSE">
 				<label class="menu menu-pause-continue"></label>
 			</div>
@@ -563,12 +563,12 @@
 				<div class="text text2"></div>
 			</div>
 		</div>
-		<form class="show-game-title absolute" action="javascript:eval(getRadioVal($('input[name=title_in]')))"
+		<form class="show-game-title absolute" action="javascript:evalRadioVal('title_in')"
 			onkeyup="checkFormKey(event, this)">
-			<input type="radio" name="title_in" value="gotoGameMenu()" checked
+			<input type="radio" name="title_in" value="GAME.state = GAME.states.MENU" checked
 				class="ui" ui-focus="GAME.state == GAME.states.TITLE">
 		</form>
-		<form class="menu-title" action="javascript:eval(getRadioVal($('input[name=title_menu]')))"
+		<form class="menu-title" action="javascript:evalRadioVal('title_menu')"
 			onkeyup="checkFormKey(event, this)">
 			<div class="menu-line">
 				<input type="radio" name="title_menu" value="loadAndStart()" checked
@@ -669,6 +669,10 @@ function getRadioVal(ls) {
 	});
 }
 
+function evalRadioVal(name) {
+	eval(getRadioVal($('input[name="'+name+'"]')))
+}
+
 function getNum(n, i) {
 	return (n + '').substr(i, 1);
 }
@@ -689,19 +693,11 @@ function getCanvasDC(cv) {
 	return dc;
 }
 
-function continueGame() {
-	GAME.state = GAME.states.RUNNING;
-}
-
 function gotoGameTitle() {
 	GAME.state = GAME.states.LOADING;
 	setTimeout(function() {
 		GAME.state = GAME.states.TITLE;
 	}, 500)
-}
-
-function gotoGameMenu() {
-	GAME.state = GAME.states.MENU;
 }
 
 function loadAndStart() {
