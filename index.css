@@ -139,6 +139,7 @@ input[type="radio"] {
 .logo-text .fe {
 	background-position: 0 -64px;
 }
+.game-pause .logo-text .fa,
 .game-running .logo-text .fa {
 	-webkit-animation: fa_anim 2s linear;
 	    -ms-animation: fa_anim 2s linear;
@@ -156,6 +157,7 @@ input[type="radio"] {
 	from {    -moz-transform: rotate(360deg); opacity:0.0; margin-left: 48px; margin-top: 48px; }
 	50%  {    -moz-transform: rotate(180deg); opacity:0.3; margin-left: 48px; margin-top:  0px; }
 }
+.game-pause .logo-text .fb,
 .game-running .logo-text .fb {
 	-webkit-animation: fb_anim 1s linear;
 	    -ms-animation: fb_anim 1s linear;
@@ -164,6 +166,7 @@ input[type="radio"] {
 @-webkit-keyframes fb_anim { from { -webkit-transform: rotate(-180deg); opacity:0.0; margin-top: 48px; } }
     @-ms-keyframes fb_anim { from {     -ms-transform: rotate(-180deg); opacity:0.0; margin-top: 48px; } }
    @-moz-keyframes fb_anim { from {    -moz-transform: rotate(-180deg); opacity:0.0; margin-top: 48px; } }
+.game-pause .logo-text .fd,
 .game-running .logo-text .fd {
 	-webkit-animation: fc_anim 1s linear;
 	    -ms-animation: fc_anim 1s linear;
@@ -172,6 +175,7 @@ input[type="radio"] {
 @-webkit-keyframes fc_anim { from { -webkit-transform: rotate(180deg); opacity:0.0; margin-top: -60px; } }
     @-ms-keyframes fc_anim { from {     -ms-transform: rotate(180deg); opacity:0.0; margin-top: -60px; } }
    @-moz-keyframes fc_anim { from {    -moz-transform: rotate(180deg); opacity:0.0; margin-top: -60px; } }
+.game-pause .logo-text .fe,
 .game-running .logo-text .fe {
 	-webkit-animation: fd_anim 2s linear;
 	    -ms-animation: fd_anim 2s linear;
@@ -195,6 +199,7 @@ input[type="radio"] {
 	width: 128px;
 	height: 128px;
 }
+.game-pause .logo,
 .game-running .logo {
 	-webkit-animation: logo_anim 5s;
 	    -ms-animation: logo_anim 5s;
