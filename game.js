@@ -2767,21 +2767,25 @@ function newEffectPiece(from, color) {
 		'g': RES.frames.EffPieceG,
 		'b': RES.frames.EffPieceB,
 	}[color] || RES.frames.EffPiece;
+	var scale = {
+		'w': 0.5,
+	}[color] || 1.5;
 	var p = SPRITE.newObj('Circle', {
 		x: from.data.x + random(10),
 		y: from.data.y + random(10),
 		vx: random(-0.2, 0.2),
 		vy: random(-0.2, 0.2),
 		frames: randin(frame),
-		scale: 1.5,
+		scale: scale,
 		opacity: 0.5,
 		blend: 'lighter',
 		dh: 50,
 		kh: 1/random(500, 1000),
 		duration: 100,
 	})
+	p.data.scale0 = p.data.scale;
 	p.drawCircle = function(d) {
-		d.scale = ease_in(d.ph) * 1.5 + 0.5;
+		d.scale = (ease_in(d.ph) * 1.5 + 0.5) * d.scale0;
 		return true;
 	};
 	p.anim(50, function(d) {
