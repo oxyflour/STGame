@@ -760,6 +760,10 @@ var GAME = (function() {
 		'LOADING',
 		'TITLE',
 		'MENU',
+		'SELECT',
+		'SELECT_DIFF',
+		'SELECT_CHAR',
+		'SELECT_BOMB',
 		'RUNNING',
 		'PAUSE',
 		'ENDED',
@@ -1021,6 +1025,7 @@ var UTIL = {
 		['ui-show', function(e) {
 			return function(v) {
 				this.style.display = v ? 'block' : 'none';
+				this.style.zIndex = v ? 0 : -99;
 			};
 		}],
 		['ui-focus', function(e) {

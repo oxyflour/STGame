@@ -16,6 +16,7 @@ body {
  * hide all radio buttons
  */
 input[type="radio"] {
+	position: absolute;
 	opacity: 0;
 }
 
@@ -57,30 +58,12 @@ input[type="radio"] {
 	   -moz-transition: all linear 0.4s;
 }
 
-.show-game-loading,
-.show-game-title,
-.show-game-menu,
-.show-game-running,
-.show-game-pause,
-.show-game-ended {
-	display: none;
-	z-index: -99;
-}
-.game-loading 	.show-game-loading,
-.game-title 	.show-game-title,
-.game-menu 		.show-game-menu,
-.game-running 	.show-game-running,
-.game-pause 	.show-game-pause,
-.game-ended 	.show-game-ended {
-	display: block;
-	z-index: 0;
-}
-
 /*
  * layout
  */
 .main {
 	margin: 0 auto;
+	background-color: black;
 }
 .main, .screen {
 	width: 640px;
@@ -705,11 +688,203 @@ input[type="radio"] {
 	width: 500px;
 }
 .menu-title .menu {
-	-webkit-transition: margin-left linear 0.4s;
-	    -ms-transition: margin-left linear 0.4s;
-	   -moz-transition: margin-left linear 0.4s;
+	-webkit-transition: margin-left ease 0.4s;
+	    -ms-transition: margin-left ease 0.4s;
+	   -moz-transition: margin-left ease 0.4s;
 }
 .game-loading .menu-title .menu,
 .game-title .menu-title .menu {
-	margin-left: 200px;
+	margin-left: 220px;
+}
+.title {
+	opacity: 1;
+	-webkit-transition: opacity ease 0.4s;
+	    -ms-transition: opacity ease 0.4s;
+	   -moz-transition: opacity ease 0.4s;
+}
+.game-select .title {
+	opacity: 0;
+}
+
+/*
+ * select screen
+ */
+.select {
+	background: url(res/select00.png) white;
+	opacity: 1;
+	-webkit-transition: opacity ease 0.4s;
+	    -ms-transition: opacity ease 0.4s;
+	   -moz-transition: opacity ease 0.4s;
+}
+.game-select .select {
+	opacity: 0;
+}
+.select-diff {
+	margin-top: 32px;
+	margin-left: 188px;
+}
+.select-diff,
+.select .select-title {
+	-webkit-transition: all ease 0.4s;
+	    -ms-transition: all ease 0.4s;
+	   -moz-transition: all ease 0.4s;
+}
+.select-diff .select-title {
+	width: 256px;
+	height: 64px;
+	background: url(res/select01.png);
+	background-position: 0 -192px;
+	margin-left: 24px;
+}
+.select-diff input[type="radio"] + .menu {
+	display: inline-block;
+	cursor: pointer;
+	width: 256px;
+	height: 90px;
+	opacity: 0.5;
+	-webkit-transition: -webkit-transform ease 0.4s;
+	    -ms-transition:     -ms-transform ease 0.4s;
+	   -moz-transition:    -moz-transform ease 0.4s;
+}
+.select-diff input[type="radio"]:focus + .menu {
+	opacity: 1;
+	margin-left: -5px;
+}
+.menu-diff-easy {
+	background: url(res/select01.png);
+	background-position: 0 0;
+}
+.menu-diff-normal {
+	background: url(res/select01.png);
+	background-position: 0 -96px;
+}
+.menu-diff-hard {
+	background: url(res/select02.png);
+	background-position: 0 0;
+}
+.menu-diff-lunatic {
+	background: url(res/select02.png);
+	background-position: 0 -96px;
+}
+.game-select .select-title {
+	-webkit-transform: translateY(-100px);
+	    -ms-transform: translateY(-100px);
+	   -moz-transform: translateY(-100px);
+}
+.game-select .select-diff .menu {
+	-webkit-transform: translateX(500px);
+	    -ms-transform: translateX(500px);
+	   -moz-transform: translateX(500px);
+}
+.game-select-char .select-diff,
+.game-select-bomb .select-diff {
+	-webkit-transform: translateX(-500px);
+	    -ms-transform: translateX(-500px);
+	   -moz-transform: translateX(-500px);
+}
+.game-select-char .select-diff input,
+.game-select-bomb .select-diff input {
+	display: none;
+}
+.game-select-char .select-diff input:checked + .menu,
+.game-select-bomb .select-diff input:checked + .menu {
+	-webkit-transform: translateX(342px);
+	    -ms-transform: translateX(342px);
+	   -moz-transform: translateX(342px);
+}
+
+.select-char .select-title {
+	background: url(res/select03.png);
+	background-position: 0 0;
+	width: 256px;
+	height: 48px;
+	margin-top: 32px;
+	margin-left: 192px;
+	-webkit-transform: translateY(-100px);
+	    -ms-transform: translateY(-100px);
+	   -moz-transform: translateY(-100px);
+}
+.game-select-char .select-char .select-title {
+	-webkit-transform: none;
+	    -ms-transform: none;
+	   -moz-transform: none;
+}
+.select-char input[type="radio"] + .menu {
+	display: block;
+	cursor: pointer;
+	margin-top: -80px;
+	width: 256px;
+	height: 480px;
+	opacity: 0;
+	-webkit-transition: all ease 0.4s;
+	    -ms-transition: all ease 0.4s;
+	   -moz-transition: all ease 0.4s;
+	-webkit-transform: translateX(360px);
+	    -ms-transform: translateX(360px);
+	   -moz-transform: translateX(360px);
+}
+.select-char .menu img {
+	float: left;
+	width: 256px;
+}
+.select-char input[type="radio"]:focus + .menu {
+	opacity: 1;
+	-webkit-transform: translateX(320px);
+	    -ms-transform: translateX(320px);
+	   -moz-transform: translateX(320px);
+}
+.game-select-bomb .select-char input {
+	display: none;
+}
+.game-select-bomb .select-char input:checked + .menu {
+	opacity: 1;
+	-webkit-transform: translateX(192px);
+	    -ms-transform: translateX(192px);
+	   -moz-transform: translateX(192px);
+}
+
+.select-bomb .select-title {
+	background: url(res/select03.png);
+	background-position: 0 -48px;
+	width: 256px;
+	height: 48px;
+	margin-top: 96px;
+	margin-left: 360px;
+	margin-bottom: 58px;
+	-webkit-transform: translateY(-150px);
+	    -ms-transform: translateY(-150px);
+	   -moz-transform: translateY(-150px);
+}
+.game-select-bomb .select-bomb .select-title {
+	-webkit-transform: none;
+	    -ms-transform: none;
+	   -moz-transform: none;
+}
+.select-bomb input[type="radio"] + .menu {
+	background-image: url(res/select04.png);
+	display: block;
+	cursor: pointer;
+	width: 256px;
+	height: 48px;
+	opacity: 0.5;
+	-webkit-transition: -webkit-transform ease 0.4s;
+	    -ms-transition:     -ms-transform ease 0.4s;
+	   -moz-transition:    -moz-transform ease 0.4s;
+	-webkit-transform: translateX(640px);
+	    -ms-transform: translateX(640px);
+	   -moz-transform: translateX(640px);
+}
+.game-select-bomb .select-bomb .menu {
+	-webkit-transform: translateX(368px);
+	    -ms-transform: translateX(368px);
+	   -moz-transform: translateX(368px);
+}
+.select-bomb input[type="radio"]:focus + .menu {
+	opacity: 1;
+	-webkit-transform: translateX(362px);
+	    -ms-transform: translateX(362px);
+	   -moz-transform: translateX(362px);
+}
+.select-bomb-a {
+	background-position: 0 0;
 }
