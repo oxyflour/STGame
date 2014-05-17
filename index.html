@@ -382,8 +382,26 @@
 			return _t;
 		})
 	</script>
-	<audio oncanplaythrough="this.complete=true" id="se_graze" src="res/se_graze.wav"></audio>
-	<audio oncanplaythrough="this.complete=true" id="se_pldead00" src="res/se_pldead00.wav"></audio>
+	<!-- sfx -->
+	<audio preload oncanplaythrough="this.complete=true" id="se_graze" src="res/se_graze.wav"></audio>
+	<audio preload oncanplaythrough="this.complete=true" id="se_pldead00" src="res/se_pldead00.wav"></audio>
+	<audio preload oncanplaythrough="this.complete=true" id="se_cancel00" src="res/se_cancel00.wav"></audio>
+	<audio preload oncanplaythrough="this.complete=true" id="se_invalid" src="res/se_invalid.wav"></audio>
+	<audio preload oncanplaythrough="this.complete=true" id="se_ok00" src="res/se_ok00.wav"></audio>
+	<audio preload oncanplaythrough="this.complete=true" id="se_select00" src="res/se_select00.wav"></audio>
+	<audio preload oncanplaythrough="this.complete=true" id="se_pause" src="res/se_pause.wav"></audio>
+	<audio preload oncanplaythrough="this.complete=true" id="se_plst00" src="res/se_plst00.wav"></audio>
+	<audio preload oncanplaythrough="this.complete=true" id="se_item00" src="res/se_item00.wav"></audio>
+	<audio preload oncanplaythrough="this.complete=true" id="se_cat00" src="res/se_cat00.wav"></audio>
+	<audio preload oncanplaythrough="this.complete=true" id="se_gun00" src="res/se_gun00.wav"></audio>
+	<audio preload oncanplaythrough="this.complete=true" id="se_damage00" src="res/se_damage00.wav"></audio>
+	<audio preload oncanplaythrough="this.complete=true" id="se_enep00" src="res/se_enep00.wav"></audio>
+	<audio preload oncanplaythrough="this.complete=true" id="se_enep01" src="res/se_enep01.wav"></audio>
+	<audio preload oncanplaythrough="this.complete=true" id="se_power1" src="res/se_power1.wav"></audio>
+	<audio preload oncanplaythrough="this.complete=true" id="se_tan00" src="res/se_tan00.wav"></audio>
+	<audio preload oncanplaythrough="this.complete=true" id="se_tan01" src="res/se_tan01.wav"></audio>
+	<audio preload oncanplaythrough="this.complete=true" id="se_tan02" src="res/se_tan02.wav"></audio>
+	<audio preload oncanplaythrough="this.complete=true" id="se_lazer00" src="res/se_lazer00.wav"></audio>
 </div>
 <div class="main">
 	<div class="screen play absolute ui"
@@ -562,7 +580,7 @@
 			onkeyup="checkFormKey(event, this)" onescape="changeGameState('TITLE')">
 			<div class="select-title"></div>
 			<div class="menu-line">
-				<input type="radio" name="select_diff" checked
+				<input type="radio" name="select_diff" value="changeGameState('SELECT_CHAR')" checked
 					class="ui" ui-focus="GAME.state == GAME.states.SELECT_DIFF" />
 				<label class="menu menu-diff-easy"></label>
 			</div>
@@ -575,7 +593,7 @@
 				<label class="menu menu-diff-hard"></label>
 			</div>
 			<div class="menu-line">
-				<input type="radio" name="select_diff" value="changeGameState('SELECT_CHAR')" />
+				<input type="radio" name="select_diff" />
 				<label class="menu menu-diff-lunatic"></label>
 			</div>
 		</form>
@@ -702,12 +720,17 @@ function stayLastFrame(fs) {
 }
 
 function checkFormKey(e, f) {
-	if (e.which == 'Z'.charCodeAt(0))
+	if (e.which == 'Z'.charCodeAt(0)) {
 		f.submit();
+	}
 	else if (e.which == 27) {
 		var fn = $attr(f, 'onescape');
 		if (fn && Function(fn)() === false)
 			e.stopPropagation();
+		RES.se_cancel00.replay();
+	}
+	else {
+		RES.se_select00.replay();
 	}
 }
 
@@ -745,7 +768,13 @@ function getRadioVal(ls) {
 }
 
 function evalRadioVal(name) {
-	eval(getRadioVal($('input[name="'+name+'"]')))
+	try {
+		eval(getRadioVal($('input[name="'+name+'"]')));
+		RES.se_ok00.replay();
+	}
+	catch(e) {
+		RES.se_invalid.replay();
+	}
 }
 
 function getNum(n, i) {

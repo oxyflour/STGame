@@ -602,7 +602,14 @@ var RES = (function(res) {
 					updateCanvas(v);
 				d[v.id] = v;
 			}
-			else if (v.tagName == 'IMG' || v.tagName == 'AUDIO') {
+			else if (v.tagName == 'AUDIO') {
+				v.replay = function() {
+					this.currentTime = 0;
+					this.play();
+				}
+				d[v.id] = v;
+			}
+			else if (v.tagName == 'IMG') {
 				d[v.id] = v;
 			}
 			else if (v.tagName == 'SCRIPT') {
@@ -1527,6 +1534,7 @@ return proto = {
 				STORY.on(STORY.events.BULLET_HIT, that);
 			if (d.damage >= d.life)
 				STORY.on(STORY.events.ENEMY_KILL, this);
+			RES.se_damage00.replay();
 		}
 	},
 	
@@ -1649,6 +1657,10 @@ return proto = {
 function newPlayer() {
 	var p = SPRITE.newObj('Player');
 	p.pslow = newPSlow(p);
+	p.anim(1000/20, function() {
+		if (this.is_firing && this.is_fire_enable)
+			RES.se_plst00.replay();
+	})
 	return p;
 }
 function newOnmyou(player, frames, pos1, pos2) {
@@ -2354,6 +2366,7 @@ function newLaser(from, to) {
 			f.sx, f.sy, f.sw, f.sh,
 			-w/2, 0, w, f.h);
 	};
+	return obj;
 }
 
 function newBoss() {
@@ -2520,6 +2533,7 @@ function newBossDanns1(from, color, count, angular, dv) {
 			})
 		})
 	})
+	RES.se_power1.play();
 }
 function newBossDanns2(from) {
 	from.data.is_firing = true;
@@ -2555,6 +2569,9 @@ function newBossDanns2(from) {
 			}, obj.data);
 		});
 	}, 150, ds, ds.length);
+	STORY.timeout(function() {
+		RES.se_tan01.replay();
+	}, 100, null, 5);
 }
 function newBossDanns3(from, colors) {
 	var to = UTIL.getNearestAlive(from, 'Player');
@@ -2586,6 +2603,9 @@ function newBossDanns3(from, colors) {
 			});
 		});
 	}, 150, ds, ds.length);
+	STORY.timeout(function() {
+		RES.se_tan01.replay();
+	}, 100, null, colors.length);
 }
 function newBossDanns4(from, count) {
 	var to = UTIL.getNearestAlive(from, 'Player');
@@ -2601,6 +2621,9 @@ function newBossDanns4(from, count) {
 			});
 		});
 	}, 200, null, count);
+	STORY.timeout(function() {
+		RES.se_tan01.replay();
+	}, 100, null, 5);
 }
 function newBossDanns5(from, color, direction) {
 	var to = UTIL.getNearestAlive(from, 'Player');
@@ -2620,6 +2643,9 @@ function newBossDanns5(from, color, direction) {
 			});
 		});
 	}, 30, null, n);
+	STORY.timeout(function() {
+		RES.se_tan00.replay();
+	}, 100, null, 5);
 }
 function newBossDanns6(from, color, count, angular, rad, v0, dr) {
 	var to = UTIL.getNearestAlive(from, 'Player');
@@ -2636,10 +2662,21 @@ function newBossDanns6(from, color, count, angular, rad, v0, dr) {
 			});
 		});
 	});
+	STORY.timeout(function() {
+		RES.se_tan01.replay();
+	}, 100, null, 5);
 }
 function newBossDanns7(from) {
 	var to = UTIL.getNearestAlive(from, 'Player');
-	if (!from.is_dying) newLaser(from, to);
+	if (!from.is_dying) {
+		var obj = newLaser(from, to);
+		obj.anim(100, function() {
+			if (this.data.ph > 0.8) {
+				RES.se_lazer00.replay();
+				return true;
+			}
+		})
+	}
 }
 function newBossDanns8(from, color) {
 	var to = UTIL.getNearestAlive(from, 'Player');
@@ -2677,6 +2714,7 @@ function newBossDanns8(from, color) {
 			}, obj.data);
 		})
 	});
+	RES.se_tan02.replay();
 }
 function newBossDanns9(from, direction) {
 	var to = UTIL.getNearestAlive(from, 'Player');
@@ -2702,6 +2740,9 @@ function newBossDanns9(from, direction) {
 				return;
 		}, obj.data);
 	}, 30, null, n);
+	STORY.timeout(function() {
+		RES.se_tan00.replay();
+	}, 80, null, 10);
 }
 
 function newEffect(from) {
@@ -2868,8 +2909,10 @@ var hook = {
 			if (v.type == 'keyup' && v.which == 27) {
 				var s = GAME.state,
 					c = GAME.states;
-				if (s == c.RUNNING)
+				if (s == c.RUNNING) {
 					GAME.state = c.PAUSE;
+					RES.se_pause.play();
+				}
 			}
 		}
 		else if (e == STORY.events.PLAYER_AUTOCOLLECT) {
@@ -2909,15 +2952,19 @@ var hook = {
 			RES.se_pldead00.play();
 		}
 		else if (e == STORY.events.PLAYER_FIRE) {
-			if (!d.disable_fire && !v.is_dying) {
+			if (v.is_fire_enable = !d.disable_fire && !v.is_dying)
 				newBullet(v, STATICS.power);
-			}
 		}
 		else if (e == STORY.events.PLAYER_BOMB) {
 			if (!d.disable_fire) {
 				STATICS.bomb --;
 				v.bomb();
 				newBomb(v);
+				RES.se_cat00.play();
+				SPRITE.anim.add(newTicker(1000, function(d) {
+					RES.se_gun00.play();
+					this.finished = true;
+				}));
 			}
 		}
 		else if (e == STORY.events.ENEMY_KILL) {
@@ -2934,6 +2981,7 @@ var hook = {
 			array(4, function() {
 				newEffectPiece(v, 'b');
 			});
+			RES.se_enep00.replay();
 		}
 		else if (e == STORY.events.DROP_COLLECTED) {
 			v.die();
@@ -2948,6 +2996,7 @@ var hook = {
 					};
 				}
 			}
+			RES.se_item00.replay();
 		}
 		else if (e == STORY.events.BULLET_HIT) {
 			v.die();
@@ -3060,7 +3109,7 @@ ieach([
 				var bg = $i('.diag');
 				bg.classList.remove('active');
 				STORY.timer.add(newTicker(1000, function() {
-					return bg.style.display = 'none';
+					this.finished = bg.style.display = 'none';
 				}))
 			}
 		},
@@ -3337,6 +3386,9 @@ ieach([
 				d.scname = newSCName(para.scname);
 			if (para.background)
 				d.background = para.background(d.boss);
+
+			if (para.scname)
+				RES.se_cat00.play();
 		},
 		quit: function(d) {
 			killObj(d.countdown, d.scname, d.background);
@@ -3363,6 +3415,12 @@ ieach([
 tl.end = {
 	init: function(d) {
 		killCls('Enemy', 'Dannmaku');
+		STORY.timeout(function() {
+			RES.se_enep01.replay();
+		}, random(5000));
+		STORY.timeout(function() {
+			RES.se_tan00.replay();
+		}, random(100, 200), null, 8)
 		SPRITE.newObj('Basic', {
 			text: 'You Win!'
 		});
