@@ -559,7 +559,7 @@
 		ui-show="GAME.state == GAME.states.SELECT || GAME.state == GAME.states.SELECT_DIFF ||
 			GAME.state == GAME.states.SELECT_CHAR || GAME.state == GAME.states.SELECT_BOMB">
 		<form class="select-diff absolute" action="javascript:evalRadioVal('select_diff')"
-			onkeyup="checkFormKey(event, this)" onescape="changeGameState('MENU')">
+			onkeyup="checkFormKey(event, this)" onescape="changeGameState('TITLE')">
 			<div class="select-title"></div>
 			<div class="menu-line">
 				<input type="radio" name="select_diff" checked
@@ -779,13 +779,9 @@ function changeGameState(k) {
 	var c = GAME.states;
 		s0 = GAME.state;
 		s = c[k];
-	if (s == c.TITLE) {
-		GAME.state = GAME.states.LOADING;
-		set_delay(s, 500);
-	}
-	else if (get_group(s) !== get_group(s0)) {
+	if (get_group(s) !== get_group(s0)) {
 		GAME.state = GAME.states.SELECT;
-		set_delay(s, 1000);
+		set_delay(s, 500);
 	}
 	else {
 		GAME.state = s;

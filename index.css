@@ -621,20 +621,24 @@ input[type="radio"] {
 	    -ms-transform: translateY(500px);
 	   -moz-transform: translateY(500px);
 }
-.title-text .fb {
-	transition-delay: 0.1s;
-}
 .title-text .fb,
-.game-running .title-text .fd {
-	-webkit-transform: translateX(400px);
-	    -ms-transform: translateX(400px);
-	   -moz-transform: translateX(400px);
-}
-.title-text .fd {
-	transition-delay: 0.2s;
+.game-select .title-text .fd {
+	transition-delay: 0.1s;
 	-webkit-transform: translateX(-400px);
 	    -ms-transform: translateX(-400px);
 	   -moz-transform: translateX(-400px);
+}
+.title-text .fc {
+	opacity: 0;
+	-webkit-transition: none;
+	    -ms-transition: none;
+	   -moz-transition: none;
+}
+.title-text .fd {
+	transition-delay: 0.2s;
+	-webkit-transform: translateX(400px);
+	    -ms-transform: translateX(400px);
+	   -moz-transform: translateX(400px);
 }
 .title-text .fe {
 	transition-delay: 0.3s;
@@ -642,11 +646,11 @@ input[type="radio"] {
 	    -ms-transform: translateY(-500px);
 	   -moz-transform: translateY(-500px);
 }
-.title-text .fc {
-	opacity: 0;
-	-webkit-transition: none;
-	    -ms-transition: none;
-	   -moz-transition: none;
+.game-select .title-text .fa,
+.game-select .title-text .fb,
+.game-select .title-text .fd,
+.game-select .title-text .fe {
+	transition-delay: 0.0s;
 }
 .game-title .title-text .fa,
 .game-title .title-text .fb,
@@ -698,9 +702,9 @@ input[type="radio"] {
 }
 .title {
 	opacity: 1;
-	-webkit-transition: opacity ease 0.4s;
-	    -ms-transition: opacity ease 0.4s;
-	   -moz-transition: opacity ease 0.4s;
+	-webkit-transition: opacity ease 0.5s;
+	    -ms-transition: opacity ease 0.5s;
+	   -moz-transition: opacity ease 0.5s;
 }
 .game-select .title {
 	opacity: 0;
@@ -712,9 +716,9 @@ input[type="radio"] {
 .select {
 	background: url(res/select00.png) white;
 	opacity: 1;
-	-webkit-transition: opacity ease 0.4s;
-	    -ms-transition: opacity ease 0.4s;
-	   -moz-transition: opacity ease 0.4s;
+	-webkit-transition: opacity ease 0.6s;
+	    -ms-transition: opacity ease 0.6s;
+	   -moz-transition: opacity ease 0.6s;
 }
 .game-select .select {
 	opacity: 0;
