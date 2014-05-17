@@ -530,7 +530,7 @@
 	<div class="game mask absolute show-game-pause">
 		<div class="menu menu-pause-text"></div>
 		<form class="menu-pause" action="javascript:evalRadioVal('pause_menu')"
-			onkeyup="checkFormKey(event, this)">
+			onkeyup="checkFormKey(event, this)" onescape="GAME.state = GAME.states.RUNNING">
 			<div class="menu-line">
 				<input type="radio" name="pause_menu" value="GAME.state = GAME.states.RUNNING" checked
 					class="ui" ui-focus="GAME.state == GAME.states.PAUSE">
@@ -569,7 +569,7 @@
 				class="ui" ui-focus="GAME.state == GAME.states.TITLE">
 		</form>
 		<form class="menu-title" action="javascript:evalRadioVal('title_menu')"
-			onkeyup="checkFormKey(event, this)">
+			onkeyup="checkFormKey(event, this)" onescape="checkRadio($i('input', $i('.menu-title-quit').parentNode))">
 			<div class="menu-line">
 				<input type="radio" name="title_menu" value="loadAndStart()" checked
 					class="ui" ui-focus="GAME.state == GAME.states.MENU">
@@ -639,9 +639,15 @@ function stayLastFrame(fs) {
 function checkFormKey(e, f) {
 	if (e.which == 'Z'.charCodeAt(0))
 		f.submit();
+	else if (e.which == 27) {
+		var fn = $attr(f, 'onescape');
+		fn && eval(fn);
+		// prevent this event from passing to GAME.input
+		e.stopPropagation();
+	}
 }
 
-function checkRadios() {
+function checkActiveRadios() {
 	var ls = ieach($('input[type="radio"]'), function(i, v, d) {
 		if (v.scrollHeight)
 			d.push(v);
@@ -659,9 +665,14 @@ setInterval(function() {
 	if (GAME.state != GAME.states.RUNNING) {
 		var f = $i(':focus');
 		if (!f || !f.scrollHeight)
-			checkRadios();
+			checkActiveRadios();
 	}
 }, 300);
+
+function checkRadio(elem) {
+	elem.checked = true;
+	elem.focus();
+}
 
 function getRadioVal(ls) {
 	return ieach(ls, function(i, v) {
@@ -695,6 +706,7 @@ function getCanvasDC(cv) {
 
 function gotoGameTitle() {
 	GAME.state = GAME.states.LOADING;
+	// we need some time for animation
 	setTimeout(function() {
 		GAME.state = GAME.states.TITLE;
 	}, 500)

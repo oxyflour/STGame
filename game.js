@@ -2863,9 +2863,7 @@ var hook = {
 			if (v.type == 'keyup' && v.which == 27) {
 				var s = GAME.state,
 					c = GAME.states;
-				if (s == c.PAUSE)
-					GAME.state = c.RUNNING;
-				else if (s == c.RUNNING)
+				if (s == c.RUNNING)
 					GAME.state = c.PAUSE;
 			}
 		}
