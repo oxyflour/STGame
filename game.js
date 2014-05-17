@@ -2884,6 +2884,7 @@ var hook = {
 		else if (e == STORY.events.PLAYER_GRAZE) {
 			STATICS.graze ++;
 			RES.se_graze.play();
+			newEffectPiece(v, 'w');
 		}
 		else if (e == STORY.events.PLAYER_DYING) {
 			v.die();
