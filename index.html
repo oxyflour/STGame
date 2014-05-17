@@ -530,7 +530,7 @@
 	<div class="game mask absolute show-game-pause">
 		<div class="menu menu-pause-text"></div>
 		<form class="menu-pause" action="javascript:evalRadioVal('pause_menu')"
-			onkeyup="checkFormKey(event, this)" onescape="GAME.state = GAME.states.RUNNING">
+			onkeyup="checkFormKey(event, this)" onescape="GAME.state = GAME.states.RUNNING; return false">
 			<div class="menu-line">
 				<input type="radio" name="pause_menu" value="GAME.state = GAME.states.RUNNING" checked
 					class="ui" ui-focus="GAME.state == GAME.states.PAUSE">
@@ -641,9 +641,8 @@ function checkFormKey(e, f) {
 		f.submit();
 	else if (e.which == 27) {
 		var fn = $attr(f, 'onescape');
-		fn && eval(fn);
-		// prevent this event from passing to GAME.input
-		e.stopPropagation();
+		if (fn && Function(fn)() === false)
+			e.stopPropagation();
 	}
 }
 
