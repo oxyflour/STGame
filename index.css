@@ -335,13 +335,13 @@ input[type="radio"] {
 	    -ms-transform: scale(1.5);
 	   -moz-transform: scale(1.5);
 }
-.menu-pause input[type="radio"] + .menu {
+.menu-pause .menu {
 	-webkit-transition: all ease 0.4s;
 	    -ms-transition: all ease 0.4s;
 	   -moz-transition: all ease 0.4s;
 	opacity: 0.4;
 }
-.menu-pause input[type="radio"]:focus + .menu {
+.menu-pause input:focus + .menu {
 	background-image: url(res/asciis.png);
 	-webkit-transform: scale(1.8);
 	    -ms-transform: scale(1.8);
@@ -571,14 +571,14 @@ input[type="radio"] {
 	width: 60px;
 	margin-left: -70px;
 }
-.menu-title input[type="radio"] + .menu {
+.menu-title .menu {
 	background-image: url(res/title01.png);
 	display: inline-block;
 	height: 32px;
 	opacity: 0.5;
 	cursor: pointer;
 }
-.menu-title input[type="radio"]:focus + .menu {
+.menu-title input:focus + .menu {
 	background-image: url(res/title01s.png);
 	opacity: 1;
 	-webkit-transform: translate(-3px, -3px);
@@ -740,7 +740,7 @@ input[type="radio"] {
 	background-position: 0 -192px;
 	margin-left: 24px;
 }
-.select-diff input[type="radio"] + .menu {
+.select-diff .menu {
 	display: inline-block;
 	cursor: pointer;
 	width: 256px;
@@ -750,7 +750,7 @@ input[type="radio"] {
 	    -ms-transition:     -ms-transform ease 0.4s;
 	   -moz-transition:    -moz-transform ease 0.4s;
 }
-.select-diff input[type="radio"]:focus + .menu {
+.select-diff input:focus + .menu {
 	opacity: 1;
 	margin-left: -5px;
 }
@@ -813,7 +813,7 @@ input[type="radio"] {
 	    -ms-transform: none;
 	   -moz-transform: none;
 }
-.select-char input[type="radio"] + .menu {
+.select-char .menu {
 	display: block;
 	cursor: pointer;
 	margin-top: -80px;
@@ -831,7 +831,7 @@ input[type="radio"] {
 	float: left;
 	width: 256px;
 }
-.select-char input[type="radio"]:focus + .menu {
+.select-char input:focus + .menu {
 	opacity: 1;
 	-webkit-transform: translateX(320px);
 	    -ms-transform: translateX(320px);
@@ -864,7 +864,7 @@ input[type="radio"] {
 	    -ms-transform: none;
 	   -moz-transform: none;
 }
-.select-bomb input[type="radio"] + .menu {
+.select-bomb .menu {
 	background-image: url(res/select04.png);
 	display: block;
 	cursor: pointer;
@@ -883,12 +883,13 @@ input[type="radio"] {
 	    -ms-transform: translateX(368px);
 	   -moz-transform: translateX(368px);
 }
-.select-bomb input[type="radio"]:focus + .menu {
+.select-bomb input:focus + .menu {
 	opacity: 1;
-	-webkit-transform: translateX(362px);
-	    -ms-transform: translateX(362px);
-	   -moz-transform: translateX(362px);
+	margin-left: -5px;
 }
-.select-bomb-a {
+.menu-bomb-a {
 	background-position: 0 0;
+}
+.menu-bomb-b {
+	background-position: 0 -48px;
 }
