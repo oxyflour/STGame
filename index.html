@@ -658,27 +658,27 @@
 				<label class="menu menu-title-start"></label>
 			</div>
 			<div class="menu-line">
-				<input type="radio" name="title_menu" disabled />
+				<input type="radio" name="title_menu" />
 				<label class="menu menu-title-extra-start"></label>
 			</div>
 			<div class="menu-line">
-				<input type="radio" name="title_menu" disabled />
+				<input type="radio" name="title_menu" />
 				<label class="menu menu-title-practice-start"></label>
 			</div>
 			<div class="menu-line">
-				<input type="radio" name="title_menu" disabled />
+				<input type="radio" name="title_menu" />
 				<label class="menu menu-title-replay"></label>
 			</div>
 			<div class="menu-line">
-				<input type="radio" name="title_menu" disabled />
+				<input type="radio" name="title_menu" />
 				<label class="menu menu-title-score"></label>
 			</div>
 			<div class="menu-line">
-				<input type="radio" name="title_menu" disabled />
+				<input type="radio" name="title_menu" />
 				<label class="menu menu-title-music-room"></label>
 			</div>
 			<div class="menu-line">
-				<input type="radio" name="title_menu" disabled />
+				<input type="radio" name="title_menu" />
 				<label class="menu menu-title-option"></label>
 			</div>
 			<div class="menu-line">
@@ -754,6 +754,8 @@ setInterval(function() {
 		if (!f || !f.scrollHeight)
 			checkActiveRadios();
 	}
+	// remove selection highlight for stubborn Firefox
+	window.getSelection().removeAllRanges();
 }, 300);
 
 function checkRadio(elem) {

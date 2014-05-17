@@ -6,13 +6,6 @@ body {
 }
 
 /*
- * in Firefox, you can still select all with ctrl-A event 'user-select: none' is set
- */
-* {
-	-moz-user-select: none;
-}
-
-/*
  * hide all radio buttons
  */
 input[type="radio"] {
