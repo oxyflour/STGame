@@ -46,10 +46,34 @@ input[type="radio"] {
 .float-left {
 	float: left;
 }
-.anim-all {
+.anim-in-01s {
 	-webkit-transition: all linear 0.1s;
 	    -ms-transition: all linear 0.1s;
 	   -moz-transition: all linear 0.1s;
+}
+.anim-in-04s {
+	-webkit-transition: all linear 0.4s;
+	    -ms-transition: all linear 0.4s;
+	   -moz-transition: all linear 0.4s;
+}
+
+.show-game-loading,
+.show-game-title,
+.show-game-menu,
+.show-game-running,
+.show-game-pause,
+.show-game-ended {
+	display: none;
+	z-index: -99;
+}
+.game-loading 	.show-game-loading,
+.game-title 	.show-game-title,
+.game-menu 		.show-game-menu,
+.game-running 	.show-game-running,
+.game-pause 	.show-game-pause,
+.game-ended 	.show-game-ended {
+	display: block;
+	z-index: 0;
 }
 
 /*
@@ -115,7 +139,7 @@ input[type="radio"] {
 .logo-text .fe {
 	background-position: 0 -64px;
 }
-.logo-text .fa.anim {
+.game-running .logo-text .fa {
 	-webkit-animation: fa_anim 2s linear;
 	    -ms-animation: fa_anim 2s linear;
 	   -moz-animation: fa_anim 2s linear;
@@ -132,7 +156,7 @@ input[type="radio"] {
 	from {    -moz-transform: rotate(360deg); opacity:0.0; margin-left: 48px; margin-top: 48px; }
 	50%  {    -moz-transform: rotate(180deg); opacity:0.3; margin-left: 48px; margin-top:  0px; }
 }
-.logo-text .fb.anim {
+.game-running .logo-text .fb {
 	-webkit-animation: fb_anim 1s linear;
 	    -ms-animation: fb_anim 1s linear;
 	   -moz-animation: fb_anim 1s linear;
@@ -140,7 +164,7 @@ input[type="radio"] {
 @-webkit-keyframes fb_anim { from { -webkit-transform: rotate(-180deg); opacity:0.0; margin-top: 48px; } }
     @-ms-keyframes fb_anim { from {     -ms-transform: rotate(-180deg); opacity:0.0; margin-top: 48px; } }
    @-moz-keyframes fb_anim { from {    -moz-transform: rotate(-180deg); opacity:0.0; margin-top: 48px; } }
-.logo-text .fd.anim {
+.game-running .logo-text .fd {
 	-webkit-animation: fc_anim 1s linear;
 	    -ms-animation: fc_anim 1s linear;
 	   -moz-animation: fc_anim 1s linear;
@@ -148,7 +172,7 @@ input[type="radio"] {
 @-webkit-keyframes fc_anim { from { -webkit-transform: rotate(180deg); opacity:0.0; margin-top: -60px; } }
     @-ms-keyframes fc_anim { from {     -ms-transform: rotate(180deg); opacity:0.0; margin-top: -60px; } }
    @-moz-keyframes fc_anim { from {    -moz-transform: rotate(180deg); opacity:0.0; margin-top: -60px; } }
-.logo-text .fe.anim {
+.game-running .logo-text .fe {
 	-webkit-animation: fd_anim 2s linear;
 	    -ms-animation: fd_anim 2s linear;
 	   -moz-animation: fd_anim 2s linear;
@@ -171,7 +195,7 @@ input[type="radio"] {
 	width: 128px;
 	height: 128px;
 }
-.logo.anim {
+.game-running .logo {
 	-webkit-animation: logo_anim 5s;
 	    -ms-animation: logo_anim 5s;
 	   -moz-animation: logo_anim 5s;
@@ -336,7 +360,7 @@ input[type="radio"] {
 	   -moz-transform: scale(1.8);
 	opacity: 1;
 }
-.menu-line {
+.menu-pause .menu-line {
 	margin: 10px;
 	margin-left: 110px;
 }
@@ -468,7 +492,7 @@ input[type="radio"] {
 .title-eng {
 	width: 512px;
 	height: 32px;
-	margin-top: -170px;
+	margin-top: -172px;
 	margin-left: -190px;
 	-webkit-transform: rotate(67.5deg);
 	    -ms-transform: rotate(67.5deg);
@@ -505,9 +529,6 @@ input[type="radio"] {
 .title-text .fc {
 	background: url(res/title03.png);
 	background-position: 0 0;
-	-webkit-transform: rotate(25deg);
-	    -ms-transform: rotate(25deg);
-	   -moz-transform: rotate(25deg);
 }
 .title-text .fd {
 	background-position: 0 -96px;
@@ -575,4 +596,115 @@ input[type="radio"] {
 	-webkit-transform: translate(-3px, -3px);
 	    -ms-transform: translate(-3px, -3px);
 	   -moz-transform: translate(-3px, -3px);
+}
+
+/*
+ * title screen animations
+ */
+.title .title-eng {
+	opacity: 0;
+	transition-delay: 0.4s;
+	-webkit-transition: all linear 0.4s;
+	    -ms-transition: all linear 0.4s;
+	   -moz-transition: all linear 0.4s;
+}
+.game-title .title-eng,
+.game-menu .title-eng {
+	opacity: 1;
+}
+.game-loading .title-eng {
+	margin-top: -472px;
+	margin-left: -314px;
+}
+
+.title-text {
+	margin-left: 272px;
+}
+.game-menu .title-text {
+	margin-left: 64px;
+}
+.title-text .font {
+	-webkit-transition: all linear 0.4s;
+	    -ms-transition: all linear 0.4s;
+	   -moz-transition: all linear 0.4s;
+}
+.title-text .fa {
+	-webkit-transform: translateY(500px);
+	    -ms-transform: translateY(500px);
+	   -moz-transform: translateY(500px);
+}
+.title-text .fb {
+	transition-delay: 0.1s;
+}
+.title-text .fb,
+.game-running .title-text .fd {
+	-webkit-transform: translateX(400px);
+	    -ms-transform: translateX(400px);
+	   -moz-transform: translateX(400px);
+}
+.title-text .fd {
+	transition-delay: 0.2s;
+	-webkit-transform: translateX(-400px);
+	    -ms-transform: translateX(-400px);
+	   -moz-transform: translateX(-400px);
+}
+.title-text .fe {
+	transition-delay: 0.3s;
+	-webkit-transform: translateY(-500px);
+	    -ms-transform: translateY(-500px);
+	   -moz-transform: translateY(-500px);
+}
+.title-text .fc {
+	opacity: 0;
+	-webkit-transition: none;
+	    -ms-transition: none;
+	   -moz-transition: none;
+}
+.game-title .title-text .fa,
+.game-title .title-text .fb,
+.game-title .title-text .fd,
+.game-title .title-text .fe,
+.game-menu .title-text .fa,
+.game-menu .title-text .fb,
+.game-menu .title-text .fd,
+.game-menu .title-text .fe {
+	-webkit-transform: none;
+	    -ms-transform: none;
+	   -moz-transform: none;
+}
+.game-title .title-text .fc,
+.game-menu .title-text .fc {
+	opacity: 1;
+	-webkit-transform: rotate(25deg);
+	    -ms-transform: rotate(25deg);
+	   -moz-transform: rotate(25deg);
+}
+.game-title .title-text .fc {
+	-webkit-animation: fc_t_anim 2s linear;
+	    -ms-animation: fc_t_anim 2s linear;
+	   -moz-animation: fc_t_anim 2s linear;
+}
+@-webkit-keyframes fc_t_anim {
+	from { -webkit-transform: none; opacity:0.0; }
+	70%  { -webkit-transform: none; opacity:1.0; }
+}
+@-ms-keyframes fc_t_anim {
+	from {     -ms-transform: none; opacity:0.0; }
+	70%  {     -ms-transform: none; opacity:1.0; }
+}
+@-moz-keyframes fc_t_anim {
+	from {    -moz-transform: none; opacity:0.0; }
+	70%  {    -moz-transform: none; opacity:1.0; }
+}
+.menu-title {
+	width: 500px;
+}
+.menu-title .menu {
+	-webkit-transition: margin-left linear 0.4s;
+	    -ms-transition: margin-left linear 0.4s;
+	   -moz-transition: margin-left linear 0.4s;
+}
+.game-loading .menu-title .menu,
+.game-title .menu-title .menu {
+	margin-left: 200px;
 }

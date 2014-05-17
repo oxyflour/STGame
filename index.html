@@ -403,9 +403,9 @@
 				style="height:300px;background:linear-gradient(rgba(0,0,0,0.6),transparent)"></div>
 		</div>
 		<div class="game-size absolute bgimg">
-			<div class="ui-obj bossbg anim-all"
+			<div class="ui-obj bossbg anim-in-01s"
 				style="background:url(res/eff01.png);opacity:0"></div>
-			<div class="ui-obj bombbg anim-all"
+			<div class="ui-obj bombbg anim-in-01s"
 				style="background:rgba(0,0,0,0.6);opacity:0"></div>
 		</div>
 	</div>
@@ -527,16 +527,17 @@
 			<div class="td"><div class="font fe"></div></div>
 		</div>
 	</div>
-	<div class="game mask absolute ui" ui-show="GAME.state == GAME.states.PAUSE">
+	<div class="game mask absolute show-game-pause">
 		<div class="menu menu-pause-text"></div>
-		<form class="menu-pause" action="javascript:eval(getRadioVal($('input[name=pause_menu]')))"
+		<form class="menu-pause" action="javascript:void(eval(getRadioVal($('input[name=pause_menu]'))))"
 			onkeyup="checkFormKey(event, this)">
 			<div class="menu-line">
-				<input type="radio" name="pause_menu" value="continueGame()">
+				<input type="radio" name="pause_menu" value="continueGame()" checked
+					class="ui" ui-focus="GAME.state == GAME.states.PAUSE">
 				<label class="menu menu-pause-continue"></label>
 			</div>
 			<div class="menu-line">
-				<input type="radio" name="pause_menu" value="loadAndStart()">
+				<input type="radio" name="pause_menu" value="gotoGameTitle()">
 				<label class="menu menu-pause-title"></label>
 			</div>
 			<div class="menu-line">
@@ -550,8 +551,8 @@
 		<div>fps: <span class="ui" ui-bind="(+GAME.fps).toFixed(2)+' / '+GAME.tick"></span></div>
 		<div>story: <span class="ui" ui-bind="STORY.state.n"></span></div>
 	</div>
-	<div class="screen title absolute ui" ui-show="GAME.state == GAME.states.READY">
-		<div class="title-text absolute">
+	<div class="screen title absolute no-overflow show-game-title show-game-menu show-game-loading">
+		<div class="title-text absolute anim-in-04s">
 			<div class="font fa"></div>
 			<div class="font fb"></div>
 			<div class="font fc"></div>
@@ -562,10 +563,16 @@
 				<div class="text text2"></div>
 			</div>
 		</div>
+		<form class="show-game-title absolute" action="javascript:eval(getRadioVal($('input[name=title_in]')))"
+			onkeyup="checkFormKey(event, this)">
+			<input type="radio" name="title_in" value="gotoGameMenu()" checked
+				class="ui" ui-focus="GAME.state == GAME.states.TITLE">
+		</form>
 		<form class="menu-title" action="javascript:eval(getRadioVal($('input[name=title_menu]')))"
 			onkeyup="checkFormKey(event, this)">
 			<div class="menu-line">
-				<input type="radio" name="title_menu" value="loadAndStart()">
+				<input type="radio" name="title_menu" value="loadAndStart()" checked
+					class="ui" ui-focus="GAME.state == GAME.states.MENU">
 				<label class="menu menu-title-start"></label>
 			</div>
 			<div class="menu-line">
@@ -599,7 +606,7 @@
 			<input style="width:0px;opacity:0;" type="submit" />
 		</form>
 	</div>
-	<div class="screen loading absolute ui" ui-show="RES.process < 1">
+	<div class="screen loading absolute show-game-loading">
 		<h3>loading <span class="ui" ui-bind="(RES.process*100).toFixed(1)+'%'">...</span></h3>
 	</div>
 </div>
@@ -682,27 +689,28 @@ function getCanvasDC(cv) {
 	return dc;
 }
 
-function reAddClass(e, c) {
-	e.classList.remove(c);
-	// MAGIC!
-	e.offsetWidth = e.offsetWidth;
-	e.classList.add(c);
-}
-
 function continueGame() {
 	GAME.state = GAME.states.RUNNING;
+}
+
+function gotoGameTitle() {
+	GAME.state = GAME.states.LOADING;
+	setTimeout(function() {
+		GAME.state = GAME.states.TITLE;
+	}, 500)
+}
+
+function gotoGameMenu() {
+	GAME.state = GAME.states.MENU;
 }
 
 function loadAndStart() {
 	GAME.load(tl, hook);
 	GAME.start('init');
-	ieach($('.logo, .font'), function(i, e) {
-		reAddClass(e, 'anim');
-	});
 }
-RES.check(function() {
-	GAME.state = GAME.states.READY;
-});
+
+GAME.state = GAME.states.LOADING;
+RES.check(gotoGameTitle);
 
 </script>
 </body>

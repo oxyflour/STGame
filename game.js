@@ -757,7 +757,9 @@ var GAME = (function() {
 	var _t = {};
 	_t.state = 0;
 	_t.states = dictflip([
-		'READY',
+		'LOADING',
+		'TITLE',
+		'MENU',
 		'RUNNING',
 		'PAUSE',
 		'ENDED',
@@ -1005,6 +1007,13 @@ var UTIL = {
 				}
 			});
 		});
+		if (this.state != GAME.state) {
+			keach(GAME.states, function(k, v, body) {
+				var cls = 'game-' + k.toLowerCase().replace(/_/, '-');
+				GAME.state == v ? body.classList.add(cls) : body.classList.remove(cls);
+			}, $i('body'));
+			this.state = GAME.state;
+		}
 	}, [
 		['ui-bind', function(e) {
 			return Function('val', $attr(e, 'ui-bind-exec') || (($attr(e, 'ui-bind-attr') || 'this.innerHTML')+'=val'));
@@ -1012,6 +1021,14 @@ var UTIL = {
 		['ui-show', function(e) {
 			return function(v) {
 				this.style.display = v ? 'block' : 'none';
+			};
+		}],
+		['ui-focus', function(e) {
+			return function(v) {
+				var _t = this;
+				if (v) setTimeout(function() {
+					_t.focus();
+				}, 100);
 			};
 		}],
 	]);
