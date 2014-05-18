@@ -18,6 +18,7 @@ DONEs
 
 TODOs
 # finish power levels
+# finish dialogs
 # fix sounds in IE
 # do parameters adjustments (speed, life, damage...)
 # do timeline adjustments
