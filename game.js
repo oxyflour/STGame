@@ -2860,15 +2860,7 @@ function newBackground(elems) {
 		if (age >= begin && age <= end) {
 			var f = ease_in_out((age - begin) / (end - begin));
 			ieach(this.imgs, function(i, e) {
-				var v = e.val;
-				if (v) {
-					var p = interp(v.persp[0], v.persp[1], f),
-						r = interp(v.rotate[0], v.rotate[1], f),
-						trans = 'perspective('+p+'px) rotateX('+r+'deg)';
-					$prefixStyle(e.style, 'Transform', trans);
-					e.style.opacity = interp(v.opacity[0], v.opacity[1], f);
-					e.style.display = e.style.opacity > 0.05 ? 'block' : 'none';
-				}
+				updateImgs(e, f);
 			});
 		}
 	});
