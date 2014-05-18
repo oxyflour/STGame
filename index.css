@@ -601,7 +601,8 @@ input[type="radio"] {
 .title-text {
 	margin-left: 272px;
 }
-.game-menu .title-text {
+.game-menu .title-text,
+.game-select .title-text {
 	margin-left: 64px;
 }
 .title-text .font {
