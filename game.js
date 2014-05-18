@@ -1289,7 +1289,7 @@ return proto = {
 		'Drop',
 	],
 	hitWith: function(that) {
-		if (this.is_dying)
+		if (this.is_dying || that.is_dying)
 			return;
 		var d = this.data,
 			e = that.data;
