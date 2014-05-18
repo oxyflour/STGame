@@ -607,6 +607,7 @@ var RES = (function(res) {
 					this.currentTime = 0;
 					this.play();
 				}
+				v.volume = 0.5;
 				d[v.id] = v;
 			}
 			else if (v.tagName == 'IMG') {
@@ -2277,7 +2278,7 @@ function newDanns2(from) {
 			frames: RES.frames.TamaA[2],
 		});
 		obj.anim(50, function(d) {
-			if (d.age < 500) {
+			if (d.age < 800) {
 				d.vx *= 0.85;
 				d.vy *= 0.85;
 			}
@@ -2657,10 +2658,18 @@ function newBossDanns5(from, color, direction) {
 		var k = 1 - j/(n-1),
 			f = direction > 0 ? k - 0.2 : 0.2 - k;
 		array(3, function(i) {
-			newDannmaku(from, to, 0, f*0.3*PI2+i*0.05-k*0.01, 0.05+(i+0.2)*k*0.05, 0, {
+			var obj = newDannmaku(from, to, 0, f*0.3*PI2+i*0.04-k*0.01, 0.20+(i+0.2)*k*0.15, 0, {
 				color: color,
 				frames: frame,
-			});
+			})
+			obj.anim(50, function(d) {
+				if (d.age < 600) {
+					d.vx *= 0.9;
+					d.vy *= 0.9;
+				}
+				else
+					return true;
+			}, obj.data);
 		});
 	}, 30, null, n);
 	STORY.timeout(function() {
@@ -2708,19 +2717,19 @@ function newBossDanns8(from, color) {
 	if (!from.is_dying) array(2, function(j) {
 		var i = j % 2 ? -1 : 1;
 		range(1, 0.001, 1/60, function(f) {
-			var obj = newDannmaku(from, to, 0, f*PI2, 0.12+0.06*j, 0, {
+			var obj = newDannmaku(from, to, 0, f*PI2, 0.3+0.1*j, 0, {
 				sx: from.data.x,
 				sy: from.data.y,
-				dv: 0.001 - j*0.00015,
+				dv: 0.002 - j*0.00015,
 				vr: 0,
 				vt: (i *= -1)*0.1 - j*0.002,
 				color: color,
 				frames: frame,
 			});
 			obj.anim(50, function(d) {
-				if (d.age < 2000) {
-					d.vx *= 0.92;
-					d.vy *= 0.92;
+				if (d.age < 1000) {
+					d.vx *= 0.85;
+					d.vy *= 0.85;
 				}
 				else {
 					d.vr += d.dv;
@@ -2747,7 +2756,7 @@ function newBossDanns9(from, direction) {
 			frames: RES.frames.TamaA[6],
 		});
 		obj.anim(50, function(d) {
-			if (d.age < 2000) {
+			if (d.age < 2000 + j*30) {
 				d.vx *= 0.95;
 				d.vy *= 0.95;
 			}
@@ -3162,12 +3171,12 @@ ieach([
 			{ t:1000, fx:0.83, fy:0.28, v:0.2, },
 			{ t: 500, fn:newBossDanns1, args:['b'], },
 			{ t:2000, fn:newBossDanns1, args:['r'], },
-			{ t: 500, fx:0.50, fy:0.10, v:0.2, },
+			{ t:1000, fx:0.50, fy:0.10, v:0.2, },
 			{ t:1500, fn:newBossDanns2, },
 			{ t: 500, fx:0.17, fy:0.28, v:0.2, },
 			{ t: 500, fn:newBossDanns1, args:['g'], },
 			{ t:2000, fn:newBossDanns1, args:['y'], },
-			{ t: 500, fx:0.50, fy:0.10, v:0.2, },
+			{ t:1000, fx:0.50, fy:0.10, v:0.2, },
 			{ t:2000, fn:newBossDanns3, args:['brgyY'], },
 			{ t: 500, fx:0.83, fy:0.28, v:0.2, },
 			{ t: 500, fn:newBossDanns1, args:['b'], },
@@ -3215,7 +3224,7 @@ ieach([
 			{ t:1500, fx:0.50, fy:0.10, },
 			{ t: 100, fn:newBossDanns6, },
 			{ t:1500, fn:newBossDanns1, args:['b', 3, 30, 0.02], },
-			{ t: 200, fx:0.60, fy:0.30, },
+			{ t: 500, fx:0.60, fy:0.30, },
 			{ t: 200, fn:newBossDanns5, args:['g', -1], },
 			{ t: 200, fn:newBossDanns5, args:['g', -1], },
 			{ t: 200, fn:newBossDanns5, args:['g', -1], },
@@ -3223,7 +3232,7 @@ ieach([
 			{ t: 500, fx:0.50, fy:0.30, },
 			{ t: 100, fn:newBossDanns6, },
 			{ t: 500, fn:newBossDanns1, args:['b', 3, 30, 0.02], },
-			{ t: 200, fx:0.60, fy:0.20, },
+			{ t: 500, fx:0.60, fy:0.20, },
 			{ t: 200, fn:newBossDanns5, args:['g', 1], },
 			{ t: 200, fn:newBossDanns5, args:['g', 1], },
 			{ t: 200, fn:newBossDanns5, args:['g', 1], },
@@ -3334,47 +3343,47 @@ ieach([
 	},
 	{
 		pathnodes: [
-			{ v:0.05 },
+			{ v:0.1 },
 			{ t: NaN, fx:0.50, fy:0.20, },
-			{ t: 700, fn:newBossDanns8, args:['b'], },
-			{ t: 700, fn:newBossDanns8, args:['g'], },
-			{ t: 700, fn:newBossDanns8, args:['r'], },
-			{ t: 200, fx:0.70, fy:0.30, },
+			{ t:1000, fn:newBossDanns8, args:['b'], },
+			{ t:1000, fn:newBossDanns8, args:['g'], },
+			{ t:1000, fn:newBossDanns8, args:['r'], },
+			{ t: 100, fx:0.70, fy:0.30, },
 			{ t: 200, fn:newBossDanns9, args:[ 1], },
 			{ t: 200, fn:newBossDanns9, args:[-1], },
 			{ t: 200, fn:newBossDanns9, args:[ 1], },
 			{ t: 200, fn:newBossDanns9, args:[-1], },
 			{ t: NaN, fx:0.60, fy:0.20, },
-			{ t: 700, fn:newBossDanns8, args:['b'], },
-			{ t: 700, fn:newBossDanns8, args:['g'], },
-			{ t: 700, fn:newBossDanns8, args:['r'], },
-			{ t: 200, fx:0.30, fy:0.20, },
+			{ t:1000, fn:newBossDanns8, args:['b'], },
+			{ t:1000, fn:newBossDanns8, args:['g'], },
+			{ t:1000, fn:newBossDanns8, args:['r'], },
+			{ t: 100, fx:0.30, fy:0.20, },
 			{ t: 200, fn:newBossDanns9, args:[ 1], },
 			{ t: 200, fn:newBossDanns9, args:[-1], },
 			{ t: 200, fn:newBossDanns9, args:[ 1], },
 			{ t: 200, fn:newBossDanns9, args:[-1], },
 			{ t: NaN, fx:0.50, fy:0.30, },
-			{ t: 700, fn:newBossDanns8, args:['b'], },
-			{ t: 700, fn:newBossDanns8, args:['g'], },
-			{ t: 700, fn:newBossDanns8, args:['r'], },
-			{ t: 200, fx:0.60, fy:0.10, },
+			{ t:1000, fn:newBossDanns8, args:['b'], },
+			{ t:1000, fn:newBossDanns8, args:['g'], },
+			{ t:1000, fn:newBossDanns8, args:['r'], },
+			{ t: 100, fx:0.60, fy:0.10, },
 			{ t: 200, fn:newBossDanns9, args:[ 1], },
 			{ t: 200, fn:newBossDanns9, args:[-1], },
 			{ t: 200, fn:newBossDanns9, args:[ 1], },
 			{ t: 200, fn:newBossDanns9, args:[-1], },
 			{ t: NaN, fx:0.60, fy:0.20, },
-			{ t: 700, fn:newBossDanns8, args:['b'], },
-			{ t: 700, fn:newBossDanns8, args:['g'], },
-			{ t: 700, fn:newBossDanns8, args:['r'], },
-			{ t: 200, fx:0.50, fy:0.10, },
+			{ t:1000, fn:newBossDanns8, args:['b'], },
+			{ t:1000, fn:newBossDanns8, args:['g'], },
+			{ t:1000, fn:newBossDanns8, args:['r'], },
+			{ t: 100, fx:0.50, fy:0.10, },
 			{ t: 200, fn:newBossDanns9, args:[ 1], },
 			{ t: 200, fn:newBossDanns9, args:[-1], },
 			{ t: 200, fn:newBossDanns9, args:[ 1], },
 			{ t: 200, fn:newBossDanns9, args:[-1], },
 			{ t: NaN, fx:0.60, fy:0.10, },
-			{ t: 700, fn:newBossDanns8, args:['b'], },
-			{ t: 700, fn:newBossDanns8, args:['g'], },
-			{ t: 700, fn:newBossDanns8, args:['r'], },
+			{ t:1000, fn:newBossDanns8, args:['b'], },
+			{ t:1000, fn:newBossDanns8, args:['g'], },
+			{ t:1000, fn:newBossDanns8, args:['r'], },
 		],
 		duration: 25000,
 		scname: 'jingjiexian',
@@ -3437,16 +3446,17 @@ ieach([
 }, tl);
 tl.end = {
 	init: function(d) {
-		killCls('Enemy', 'Dannmaku');
-		STORY.timeout(function() {
-			RES.se_enep01.replay();
-		}, random(5000));
+		killCls('Dannmaku');
 		STORY.timeout(function() {
 			RES.se_tan00.replay();
 		}, random(100, 200), null, 8)
-		SPRITE.newObj('Basic', {
-			text: 'You Win!'
-		});
+		STORY.timeout(function() {
+			RES.se_enep01.replay();
+			killCls('Enemy');
+		}, random(2000));
+		STORY.timeout(function() {
+			GAME.state = GAME.states.PAUSE;
+		}, 3000);
 	},
 	run: function(dt, d) {
 	}
