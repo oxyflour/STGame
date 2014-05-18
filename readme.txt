@@ -17,8 +17,12 @@ DONEs
 # HUDs
 
 TODOs
-# background manager
-# power levels
-# parameters adjustments (speed, life, damage...)
-# stage loader
+# finish power levels
+# fix sounds in IE
+# do parameters adjustments (speed, life, damage...)
+# do timeline adjustments
+
+MORE
 # game title, ending, etc
+# stage loader
+# background manager
