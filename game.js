@@ -2851,9 +2851,7 @@ function newBackground(elems) {
 				e.offset -= e.total;
 			var trans = 'translateY(' + e.offset + 'px)',
 				trans2 = trans + ' rotate(0.0001deg)';
-			e.style.webkitTransform = trans2;
-			e.style.msTransform = trans;
-			e.style.MozTransform = trans2;
+			$prefixStyle(e.style, 'Transform', trans2);
 			e.style.opacity = e.opacity * bg.data.ph;
 		});
 		var age = bg.data.age,

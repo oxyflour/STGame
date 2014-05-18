@@ -42,14 +42,12 @@
 		transform="mirror:0,y" stack="y"></canvas>
 	<canvas id="tree_pattR" from="tree_pattL"
 		transform="mirror:x"></canvas>
-	<canvas id="tree_bg_tmp" bg-css="#treebg"></canvas>
 	<script id="gen_treebg">
 		(function(RES) {
-			var cv = RES.tree_bg_tmp,
-				dc = getCanvasDC(cv),
-				elem = $e('treebg');
-			cv.width = parseInt($style(elem, 'width'));
-			cv.height = parseInt($style(elem, 'height'));
+			var cv = $e('treebg'),
+				dc = getCanvasDC(cv);
+			cv.width = parseInt($style(cv, 'width'));
+			cv.height = parseInt($style(cv, 'height'));
 
 			ieach([RES.tree_pattL, RES.tree_pattR], function mkRepeatTexture(i, patt) {
 				var sw = patt.width,
@@ -86,15 +84,13 @@
 	<canvas id="ground_brush0" from="stg1bg 208 48 48 16" transform="0,0"></canvas>
 	<canvas id="ground_brush1" from="ground_brush0" transform="offset:0 0,16 0" stack="y"></canvas>
 	<canvas id="ground_brush2" from="ground_brush1 0 0 48 32"></canvas>
-	<canvas id="ground_bg_tmp" bg-css="#groundbg"></canvas>
 	<script id="gen_groundbg">
 		(function(RES) {
-			var cv = RES.ground_bg_tmp,
+			var cv = $e('groundbg'),
 				dc = getCanvasDC(cv),
-				patt = RES.ground_patt,
-				elem = $e('groundbg');
-			cv.width = parseInt($style(elem, 'width'));
-			cv.height = parseInt($style(elem, 'height'));
+				patt = RES.ground_patt;
+			cv.width = parseInt($style(cv, 'width'));
+			cv.height = parseInt($style(cv, 'height'));
 			dc.fillWith(dc.createPattern(patt, 'repeat'));
 
 			for (var y = 0; y < cv.height; y += patt.height) {
@@ -118,7 +114,7 @@
 				dc.drawImage(RES.ground_tileB, x, y + ph - sc.height);
 			}
 
-			var bg = RES.tree_bg_tmp,
+			var bg = $e('treebg'),
 				hw = bg.width / 2,
 				dw = bg.width * 0.1;
 			dc.globalAlpha = 0.4;
@@ -411,15 +407,15 @@
 			<!-- add no-overflow to fix issue in Firefox -->
 			<div class="game-size absolute bgimg no-overflow"
 				id="bg0">
-				<div class="ui-obj bg1" style="height:2400px;"
-					id="groundbg" bg-speed="0.01"></div>
+				<canvas class="ui-obj bg1 game-size" style="height:2400px"
+					id="groundbg" bg-speed="0.01"></canvas>
 				<div class="ui-obj bg1"
 					style="height:350px;background:linear-gradient(rgba(0,0,0,0.8),transparent)"></div>
 			</div>
 			<div class="game-size absolute bgimg no-overflow"
 				id="bg1">
-				<div class="ui-obj bg1" style="height:1000px;"
-					id="treebg" bg-speed="0.015"></div>
+				<canvas class="ui-obj bg1 game-size" style="height:1000px;"
+					id="treebg" bg-speed="0.015"></canvas>
 				<div class="ui-obj bg1"
 					style="height:300px;background:linear-gradient(rgba(0,0,0,0.6),transparent)"></div>
 			</div>
