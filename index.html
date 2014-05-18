@@ -446,11 +446,11 @@
 		</div>
 		<div class="game mask absolute ui" ui-show="GAME.state == GAME.states.PAUSE">
 			<div class="menu menu-pause-text"></div>
-			<form class="menu-pause" action="javascript:evalRadioVal('pause_menu')"
+			<form class="menu-pause ui" action="javascript:evalRadioVal('pause_menu')"
+				ui-focus="GAME.state == GAME.states.PAUSE"
 				onkeyup="checkFormKey(event, this)" onescape="changeGameState('RUNNING'); return false">
 				<div class="menu-line">
-					<input type="radio" name="pause_menu" value="changeGameState('RUNNING')" checked
-						class="ui" ui-focus="GAME.state == GAME.states.PAUSE" />
+					<input type="radio" name="pause_menu" value="changeGameState('RUNNING')" />
 					<label class="menu menu-pause-continue"></label>
 				</div>
 				<div class="menu-line">
@@ -572,12 +572,12 @@
 	<div class="screen select absolute no-overflow ui"
 		ui-show="GAME.state == GAME.states.SELECT || GAME.state == GAME.states.SELECT_DIFF ||
 			GAME.state == GAME.states.SELECT_CHAR || GAME.state == GAME.states.SELECT_BOMB">
-		<form class="select-diff absolute" action="javascript:evalRadioVal('select_diff')"
+		<form class="select-diff absolute ui" action="javascript:evalRadioVal('select_diff')"
+			ui-focus="GAME.state == GAME.states.SELECT_DIFF"
 			onkeyup="checkFormKey(event, this)" onescape="changeGameState('TITLE')">
 			<div class="select-title"></div>
 			<div class="menu-line">
-				<input type="radio" name="select_diff" value="changeGameState('SELECT_CHAR')" checked
-					class="ui" ui-focus="GAME.state == GAME.states.SELECT_DIFF" />
+				<input type="radio" name="select_diff" value="changeGameState('SELECT_CHAR')" />
 				<label class="menu menu-diff-easy"></label>
 			</div>
 			<div class="menu-line">
@@ -593,12 +593,12 @@
 				<label class="menu menu-diff-lunatic"></label>
 			</div>
 		</form>
-		<form class="select-char absolute" action="javascript:evalRadioVal('select_char')"
+		<form class="select-char absolute ui" action="javascript:evalRadioVal('select_char')"
+			ui-focus="GAME.state == GAME.states.SELECT_CHAR"
 			onkeyup="checkFormKey(event, this)" onescape="changeGameState('SELECT_DIFF')">
 			<div class="select-title"></div>
 			<div class="menu-line absolute">
-				<input type="radio" name="select_char" value="changeGameState('SELECT_BOMB')" checked
-					class="ui" ui-focus="GAME.state == GAME.states.SELECT_CHAR" />
+				<input type="radio" name="select_char" value="changeGameState('SELECT_BOMB')" />
 				<label class="menu menu-char-reimu">
 					<img src="res/slpl00a.png" />
 					<img src="res/slpl00b.png" />
@@ -612,12 +612,12 @@
 				</label>
 			</div>
 		</form>
-		<form class="select-bomb absolute" action="javascript:evalRadioVal('select_bomb')"
+		<form class="select-bomb absolute ui" action="javascript:evalRadioVal('select_bomb')"
+			ui-focus="GAME.state == GAME.states.SELECT_BOMB"
 			onkeyup="checkFormKey(event, this)" onescape="changeGameState('SELECT_CHAR')">
 			<div class="select-title"></div>
 			<div class="menu-line">
-				<input type="radio" name="select_bomb" value="loadAndStart()" checked
-					class="ui" ui-focus="GAME.state == GAME.states.SELECT_BOMB" />
+				<input type="radio" name="select_bomb" value="loadAndStart()" />
 				<label class="menu menu-bomb-a"></label>
 			</div>
 			<div class="menu-line">
@@ -642,15 +642,15 @@
 		</div>
 		<form class="absolute ui" action="javascript:evalRadioVal('title_in')"
 			ui-show="GAME.state == GAME.states.TITLE"
+			ui-focus="GAME.state == GAME.states.TITLE"
 			onkeyup="checkFormKey(event, this)">
-			<input type="radio" name="title_in" value="changeGameState('MENU')" checked
-				class="ui" ui-focus="GAME.state == GAME.states.TITLE" />
+			<input type="radio" name="title_in" value="changeGameState('MENU')" />
 		</form>
-		<form class="menu-title" action="javascript:evalRadioVal('title_menu')"
+		<form class="menu-title ui" action="javascript:evalRadioVal('title_menu')"
+			ui-focus="GAME.state == GAME.states.MENU"
 			onkeyup="checkFormKey(event, this)" onescape="checkRadio($i('input', $i('.menu-title-quit').parentNode))">
 			<div class="menu-line">
-				<input type="radio" name="title_menu" value="changeGameState('SELECT_DIFF')" checked
-					class="ui" ui-focus="GAME.state == GAME.states.MENU" />
+				<input type="radio" name="title_menu" value="changeGameState('SELECT_DIFF')" />
 				<label class="menu menu-title-start"></label>
 			</div>
 			<div class="menu-line">
@@ -715,6 +715,18 @@ function stayLastFrame(fs) {
 	lastOfArray(fs).next = fs.length - 1;
 }
 
+function checkActiveRadios() {
+	var ls = ieach($('input[type="radio"]'), function(i, v, d) {
+		if (v.scrollHeight)
+			d.push(v);
+	}, []);
+	var r = ieach(ls, function(i, v) {
+		if (v.checked)
+			return v;
+	}, ls[0]);
+	if (r) checkRadio(r);
+}
+
 function checkFormKey(e, f) {
 	if (e.which == 'Z'.charCodeAt(0)) {
 		f.submit();
@@ -730,20 +742,6 @@ function checkFormKey(e, f) {
 	}
 }
 
-function checkActiveRadios() {
-	var ls = ieach($('input[type="radio"]'), function(i, v, d) {
-		if (v.scrollHeight)
-			d.push(v);
-	}, []);
-	var r = ieach(ls, function(i, v) {
-		if (v.checked)
-			return v;
-	}, ls[0]);
-	if (r) {
-		r.checked = true;
-		r.focus();
-	}
-}
 setInterval(function() {
 	if (GAME.state != GAME.states.RUNNING) {
 		var f = $i('input:focus');

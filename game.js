@@ -1048,8 +1048,19 @@ var UTIL = {
 			return function(v) {
 				var _t = this;
 				if (v) setTimeout(function() {
-					_t.focus();
-				}, 100);
+					if (_t.tagName == 'FORM') {
+						var ls = $('input', _t);
+						var r = ieach(ls, function(i, e) {
+							if (e.checked) return e;
+						}, ls[0]);
+						if (r) {
+							r.focus();
+							r.checked = true;
+						}
+					}
+					else
+						_t.focus();
+				}, 5);
 			};
 		}],
 	]);
