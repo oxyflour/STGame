@@ -340,7 +340,7 @@ input[type="radio"] {
 }
 .menu-pause .menu-line {
 	margin: 10px;
-	margin-left: 110px;
+	margin-left: 130px;
 }
 .menu-pause-text {
 	width: 64px;
@@ -688,7 +688,8 @@ input[type="radio"] {
 	   -moz-transition: margin-left ease 0.4s;
 }
 .game-loading .menu-title .menu,
-.game-title .menu-title .menu {
+.game-title .menu-title .menu,
+.game-select .menu-title .menu {
 	margin-left: 220px;
 }
 .title {
