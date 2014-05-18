@@ -329,9 +329,6 @@ input[type="radio"] {
 	   -moz-transform: scale(1.5);
 }
 .menu-pause .menu {
-	-webkit-transition: all ease 0.4s;
-	    -ms-transition: all ease 0.4s;
-	   -moz-transition: all ease 0.4s;
 	opacity: 0.4;
 }
 .menu-pause input:focus + .menu {
@@ -831,18 +828,20 @@ input[type="radio"] {
 	margin-top: -80px;
 	width: 256px;
 	height: 480px;
+	opacity: 0;
 	-webkit-transition: all ease 0.4s;
 	    -ms-transition: all ease 0.4s;
 	   -moz-transition: all ease 0.4s;
-	-webkit-transform: translateX(640px);
-	    -ms-transform: translateX(640px);
-	   -moz-transform: translateX(640px);
+	-webkit-transform: translateX(360px);
+	    -ms-transform: translateX(360px);
+	   -moz-transform: translateX(360px);
 }
 .select-char .menu img {
 	float: left;
 	width: 256px;
 }
 .select-char input:focus + .menu {
+	opacity: 1;
 	-webkit-transform: translateX(320px);
 	    -ms-transform: translateX(320px);
 	   -moz-transform: translateX(320px);
