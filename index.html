@@ -410,14 +410,14 @@
 				<canvas class="ui-obj bg1 game-size" style="height:2400px"
 					id="groundbg" bg-speed="0.01"></canvas>
 				<div class="ui-obj bg1"
-					style="height:350px;background:linear-gradient(rgba(0,0,0,0.8),transparent)"></div>
+					style="height:350px;background:linear-gradient(rgba(0,0,0,0.8),transparent);-webkit-transform:translate3d(0,0,0.1px)"></div>
 			</div>
 			<div class="game-size absolute bgimg no-overflow"
 				id="bg1">
 				<canvas class="ui-obj bg1 game-size" style="height:1000px;"
 					id="treebg" bg-speed="0.015"></canvas>
 				<div class="ui-obj bg1"
-					style="height:300px;background:linear-gradient(rgba(0,0,0,0.6),transparent)"></div>
+					style="height:300px;background:linear-gradient(rgba(0,0,0,0.6),transparent);-webkit-transform:translate3d(0,0,0.1px)"></div>
 			</div>
 			<div class="game-size absolute bgimg">
 				<div class="ui-obj bossbg anim-in-01s"
@@ -443,6 +443,26 @@
 			<div class="ft">
 				<div class="text"></div>
 			</div>
+		</div>
+		<div class="game mask absolute ui" ui-show="GAME.state == GAME.states.PAUSE">
+			<div class="menu menu-pause-text"></div>
+			<form class="menu-pause" action="javascript:evalRadioVal('pause_menu')"
+				onkeyup="checkFormKey(event, this)" onescape="changeGameState('RUNNING'); return false">
+				<div class="menu-line">
+					<input type="radio" name="pause_menu" value="changeGameState('RUNNING')" checked
+						class="ui" ui-focus="GAME.state == GAME.states.PAUSE" />
+					<label class="menu menu-pause-continue"></label>
+				</div>
+				<div class="menu-line">
+					<input type="radio" name="pause_menu" value="changeGameState('TITLE')" />
+					<label class="menu menu-pause-title"></label>
+				</div>
+				<div class="menu-line">
+					<input type="radio" name="pause_menu" value="window.close()" />
+					<label class="menu menu-pause-quit"></label>
+				</div>
+				<input style="width:0px;opacity:0;" type="submit" />
+			</form>
 		</div>
 		<div class="info absolute">
 			<div class="line">
@@ -543,26 +563,6 @@
 				<div class="td"><div class="font fd"></div></div>
 				<div class="td"><div class="font fe"></div></div>
 			</div>
-		</div>
-		<div class="game mask absolute ui" ui-show="GAME.state == GAME.states.PAUSE">
-			<div class="menu menu-pause-text"></div>
-			<form class="menu-pause" action="javascript:evalRadioVal('pause_menu')"
-				onkeyup="checkFormKey(event, this)" onescape="changeGameState('RUNNING'); return false">
-				<div class="menu-line">
-					<input type="radio" name="pause_menu" value="changeGameState('RUNNING')" checked
-						class="ui" ui-focus="GAME.state == GAME.states.PAUSE" />
-					<label class="menu menu-pause-continue"></label>
-				</div>
-				<div class="menu-line">
-					<input type="radio" name="pause_menu" value="changeGameState('TITLE')" />
-					<label class="menu menu-pause-title"></label>
-				</div>
-				<div class="menu-line">
-					<input type="radio" name="pause_menu" value="window.close()" />
-					<label class="menu menu-pause-quit"></label>
-				</div>
-				<input style="width:0px;opacity:0;" type="submit" />
-			</form>
 		</div>
 		<div class="fps absolute" style="color:white">
 			<div>fps: <span class="ui" ui-bind="(+GAME.fps).toFixed(2)+' / '+GAME.tick"></span></div>

@@ -2803,7 +2803,7 @@ function newEffectPiece(from, color) {
 	}, p.data);
 	return p;
 }
-function newBackground(elems) {
+function newBackground() {
 	function updateImgs(imgs, f) {
 		ieach(bg.imgs, function(i, e) {
 			var v = e.val = {
@@ -2836,8 +2836,8 @@ function newBackground(elems) {
 	bg.draw = return_nothing;
 	bg.imgs = $('.bgimg');
 	updateImgs(bg.imgs, 0);
-	bg.elems = elems;
-	ieach(elems, function(i, e) {
+	bg.elems = $('.bg1');
+	ieach(bg.elems, function(i, e) {
 		e.object = bg;
 		e.offset = 0;
 		e.total = parseFloat($style(e, 'height')) - parseFloat($style('.game', 'height'));
@@ -2846,12 +2846,14 @@ function newBackground(elems) {
 	});
 	bg.anim(50, function(d) {
 		ieach(this.elems, function(i, e) {
-			e.offset += e.speed * 50;
-			if (e.offset > 0)
-				e.offset -= e.total;
-			var trans = 'translateY(' + e.offset + 'px)',
-				trans2 = trans + ' rotate(0.0001deg)';
-			$prefixStyle(e.style, 'Transform', trans2);
+			if (e.speed) {
+				e.offset += e.speed * 50;
+				if (e.offset > 0)
+					e.offset -= e.total;
+				var trans = 'translateY(' + e.offset + 'px)',
+					trans2 = trans + ' rotate(0.0001deg)';
+				$prefixStyle(e.style, 'Transform', trans2);
+			}
 			e.style.opacity = e.opacity * bg.data.ph;
 		});
 		var age = bg.data.age,
@@ -2906,7 +2908,7 @@ var hook = {
 		if (e == STORY.events.STORY_LOAD) {
 			SPRITE.clrObj();
 			newPlayer();
-			newBackground($('.bg1'));
+			newBackground();
 		}
 		else if (e == STORY.events.GAME_INPUT) {
 			if (v.type == 'keyup' && v.which == 27) {
