@@ -619,8 +619,17 @@ var RES = (function(res) {
 	}
 	_t.check = function check(fn) {
 		var ls = ieach(res.children, function(i, v, d) {
-			if (v.tagName == 'IMG' || v.tagName == 'AUDIO')
+			if (v.tagName == 'IMG')
 				d.push(v.complete ? 1 : 0);
+			else if (v.tagName == 'AUDIO') {
+				var st = v.src.split('.'),
+					ext = st.pop();
+				if (!v.canPlayType('audio/'+ext)) {
+					st.push('mp3');
+					v.src = st.join('.');
+				}
+				d.push(v.complete ? 1 : 0);
+			}
 		}, []);
 		_t.process = sum(ls) / ls.length;
 		if (_t.process == 1) {
