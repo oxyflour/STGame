@@ -2769,7 +2769,7 @@ function newEffectPiece(from, color) {
 	}[color] || RES.frames.EffPiece;
 	var scale = {
 		'w': 0.5,
-	}[color] || 1.5;
+	}[color] || 1;
 	var p = SPRITE.newObj('Circle', {
 		x: from.data.x + random(10),
 		y: from.data.y + random(10),
