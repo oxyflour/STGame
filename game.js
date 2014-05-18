@@ -607,7 +607,7 @@ var RES = (function(res) {
 					this.currentTime = 0;
 					this.play();
 				}
-				v.volume = 0.5;
+				v.volume = 0.2;
 				d[v.id] = v;
 			}
 			else if (v.tagName == 'IMG') {
