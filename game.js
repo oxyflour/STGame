@@ -625,7 +625,7 @@ var RES = (function(res) {
 				var st = v.src.split('.'),
 					ext = st.pop();
 				if (!v.canPlayType('audio/'+ext)) {
-					st.push('mp3');
+					st.push(ext == 'mp3' ? 'wav' : 'mp3');
 					v.src = st.join('.');
 				}
 				d.push(v.complete ? 1 : 0);

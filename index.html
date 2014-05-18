@@ -750,7 +750,7 @@ function checkActiveRadios() {
 }
 setInterval(function() {
 	if (GAME.state != GAME.states.RUNNING) {
-		var f = $i(':focus');
+		var f = $i('input:focus');
 		if (!f || !f.scrollHeight)
 			checkActiveRadios();
 	}
