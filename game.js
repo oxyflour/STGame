@@ -2461,7 +2461,7 @@ function newLaser(from, to) {
 function newBoss() {
 	var boss = SPRITE.newObj('Enemy', {
 		r: 24,
-		life: 500,
+		life: 300,
 		frtick: 150,
 		frames: function(v) {
 			var fs = RES.frames.Boss,
