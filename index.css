@@ -398,14 +398,14 @@ input[type="radio"] {
 	   -moz-transform: translate( 128px, 10px);
 }
 .diag.active .fl {
-	-webkit-transform: translate(-20px, 10px);
-	    -ms-transform: translate(-20px, 10px);
-	   -moz-transform: translate(-20px, 10px);
+	-webkit-transform: translate(-16px, 16px);
+	    -ms-transform: translate(-16px, 16px);
+	   -moz-transform: translate(-16px, 16px);
 }
 .diag.active .fr {
-	-webkit-transform: translate( 20px, 10px);
-	    -ms-transform: translate( 20px, 10px);
-	   -moz-transform: translate( 20px, 10px);
+	-webkit-transform: translate( 16px, 16px);
+	    -ms-transform: translate( 16px, 16px);
+	   -moz-transform: translate( 16px, 16px);
 }
 .diag.active .fl.active,
 .diag.active .fr.active {
