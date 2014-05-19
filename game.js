@@ -605,13 +605,15 @@ var RES = (function(res) {
 			else if (v.tagName == 'AUDIO') {
 				v.volume = 0.2;
 				if (v.src.split('.').pop() == 'mp3') {
-					var queue = array(5, function() {
-						return v.cloneNode();
+					var queue = [v];
+					array(4, function() {
+						queue.push(v.cloneNode());
 					});
+					v.beginTime = parseFloat($attr(v, 'mp3-pad') || '0');
 					v.replay = function() {
 						queue.index = ((queue.index || 0) + 1) % queue.length;
 						var a = queue[queue.index];
-						a.currentTime = 0.07;
+						a.currentTime = v.beginTime;
 						a.play();
 					};
 				}
@@ -634,12 +636,8 @@ var RES = (function(res) {
 			if (v.tagName == 'IMG')
 				d.push(v.complete ? 1 : 0);
 			else if (v.tagName == 'AUDIO') {
-				var st = v.src.split('.'),
-					ext = st.pop();
-				if (!v.canPlayType('audio/'+ext)) {
-					st.push(ext == 'mp3' ? 'wav' : 'mp3');
-					v.src = st.join('.');
-				}
+				if (!v.canPlayType('audio/wav') && !v.trying_mp3)
+					v.trying_mp3 = v.src = v.src.replace(/\.wav$/i, '.mp3');
 				d.push(v.complete ? 1 : 0);
 			}
 		}, []);
