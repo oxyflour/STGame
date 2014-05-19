@@ -2565,7 +2565,7 @@ function newLifeBar(boss) {
 	};
 	return bar;
 }
-function newCountDown(data) {
+function newCountDown(duration) {
 	var countdown = SPRITE.newObj('Basic', {
 		x: GAME.rect.r-20,
 		y: GAME.rect.t+8,
@@ -2575,12 +2575,12 @@ function newCountDown(data) {
 		},
 	});
 	countdown.anim(100, function(d) {
-		var t = Math.max(Math.floor((d.duration - d.age) / 1000), 0);
+		var t = Math.max(Math.floor((duration - d.age) / 1000), 0);
 		this.data.text.res = (t<5 && 'num3') || (t<10 && 'num2') || (t<20 && 'num1') || 'num0';
 		this.data.text.text = (t < 10 ? '0' : '') + t;
 		if (this.data.tlast != t && (this.data.tlast = t) < 10)
 			RES.se_timeout.play();
-	}, data);
+	}, countdown.data);
 	return countdown;
 }
 function newSCName(scname) {
@@ -3462,8 +3462,6 @@ ieach([
 			killCls('Dannmaku');
 			d.age = 0;
 			d.disable_fire = para.disable_fire;
-			d.duration = para.duration || Inf;
-			d.life = para.life || Inf;
 
 			d.boss = UTIL.getOneObj('Enemy', 'boss') || newBoss();
 			if (para.pathnodes)
@@ -3476,7 +3474,7 @@ ieach([
 				d.boss.lifebar.die();
 
 			if (para.duration > 0 && !para.no_countdown)
-				d.countdown = newCountDown(d);
+				d.countdown = newCountDown(para.duration);
 			if (para.scname)
 				d.scname = newSCName(para.scname);
 			if (para.background)
@@ -3492,8 +3490,8 @@ ieach([
 			d.age += dt;
 			if (para.invinc)
 				d.boss.data.damage = 0;
-			if (d.age > d.duration || d.boss.data.damage >= d.life || d.pass) {
-				d.boss.data.damage = para.life || 0;
+			if (d.age > para.duration || d.boss.data.damage >= para.damage || d.pass) {
+				d.boss.data.damage = para.damage || 0;
 				return n;
 			}
 		},
