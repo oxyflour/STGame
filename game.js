@@ -3490,7 +3490,7 @@ ieach([
 		},
 		on: function(e, v, d) {
 			if (e == STORY.events.ENEMY_KILL) {
-				if (v.id == 'boss') {
+				if (v.data.id == 'boss') {
 					d.pass = true;
 					SPRITE.eachObj(function(i, obj) {
 						STORY.on(STORY.events.DANNMAKU_HIT, obj);
