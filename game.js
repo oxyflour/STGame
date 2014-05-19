@@ -603,11 +603,22 @@ var RES = (function(res) {
 				d[v.id] = v;
 			}
 			else if (v.tagName == 'AUDIO') {
-				v.replay = function() {
+				v.volume = 0.2;
+				if (v.src.split('.').pop() == 'mp3') {
+					var queue = array(5, function() {
+						return v.cloneNode();
+					});
+					v.replay = function() {
+						queue.index = ((queue.index || 0) + 1) % queue.length;
+						var a = queue[queue.index];
+						a.currentTime = 0.07;
+						a.play();
+					};
+				}
+				else v.replay = function() {
 					this.currentTime = 0;
 					this.play();
-				}
-				v.volume = 0.2;
+				};
 				d[v.id] = v;
 			}
 			else if (v.tagName == 'IMG') {
