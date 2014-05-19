@@ -1755,8 +1755,12 @@ function newBulletOne(from, to, rt) {
 		var onmyou = rt > 0 ? from.onmyous.right : from.onmyous.left;
 		return newBulletB(to, onmyou.data.x, onmyou.data.y, vx*0.6, vy*0.6);
 	}
-	else
-		return newBulletA(from.data.x, from.data.y, vx, vy);
+	else {
+		var dx = 0;
+		if (rt > 0) dx = 3;
+		if (rt < 0) dx = -3;
+		return newBulletA(from.data.x + dx, from.data.y, vx, vy);
+	}
 }
 function newBullet(from, level) {
 	var to = UTIL.getNearestAlive(from, 'Enemy'),
