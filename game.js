@@ -285,6 +285,12 @@ function $prefixStyle(s, k, v) {
 		s[p+k] = v;
 	}, s)
 }
+function $readdClass(e, c) {
+	e.classList.remove(c);
+	// MAGIC!
+	e.offsetWidth = e.offsetWidth;
+	e.classList.add(c);
+}
 
 function newCounter() {
 	var t0 = Date.now();
@@ -1927,6 +1933,9 @@ function newBomb(player) {
 		kh: 1/850,
 		duration: 150,
 	});
+
+	if (bg.scelem = $i('.sc-bomb'))
+		$readdClass(bg.scelem, 'active');
 }
 function newShield(bomb) {
 	var p = bomb.data.parent;
@@ -3169,21 +3178,21 @@ ieach([
 	};
 }, tl);
 ieach([
-	{ text:'d1', pos:'.fl', face:'.f0a', name:'diagA', },
-	{ text:'d2', pos:'.fl', face:'.f0a' },
-	{ text:'d3', pos:'.fl', face:'.f0c.f2' },
-	{ text:'d4', pos:'.fl', face:'.f0c.f2' },
-	{ text:'d4', pos:'.fl', face:'.f0b.f2', next:'bossB', },
-	{ text:'d5', pos:'.fr', face:'.f3a.f2', name:'diagB', },
-	{ text:'d4', pos:'.fl', face:'.f0c.f2' },
-	{ text:'d4', pos:'.fr', face:'.f3a' },
-	{ text:'d2', pos:'.fl', face:'.f0a' },
-	{ text:'d4', pos:'.fr', face:'.f3b.f2' },
-	{ text:'d4', pos:'.fl', face:'.f0b.f2' },
-	{ text:'d4', pos:'.fr', face:'.f3b' },
-	{ text:'d2', pos:'.fl', face:'.f0a' },
-	{ text:'d4', pos:'.fr', face:'.f3b' },
-	{ text:'d4', pos:'.fl', face:'.f0b.f2', next:'bossC', ended:true, },
+	{ text:'d1', pos:'.fl.dg', face:'.f0a', name:'diagA', },
+	{ text:'d2', pos:'.fl.dg', face:'.f0a' },
+	{ text:'d3', pos:'.fl.dg', face:'.f0c.f2' },
+	{ text:'d4', pos:'.fl.dg', face:'.f0c.f2' },
+	{ text:'d4', pos:'.fl.dg', face:'.f0b.f2', next:'bossB', },
+	{ text:'d5', pos:'.fr.dg', face:'.f3a.f2', name:'diagB', },
+	{ text:'d4', pos:'.fl.dg', face:'.f0c.f2' },
+	{ text:'d4', pos:'.fr.dg', face:'.f3a' },
+	{ text:'d2', pos:'.fl.dg', face:'.f0a' },
+	{ text:'d4', pos:'.fr.dg', face:'.f3b.f2' },
+	{ text:'d4', pos:'.fl.dg', face:'.f0b.f2' },
+	{ text:'d4', pos:'.fr.dg', face:'.f3b' },
+	{ text:'d2', pos:'.fl.dg', face:'.f0a' },
+	{ text:'d4', pos:'.fr.dg', face:'.f3b' },
+	{ text:'d4', pos:'.fl.dg', face:'.f0b.f2', next:'bossC', ended:true, },
 ], function(i, para, tl) {
 	var c = para.name || 'diag'+i, n = para.next || 'diag'+(i+1);
 	tl[c] = {
@@ -3198,7 +3207,6 @@ ieach([
 			var filter = function(i, e, d) {
 				e === d ? e.classList.add('active') : e.classList.remove('active');
 			};
-			bg.style.display = 'block';
 			bg.classList.add('active');
 			ieach($('.fr, .fl', bg), filter, pos);
 			ieach($('.face', pos), filter, face);
@@ -3212,9 +3220,6 @@ ieach([
 			if (para.ended) {
 				var bg = $i('.diag');
 				bg.classList.remove('active');
-				STORY.timer.add(newTicker(1000, function() {
-					this.finished = bg.style.display = 'none';
-				}))
 			}
 		},
 		on: function(e, v, d) {
@@ -3489,8 +3494,11 @@ ieach([
 			if (para.background)
 				d.background = para.background(d.boss);
 
-			if (para.scname)
+			if (para.scname) {
+				if (para.scelem = $i('.sc-' + para.scname))
+					$readdClass(para.scelem, 'active');
 				RES.se_cat00.play();
+			}
 		},
 		quit: function(d) {
 			killObj(d.countdown, d.scname, d.background);
