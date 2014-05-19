@@ -285,11 +285,14 @@ function $prefixStyle(s, k, v) {
 		s[p+k] = v;
 	}, s)
 }
-function $readdClass(e, c) {
+function $readdClass(e, c, t) {
 	e.classList.remove(c);
 	// MAGIC!
 	e.offsetWidth = e.offsetWidth;
 	e.classList.add(c);
+	if (t > 0) setTimeout(function() {
+		e.classList.remove(c);
+	}, t);
 }
 
 function newCounter() {
@@ -1935,7 +1938,7 @@ function newBomb(player) {
 	});
 
 	if (bg.scelem = $i('.sc-bomb'))
-		$readdClass(bg.scelem, 'active');
+		$readdClass(bg.scelem, 'active', 3000);
 }
 function newShield(bomb) {
 	var p = bomb.data.parent;
@@ -3496,7 +3499,7 @@ ieach([
 
 			if (para.scname) {
 				if (para.scelem = $i('.sc-' + para.scname))
-					$readdClass(para.scelem, 'active');
+					$readdClass(para.scelem, 'active', 3000);
 				RES.se_cat00.play();
 			}
 		},
