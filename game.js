@@ -3070,7 +3070,7 @@ var hook = {
 				if (v.data.power_pt)
 					type = v.data.power_pt >= 128 ? 4 : (v.data.power_pt >= 8 ? 2 : 0);
 				else
-					type = random(1) > 0.6 ? 0 : 1;
+					type = random(1) > 0.7 ? 0 : 1;
 				newDrop(type, v.data.x, v.data.y);
 			}
 			newEffect(v);
