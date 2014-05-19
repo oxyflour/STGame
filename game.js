@@ -656,7 +656,7 @@ var RES = (function(res) {
 		_t.process = sum(ls) / ls.length;
 		if (_t.process == 1) {
 			loaded();
-			fn();
+			fn && fn();
 		}
 		else setTimeout(function() {
 			check(fn);

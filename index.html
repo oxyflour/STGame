@@ -698,7 +698,17 @@
 	</div>
 	<div class="screen loading absolute ui"
 		ui-show="GAME.state == GAME.states.LOADING">
-		<h3>loading <span class="ui" ui-bind="(RES.process*100).toFixed(1)+'%'">...</span></h3>
+		<br />
+		<br />
+		<br />
+		<br />
+		<br />
+		<h2 style="margin:20px;">
+			这个网页游戏擅自将东方红魔乡的部分内容复刻了出来，存在各种与原作不符的操作和设定。
+			本作品与上海爱丽丝幻乐团没有任何关系，原作品的版权归ZUN所有。请勿用于任何商业用途。
+		</h2>
+		<h3 class="ui" ui-show="RES.process < 1">loading <span class="ui" ui-bind="(RES.process*100).toFixed(1)+'%'">...</span></h3>
+		<button class="ui" ui-show="RES.process == 1" onclick="checkStart()" style="font-size:100%;padding:0.5em;margin:1em">我同意</button>
 	</div>
 </div>
 <script src="game.js"></script>
@@ -834,10 +844,14 @@ function loadAndStart() {
 	GAME.start('init');
 }
 
+function checkStart() {
+	GAME.ready = true;
+	if (RES.process == 1)
+		changeGameState('TITLE');
+}
+
 GAME.state = GAME.states.LOADING;
-RES.check(function() {
-	changeGameState('TITLE');
-});
+RES.check();
 
 </script>
 </body>
