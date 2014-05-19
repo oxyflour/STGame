@@ -444,8 +444,10 @@ input[type="radio"] {
 	opacity: 1;
 }
 .ft .text {
+	font-family: song;
+	height: 64px;
 	margin: 48px;
-	padding: 2px 20px;
+	padding: 5px 20px;
 	background-color: rgba(0, 0, 0, 0.5);
 	color: silver;
 }

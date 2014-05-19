@@ -635,6 +635,9 @@ var RES = (function(res) {
 			else if (v.tagName == 'IMG') {
 				d[v.id] = v;
 			}
+			else if (v.tagName == 'SCRIPT' && $attr(v, 'type') == 'text/html') {
+				d[v.id] = v.innerHTML;
+			}
 			else if (v.tagName == 'SCRIPT') {
 				d[v.id] = eval(v.innerHTML)(_t);
 			}
@@ -3129,19 +3132,21 @@ var hook = {
 };
 var tl = {};
 tl.init = {
-	run: UTIL.newTimeRunner(2000, 'sec0'),
+	run: UTIL.newTimeRunner(3000, 'sec0'),
 	init: function(d) {
-		d.title = SPRITE.newObj('Basic', {
-			text: {
-				text: 'STAGE 1',
-				res: 'ascii_yellow',
-				map: RES.fontmap,
-			}
-		});
+		STORY.timeout(function(d) {
+			d.title = SPRITE.newObj('Basic', {
+				text: {
+					text: 'STAGE 1',
+					res: 'ascii_yellow',
+					map: RES.fontmap,
+				}
+			});
+		}, 500, d);
 		STORY.timeout(function(d) {
 			d.text = SPRITE.newObj('Basic', {
 				text: {
-					text: '~ Mystic Flier ~',
+					text: RES.st_stg1_title,
 					font: '15px Arial',
 					color: 'Silver',
 				},
@@ -3152,7 +3157,7 @@ tl.init = {
 					d.y = d.sy - ease_out(d.ph)*10;
 				return true;
 			};
-		}, 400, d);
+		}, 1000, d);
 	},
 	quit: function(d) {
 		killObj(d.title, d.text);
@@ -3181,21 +3186,23 @@ ieach([
 	};
 }, tl);
 ieach([
-	{ text:'d1', pos:'.fl.dg', face:'.f0a', name:'diagA', },
-	{ text:'d2', pos:'.fl.dg', face:'.f0a' },
-	{ text:'d3', pos:'.fl.dg', face:'.f0c.f2' },
-	{ text:'d4', pos:'.fl.dg', face:'.f0c.f2' },
-	{ text:'d4', pos:'.fl.dg', face:'.f0b.f2', next:'bossB', },
-	{ text:'d5', pos:'.fr.dg', face:'.f3a.f2', name:'diagB', },
-	{ text:'d4', pos:'.fl.dg', face:'.f0c.f2' },
-	{ text:'d4', pos:'.fr.dg', face:'.f3a' },
-	{ text:'d2', pos:'.fl.dg', face:'.f0a' },
-	{ text:'d4', pos:'.fr.dg', face:'.f3b.f2' },
-	{ text:'d4', pos:'.fl.dg', face:'.f0b.f2' },
-	{ text:'d4', pos:'.fr.dg', face:'.f3b' },
-	{ text:'d2', pos:'.fl.dg', face:'.f0a' },
-	{ text:'d4', pos:'.fr.dg', face:'.f3b' },
-	{ text:'d4', pos:'.fl.dg', face:'.f0b.f2', next:'bossC', ended:true, },
+	{ text:'st_diag1', pos:'.fl.dg', face:'.f0a', name:'diagA', },
+	{ text:'st_diag2', pos:'.fl.dg', face:'.f0a' },
+	{ text:'st_diag3', pos:'.fl.dg', face:'.f0c.f2' },
+	{ text:'st_diag4', pos:'.fl.dg', face:'.f0c.f2' },
+	{ text:'st_diag5', pos:'.fl.dg', face:'.f0b.f2', next:'bossB', },
+	{ text:'st_diag6', pos:'.fr.dg', face:'.f3a.f2', name:'diagB', },
+	{ text:'st_diag7', pos:'.fl.dg', face:'.f0c.f2' },
+	{ text:'st_diag8', pos:'.fr.dg', face:'.f3a' },
+	{ text:'st_diag9', pos:'.fl.dg', face:'.f0a' },
+	{ text:'st_diag10', pos:'.fr.dg', face:'.f3b.f2' },
+	{ text:'st_diag11', pos:'.fl.dg', face:'.f0b.f2' },
+	{ text:'st_diag12', pos:'.fr.dg', face:'.f3b' },
+	{ text:'st_diag13', pos:'.fl.dg', face:'.f0a' },
+	{ text:'st_diag14', pos:'.fr.dg', face:'.f3b' },
+	{ text:'st_diag15', pos:'.fl.dg', face:'.f0b.f2', next:'bossC', ended:true, },
+	{ text:'st_diagXX', pos:'.fr.dg', face:'.f0b.fx', name:'diagE', duration: 10, },
+	{ text:'st_diag16', pos:'.fl.dg', face:'.f0b.f2', next:'pause', ended:true, },
 ], function(i, para, tl) {
 	var c = para.name || 'diag'+i, n = para.next || 'diag'+(i+1);
 	tl[c] = {
@@ -3213,10 +3220,10 @@ ieach([
 			bg.classList.add('active');
 			ieach($('.fr, .fl', bg), filter, pos);
 			ieach($('.face', pos), filter, face);
-			text.innerHTML = para.text;
+			text.innerHTML = RES[para.text] || '';
 		},
 		run: function(dt, d) {
-			if (d.pass || GAME.keyste.ctrlKey || (d.age+=dt) > (para.duration || 2000))
+			if (d.pass || GAME.keyste.ctrlKey || (d.age+=dt) > (para.duration || 20000))
 				return n;
 		},
 		quit: function(d, n) {
@@ -3537,9 +3544,18 @@ tl.end = {
 			RES.se_enep01.replay();
 		}, random(2000));
 		STORY.timeout(function() {
-			GAME.state = GAME.states.PAUSE;
+			d.next = 'diagE';
 		}, 4000);
 	},
 	run: function(dt, d) {
+		if (d.next)
+			return d.next;
 	}
 };
+tl.pause = {
+	init: function(d) {
+		GAME.state = GAME.states.PAUSE;
+	},
+	run: function(dt, d) {
+	},
+}
