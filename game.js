@@ -1687,12 +1687,14 @@ function newPlayer() {
 function newOnmyou(player, frames, pos1, pos2) {
 	var obj = SPRITE.newObj('Basic', {
 		parent: player,
+		x: player.data.x,
+		y: player.data.y,
 		frames: RES.frames[frames],
 	});
 	obj.runBasic = function(dt, d) {
 		var p = d.parent;
 			v = p.is_slow ? 1 : -1;
-		d.pos = limit_between((d.pos || 0) + 0.003*v*dt, 0, 1);
+		d.pos = limit_between((d.pos || 0) + 0.005*v*dt, 0, 1);
 		d.x = p.data.x + interp(pos1.x, pos2.x, d.pos);
 		d.y = p.data.y + interp(pos1.y, pos2.y, d.pos);
 	};
