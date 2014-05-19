@@ -2578,6 +2578,8 @@ function newCountDown(data) {
 		var t = Math.max(Math.floor((d.duration - d.age) / 1000), 0);
 		this.data.text.res = (t<5 && 'num3') || (t<10 && 'num2') || (t<20 && 'num1') || 'num0';
 		this.data.text.text = (t < 10 ? '0' : '') + t;
+		if (this.data.tlast != t && (this.data.tlast = t) < 10)
+			RES.se_timeout.play();
 	}, data);
 	return countdown;
 }
