@@ -3502,17 +3502,16 @@ ieach([
 }, tl);
 tl.end = {
 	init: function(d) {
-		killCls('Dannmaku');
+		killCls('Enemy', 'Dannmaku');
 		STORY.timeout(function() {
 			RES.se_tan00.replay();
 		}, random(100, 200), null, 8)
 		STORY.timeout(function() {
 			RES.se_enep01.replay();
-			killCls('Enemy');
 		}, random(2000));
 		STORY.timeout(function() {
 			GAME.state = GAME.states.PAUSE;
-		}, 3000);
+		}, 4000);
 	},
 	run: function(dt, d) {
 	}
