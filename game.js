@@ -1727,8 +1727,8 @@ function newBulletB(to, x, y, vx, vy) {
 	var obj = SPRITE.newObj('Bullet', {
 		x: x,
 		y: y,
-		vy: vx,
-		vx: vy,
+		vx: vx,
+		vy: vy,
 		to: to,
 		frtick: 1000/36,
 		frames: RES.frames.Bullet1,
@@ -1742,65 +1742,129 @@ function newBulletB(to, x, y, vx, vy) {
 	}, obj.data);
 	return obj;
 }
-function newBulletC(from, to, x) {
-	var v1 = random(0.4, 0.5),
-		t = (from.is_slow ? random(-5, 5) : random(10, 20)) * PI / 180,
-		onmyou = x > 0 ? from.onmyous.right : from.onmyous.left;
-	return newBulletB(to, onmyou.data.x, onmyou.data.y, -v1*Math.cos(t), x*v1*Math.sin(t));
-}
-function newBulletD(from, freq) {
-	from.bullet1_idx = ((from.bullet1_idx || 0) + 1) % freq;
-	if (from.bullet1_idx == 0 && from.onmyous) {
-		var to = UTIL.getNearestAlive(from, 'Enemy');
-		newBulletC(from, to, 1);
-		newBulletC(from, to, -1);
-		newBulletC(from, to, 1);
-		newBulletC(from, to, -1);
+function newBulletOne(from, to, rt) {
+	var v = 0.7,
+		t =  rt * PI / 180,
+		vx = v*Math.sin(t),
+		vy = -v*Math.cos(t);
+	if (to !== null) {
+		if (!from.onmyous) from.onmyous = {
+			left: newOnmyou(from, 'OnmyouR', { x:-25, y:0 }, { x:-8, y:-28 }),
+			right: newOnmyou(from, 'Onmyou', { x:+25, y:0 }, { x:+8, y:-28 }),
+		};
+		var onmyou = rt > 0 ? from.onmyous.right : from.onmyous.left;
+		return newBulletB(to, onmyou.data.x, onmyou.data.y, vx*0.6, vy*0.6);
 	}
+	else
+		return newBulletA(from.data.x, from.data.y, vx, vy);
 }
 function newBullet(from, level) {
+	var to = UTIL.getNearestAlive(from, 'Enemy'),
+		i = from.bullet_index = ((from.bullet_index || 0) + 1) % 6;
 	if (level < 8) {
-		newBulletA(from.data.x, from.data.y, 0, -0.73);
+		newBulletOne(from, null, 0);
 	}
 	else if (level <  16) {
-		newBulletA(from.data.x, from.data.y, 0, -0.73);
-		newBulletD(from, 6);
+		newBulletOne(from, null, 0);
+		if (i == 0) {
+			newBulletOne(from, to, 15);
+			newBulletOne(from, to, -15);
+		}
 	}
 	else if (level <  32) {
-		newBulletA(from.data.x-5, from.data.y, -0.02, -0.72);
-		newBulletA(from.data.x+5, from.data.y, +0.02, -0.72);
-		newBulletD(from, 6);
+		newBulletOne(from, null, 2);
+		newBulletOne(from, null, -2);
+		if (i == 0) {
+			newBulletOne(from, to, 15);
+			newBulletOne(from, to, -15);
+		}
 	}
 	else if (level <  48) {
-		newBulletA(from.data.x, from.data.y, 0, -0.73);
-		newBulletA(from.data.x-5, from.data.y, -0.05, -0.70);
-		newBulletA(from.data.x+5, from.data.y, +0.05, -0.70);
-		newBulletD(from, 6);
+		newBulletOne(from, null, 0);
+		newBulletOne(from, null, 6);
+		newBulletOne(from, null, -6);
+		if (i == 0) {
+			newBulletOne(from, to, 15);
+			newBulletOne(from, to, -15);
+		}
 	}
 	else if (level <  60) {
-		newBulletA(from.data.x, from.data.y, 0, -0.73);
-		newBulletA(from.data.x-5, from.data.y, -0.05, -0.70);
-		newBulletA(from.data.x+5, from.data.y, +0.05, -0.70);
-		newBulletD(from, 4);
+		newBulletOne(from, null, 0);
+		newBulletOne(from, null, 6);
+		newBulletOne(from, null, -6);
+		if (i == 0) {
+			newBulletOne(from, to, 15);
+			newBulletOne(from, to, -15);
+		}
+		else if (i == 3) {
+			newBulletOne(from, to, 30);
+			newBulletOne(from, to, -30);
+		}
 	}
 	else if (level <  80) {
-		newBulletA(from.data.x, from.data.y, 0, -0.73);
-		newBulletA(from.data.x-5, from.data.y, -0.05, -0.70);
-		newBulletA(from.data.x+5, from.data.y, +0.05, -0.70);
-		newBulletD(from, 2);
+		newBulletOne(from, null, 0);
+		newBulletOne(from, null, 6);
+		newBulletOne(from, null, -6);
+		if (i == 0) {
+			newBulletOne(from, to, 15);
+			newBulletOne(from, to, -15);
+		}
+		else if (i == 3) {
+			newBulletOne(from, to, 30);
+			newBulletOne(from, to, -30);
+		}
 	}
-	/*
 	else if (level < 100) {
+		newBulletOne(from, null, 0);
+		newBulletOne(from, null, 6);
+		newBulletOne(from, null, -6);
+		if (i == 0) {
+			newBulletOne(from, to, 15);
+			newBulletOne(from, to, -15);
+		}
+		else if (i == 2) {
+			newBulletOne(from, to, 30);
+			newBulletOne(from, to, -30);
+		}
+		else if (i == 4) {
+			newBulletOne(from, to, 45);
+			newBulletOne(from, to, -45);
+		}
 	}
 	else if (level < 127) {
+		newBulletOne(from, null, 0);
+		newBulletOne(from, null, 6);
+		newBulletOne(from, null, -6);
+		if (i == 0 || i == 3) {
+			newBulletOne(from, to, 15);
+			newBulletOne(from, to, -15);
+		}
+		else if (i == 1 || i == 4) {
+			newBulletOne(from, to, 30);
+			newBulletOne(from, to, -30);
+		}
+		else if (i == 2 || i == 5) {
+			newBulletOne(from, to, 45);
+			newBulletOne(from, to, -45);
+		}
 	}
-	*/
 	else {
-		newBulletA(from.data.x-5, from.data.y, -0.02, -0.72);
-		newBulletA(from.data.x+5, from.data.y, +0.02, -0.72);
-		newBulletA(from.data.x-5, from.data.y, -0.05, -0.70);
-		newBulletA(from.data.x+5, from.data.y, +0.05, -0.70);
-		newBulletD(from, 2);
+		newBulletOne(from, null, 2);
+		newBulletOne(from, null, -2);
+		newBulletOne(from, null, 6);
+		newBulletOne(from, null, -6);
+		if (i == 0 || i == 3) {
+			newBulletOne(from, to, 15);
+			newBulletOne(from, to, -15);
+		}
+		else if (i == 1 || i == 4) {
+			newBulletOne(from, to, 30);
+			newBulletOne(from, to, -30);
+		}
+		else if (i == 2 || i == 5) {
+			newBulletOne(from, to, 45);
+			newBulletOne(from, to, -45);
+		}
 	}
 }
 function newBomb(player) {
@@ -3011,16 +3075,8 @@ var hook = {
 		else if (e == STORY.events.DROP_COLLECTED) {
 			v.die();
 			STATICS.point += v.data.point_pt || 10;
-			if (v.data.power_pt) {
-				STATICS.power = limit_between(STATICS.power+v.data.power_pt, 0, 128);
-				if (STATICS.power >= 8) {
-					var p = v.data.to;
-					if (p && !p.onmyous) p.onmyous = {
-						left: newOnmyou(p, 'OnmyouR', { x:-25, y:0 }, { x:-8, y:-28 }),
-						right: newOnmyou(p, 'Onmyou', { x:+25, y:0 }, { x:+8, y:-28 }),
-					};
-				}
-			}
+			if (v.data.power_pt && (STATICS.power += v.data.power_pt) > 128)
+				STATICS.power = 128;
 			RES.se_item00.replay();
 		}
 		else if (e == STORY.events.BULLET_HIT) {
