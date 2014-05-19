@@ -3165,7 +3165,7 @@ ieach([
 	{ text:'d3', pos:'.fl', face:'.f0c.f2' },
 	{ text:'d4', pos:'.fl', face:'.f0c.f2' },
 	{ text:'d4', pos:'.fl', face:'.f0b.f2', next:'bossB', },
-	{ text:'d5', pos:'.fr', face:'.f3a.f2', duration:10, name:'diagB', },
+	{ text:'d5', pos:'.fr', face:'.f3a.f2', name:'diagB', },
 	{ text:'d4', pos:'.fl', face:'.f0c.f2' },
 	{ text:'d4', pos:'.fr', face:'.f3a' },
 	{ text:'d2', pos:'.fl', face:'.f0a' },
