@@ -3524,6 +3524,13 @@ ieach([
 					SPRITE.eachObj(function(i, obj) {
 						STORY.on(STORY.events.DANNMAKU_HIT, obj);
 					}, 'Dannmaku');
+					if (para.scname) {
+						var x = d.boss.data.x,
+							y = d.boss.data.y;
+						ieach([0, 0, 0, 0, 2], function(i, type) {
+							newDrop(type, x, y, { vx:random(-0.2, 0.2), vy:random(-0.25, -0.3) });
+						})
+					}
 				}
 			}
 		},
