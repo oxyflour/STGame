@@ -713,6 +713,11 @@
 		</h3>
 		<h3 class="ui" ui-show="RES.process < 1">loading <span class="ui" ui-bind="(RES.process*100).toFixed(1)+'%'">...</span></h3>
 		<button class="ui" ui-show="RES.process == 1" onclick="checkStart()" style="font-size:100%;padding:0.5em;margin:1em">同意点此</button>
+		<form class="absolute ui" action="javascript:evalRadioVal('title_loading')"
+			ui-focus="GAME.state == GAME.states.LOADING"
+			onkeyup="checkFormKey(event, this)">
+			<input type="radio" name="title_loading" value="checkStart()" />
+		</form>
 	</div>
 </div>
 <script src="game.js"></script>
