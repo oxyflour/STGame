@@ -1940,6 +1940,8 @@ function newBomb(player) {
 		duration: 150,
 	});
 
+	newSCName(RES.st_bomb_sc, GAME.rect.l + 80, GAME.rect.b - 20, 4000);
+
 	if (bg.scelem = $i('.sc-bomb'))
 		$readdClass(bg.scelem, 'active', 3000);
 }
@@ -2607,22 +2609,6 @@ function newCountDown(duration) {
 	}, countdown.data);
 	return countdown;
 }
-function newSCName(scname) {
-	var scname = SPRITE.newObj('Basic', {
-		x: GAME.rect.r-50,
-		sy: GAME.rect.t+60,
-		text: {
-			text: scname,
-			font: '15px Arial',
-		},
-	});
-	scname.drawBasic = function(d) {
-		if (this.is_creating)
-			d.y = d.sy - ease_in(d.ph)*10;
-		return true;
-	};
-	return scname;
-}
 function newBossBackground(boss) {
 	var st = STORY.state.n;
 	var obj = SPRITE.newObj('Basic', {
@@ -2886,6 +2872,23 @@ function newEffect(from) {
 		kh: 1/950,
 		duration: 50,
 	});
+}
+function newSCName(scname, x, y, t) {
+	var scname = SPRITE.newObj('Basic', {
+		x: x,
+		sy: y,
+		duration: t,
+		text: {
+			text: scname,
+			font: '15px Arial',
+		},
+	});
+	scname.drawBasic = function(d) {
+		if (this.is_creating)
+			d.y = d.sy - ease_in(d.ph)*10;
+		return true;
+	};
+	return scname;
 }
 function newEffectPiece(from, color) {
 	var frame = {
@@ -3500,7 +3503,7 @@ ieach([
 			if (para.duration > 0 && !para.no_countdown)
 				d.countdown = newCountDown(para.duration);
 			if (para.scname)
-				d.scname = newSCName(RES[para.scname]);
+				d.scname = newSCName(RES[para.scname], GAME.rect.r-60, GAME.rect.t+50);
 			if (para.background)
 				d.background = para.background(d.boss);
 
