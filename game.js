@@ -3152,24 +3152,24 @@ tl.init = {
 	}
 };
 ieach([
-	{ init:newSec1, para:['s0A2', 5], duration:3000, },
-	{ init:newSec1, para:['s0A1', 8], duration:2000, },
-	{ init:newSec2, para:[0.4, 10], duration:4000, },
-	{ init:newSec3, para:[1000, 5], duration:5000, },
-	{ init:newSec3, para:[500, 10], duration:5000, },
-	{ init:newSec4, para:[], duration:6000 },
-	{ init:newSec1, para:['s0A2', 8, [[-40, 0], [0, 0]]], duration:2000 },
-	{ init:newSec1, para:['s0A1', 8, [[+40, 0], [0, 0]]], duration:4000, next:'bossA' },
-	{ init:newSec3, para:[1000, 20], duration:16000, name:'secH' },
-	{ init:newSec1, para:['s0A2', 8, [[-40, 0], [0, 0]]], duration:2000 },
-	{ init:newSec1, para:['s0A1', 8, [[+40, 0], [0, 0]]], duration:2000 },
-	{ init:newSec1, para:['s0A2', 8, [[-40, 0], [0, 0]]], duration:7000, next:'diagA' },
+	{ init:newSec1, args:['s0A2', 5], duration:3000, },
+	{ init:newSec1, args:['s0A1', 8], duration:2000, },
+	{ init:newSec2, args:[0.4, 10], duration:4000, },
+	{ init:newSec3, args:[1000, 5], duration:5000, },
+	{ init:newSec3, args:[500, 10], duration:5000, },
+	{ init:newSec4, args:[], duration:6000 },
+	{ init:newSec1, args:['s0A2', 8, [[-40, 0], [0, 0]]], duration:2000 },
+	{ init:newSec1, args:['s0A1', 8, [[+40, 0], [0, 0]]], duration:4000, next:'bossA' },
+	{ init:newSec3, args:[1000, 20], duration:16000, name:'secH' },
+	{ init:newSec1, args:['s0A2', 8, [[-40, 0], [0, 0]]], duration:2000 },
+	{ init:newSec1, args:['s0A1', 8, [[+40, 0], [0, 0]]], duration:2000 },
+	{ init:newSec1, args:['s0A2', 8, [[-40, 0], [0, 0]]], duration:7000, next:'diagA' },
 ], function(i, para, tl) {
 	var c = para.name || 'sec'+i, n = para.next || 'sec'+(i+1);
 	tl[c] = {
 		run: UTIL.newTimeRunner(para.duration, n),
 		init: function(d) {
-			para.init && para.init.apply(null, para.para);
+			para.init && para.init.apply(null, para.args);
 		},
 	};
 }, tl);
