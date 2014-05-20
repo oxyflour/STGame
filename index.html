@@ -37,6 +37,8 @@
 		transform="colormask:White,DeepPink,DodgerBlue,SpringGreen"></canvas>
 	<!-- -->
 	<canvas id="mainbg_patt" from="front 0 224 32 32" bg-css=".play"></canvas>
+	<canvas id="scbg1" from="front 80 224 16 16" bg-css=".scbg1"></canvas>
+	<canvas id="scbg2" from="front 96 224 16 16" bg-css=".scbg2"></canvas>
 	<!-- -->
 	<canvas id="tree_pattL" from="stg1bg 0 48 64 128"
 		transform="mirror:0,y" stack="y"></canvas>
@@ -436,6 +438,14 @@
 		</div>
 		<canvas class="game absolute" id="canv"></canvas>
 		<div class="game absolute no-overflow diag">
+			<div class="fl sc">
+				<div class="face f0a f2 sc-bomb"></div>
+				<span class="text scbg1"></span>
+			</div>
+			<div class="fr sc">
+				<div class="face f3b sc-boss"></div>
+				<span class="text scbg2"></span>
+			</div>
 			<div class="fl dg">
 				<div class="face f0a"></div>
 				<div class="face f0a f2"></div>
@@ -452,12 +462,6 @@
 			</div>
 			<div class="ft dg">
 				<div class="text"></div>
-			</div>
-			<div class="fl sc">
-				<div class="face f0a f2 sc-bomb"></div>
-			</div>
-			<div class="fr sc">
-				<div class="face f3b sc-yeque sc-jingjiexian"></div>
 			</div>
 		</div>
 		<div class="game mask absolute ui" ui-show="GAME.state == GAME.states.PAUSE">

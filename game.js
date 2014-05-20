@@ -285,14 +285,11 @@ function $prefixStyle(s, k, v) {
 		s[p+k] = v;
 	}, s)
 }
-function $readdClass(e, c, t) {
+function $readdClass(e, c) {
 	e.classList.remove(c);
 	// MAGIC!
 	e.offsetWidth = e.offsetWidth;
 	e.classList.add(c);
-	if (t > 0) setTimeout(function() {
-		e.classList.remove(c);
-	}, t);
 }
 
 function newCounter() {
@@ -1920,15 +1917,25 @@ function newBomb(player) {
 			newShield(bg);
 	});
 
-	SPRITE.anim.add(newTicker(100, function(d) {
-		if (d.n -- > 0) {
-			DC.setTransform(1, 0, 0, 1, random(-3, 3), random(-3, 3));
-		}
-		else {
+
+	if (bg.scelem = $i('.sc-bomb')) {
+		$readdClass(bg.scelem.parentNode, 'active');
+		$readdClass(bg.scelem, 'active');
+		$i('.text', bg.scelem.parentNode).innerHTML = RES.st_bomb_sc;
+	}
+	SPRITE.anim.add(newTicker(100, function() {
+		if (bg.finished || bg.is_dying) {
+			if (bg.scelem) {
+				bg.scelem.classList.remove('active');
+				bg.scelem.parentNode.classList.remove('active');
+			}
 			DC.setTransform(1, 0, 0, 1, 0, 0);
 			this.finished = true;
 		}
-	}, { n:40 }));
+		else {
+			DC.setTransform(1, 0, 0, 1, random(-3, 3), random(-3, 3));
+		}
+	}));
 
 	SPRITE.newObj('Basic', {
 		x: player.data.x,
@@ -1939,11 +1946,6 @@ function newBomb(player) {
 		kh: 1/850,
 		duration: 150,
 	});
-
-	newSCName(RES.st_bomb_sc, GAME.rect.l + 80, GAME.rect.b - 20, 4000);
-
-	if (bg.scelem = $i('.sc-bomb'))
-		$readdClass(bg.scelem, 'active', 3000);
 }
 function newShield(bomb) {
 	var p = bomb.data.parent;
@@ -2873,23 +2875,6 @@ function newEffect(from) {
 		duration: 50,
 	});
 }
-function newSCName(scname, x, y, t) {
-	var scname = SPRITE.newObj('Basic', {
-		x: x,
-		sy: y,
-		duration: t,
-		text: {
-			text: scname,
-			font: '15px Arial',
-		},
-	});
-	scname.drawBasic = function(d) {
-		if (this.is_creating)
-			d.y = d.sy - ease_in(d.ph)*10;
-		return true;
-	};
-	return scname;
-}
 function newEffectPiece(from, color) {
 	var frame = {
 		'r': RES.frames.EffPieceR,
@@ -3216,12 +3201,12 @@ ieach([
 			var bg = $i('.diag'),
 				pos = $i(para.pos, bg),
 				face = $i(para.face, pos),
-				text = $i('.text', bg);
+				text = $i('.ft.dg .text', bg);
 			var filter = function(i, e, d) {
 				e === d ? e.classList.add('active') : e.classList.remove('active');
 			};
 			bg.classList.add('active');
-			ieach($('.fr, .fl', bg), filter, pos);
+			ieach($('.fr.dg, .fl.dg', bg), filter, pos);
 			ieach($('.face', pos), filter, face);
 			text.innerHTML = RES[para.text] || '';
 		},
@@ -3502,19 +3487,24 @@ ieach([
 
 			if (para.duration > 0 && !para.no_countdown)
 				d.countdown = newCountDown(para.duration);
-			if (para.scname)
-				d.scname = newSCName(RES[para.scname], GAME.rect.r-60, GAME.rect.t+50);
 			if (para.background)
 				d.background = para.background(d.boss);
 
 			if (para.scname) {
-				if (para.scelem = $i('.sc-' + para.scname))
-					$readdClass(para.scelem, 'active', 3000);
+				if (d.scelem = $i('.sc-boss')) {
+					$readdClass(d.scelem.parentNode, 'active');
+					$readdClass(d.scelem, 'active');
+					$i('.text', d.scelem.parentNode).innerHTML = RES[para.scname] || para.scname;
+				}
 				RES.se_cat00.play();
 			}
 		},
 		quit: function(d) {
-			killObj(d.countdown, d.scname, d.background);
+			killObj(d.countdown, d.background);
+			if (d.scelem) {
+				d.scelem.classList.remove('active');
+				d.scelem.parentNode.classList.remove('active');
+			}
 		},
 		run: function(dt, d) {
 			d.age += dt;
