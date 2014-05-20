@@ -504,42 +504,6 @@ input[type="radio"] {
 .sc.fr.active .text {
 	margin-top: -80px;
 }
-/*
-.sc.fl .face.active {
-	-webkit-animation: sc_fl_anim 3s ease;
-	    -ms-animation: sc_fl_anim 3s ease;
-	   -moz-animation: sc_fl_anim 3s ease;
-}
-@-webkit-keyframes sc_fl_anim {
-	40%  { -webkit-transform:translateX(160px); opacity: 1; }
-	to   { -webkit-transform:translateX(160px) scale(2); opacity: 0; }
-}
-@-ms-keyframes sc_fl_anim {
-	40%  { -ms-transform:translateX(160px); opacity: 1; }
-	to   { -ms-transform:translateX(160px) scale(2); opacity: 0; }
-}
-@-moz-keyframes sc_fl_anim {
-	40%  { -moz-transform:translateX(160px); opacity: 1; }
-	to   { -moz-transform:translateX(160px) scale(2); opacity: 0; }
-}
-.sc.fr .face.active {
-	-webkit-animation: sc_fr_anim 3s ease;
-	    -ms-animation: sc_fr_anim 3s ease;
-	   -moz-animation: sc_fr_anim 3s ease;
-}
-@-webkit-keyframes sc_fr_anim {
-	40%  { -webkit-transform:translateX(-160px); opacity: 1; }
-	to   { -webkit-transform:translateX(-160px) scale(2); opacity: 0; }
-}
-@-ms-keyframes sc_fr_anim {
-	40%  { -ms-transform:translateX(-160px); opacity: 1; }
-	to   { -ms-transform:translateX(-160px) scale(2); opacity: 0; }
-}
-@-moz-keyframes sc_fr_anim {
-	40%  { -moz-transform:translateX(-160px); opacity: 1; }
-	to   { -moz-transform:translateX(-160px) scale(2); opacity: 0; }
-}
-*/
 
 /*
  * loading screen
@@ -732,8 +696,10 @@ input[type="radio"] {
 	    -ms-transform: translateY(-500px);
 	   -moz-transform: translateY(-500px);
 }
+.game-select .title-eng,
 .game-select .title-text .fa,
 .game-select .title-text .fb,
+.game-select .title-text .fc,
 .game-select .title-text .fd,
 .game-select .title-text .fe {
 	-webkit-transition-delay: 0.0s;
