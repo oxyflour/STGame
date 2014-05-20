@@ -3379,7 +3379,7 @@ ieach([
 			{ t: 800, fn:newBossDanns5, args:['c',  1], },
 		],
 		duration: 25000,
-		scname: 'yeque',
+		scname: 'st_stg1_sc1',
 		background: newBossBackground,
 	},
 	{
@@ -3475,7 +3475,7 @@ ieach([
 			{ t:1000, fn:newBossDanns8, args:['r'], },
 		],
 		duration: 25000,
-		scname: 'jingjiexian',
+		scname: 'st_stg1_sc2',
 		background: newBossBackground,
 		next: 'end',
 	},
@@ -3500,7 +3500,7 @@ ieach([
 			if (para.duration > 0 && !para.no_countdown)
 				d.countdown = newCountDown(para.duration);
 			if (para.scname)
-				d.scname = newSCName(para.scname);
+				d.scname = newSCName(RES[para.scname]);
 			if (para.background)
 				d.background = para.background(d.boss);
 
