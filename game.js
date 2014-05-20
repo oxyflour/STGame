@@ -2626,7 +2626,7 @@ function newBossBackground(boss) {
 	return obj;
 }
 
-function newBossDanns1(from, color, count, angular, dv, sound) {
+function newBossDanns1NoSound(from, color, count, angular, dv) {
 	from.data.is_firing = true;
 	var to = UTIL.getNearestAlive(from, 'Player'),
 		frame = RES.frames.TamaA[('k rm b c g  y  w').indexOf(color)];
@@ -2638,8 +2638,10 @@ function newBossDanns1(from, color, count, angular, dv, sound) {
 			})
 		})
 	})
-	if (sound !== null)
-		(sound || RES.se_power1).play();
+}
+function newBossDanns1() {
+	newBossDanns1NoSound.apply(null, arguments);
+	RES.se_power1.play()
 }
 function newBossDanns2(from) {
 	from.data.is_firing = true;
@@ -3300,7 +3302,7 @@ ieach([
 			{ t:1500, fn:newBossDanns3, args:['BBBBBBB'], },
 			{ t:1500, fx:0.50, fy:0.10, },
 			{ t: 100, fn:newBossDanns6, },
-			{ t:1500, fn:newBossDanns1, args:['b', 3, 30, 0.02, null], },
+			{ t:1500, fn:newBossDanns1NoSound, args:['b', 3, 30, 0.02], },
 			{ t: 500, fx:0.60, fy:0.30, },
 			{ t: 200, fn:newBossDanns5, args:['g', -1], },
 			{ t: 200, fn:newBossDanns5, args:['g', -1], },
@@ -3308,7 +3310,7 @@ ieach([
 			{ t:2000, },
 			{ t: 500, fx:0.50, fy:0.30, },
 			{ t: 100, fn:newBossDanns6, },
-			{ t: 500, fn:newBossDanns1, args:['b', 3, 30, 0.02, null], },
+			{ t: 500, fn:newBossDanns1NoSound, args:['b', 3, 30, 0.02], },
 			{ t: 500, fx:0.60, fy:0.20, },
 			{ t: 200, fn:newBossDanns5, args:['g', 1], },
 			{ t: 200, fn:newBossDanns5, args:['g', 1], },
