@@ -705,19 +705,21 @@
 	</div>
 	<div class="screen loading absolute ui"
 		ui-show="GAME.state == GAME.states.LOADING">
-		<br />
-		<br />
-		<br />
-		<br />
-		<br />
-		<h4 style="margin:20px;">
-			这个网页游戏是东方红魔乡的部分游戏内容的复刻。<br />
-			由于本人对弹幕游戏的理解问题和技术力的限制，不可避免地存在各种与原作不符的操作和设定，可能给您带来不好的游戏体验请注意。<br />
-			本作品与上海爱丽丝幻乐团没有任何关系，原作品的版权归ZUN所有。<br />
-			请勿将本作品用于任何商业用途。
-		</h4>
-		<h3 class="ui" ui-show="RES.process < 1">loading <span class="ui" ui-bind="(RES.process*100).toFixed(1)+'%'">...</span></h3>
-		<button class="ui" ui-show="RES.process == 1" onclick="checkStart()" style="font-size:100%;padding:0.5em;margin:1em">同意点此</button>
+		<div style="margin:20px">
+			<br />
+			<br />
+			<br />
+			<br />
+			<h4>
+				这个网页游戏是东方红魔乡的部分游戏内容的复刻。<br />
+				<br />
+				由于本人对弹幕游戏的理解问题和技术力的限制，不可避免地存在各种与原作不符的操作和设定，可能给您带来不好的游戏体验请注意。<br />
+				本作品与上海爱丽丝幻乐团没有任何关系，原作品的版权归ZUN所有。<br />
+				请勿将本作品用于任何商业用途。
+			</h4>
+			<button class="ui" ui-show="RES.process == 1" onclick="checkStart()" style="font-size:100%;padding:0.5em">同意点此</button>
+			<h3 class="ui" ui-show="RES.process < 1">loading <span class="ui" ui-bind="(RES.process*100).toFixed(1)+'%'">...</span></h3>
+		</div>
 		<form class="absolute ui" action="javascript:evalRadioVal('title_loading')"
 			ui-focus="GAME.state == GAME.states.LOADING"
 			onkeyup="checkFormKey(event, this)">
