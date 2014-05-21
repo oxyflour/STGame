@@ -2580,8 +2580,15 @@ function newLifeBar(boss) {
 			x = d.x + 24 + 16,
 			y = d.y + 2,
 			len = GAME.rect.r - 50 - x;
-		len *= (this.is_creating ? ease_out(d.ph) : 1) *
-			(p.data.life - p.data.damage) / p.data.life;
+		if (d.parent.is_dying)
+			len = 0;
+		else {
+			var f = (p.data.life - p.data.damage) / p.data.life
+			if (this.is_creating)
+				len = len * f * ease_out(d.ph);
+			else
+				len = len * f;
+		}
 		DC.beginPath();
 		DC.moveTo(x, y);
 		DC.lineTo(x + len, y);
