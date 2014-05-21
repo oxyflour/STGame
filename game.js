@@ -2820,10 +2820,10 @@ function newBossDanns8(from, color) {
 				color: color,
 				frames: frame,
 			});
-			obj.anim(50, function(d) {
+			obj.anim(80, function(d) {
 				if (d.age < 1000) {
-					d.vx *= 0.85;
-					d.vy *= 0.85;
+					d.vx *= 0.8;
+					d.vy *= 0.8;
 				}
 				else {
 					d.vr += d.dv;
@@ -2849,18 +2849,18 @@ function newBossDanns9(from, direction) {
 			color: 'b',
 			frames: RES.frames.TamaA[6],
 		});
-		obj.anim(50, function(d) {
+		obj.anim(90, function(d) {
 			if (d.age < 2000 + j*30) {
-				d.vx *= 0.95;
-				d.vy *= 0.95;
+				d.vx *= 0.90;
+				d.vy *= 0.90;
 			}
-			else if (d.age > 2000 && d.age < 4000) {
+			else if (d.age < 4000) {
 				var e = to && to.data || { x:UTIL.getGamePosX(0.5), y:UTIL.getGamePosY(0.9) };
 				d.vx += (e.x - d.x) * 2e-4;
 				d.vy += (e.y - d.y) * 2e-4;
 			}
 			else
-				return;
+				return true;
 		}, obj.data);
 	}, 30, null, n);
 	STORY.timeout(function() {
