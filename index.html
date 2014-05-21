@@ -717,7 +717,7 @@
 				本作品与上海爱丽丝幻乐团没有任何关系，原作品的版权归ZUN所有。<br />
 				请勿将本作品用于任何商业用途。
 			</h4>
-			<button class="ui" ui-show="RES.process == 1" onclick="checkStart()" style="font-size:100%;padding:0.5em">同意点此</button>
+			<button class="ui hidden" ui-show="RES.process == 1" onclick="checkStart()" style="font-size:100%;padding:0.5em">同意点此</button>
 			<h3 class="ui" ui-show="RES.process < 1">loading <span class="ui" ui-bind="(RES.process*100).toFixed(1)+'%'">...</span></h3>
 		</div>
 		<form class="absolute ui" action="javascript:evalRadioVal('title_loading')"
