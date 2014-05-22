@@ -609,24 +609,29 @@ var RES = (function(res) {
 				d[v.id] = v;
 			}
 			else if (v.tagName == 'AUDIO') {
-				v.volume = 0.2;
-				if (v.src.split('.').pop() == 'mp3') {
-					var queue = [v];
-					array(4, function() {
-						queue.push(v.cloneNode());
+				v.replayTime = parseFloat($attr(v, 'replay-time') || '0');
+				if ((v.replayQueueLength = parseFloat($attr(v, 'replay-queue'))) > 0) {
+					var queue = [v],
+						index = 0;;
+					array(v.replayQueueLength, function() {
+						var c = v.cloneNode();
+						queue.push(c);
 					});
-					v.beginTime = parseFloat($attr(v, 'mp3-pad') || '0');
+					v.queue = queue;
 					v.replay = function() {
-						queue.index = ((queue.index || 0) + 1) % queue.length;
-						var a = queue[queue.index];
-						a.currentTime = v.beginTime;
+						index = (index + 1) % queue.length;
+						var a = queue[index];
+						a.volume = v.volume;
+						a.currentTime = v.replayTime;
 						a.play();
 					};
 				}
-				else v.replay = function() {
-					this.currentTime = 0;
-					this.play();
-				};
+				else {
+					v.replay = function() {
+						v.currentTime = v.replayTime;
+						v.play();
+					}
+				}
 				d[v.id] = v;
 			}
 			else if (v.tagName == 'IMG') {
@@ -644,11 +649,8 @@ var RES = (function(res) {
 		var ls = ieach(res.children, function(i, v, d) {
 			if (v.tagName == 'IMG')
 				d.push(v.complete ? 1 : 0);
-			else if (v.tagName == 'AUDIO') {
-				if (!v.canPlayType('audio/wav') && !v.trying_mp3)
-					v.trying_mp3 = v.src = v.src.replace(/\.wav$/i, '.mp3');
+			else if (v.tagName == 'AUDIO')
 				d.push(v.complete ? 1 : 0);
-			}
 		}, []);
 		_t.process = sum(ls) / ls.length;
 		if (_t.process == 1) {
@@ -3157,6 +3159,7 @@ tl.init = {
 		}, 1000, d);
 	},
 	quit: function(d) {
+		GAME.bgm_running = RES.bgm_stg1a;
 		killObj(d.title, d.text);
 	}
 };
@@ -3334,6 +3337,7 @@ ieach([
 		],
 		duration: 35000,
 		name: 'bossC',
+		bgm: 'bgm_stg1b',
 	},
 	{
 		pathnodes: [
@@ -3507,6 +3511,8 @@ ieach([
 				}
 				RES.se_cat00.play();
 			}
+			if (para.bgm)
+				GAME.bgm_running = RES[para.bgm];
 		},
 		quit: function(d) {
 			killObj(d.countdown, d.background);

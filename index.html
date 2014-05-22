@@ -388,26 +388,30 @@
 	<script type="text/html" id="st_diag15">良药苦口<br />这句话你有没有听过？</script>
 	<script type="text/html" id="st_diag16">不过就算是良药<br >如果不喝了试试的话谁又知道效果呢</script>
 	<!-- sfx -->
-	<audio preload oncanplaythrough="this.complete=true" id="se_graze" src="res/se_graze.wav"></audio>
-	<audio preload oncanplaythrough="this.complete=true" id="se_pldead00" src="res/se_pldead00.wav"></audio>
-	<audio preload oncanplaythrough="this.complete=true" id="se_cancel00" src="res/se_cancel00.wav"></audio>
-	<audio preload oncanplaythrough="this.complete=true" id="se_invalid" src="res/se_invalid.wav"></audio>
-	<audio preload oncanplaythrough="this.complete=true" id="se_ok00" src="res/se_ok00.wav"></audio>
-	<audio preload oncanplaythrough="this.complete=true" id="se_select00" src="res/se_select00.wav"></audio>
-	<audio preload oncanplaythrough="this.complete=true" id="se_pause" src="res/se_pause.wav"></audio>
-	<audio preload oncanplaythrough="this.complete=true" id="se_plst00" src="res/se_plst00.wav" mp3-pad="0.08"></audio>
-	<audio preload oncanplaythrough="this.complete=true" id="se_item00" src="res/se_item00.wav"></audio>
-	<audio preload oncanplaythrough="this.complete=true" id="se_cat00" src="res/se_cat00.wav"></audio>
-	<audio preload oncanplaythrough="this.complete=true" id="se_gun00" src="res/se_gun00.wav"></audio>
-	<audio preload oncanplaythrough="this.complete=true" id="se_damage00" src="res/se_damage00.wav"></audio>
-	<audio preload oncanplaythrough="this.complete=true" id="se_enep00" src="res/se_enep00.wav"></audio>
-	<audio preload oncanplaythrough="this.complete=true" id="se_enep01" src="res/se_enep01.wav"></audio>
-	<audio preload oncanplaythrough="this.complete=true" id="se_power1" src="res/se_power1.wav"></audio>
-	<audio preload oncanplaythrough="this.complete=true" id="se_tan00" src="res/se_tan00.wav"></audio>
-	<audio preload oncanplaythrough="this.complete=true" id="se_tan01" src="res/se_tan01.wav"></audio>
-	<audio preload oncanplaythrough="this.complete=true" id="se_tan02" src="res/se_tan02.wav"></audio>
-	<audio preload oncanplaythrough="this.complete=true" id="se_lazer00" src="res/se_lazer00.wav"></audio>
-	<audio preload oncanplaythrough="this.complete=true" id="se_timeout" src="res/se_timeout.wav"></audio>
+	<audio preload oncanplaythrough="this.complete=true" class="se" id="se_graze" src="res/se_graze.mp3"></audio>
+	<audio preload oncanplaythrough="this.complete=true" class="se" id="se_pldead00" src="res/se_pldead00.mp3"></audio>
+	<audio preload oncanplaythrough="this.complete=true" class="se" id="se_cancel00" src="res/se_cancel00.mp3"></audio>
+	<audio preload oncanplaythrough="this.complete=true" class="se" id="se_invalid" src="res/se_invalid.mp3"></audio>
+	<audio preload oncanplaythrough="this.complete=true" class="se" id="se_ok00" src="res/se_ok00.mp3"></audio>
+	<audio preload oncanplaythrough="this.complete=true" class="se" id="se_select00" src="res/se_select00.mp3"></audio>
+	<audio preload oncanplaythrough="this.complete=true" class="se" id="se_pause" src="res/se_pause.mp3"></audio>
+	<audio preload oncanplaythrough="this.complete=true" class="se" id="se_plst00" src="res/se_plst00.mp3" replay-queue="4" replay-time="0.08"></audio>
+	<audio preload oncanplaythrough="this.complete=true" class="se" id="se_item00" src="res/se_item00.mp3"></audio>
+	<audio preload oncanplaythrough="this.complete=true" class="se" id="se_cat00" src="res/se_cat00.mp3"></audio>
+	<audio preload oncanplaythrough="this.complete=true" class="se" id="se_gun00" src="res/se_gun00.mp3"></audio>
+	<audio preload oncanplaythrough="this.complete=true" class="se" id="se_damage00" src="res/se_damage00.mp3" replay-queue="4"></audio>
+	<audio preload oncanplaythrough="this.complete=true" class="se" id="se_enep00" src="res/se_enep00.mp3" replay-queue="4"></audio>
+	<audio preload oncanplaythrough="this.complete=true" class="se" id="se_enep01" src="res/se_enep01.mp3"></audio>
+	<audio preload oncanplaythrough="this.complete=true" class="se" id="se_power1" src="res/se_power1.mp3"></audio>
+	<audio preload oncanplaythrough="this.complete=true" class="se" id="se_tan00" src="res/se_tan00.mp3"></audio>
+	<audio preload oncanplaythrough="this.complete=true" class="se" id="se_tan01" src="res/se_tan01.mp3"></audio>
+	<audio preload oncanplaythrough="this.complete=true" class="se" id="se_tan02" src="res/se_tan02.mp3"></audio>
+	<audio preload oncanplaythrough="this.complete=true" class="se" id="se_lazer00" src="res/se_lazer00.mp3"></audio>
+	<audio preload oncanplaythrough="this.complete=true" class="se" id="se_timeout" src="res/se_timeout.mp3"></audio>
+	<!--- bgms -->
+	<audio preload oncanplay="this.complete=true" loop class="bgm" id="bgm_title" src="res/bgm_title.mp3"></audio>
+	<audio preload oncanplay="this.complete=true" loop class="bgm" id="bgm_stg1a" src="res/bgm_stg1a.mp3"></audio>
+	<audio preload oncanplay="this.complete=true" loop class="bgm" id="bgm_stg1b" src="res/bgm_stg1b.mp3"></audio>
 </div>
 <div class="main">
 	<div class="screen play absolute ui"
@@ -780,15 +784,18 @@ function checkFormKey(e, f) {
 	}
 }
 
-setInterval(function() {
-	if (GAME.state != GAME.states.RUNNING) {
-		var f = $i('input:focus');
-		if (!f || !f.scrollHeight)
-			checkActiveRadios();
-	}
-	// remove selection highlight for stubborn Firefox
-	window.getSelection().removeAllRanges();
-}, 300);
+function getBGM() {
+	if (GAME.state >= GAME.states.TITLE && GAME.state <= GAME.states.SELECT_BOMB)
+		return RES.bgm_title;
+	else if (GAME.state == GAME.states.RUNNING)
+		return GAME.bgm_running;
+}
+
+function setAudioVolume(s, v) {
+	ieach($(s), function(i, e) {
+		e.volume = v;
+	});
+}
 
 function checkRadio(elem) {
 	elem.checked = true;
@@ -866,8 +873,30 @@ function checkStart() {
 		changeGameState('TITLE');
 }
 
+setAudioVolume('audio.se', 0.2);
+setAudioVolume('audio.bgm', 0.5);
+
 GAME.state = GAME.states.LOADING;
 RES.check();
+
+setInterval(function() {
+	if (GAME.state != GAME.states.RUNNING) {
+		var f = $i('input:focus');
+		if (!f || !f.scrollHeight)
+			checkActiveRadios();
+	}
+	var bgm = getBGM();
+	if (GAME.bgm !== bgm) {
+		if (GAME.bgm)
+			GAME.bgm.pause();
+		if (GAME.bgm = bgm) {
+			GAME.bgm.pause();
+			GAME.bgm.play();
+		}
+	}
+	// remove selection highlight for stubborn Firefox
+	window.getSelection().removeAllRanges();
+}, 300);
 
 </script>
 </body>
