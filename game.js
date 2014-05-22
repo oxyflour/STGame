@@ -3551,13 +3551,41 @@ ieach([
 }, tl);
 tl.end = {
 	init: function(d) {
+		var boss = UTIL.getOneObj('Enemy', 'boss'),
+			x = boss ? boss.data.x : UTIL.getGamePosX(0.5),
+			y = boss ? boss.data.y : UTIL.getGamePosY(0.5);
 		killCls('Enemy', 'Dannmaku');
 		STORY.timeout(function() {
-			RES.se_tan00.replay();
-		}, random(100, 200), null, 8)
+			var obj = SPRITE.newObj('Circle', {
+				r: 20,
+				x: x,
+				y: y,
+				vx: random(-0.3, 0.3),
+				vy: random(-0.3, 0.3),
+				frames: RES.frames.EffEnemy2[0],
+				scale: 2,
+				duration: 500,
+			});
+			obj.anim(100, function(d) {
+				d.vx *= 0.9;
+				d.vy *= 0.9;
+			}, obj.data);
+		}, 30, null, 50);
 		STORY.timeout(function() {
+			RES.se_tan00.replay();
+		}, 150, null, 12)
+		STORY.timeout(function() {
+			SPRITE.newObj('Circle', {
+				x: x,
+				y: y,
+				frames: RES.frames.EffPlayer,
+				scale: 3,
+				dh: 1,
+				kh: 1/950,
+				duration: 50,
+			});
 			RES.se_enep01.replay();
-		}, random(2000));
+		}, 1500);
 		STORY.timeout(function() {
 			d.next = 'diagE';
 		}, 4000);
