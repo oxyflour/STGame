@@ -3585,7 +3585,7 @@ ieach([
 		duration: 25000,
 		scname: 'st_stg1_sc2',
 		background: newBossBackground,
-		next: 'bossEnd',
+		next: 'bossKill',
 	},
 	{
 		pathnodes: [
@@ -3670,7 +3670,7 @@ ieach([
 		},
 	}
 }, tl);
-tl.bossEnd = {
+tl.bossKill = {
 	init: function(d) {
 		var boss = UTIL.getOneObj('Enemy', 'boss') || {
 			data: { x:UTIL.getGamePosX(0.5), y:UTIL.getGamePosY(0.5), vx:0, vy:0 },
