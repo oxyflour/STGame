@@ -3169,7 +3169,6 @@ var hook = {
 				var pt = v.data.power_pt;
 				ieach([8, 16, 32, 48, 60, 80, 100, 128], function(i, c) {
 					if (STATICS.power < c && STATICS.power+pt >= c) {
-						console.log(STATICS.power);
 						RES.se_powerup.play();
 						SPRITE.newObj('Basic', {
 							x: v.data.x,
