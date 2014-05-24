@@ -3202,6 +3202,7 @@ var tl = {};
 tl.init = {
 	run: UTIL.newTimeRunner(3000, 'sec0'),
 	init: function(d) {
+		GAME.bgm_running = undefined;
 		STORY.timeout(function(d) {
 			d.title = SPRITE.newObj('Basic', {
 				text: {
@@ -3229,6 +3230,7 @@ tl.init = {
 	},
 	quit: function(d) {
 		GAME.bgm_running = RES.bgm_stg1a;
+		GAME.bgm_running.currentTime = 0;
 		killObj(d.title, d.text);
 	}
 };
