@@ -1596,7 +1596,6 @@ return proto = {
 		r: 20,
 		y: GAME.rect.t,
 		life: 2,
-		respawn: 0,
 		damage: 0,
 	},
 	init: function(d) {
@@ -3102,7 +3101,9 @@ var hook = {
 			}
 		}
 		else if (e == STORY.events.ENEMY_KILL) {
-			if (v.data.respawn-- <= 0) {}
+			if (v.data.respawn-- > 0)
+				v.data.damage = 0;
+			else {
 				v.die();
 				var type;
 				if (v.data.power_pt)
