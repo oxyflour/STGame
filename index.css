@@ -907,6 +907,7 @@ input[type="radio"] {
 	float: left;
 	width: 256px;
 }
+.game-select-char .select-char input:checked + .menu,
 .select-char input:focus + .menu {
 	opacity: 1;
 	-webkit-transform: translateX(320px);
