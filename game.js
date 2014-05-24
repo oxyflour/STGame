@@ -26,13 +26,13 @@ function array(n, fn) {
 function ieach(ls, fn, d) {
 	var n = ls.length, r = undefined;
 	for (var i = 0; i < n && r === undefined; i ++) {
-		r = fn(i, ls[i], d);
+		r = fn.call(ls, i, ls[i], d);
 	}
 	return r === undefined ? d : r;
 }
 function keach(ls, fn, d) {
 	for (var i in ls) {
-		var r = fn(i, ls[i], d);
+		var r = fn.call(ls, i, ls[i], d);
 		if (r !== undefined)
 			return r;
 	}
@@ -1869,7 +1869,7 @@ function newBullet(from, level) {
 			newBulletOne(from, to, -45);
 		}
 	}
-	else if (level < 127) {
+	else if (level < 128) {
 		newBulletOne(from, null, 0);
 		newBulletOne(from, null, 6);
 		newBulletOne(from, null, -6);
@@ -3163,8 +3163,23 @@ var hook = {
 		else if (e == STORY.events.DROP_COLLECTED) {
 			v.die();
 			STATICS.point += v.data.point_pt || 10;
-			if (v.data.power_pt && (STATICS.power += v.data.power_pt) > 128)
-				STATICS.power = 128;
+			if (v.data.power_pt) {
+				var pt = v.data.power_pt;
+				ieach([8, 16, 32, 48, 60, 80, 100, 128], function(i, c) {
+					if (STATICS.power < c && STATICS.power+pt >= c) {
+						console.log(STATICS.power);
+						RES.se_powerup.play();
+						SPRITE.newObj('Basic', {
+							x: v.data.x,
+							y: v.data.y,
+							frames: RES.frames.PowerUp,
+							duration: 1000,
+						})
+						return true;
+					}
+				});
+				STATICS.power = limit_between(STATICS.power+pt, 0, 128);
+			}
 			if (v.data.point_pt) SPRITE.newObj('Basic', {
 				x: v.data.x,
 				y: v.data.y,

@@ -298,6 +298,10 @@
 				});
 			});
 
+			_t.PowerUp = [
+				{ res:'powerup', sx:0, sy:0, sw:50, sh:8, w:50, h:8 },
+			];
+
 			return _t;
 		})
 	</script>
@@ -305,6 +309,8 @@
 	<img id="ascii" src="res/ascii.png" />
 	<canvas id="ascii_yellow" from="ascii"
 		transform="colormap:l->rgb(255,255,64)"></canvas>
+	<canvas id="powerup" from="ascii 80 0 50 8"
+		transform="colormap:l->rgb(96,136,188)"></canvas>
 	<script id="fontmap">
 		(function(RES) {
 			var _t = {
@@ -449,6 +455,7 @@
 	<audio preload oncanplaythrough="this.complete=true" class="se" id="se_tan02" src="res/se_tan02.mp3" replay-queue="4"></audio>
 	<audio preload oncanplaythrough="this.complete=true" class="se" id="se_lazer00" src="res/se_lazer00.mp3"></audio>
 	<audio preload oncanplaythrough="this.complete=true" class="se" id="se_timeout" src="res/se_timeout.mp3"></audio>
+	<audio preload oncanplaythrough="this.complete=true" class="se" id="se_powerup" src="res/se_powerup.mp3"></audio>
 	<!--- bgms -->
 	<audio preload oncanplay="this.complete=true" loop class="bgm" id="bgm_title" src="res/bgm_title.mp3"></audio>
 	<audio preload oncanplay="this.complete=true" loop class="bgm" id="bgm_stg1a" src="res/bgm_stg1a.mp3"></audio>
