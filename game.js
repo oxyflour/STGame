@@ -736,6 +736,7 @@ var STORY = (function() {
 		'PLAYER_BOMBEND',
 		'DROP_COLLECTED',
 		'BULLET_HIT',
+		'SHIELD_HIT',
 		'DANNMAKU_HIT',
 		'ENEMY_KILL'
 	]);
@@ -1583,6 +1584,8 @@ return proto = {
 			d.damage += e.damage_pt || 1;
 			if (that.clsName == SPRITE.proto.Bullet.clsName)
 				STORY.on(STORY.events.BULLET_HIT, that);
+			else if (that.clsName == SPRITE.proto.Shield.clsName)
+				STORY.on(STORY.events.SHIELD_HIT, that);
 			if (d.damage >= d.life)
 				STORY.on(STORY.events.ENEMY_KILL, this);
 			RES.se_damage00.replay();
@@ -3141,6 +3144,9 @@ var hook = {
 			v.data.vy *= 0.05;
 			UTIL.addFrameAnim(v, RES.frames.BulletD[v.data.to ? 1 : 0]);
 			newEffectPiece(v, 'r');
+		}
+		else if (e == STORY.events.SHIELD_HIT) {
+			//newEffect(v, RES.frames.EffPlayer, 2);
 		}
 		else if (e == STORY.events.DANNMAKU_HIT) {
 			v.die();
