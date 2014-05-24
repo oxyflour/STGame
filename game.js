@@ -2362,7 +2362,7 @@ function newSec3(tick, count, layers) {
 		}, enm.data);
 	}, tick, null, count);
 }
-function newSec4() {
+function newSec4(fn) {
 	STORY.timeout(function (d, n) {
 		var pth = RES.path[randin(['s0A1', 's0A2'])],
 			ps = UTIL.pathOffset(pth, random(-200, 200), random(0, 200));
@@ -2375,9 +2375,9 @@ function newSec4() {
 			pathnodes: ps,
 		});
 		STORY.timeout(function() {
-			obj.anim(1500, newDanns1, obj);
+			obj.anim(1500, fn || newDanns1, obj);
 		}, random(1500));
-	}, 300, null, 10);
+	}, 200, null, 20);
 }
 
 function newSecList() {
@@ -2532,11 +2532,12 @@ function newSecEx1(rad) {
 		rt: 0,
 		ri: 0,
 	});
+	var to = UTIL.getNearestAlive(obj, 'Player');
 	obj.anim(20, function(d) {
-		if (d.age > 500) {
+		if (d.age > 500 && !this.is_dying) {
 			d.vy = 0;
 			d.rt += rad || 0.2;
-			newDannmaku(this, null, 0, d.rt, d.ri++ % 2 ? 0.2 : 0.15, 0, {
+			newDannmaku(this, to, 0, Math.sin(d.rt), d.ri++ % 2 ? 0.2 : 0.15, 0, {
 				color: 'r',
 				frames: RES.frames.TamaSmallX[1],
 			})
@@ -3317,18 +3318,21 @@ ieach([
 	{ init:newSecEx1, args:[-0.2], duration:100, },
 	{ init:newSecEx1, args:[0.2], duration:100, },
 	{ init:newSecEx1, args:[-0.2], duration:100, },
-	{ init:newSec1, args:['s0A2', 8, [[-40, 0], [0, 0]], 500, 0.3], duration:1000 },
-	{ init:newSec1, args:['s0A1', 8, [[+40, 0], [0, 0]], 500, 0.3], duration:1000 },
-	{ init:newSec1, args:['s0A2', 8, [[-40, 0], [0, 0]], 500, 0.3], duration:1000 },
-	{ init:newSec1, args:['s0A1', 8, [[+40, 0], [0, 0]], 500, 0.3], duration:1000 },
+	{ init:newSec1, args:['s0A2', 8, [[-40, 0], [0, 0]], 500, 0.3], duration:1500, },
+	{ init:newSec1, args:['s0A1', 8, [[+40, 0], [0, 0]], 500, 0.3], duration:1500, },
+	{ init:newSec1, args:['s0A2', 8, [[-40, 0], [0, 0]], 500, 0.3], duration:1500, },
+	{ init:newSec1, args:['s0A1', 8, [[+40, 0], [0, 0]], 500, 0.3], duration:1500, },
 	{ init:newSecEx1, args:[0.2], duration:100, },
 	{ init:newSecEx1, args:[-0.2], duration:100, },
 	{ init:newSecEx1, args:[0.2], duration:100, },
 	{ init:newSecEx1, args:[-0.2], duration:100, },
-	{ init:newSec1, args:['s0A2', 8, [[-40, 0], [0, 0]], 500, 0.3], duration:1000 },
-	{ init:newSec1, args:['s0A1', 8, [[+40, 0], [0, 0]], 500, 0.3], duration:1000 },
-	{ init:newSec1, args:['s0A2', 8, [[-40, 0], [0, 0]], 500, 0.3], duration:1000 },
-	{ init:newSec1, args:['s0A1', 8, [[+40, 0], [0, 0]], 500, 0.3], duration:1000 },
+	{ init:newSec1, args:['s0A2', 8, [[-40, 0], [0, 0]], 500, 0.3], duration:1500, },
+	{ init:newSec1, args:['s0A1', 8, [[+40, 0], [0, 0]], 500, 0.3], duration:1500, },
+	{ init:newSec1, args:['s0A2', 8, [[-40, 0], [0, 0]], 500, 0.3], duration:1500, },
+	{ init:newSec1, args:['s0A1', 8, [[+40, 0], [0, 0]], 500, 0.3], duration:1500, },
+	{ init:newSec4, args:[newDanns2], duration:10000, },
+	{ init:newSecEx2, args:[], duration:1000, },
+	{ init:newSec4, args:[newDanns2], duration:10000, },
 	{ duration:5000, },
 	{ init:killCls, args:['Enemy', 'Dannmaku'], duration:1000, next:'diagD', },
 ], function(i, para, tl) {
