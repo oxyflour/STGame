@@ -3102,7 +3102,7 @@ var hook = {
 			}
 		}
 		else if (e == STORY.events.ENEMY_KILL) {
-			if (v.data.respawn-- <= 0) {
+			if (v.data.respawn-- <= 0) {}
 				v.die();
 				var type;
 				if (v.data.power_pt)
@@ -3224,7 +3224,7 @@ ieach([
 	{ text:'st_diag13', pos:'.fl.dg', face:'.f0a' },
 	{ text:'st_diag14', pos:'.fr.dg', face:'.f3b' },
 	{ text:'st_diag15', pos:'.fl.dg', face:'.f0b.f2', next:'bossC', ended:true, },
-	{ text:'st_diag16', pos:'.fl.dg', face:'.f0b.f2', name:'diagC', next:'bossX', },
+	{ text:'st_diag16', pos:'.fl.dg', face:'.f0b.f2', name:'diagC', next:'askContinue', ended:true, },
 	{ text:'st_diag17', pos:'.fr.dg', face:'.f3a.f2', name:'diagD', },
 	{ text:'st_diag18', pos:'.fl.dg', face:'.f0c.f2' },
 	{ text:'st_diag19', pos:'.fr.dg', face:'.f3a' },
@@ -3619,7 +3619,7 @@ tl.bossEnd = {
 			RES.se_enep01.replay();
 		}, 1500);
 	},
-	run: UTIL.newTimeRunner(4000, 'askContinue'),
+	run: UTIL.newTimeRunner(4000, 'diagC'),
 };
 tl.askContinue = {
 	init: function(d) {
@@ -3631,7 +3631,7 @@ tl.askContinue = {
 		}), $i('.menu-pause-text'));
 	},
 	run: function(dt, d) {
-		return 'diagC';
+		return 'bossX';
 	},
 	quit: function(d) {
 		$e('pause_notice').remove();
