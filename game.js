@@ -2137,7 +2137,7 @@ function newDannmaku(d) {
 		if (d.flip_each_count && d.generator)
 			d.theta_delta *= d.generator.count % 2 ? 1 : -1;
 		if (d.flip_each_layer && d.generator)
-			d.theta_delta *= d.generator.layer % 2 ? 1 : -1;
+			d.theta_delta *= d.generator.layer % 2 ? 1 : -1,;
 		v.anim(d.interval, function(d, v) {
 			if (d.delay_count-- > 0)
 				return;
@@ -2338,10 +2338,11 @@ function newSec2(ylim, count, speed) {
 		});
 	}, 350, null, count);
 }
-function newSec3(tick, count, layers) {
+function newSec3(tick, count, layers, life) {
 	STORY.timeout(function (d, n) {
 		var enm = SPRITE.newObj('Enemy', {
 			frames: RES.frames.Enemy01,
+			life: life || 1,
 			x: UTIL.getGamePosX(random(0, 1)),
 			y: 0,
 			vy: 0.1,
@@ -2362,7 +2363,7 @@ function newSec3(tick, count, layers) {
 		}, enm.data);
 	}, tick, null, count);
 }
-function newSec4(fn) {
+function newSec4(fn, life) {
 	STORY.timeout(function (d, n) {
 		var pth = RES.path[randin(['s0A1', 's0A2'])],
 			ps = UTIL.pathOffset(pth, random(-200, 200), random(0, 200));
@@ -2370,6 +2371,7 @@ function newSec4(fn) {
 		ps[0].x = ps[0].y = undefined;
 		var obj = SPRITE.newObj('Enemy', {
 			frames: RES.frames.Enemy00,
+			life: life || 1,
 			x: px,
 			y: GAME.rect.t,
 			pathnodes: ps,
@@ -2378,6 +2380,39 @@ function newSec4(fn) {
 			obj.anim(1500, fn || newDanns1, obj);
 		}, random(1500));
 	}, 200, null, 20);
+}
+function newSecEx1(rad) {
+	var obj = SPRITE.newObj('Enemy', {
+		frames: RES.frames.EnemyX,
+		life: 10,
+		x: UTIL.getGamePosX(random(0.5, rad > 0 ? 1 : 0)),
+		y: 0,
+		vy: 0.1,
+		vx: 0,
+		rt: 0,
+		ri: 0,
+	});
+	obj.anim(20, function(d) {
+		if (d.age > 500 && !this.is_dying)
+			newDannsEx1(this, Math.sin(d.rt += rad || 0.2), d.ri++ % 2 ? 0.2 : 0.15);
+		if (d.age > 1000)
+			d.vy = 0;
+	}, obj.data);
+}
+function newSecEx2(fx, fy, vx, vy) {
+	var obj = SPRITE.newObj('Enemy', {
+		frames: RES.frames.EnemyX,
+		life: 10,
+		x: UTIL.getGamePosX(fx),
+		y: UTIL.getGamePosX(fy),
+		vx: vx,
+		vy: vy,
+		idx: 0,
+	});
+	obj.anim(60, function(d) {
+		d.vy -= 0.004;
+		newDannsEx2(this, vx < 0 ? 0.2 : -0.2, d.x, d.y);
+	}, obj.data);
 }
 
 function newSecList() {
@@ -2413,6 +2448,44 @@ function newDanns2(from) {
 				return true;
 		}, obj.data);
 	})
+}
+function newDannsEx1(from, rt, v) {
+	var to = UTIL.getNearestAlive(from, 'Player');
+	return newDannmaku(from, to, 0, rt, v, 0, {
+		color: 'r',
+		frames: RES.frames.TamaSmallX[1],
+	})
+}
+function newDannsEx2(from, vt, x, y) {
+	var to = UTIL.getNearestAlive(from, 'Player');
+	var dmk = newDannmaku(from, to, 0, 0, 0.2, 0, {
+		sx: x,
+		sy: y,
+		color: 'w',
+		frames: RES.frames.TamaB,
+		vr: 0,
+		vt: vt,
+	});
+	dmk.anim(100, function(d) {
+		if (d.age < 500) {
+			d.vx *= 0.9;
+			d.vy *= 0.9;
+		}
+		else if (d.age < 2000) {
+			var r = sqrt_sum(d.x - d.sx, d.y - d.sy),
+				cos = (d.x - d.sx) / r,
+				sin = (d.y - d.sy) / r;
+			d.vx = d.vr * cos + d.vt * sin;
+			d.vy = d.vr * sin - d.vt * cos;
+		}
+		else if (d.age < 4000) {
+			redirect_object(d, to.data, 0.2, 0.2);
+		}
+		else {
+			return true;
+		}
+	}, dmk.data);
+	return dmk;
 }
 function newDannmaku(from, to, r, rt, v, vt, ext) {
 	if (!to || !to.data) to = {
@@ -2519,30 +2592,6 @@ function newLaser2(from, to) {
 		dy = (GAME.rect.b - GAME.rect.t),
 		dx = dy * (to.data.x - px) / (to.data.y - py);
 	return newLaser(from, px, py, dx, dy);
-}
-
-function newSecEx1(rad) {
-	var obj = SPRITE.newObj('Enemy', {
-		frames: RES.frames.EnemyX,
-		life: 3,
-		x: UTIL.getGamePosX(random(0.5, rad > 0 ? 1 : 0)),
-		y: 0,
-		vy: 0.1,
-		vx: 0,
-		rt: 0,
-		ri: 0,
-	});
-	var to = UTIL.getNearestAlive(obj, 'Player');
-	obj.anim(20, function(d) {
-		if (d.age > 500 && !this.is_dying) {
-			d.vy = 0;
-			d.rt += rad || 0.2;
-			newDannmaku(this, to, 0, Math.sin(d.rt), d.ri++ % 2 ? 0.2 : 0.15, 0, {
-				color: 'r',
-				frames: RES.frames.TamaSmallX[1],
-			})
-		}
-	}, obj.data);
 }
 
 function newBoss() {
@@ -3304,7 +3353,7 @@ ieach([
 	// ...
 	{ init:newSec3, args:[500, 30, 5], duration:10000, name:'secX' },
 	{ init:newSecList, args:[
-		[newSec3, [500, 300, 5]],
+		[newSec3, [500, 300, 5, 10]],
 		[newSec1, ['s0A2', 8, [[-40, 0], [0, 0]], 500, 0.2, 0.04]],
 		[newSec1, ['s0A1', 8, [[+40, 0], [0, 0]], 500, 0.2, 0.04], 2000],
 		[newSec1, ['s0A2', 8, [[-40, 0], [+40, 0]], 500, 0.2, 0.04], 4000],
@@ -3330,9 +3379,13 @@ ieach([
 	{ init:newSec1, args:['s0A1', 8, [[+40, 0], [0, 0]], 500, 0.3], duration:1500, },
 	{ init:newSec1, args:['s0A2', 8, [[-40, 0], [0, 0]], 500, 0.3], duration:1500, },
 	{ init:newSec1, args:['s0A1', 8, [[+40, 0], [0, 0]], 500, 0.3], duration:1500, },
-	{ init:newSec4, args:[newDanns2], duration:10000, },
-	{ init:newSecEx2, args:[], duration:1000, },
-	{ init:newSec4, args:[newDanns2], duration:10000, },
+	{ init:newSec4, args:[newDanns2, 10], duration:10000, },
+	{ init:newSecEx2, args:[0, 0, 0.1, 0.2], duration:100, },
+	{ init:newSecEx2, args:[1, 0, -0.1, 0.2], duration:1000, },
+	{ init:newSecEx2, args:[0, 0.3, 0.1, 0.12], duration:100, },
+	{ init:newSecEx2, args:[1, 0.3, -0.1, 0.12], duration:1000, },
+	{ duration:5000, },
+	{ init:newSec4, args:[newDanns2, 10], duration:10000, },
 	{ duration:5000, },
 	{ init:killCls, args:['Enemy', 'Dannmaku'], duration:1000, next:'diagD', },
 ], function(i, para, tl) {
