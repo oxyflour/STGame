@@ -266,6 +266,14 @@ function $i(s, p) {
 function $e(id) {
 	return document.getElementById(id);
 }
+function $new(t, d) {
+	return keach(d, function(k, v, e) {
+		if (same_type(e[k], ''))
+			e[k] = v;
+		else
+			e.setAttribute(k, v);
+	}, document.createElement(t));
+}
 function $attr(e, a) {
 	if (same_type(e, '')) e = $i(e);
 	var attr = e && e.attributes[a];
@@ -3216,8 +3224,8 @@ ieach([
 	{ text:'st_diag13', pos:'.fl.dg', face:'.f0a' },
 	{ text:'st_diag14', pos:'.fr.dg', face:'.f3b' },
 	{ text:'st_diag15', pos:'.fl.dg', face:'.f0b.f2', next:'bossC', ended:true, },
-	{ text:'st_diag16', pos:'.fl.dg', face:'.f0b.f2', name:'diagC', },
-	{ text:'st_diag17', pos:'.fr.dg', face:'.f3a.f2' },
+	{ text:'st_diag16', pos:'.fl.dg', face:'.f0b.f2', name:'diagC', next:'bossX', },
+	{ text:'st_diag17', pos:'.fr.dg', face:'.f3a.f2', name:'diagD', },
 	{ text:'st_diag18', pos:'.fl.dg', face:'.f0c.f2' },
 	{ text:'st_diag19', pos:'.fr.dg', face:'.f3a' },
 	{ text:'st_diag20', pos:'.fl.dg', face:'.f0b.f2' },
@@ -3233,7 +3241,7 @@ ieach([
 	{ text:'st_diag30', pos:'.fr.dg', face:'.f3b' },
 	{ text:'st_diag31', pos:'.fl.dg', face:'.f0a' },
 	{ text:'st_diag32', pos:'.fl.dg', face:'.f0a.f2' },
-	{ text:'st_diag33', pos:'.fr.dg', face:'.f3a', next:'bossX', ended:true },
+	{ text:'st_diag33', pos:'.fr.dg', face:'.f3a', ended:true },
 ], function(i, para, tl) {
 	var c = para.name || 'diag'+i, n = para.next || 'diag'+(i+1);
 	tl[c] = {
@@ -3511,6 +3519,20 @@ ieach([
 		background: newBossBackground,
 		next: 'bossEnd',
 	},
+	{
+		pathnodes: [
+			{ fx:0.00, fy:0.00, v:0.2 },
+			{ fx:0.10, fy:0.10 },
+			{ fx:0.50, fy:0.18 },
+		],
+		duration: 2000,
+		invinc: true,
+		no_countdown: true,
+		no_lifebar: true,
+		disable_fire: true,
+		name: 'bossX',
+		next: 'diagD',
+	},
 ], function(i, para, tl) {
 	var c = para.name || 'boss'+i, n = para.next || 'boss'+(i+1);
 	tl[c] = {
@@ -3596,12 +3618,22 @@ tl.bossEnd = {
 			newEffect(boss, RES.frames.EffPlayer, 2);
 			RES.se_enep01.replay();
 		}, 1500);
-		STORY.timeout(function() {
-			d.next = 'diagC';
-		}, 4000);
+	},
+	run: UTIL.newTimeRunner(4000, 'askContinue'),
+};
+tl.askContinue = {
+	init: function(d) {
+		GAME.state = GAME.states.PAUSE;
+		$i('.game.pause').insertBefore($new('div', {
+			id: 'pause_notice',
+			style: 'position:absolute;margin:1em',
+			innerHTML: RES.st_ask_continue,
+		}), $i('.menu-pause-text'));
 	},
 	run: function(dt, d) {
-		if (d.next)
-			return d.next;
+		return 'diagC';
 	},
-};
+	quit: function(d) {
+		$e('pause_notice').remove();
+	}
+}
