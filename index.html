@@ -492,19 +492,19 @@
 		</div>
 		<div class="game mask absolute ui" ui-show="GAME.state == GAME.states.PAUSE">
 			<div class="menu menu-pause-text"></div>
-			<form class="menu-pause ui" action="javascript:evalRadioVal('pause_menu')"
+			<form class="menu-pause ui" eval-radios
 				ui-focus="GAME.state == GAME.states.PAUSE"
 				onkeyup="checkFormKey(event, this)" onescape="changeGameState('RUNNING'); return false">
 				<div class="menu-line">
-					<input type="radio" name="pause_menu" value="changeGameState('RUNNING')" />
+					<input type="radio" value="changeGameState('RUNNING')" />
 					<label class="menu menu-pause-continue"></label>
 				</div>
 				<div class="menu-line">
-					<input type="radio" name="pause_menu" value="changeGameState('TITLE')" />
+					<input type="radio" value="changeGameState('TITLE')" />
 					<label class="menu menu-pause-title"></label>
 				</div>
 				<div class="menu-line">
-					<input type="radio" name="pause_menu" value="window.close()" />
+					<input type="radio" value="window.close()" />
 					<label class="menu menu-pause-quit"></label>
 				</div>
 				<input style="width:0px;opacity:0;" type="submit" />
@@ -617,56 +617,56 @@
 	<div class="screen select absolute no-overflow ui"
 		ui-show="GAME.state == GAME.states.SELECT || GAME.state == GAME.states.SELECT_DIFF ||
 			GAME.state == GAME.states.SELECT_CHAR || GAME.state == GAME.states.SELECT_BOMB">
-		<form class="select-diff absolute ui" action="javascript:evalRadioVal('select_diff')"
+		<form class="select-diff absolute ui" eval-radios
 			ui-focus="GAME.state == GAME.states.SELECT_DIFF"
 			onkeyup="checkFormKey(event, this)" onescape="changeGameState('TITLE')">
 			<div class="select-title"></div>
 			<div class="menu-line">
-				<input type="radio" name="select_diff" value="changeGameState('SELECT_CHAR')" />
+				<input type="radio" value="changeGameState('SELECT_CHAR')" />
 				<label class="menu menu-diff-easy"></label>
 			</div>
 			<div class="menu-line">
-				<input type="radio" name="select_diff" value="changeGameState('SELECT_CHAR')" />
+				<input type="radio" value="changeGameState('SELECT_CHAR')" />
 				<label class="menu menu-diff-normal"></label>
 			</div>
 			<div class="menu-line">
-				<input type="radio" name="select_diff" value="changeGameState('SELECT_CHAR')" />
+				<input type="radio" value="changeGameState('SELECT_CHAR')" />
 				<label class="menu menu-diff-hard"></label>
 			</div>
 			<div class="menu-line">
-				<input type="radio" name="select_diff" value="changeGameState('SELECT_CHAR')" />
+				<input type="radio" value="changeGameState('SELECT_CHAR')" />
 				<label class="menu menu-diff-lunatic"></label>
 			</div>
 		</form>
-		<form class="select-char absolute ui" action="javascript:evalRadioVal('select_char')"
+		<form class="select-char absolute ui" eval-radios
 			ui-focus="GAME.state == GAME.states.SELECT_CHAR"
 			onkeyup="checkFormKey(event, this)" onescape="changeGameState('SELECT_DIFF')">
 			<div class="select-title"></div>
 			<div class="menu-line absolute">
-				<input type="radio" name="select_char" value="changeGameState('SELECT_BOMB')" />
+				<input type="radio" value="changeGameState('SELECT_BOMB')" />
 				<label class="menu menu-char-reimu">
 					<img src="res/slpl00a.png" />
 					<img src="res/slpl00b.png" />
 				</label>
 			</div>
 			<div class="menu-line absolute">
-				<input type="radio" name="select_char" />
+				<input type="radio" />
 				<label class="menu menu-char-marisa">
 					<img src="res/slpl01a.png" />
 					<img src="res/slpl01b.png" />
 				</label>
 			</div>
 		</form>
-		<form class="select-bomb absolute ui" action="javascript:evalRadioVal('select_bomb')"
+		<form class="select-bomb absolute ui" eval-radios
 			ui-focus="GAME.state == GAME.states.SELECT_BOMB"
 			onkeyup="checkFormKey(event, this)" onescape="changeGameState('SELECT_CHAR')">
 			<div class="select-title"></div>
 			<div class="menu-line">
-				<input type="radio" name="select_bomb" value="loadAndStart()" />
+				<input type="radio" value="loadAndStart()" />
 				<label class="menu menu-bomb-a"></label>
 			</div>
 			<div class="menu-line">
-				<input type="radio" name="select_bomb" />
+				<input type="radio" />
 				<label class="menu menu-bomb-b"></label>
 			</div>
 		</form>
@@ -685,45 +685,45 @@
 				<div class="text text2"></div>
 			</div>
 		</div>
-		<form class="absolute ui" action="javascript:evalRadioVal('title_in')"
+		<form class="absolute ui" eval-radios
 			ui-show="GAME.state == GAME.states.TITLE"
 			ui-focus="GAME.state == GAME.states.TITLE"
 			onkeyup="checkFormKey(event, this)">
-			<input type="radio" name="title_in" value="changeGameState('MENU')" />
+			<input type="radio" value="changeGameState('MENU')" />
 		</form>
-		<form class="menu-title ui" action="javascript:evalRadioVal('title_menu')"
+		<form class="menu-title ui" eval-radios
 			ui-focus="GAME.state == GAME.states.MENU"
 			onkeyup="checkFormKey(event, this)" onescape="checkRadio($i('input', $i('.menu-title-quit').parentNode))">
 			<div class="menu-line">
-				<input type="radio" name="title_menu" value="changeGameState('SELECT_DIFF')" />
+				<input type="radio" value="changeGameState('SELECT_DIFF')" />
 				<label class="menu menu-title-start"></label>
 			</div>
 			<div class="menu-line">
-				<input type="radio" name="title_menu" disabled />
+				<input type="radio" disabled />
 				<label class="menu menu-title-extra-start"></label>
 			</div>
 			<div class="menu-line">
-				<input type="radio" name="title_menu" />
+				<input type="radio" />
 				<label class="menu menu-title-practice-start"></label>
 			</div>
 			<div class="menu-line">
-				<input type="radio" name="title_menu" />
+				<input type="radio" />
 				<label class="menu menu-title-replay"></label>
 			</div>
 			<div class="menu-line">
-				<input type="radio" name="title_menu" />
+				<input type="radio" />
 				<label class="menu menu-title-score"></label>
 			</div>
 			<div class="menu-line">
-				<input type="radio" name="title_menu" />
+				<input type="radio" />
 				<label class="menu menu-title-music-room"></label>
 			</div>
 			<div class="menu-line">
-				<input type="radio" name="title_menu" />
+				<input type="radio" />
 				<label class="menu menu-title-option"></label>
 			</div>
 			<div class="menu-line">
-				<input type="radio" name="title_menu" value="window.close()" />
+				<input type="radio" value="window.close()" />
 				<label class="menu menu-title-quit"></label>
 			</div>
 			<input style="width:0px;opacity:0;" type="submit" />
@@ -746,15 +746,21 @@
 			<button class="ui hidden" ui-show="RES.process == 1" onclick="checkStart()" style="font-size:100%;padding:0.5em">同意点此</button>
 			<h3 class="ui" ui-show="RES.process < 1">loading <span class="ui" ui-bind="(RES.process*100).toFixed(1)+'%'">...</span></h3>
 		</div>
-		<form class="absolute ui" action="javascript:evalRadioVal('title_loading')"
+		<form class="absolute ui" eval-radios
 			ui-focus="GAME.state == GAME.states.LOADING"
 			onkeyup="checkFormKey(event, this)">
-			<input type="radio" name="title_loading" value="checkStart()" />
+			<input type="radio" value="checkStart()" />
 		</form>
 	</div>
 </div>
 <script src="game.js"></script>
 <script>
+ieach($('form[eval-radios]'), function(i, e) {
+	e.action = 'javascript:evalRadioVal("eval_radio'+i+'")';
+	ieach($('input[type="radio"]', e), function(j, r) {
+		r.name = 'eval_radio'+i;
+	});
+});
 ieach($('input[type="radio"]'), function(i, v) {
 	var n = v.nextElementSibling;
 	if (n && n.tagName == 'LABEL' && !v.id) {
