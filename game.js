@@ -1598,7 +1598,7 @@ return proto = {
 		kh: 1/100,
 		r: 20,
 		y: GAME.rect.t,
-		life: 2,
+		life: 1,
 		damage: 0,
 	},
 	init: function(d) {
