@@ -2391,7 +2391,7 @@ function newSecList() {
 function newDanns1(from, speed, rand) {
 	var to = UTIL.getNearestAlive(from, 'Player');
 	if (!from.is_dying) {
-		newDannmaku(from, to, rand ? random(rand) : 0, 0, speed || 0.2, 0, {
+		newDannmaku(from, to, 0, rand ? random(rand) : 0, speed || 0.2, 0, {
 			color: 'b',
 			frames: RES.frames.TamaSmallX[5],
 		});
@@ -2519,6 +2519,29 @@ function newLaser2(from, to) {
 		dy = (GAME.rect.b - GAME.rect.t),
 		dx = dy * (to.data.x - px) / (to.data.y - py);
 	return newLaser(from, px, py, dx, dy);
+}
+
+function newSecEx1(rad) {
+	var obj = SPRITE.newObj('Enemy', {
+		frames: RES.frames.EnemyX,
+		life: 3,
+		x: UTIL.getGamePosX(random(0.5, rad > 0 ? 1 : 0)),
+		y: 0,
+		vy: 0.1,
+		vx: 0,
+		rt: 0,
+		ri: 0,
+	});
+	obj.anim(20, function(d) {
+		if (d.age > 500) {
+			d.vy = 0;
+			d.rt += rad || 0.2;
+			newDannmaku(this, null, 0, d.rt, d.ri++ % 2 ? 0.2 : 0.15, 0, {
+				color: 'r',
+				frames: RES.frames.TamaSmallX[1],
+			})
+		}
+	}, obj.data);
 }
 
 function newBoss() {
@@ -3290,9 +3313,24 @@ ieach([
 		[newSec1, ['s0A2', 8, [[-40, 0], [0, 0]], 500, 0.2, 0.04], 12000],
 		[newSec1, ['s0A1', 8, [[+40, 0], [0, 0]], 500, 0.2, 0.04], 14000],
 	], duration:15000, },
-	{ init:newSec1, args:['s0A2', 8, [[-40, 0], [0, 0]], 500, 0.3], duration:2000 },
-	{ init:newSec1, args:['s0A1', 8, [[+40, 0], [0, 0]], 500, 0.3], duration:2000 },
-	{ duration:7000, next:'diagD', },
+	{ init:newSecEx1, args:[0.2], duration:100, },
+	{ init:newSecEx1, args:[-0.2], duration:100, },
+	{ init:newSecEx1, args:[0.2], duration:100, },
+	{ init:newSecEx1, args:[-0.2], duration:100, },
+	{ init:newSec1, args:['s0A2', 8, [[-40, 0], [0, 0]], 500, 0.3], duration:1000 },
+	{ init:newSec1, args:['s0A1', 8, [[+40, 0], [0, 0]], 500, 0.3], duration:1000 },
+	{ init:newSec1, args:['s0A2', 8, [[-40, 0], [0, 0]], 500, 0.3], duration:1000 },
+	{ init:newSec1, args:['s0A1', 8, [[+40, 0], [0, 0]], 500, 0.3], duration:1000 },
+	{ init:newSecEx1, args:[0.2], duration:100, },
+	{ init:newSecEx1, args:[-0.2], duration:100, },
+	{ init:newSecEx1, args:[0.2], duration:100, },
+	{ init:newSecEx1, args:[-0.2], duration:100, },
+	{ init:newSec1, args:['s0A2', 8, [[-40, 0], [0, 0]], 500, 0.3], duration:1000 },
+	{ init:newSec1, args:['s0A1', 8, [[+40, 0], [0, 0]], 500, 0.3], duration:1000 },
+	{ init:newSec1, args:['s0A2', 8, [[-40, 0], [0, 0]], 500, 0.3], duration:1000 },
+	{ init:newSec1, args:['s0A1', 8, [[+40, 0], [0, 0]], 500, 0.3], duration:1000 },
+	{ duration:5000, },
+	{ init:killCls, args:['Enemy', 'Dannmaku'], duration:1000, next:'diagD', },
 ], function(i, para, tl) {
 	var c = para.name || 'sec'+i, n = para.next || 'sec'+(i+1);
 	tl[c] = {
