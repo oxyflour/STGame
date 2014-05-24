@@ -3180,16 +3180,19 @@ var hook = {
 				});
 				STATICS.power = limit_between(STATICS.power+pt, 0, 128);
 			}
-			if (v.data.point_pt) SPRITE.newObj('Basic', {
-				x: v.data.x,
-				y: v.data.y,
-				text: {
-					res: 'ascii',
-					map: RES.nummap_small,
-					text: '' + v.data.point_pt,
-				},
-				duration: 1000,
-			});
+			if (v.data.point_pt) {
+				STATICS.dot ++;
+				SPRITE.newObj('Basic', {
+					x: v.data.x,
+					y: v.data.y,
+					text: {
+						res: 'ascii',
+						map: RES.nummap_small,
+						text: '' + v.data.point_pt,
+					},
+					duration: 1000,
+				});
+			}
 			RES.se_item00.replay();
 		}
 		else if (e == STORY.events.BULLET_HIT) {
