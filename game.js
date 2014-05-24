@@ -3050,7 +3050,6 @@ var hook = {
 		else if (e == STORY.events.PLAYER_HIT) {
 			STATICS.graze --;
 			v.juesi();
-			newEffect(v, RES.frames.EffPlayer);
 			array(8, function() {
 				newEffectPiece(v, 'g');
 			});
@@ -3075,6 +3074,7 @@ var hook = {
 				if (this.finished = v.finished)
 					newPlayer();
 			}));
+			newEffect(v, RES.frames.EffPlayer);
 			RES.se_pldead00.play();
 		}
 		else if (e == STORY.events.PLAYER_FIRE) {
