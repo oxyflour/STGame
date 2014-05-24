@@ -1975,7 +1975,7 @@ function newShield(bomb) {
 		dh: 1/2000,
 		kh: 1/1000,
 		parent: bomb,
-		damage_pt: 20,
+		damage_pt: 10,
 	});
 	sh.drawCircle = function(d) {
 		d.r = 1 + ease_out(d.ph) * 40;
@@ -2449,21 +2449,11 @@ function newDannmaku(from, to, r, rt, v, vt, ext) {
 	};
 	return obj;
 }
-function newLaser(from, to) {
-	if (!to || !to.data) to = {
-		data: { x: UTIL.getGamePosX(0.5), y: UTIL.getGamePosY(0.9), },
-	};
-	var to = UTIL.getNearestAlive(from, 'Player') || {
-		data: { x:UTIL.getGamePosX(0.5), y:GAME.rect.b, },
-	}
-	var px = from.data.x + random(-50, 50),
-		py = from.data.y + random(-50, 50),
-		dy = (GAME.rect.b - GAME.rect.t),
-		dx = dy * (to.data.x - px) / (to.data.y - py);
+function newLaser(from, x, y, dx, dy, width) {
 	var dot = SPRITE.newObj('Dannmaku', {
 		r: 10,
-		x: px,
-		y: py,
+		x: x,
+		y: y,
 		vx: 0,
 		vy: 0,
 		frame: RES.frames.TamaFire[2],
@@ -2473,8 +2463,8 @@ function newLaser(from, to) {
 	});
 	var obj = SPRITE.newObj('Dannmaku', {
 		r: 10,
-		x: px,
-		y: py,
+		x: x,
+		y: y,
 		vx: 0,
 		vy: 0,
 		dx: dx,
@@ -2484,6 +2474,7 @@ function newLaser(from, to) {
 		duration: 4500,
 		dh: 1/3000,
 		kh: 1/500,
+		dot: dot,
 	});
 	obj.is_line = true;
 	obj.mkRect = function(rt, d) {
@@ -2497,7 +2488,7 @@ function newLaser(from, to) {
 	};
 	obj.drawCircle = function(d) {
 		var f = d.frame,
-			w = f.w * (this.is_creating ? Math.max(d.ph*3-2, 0.1) : d.ph);
+			w = f.w * d.scale * (this.is_creating ? Math.max(d.ph*3-2, 0.1) : d.ph);
 		DC.translate(d.x, d.y);
 		DC.rotate(-Math.atan2(d.dx, d.dy));
 		DC.drawImage(RES[f.res],
@@ -2506,11 +2497,24 @@ function newLaser(from, to) {
 	};
 	return obj;
 }
+function newLaser2(from, to) {
+	if (!to || !to.data) to = {
+		data: { x: UTIL.getGamePosX(0.5), y: UTIL.getGamePosY(0.9), },
+	};
+	var to = UTIL.getNearestAlive(from, 'Player') || {
+		data: { x:UTIL.getGamePosX(0.5), y:GAME.rect.b, },
+	}
+	var px = from.data.x + random(-50, 50),
+		py = from.data.y + random(-50, 50),
+		dy = (GAME.rect.b - GAME.rect.t),
+		dx = dy * (to.data.x - px) / (to.data.y - py);
+	return newLaser(from, px, py, dx, dy);
+}
 
 function newBoss() {
 	var boss = SPRITE.newObj('Enemy', {
 		r: 24,
-		life: 300,
+		life: 400,
 		frtick: 150,
 		frames: function(v) {
 			var fs = RES.frames.Boss,
@@ -2666,9 +2670,44 @@ function newBossDanns1NoSound(from, color, count, angular, dv) {
 		})
 	})
 }
-function newBossDanns1() {
+function newBossDanns1(from) {
 	newBossDanns1NoSound.apply(null, arguments);
 	RES.se_power1.play()
+}
+function newBossDanns0(from) {
+	var n = STORY.state.n,
+		to = UTIL.getNearestAlive(from, 'Player'),
+		fs = RES.frames.ta;
+	STORY.timeout(function() {
+		var r = random(-0.05, 0.05);
+		if (!from.is_dying) range(1, 0.001, 1/50, function(f) {
+			newDannmaku(from, to, 0, f*PI2+r, 0.15, 0, {
+				color: 'b',
+				frames: RES.frames.TamaSmallX[5],
+			});
+		});
+	}, 500, null, Inf);
+}
+function newBossDanns0A(from) {
+	if (!from.is_dying) ieach([1350, -1350], function(i, x) {
+		var obj = newLaser(from, from.data.x, from.data.y, x, 500);
+		obj.data.r = 20;
+		obj.data.scale = 2;
+		obj.data.dh = 1/500;
+		obj.data.duration = 3000;
+		obj.data.dot.data.scale = 2;
+		obj.data.dot.data.duration = 3500;
+		obj.anim(20, function(d) {
+			if (!this.is_creating && !this.is_dying)
+				d.dx += d.dx > 0 ? -10: 10;
+		}, obj.data);
+		obj.anim(100, function() {
+			if (this.data.ph > 0.8) {
+				RES.se_lazer00.replay();
+				return true;
+			}
+		})
+	});
 }
 function newBossDanns2(from) {
 	from.data.is_firing = true;
@@ -2812,7 +2851,7 @@ function newBossDanns6(from, color, count, angular, rad, v0, dr) {
 function newBossDanns7(from) {
 	var to = UTIL.getNearestAlive(from, 'Player');
 	if (!from.is_dying) {
-		var obj = newLaser(from, to);
+		var obj = newLaser2(from, to);
 		obj.anim(100, function() {
 			if (this.data.ph > 0.8) {
 				RES.se_lazer00.replay();
@@ -3317,8 +3356,27 @@ ieach([
 			{ t: 500, fx:0.83, fy:0.28, v:0.2, },
 			{ t: 500, fn:newBossDanns1, args:['b'], },
 		],
+		damage: 300,
 		duration: 25000,
 		name: 'bossA',
+		fail_next: 'boss2',
+	},
+	{
+		pathnodes: [
+			{ v:0.1 },
+			{ fx:0.5, fy:0.2, },
+			{ t:100, fn:newBossDanns0, },
+			{ t:4000, fn:newBossDanns0A, },
+			{ fx:0.7, fy:0.1, },
+			{ t:4000, fn:newBossDanns0A, },
+			{ fx:0.3, fy:0.1, },
+			{ t:4000, fn:newBossDanns0A, },
+			{ fx:0.1, fy:0.2, },
+			{ t:4000, fn:newBossDanns0A, },
+		],
+		duration: 20000,
+		scname: 'st_stg1_sc0',
+		background: newBossBackground,
 	},
 	{
 		pathnodes: [
@@ -3588,7 +3646,7 @@ ieach([
 				d.boss.data.damage = 0;
 			if (d.age > para.duration || d.boss.data.damage >= para.damage || d.pass) {
 				d.boss.data.damage = para.damage || 0;
-				return n;
+				return (d.pass ? para.success_pass : para.fail_pass) || n;
 			}
 		},
 		on: function(e, v, d) {
