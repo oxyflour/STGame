@@ -2872,43 +2872,40 @@ function newBossDanns9(from, direction) {
 	}, 80, null, 10);
 }
 
-function newEffect(from) {
+function newEffect(from, frames, scale) {
 	var d = from.data;
 	SPRITE.newObj('Circle', {
 		x: d.x,
 		y: d.y,
 		vx: d.vx*=0.1,
 		vy: d.vy*=0.1,
-		frames: {
-			Enemy: RES.frames.EffEnemy,
-			Player: RES.frames.EffPlayer,
-		}[from.clsName],
+		frames: frames,
+		scale: scale || 1,
 		dh: 1,
 		kh: 1/950,
 		duration: 50,
 	});
 }
-function newEffectPiece(from, color) {
+function newEffectPiece(from, color, scale, duration) {
 	var frame = {
 		'r': RES.frames.EffPieceR,
 		'g': RES.frames.EffPieceG,
 		'b': RES.frames.EffPieceB,
+		'w': RES.frames.EffPiece,
+		'W': [RES.frames.EffEnemy2[0]],
 	}[color] || RES.frames.EffPiece;
-	var scale = {
-		'w': 0.5,
-	}[color] || 1;
 	var p = SPRITE.newObj('Circle', {
 		x: from.data.x + random(10),
 		y: from.data.y + random(10),
 		vx: random(-0.2, 0.2),
 		vy: random(-0.2, 0.2),
 		frames: randin(frame),
-		scale: scale,
+		scale: scale || 1,
 		opacity: 0.5,
 		blend: 'lighter',
 		dh: 50,
 		kh: 1/random(500, 1000),
-		duration: 100,
+		duration: duration || 100,
 	})
 	p.data.scale0 = p.data.scale;
 	p.drawCircle = function(d) {
@@ -3047,7 +3044,7 @@ var hook = {
 		else if (e == STORY.events.PLAYER_HIT) {
 			STATICS.graze --;
 			v.juesi();
-			newEffect(v);
+			newEffect(v, RES.frames.EffPlayer);
 			array(8, function() {
 				newEffectPiece(v, 'g');
 			});
@@ -3055,7 +3052,7 @@ var hook = {
 		else if (e == STORY.events.PLAYER_GRAZE) {
 			STATICS.graze ++;
 			RES.se_graze.play();
-			newEffectPiece(v, 'w');
+			newEffectPiece(v, 'w', 0.5);
 		}
 		else if (e == STORY.events.PLAYER_DYING) {
 			v.die();
@@ -3100,7 +3097,7 @@ var hook = {
 					type = random(1) > 0.7 ? 0 : 1;
 				newDrop(type, v.data.x, v.data.y);
 			}
-			newEffect(v);
+			newEffect(v, RES.frames.EffEnemy);
 			array(4, function() {
 				newEffectPiece(v, 'b');
 			});
@@ -3579,39 +3576,18 @@ ieach([
 }, tl);
 tl.end = {
 	init: function(d) {
-		var boss = UTIL.getOneObj('Enemy', 'boss'),
-			x = boss ? boss.data.x : UTIL.getGamePosX(0.5),
-			y = boss ? boss.data.y : UTIL.getGamePosY(0.5);
+		var boss = UTIL.getOneObj('Enemy', 'boss') || {
+			data: { x:UTIL.getGamePosX(0.5), y:UTIL.getGamePosY(0.5), vx:0, vy:0 },
+		};
 		killCls('Enemy', 'Dannmaku');
 		STORY.timeout(function() {
-			var obj = SPRITE.newObj('Circle', {
-				r: 20,
-				x: x,
-				y: y,
-				vx: random(-0.3, 0.3),
-				vy: random(-0.3, 0.3),
-				frames: RES.frames.EffEnemy2[0],
-				scale: 2,
-				duration: 500,
-			});
-			obj.anim(100, function(d) {
-				d.vx *= 0.9;
-				d.vy *= 0.9;
-			}, obj.data);
+			newEffectPiece(boss, 'W', 1, 800);
 		}, 30, null, 50);
 		STORY.timeout(function() {
 			RES.se_tan00.replay();
 		}, 150, null, 12)
 		STORY.timeout(function() {
-			SPRITE.newObj('Circle', {
-				x: x,
-				y: y,
-				frames: RES.frames.EffPlayer,
-				scale: 3,
-				dh: 1,
-				kh: 1/950,
-				duration: 50,
-			});
+			newEffect(boss, RES.frames.EffPlayer, 2);
 			RES.se_enep01.replay();
 		}, 1500);
 		STORY.timeout(function() {
