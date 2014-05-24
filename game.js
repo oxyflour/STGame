@@ -2007,18 +2007,22 @@ function newShield(bomb) {
 	});
 }
 function newDrop(type, x, y, extra) {
-	var power_pt = 0;
+	var power_pt = 0,
+		point_pt = 0;
 	if (type == 0)
 		power_pt = 1;
 	else if (type == 2)
 		power_pt = 8;
 	else if (type == 4)
 		power_pt = 128;
+	if (type == 1)
+		point_pt = randin([10, 20]);
 	return SPRITE.newObj('Drop', fill(extra, {
 		x: x,
 		y: y,
 		type: type,
 		power_pt: power_pt,
+		point_pt: point_pt,
 		frames: RES.frames.Drops[type],
 		frame_small: RES.frames.Drops[type+8],
 	}));
@@ -3108,13 +3112,13 @@ var hook = {
 			STATICS.point += v.data.point_pt || 10;
 			if (v.data.power_pt && (STATICS.power += v.data.power_pt) > 128)
 				STATICS.power = 128;
-			if (v.data.type == 1) SPRITE.newObj('Basic', {
+			if (v.data.point_pt) SPRITE.newObj('Basic', {
 				x: v.data.x,
 				y: v.data.y,
 				text: {
 					res: 'ascii',
 					map: RES.nummap_small,
-					text: '' + (v.data.point_pt || 10),
+					text: '' + v.data.point_pt,
 				},
 				duration: 1000,
 			});
