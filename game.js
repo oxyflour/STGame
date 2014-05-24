@@ -3054,15 +3054,6 @@ function killObj() {
 }
 
 var STATICS = {
-	max_point: 1000000,
-	point: 0,
-	player: 7,
-	bomb: 7,
-	power: 0,
-	graze: 0,
-	dot: 0,
-
-	time: 0,
 };
 
 var hook = {
@@ -3079,6 +3070,17 @@ var hook = {
 			SPRITE.clrObj();
 			newPlayer();
 			newBackground();
+			extend(STATICS, {
+				max_point: 1000000,
+				point: 0,
+				player: 7,
+				bomb: 7,
+				power: 0,
+				graze: 0,
+				dot: 0,
+
+				time: 0,
+			})
 		}
 		else if (e == STORY.events.GAME_INPUT) {
 			if (v.type == 'keyup' && v.which == 27) {
