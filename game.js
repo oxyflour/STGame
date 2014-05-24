@@ -2298,7 +2298,7 @@ function newEnemy(d) {
 }
 */
 
-function newSec1(pth, count, offset) {
+function newSec1(pth, count, offset, interval, speed, rand) {
 	STORY.timeout(function (d, n) {
 		ieach(offset || [[0, 0]], function(i, v) {
 			var obj = SPRITE.newObj('Enemy', {
@@ -2306,12 +2306,14 @@ function newSec1(pth, count, offset) {
 				pathnodes: UTIL.pathOffset(RES.path[pth], v[0], v[1]),
 			});
 			STORY.timeout(function() {
-				obj.anim(1500, newDanns1, obj);
+				obj.anim(interval || 1500, function() {
+					newDanns1(obj, speed, rand);
+				});
 			}, random(1500));
 		});
 	}, 250, null, count);
 }
-function newSec2(ylim, count) {
+function newSec2(ylim, count, speed) {
 	STORY.timeout(function (d, n) {
 		ieach([-1, 1], function(i, x) {
 			var f = 0.5 + (n+0.5)/(count+0.5)*0.5 * x,
@@ -2331,12 +2333,12 @@ function newSec2(ylim, count) {
 					d.vy += d.dvy;
 				}
 				if (d.age > 200 && !this.is_firing && (this.is_firing = true))
-					newDanns1(this);
+					newDanns1(this, speed);
 			}, obj.data);
 		});
 	}, 350, null, count);
 }
-function newSec3(tick, count) {
+function newSec3(tick, count, layers) {
 	STORY.timeout(function (d, n) {
 		var enm = SPRITE.newObj('Enemy', {
 			frames: RES.frames.Enemy01,
@@ -2350,7 +2352,7 @@ function newSec3(tick, count) {
 		enm.anim(50, function(d) {
 			if (d.age > 600 && !this.is_firing && (this.is_firing = true)) {
 				d.vy = 0;
-				STORY.timeout(newDanns2, 300, this, 2)
+				STORY.timeout(newDanns2, 300, this, layers || 2);
 				UTIL.addFrameAnim(enm, RES.frames.Enemy11);
 			}
 			else if (d.age > 2000) {
@@ -2378,10 +2380,18 @@ function newSec4() {
 	}, 300, null, 10);
 }
 
-function newDanns1(from) {
+function newSecList() {
+	ieach(arguments, function(i, v) {
+		STORY.timeout(function() {
+			v[0].apply(null, v[1]);
+		}, v[2] || 100);
+	})
+}
+
+function newDanns1(from, speed, rand) {
 	var to = UTIL.getNearestAlive(from, 'Player');
 	if (!from.is_dying) {
-		newDannmaku(from, to, 0, 0, 0.2, 0, {
+		newDannmaku(from, to, rand ? random(rand) : 0, 0, speed || 0.2, 0, {
 			color: 'b',
 			frames: RES.frames.TamaSmallX[5],
 		});
@@ -3262,10 +3272,27 @@ ieach([
 	{ init:newSec4, args:[], duration:6000 },
 	{ init:newSec1, args:['s0A2', 8, [[-40, 0], [0, 0]]], duration:2000 },
 	{ init:newSec1, args:['s0A1', 8, [[+40, 0], [0, 0]]], duration:4000, next:'bossA' },
+	// ...
 	{ init:newSec3, args:[1000, 20], duration:16000, name:'secH' },
 	{ init:newSec1, args:['s0A2', 8, [[-40, 0], [0, 0]]], duration:2000 },
 	{ init:newSec1, args:['s0A1', 8, [[+40, 0], [0, 0]]], duration:2000 },
 	{ init:newSec1, args:['s0A2', 8, [[-40, 0], [0, 0]]], duration:7000, next:'diagA' },
+	// ...
+	{ init:newSec3, args:[500, 30, 5], duration:10000, name:'secX' },
+	{ init:newSecList, args:[
+		[newSec3, [500, 300, 5]],
+		[newSec1, ['s0A2', 8, [[-40, 0], [0, 0]], 500, 0.2, 0.04]],
+		[newSec1, ['s0A1', 8, [[+40, 0], [0, 0]], 500, 0.2, 0.04], 2000],
+		[newSec1, ['s0A2', 8, [[-40, 0], [+40, 0]], 500, 0.2, 0.04], 4000],
+		[newSec1, ['s0A1', 8, [[+40, 0], [-40, 0]], 500, 0.2, 0.04], 6000],
+		[newSec1, ['s0A2', 8, [[-40, 0], [+40, 0]], 500, 0.2, 0.04], 8000],
+		[newSec1, ['s0A1', 8, [[+40, 0], [-40, 0]], 500, 0.2, 0.04], 10000],
+		[newSec1, ['s0A2', 8, [[-40, 0], [0, 0]], 500, 0.2, 0.04], 12000],
+		[newSec1, ['s0A1', 8, [[+40, 0], [0, 0]], 500, 0.2, 0.04], 14000],
+	], duration:15000, },
+	{ init:newSec1, args:['s0A2', 8, [[-40, 0], [0, 0]], 500, 0.3], duration:2000 },
+	{ init:newSec1, args:['s0A1', 8, [[+40, 0], [0, 0]], 500, 0.3], duration:2000 },
+	{ duration:7000, next:'diagD', },
 ], function(i, para, tl) {
 	var c = para.name || 'sec'+i, n = para.next || 'sec'+(i+1);
 	tl[c] = {
@@ -3718,7 +3745,7 @@ tl.askContinue = {
 		}), $i('.menu-pause-text'));
 	},
 	run: function(dt, d) {
-		return 'bossX';
+		return 'secX';
 	},
 	quit: function(d) {
 		$e('pause_notice').remove();
