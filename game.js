@@ -3201,8 +3201,24 @@ ieach([
 	{ text:'st_diag13', pos:'.fl.dg', face:'.f0a' },
 	{ text:'st_diag14', pos:'.fr.dg', face:'.f3b' },
 	{ text:'st_diag15', pos:'.fl.dg', face:'.f0b.f2', next:'bossC', ended:true, },
-	{ text:'st_diagXX', pos:'.fr.dg', face:'.f0b.fx', name:'diagE', duration: 10, },
-	{ text:'st_diag16', pos:'.fl.dg', face:'.f0b.f2', next:'pause', ended:true, },
+	{ text:'st_diag16', pos:'.fl.dg', face:'.f0b.f2', name:'diagC', },
+	{ text:'st_diag17', pos:'.fr.dg', face:'.f3a.f2' },
+	{ text:'st_diag18', pos:'.fl.dg', face:'.f0c.f2' },
+	{ text:'st_diag19', pos:'.fr.dg', face:'.f3a' },
+	{ text:'st_diag20', pos:'.fl.dg', face:'.f0b.f2' },
+	{ text:'st_diag21', pos:'.fr.dg', face:'.f3a.f2' },
+	{ text:'st_diag22', pos:'.fl.dg', face:'.f0c.f2' },
+	{ text:'st_diag23', pos:'.fl.dg', face:'.f0a' },
+	{ text:'st_diag24', pos:'.fr.dg', face:'.f3a.f2' },
+	{ text:'st_diag25', pos:'.fr.dg', face:'.f3b' },
+	{ text:'st_diag26', pos:'.fl.dg', face:'.f0b.f2' },
+	{ text:'st_diag27', pos:'.fl.dg', face:'.f0b' },
+	{ text:'st_diag28', pos:'.fr.dg', face:'.f3b.f2' },
+	{ text:'st_diag29', pos:'.fl.dg', face:'.f0c' },
+	{ text:'st_diag30', pos:'.fr.dg', face:'.f3b' },
+	{ text:'st_diag31', pos:'.fl.dg', face:'.f0a' },
+	{ text:'st_diag32', pos:'.fl.dg', face:'.f0a.f2' },
+	{ text:'st_diag33', pos:'.fr.dg', face:'.f3a', next:'bossX', ended:true },
 ], function(i, para, tl) {
 	var c = para.name || 'diag'+i, n = para.next || 'diag'+(i+1);
 	tl[c] = {
@@ -3587,7 +3603,8 @@ tl.end = {
 			RES.se_enep01.replay();
 		}, 1500);
 		STORY.timeout(function() {
-			d.next = 'diagE';
+			if (confirm(RES.st_ask_continue))
+				d.next = 'diagC';
 		}, 4000);
 	},
 	run: function(dt, d) {
