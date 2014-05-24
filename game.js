@@ -3255,7 +3255,7 @@ ieach([
 			if (d.pass || GAME.keyste.ctrlKey || (d.age+=dt) > (para.duration || 20000))
 				return n;
 		},
-		quit: function(d, n) {
+		quit: function(d, next) {
 			if (para.ended) {
 				var bg = $i('.diag');
 				bg.classList.remove('active');
@@ -3507,7 +3507,7 @@ ieach([
 		duration: 25000,
 		scname: 'st_stg1_sc2',
 		background: newBossBackground,
-		next: 'end',
+		next: 'bossEnd',
 	},
 ], function(i, para, tl) {
 	var c = para.name || 'boss'+i, n = para.next || 'boss'+(i+1);
@@ -3578,7 +3578,7 @@ ieach([
 		},
 	}
 }, tl);
-tl.end = {
+tl.bossEnd = {
 	init: function(d) {
 		var boss = UTIL.getOneObj('Enemy', 'boss') || {
 			data: { x:UTIL.getGamePosX(0.5), y:UTIL.getGamePosY(0.5), vx:0, vy:0 },
@@ -3595,19 +3595,11 @@ tl.end = {
 			RES.se_enep01.replay();
 		}, 1500);
 		STORY.timeout(function() {
-			if (confirm(RES.st_ask_continue))
-				d.next = 'diagC';
+			d.next = 'diagC';
 		}, 4000);
 	},
 	run: function(dt, d) {
 		if (d.next)
 			return d.next;
-	}
+	},
 };
-tl.pause = {
-	init: function(d) {
-		GAME.state = GAME.states.PAUSE;
-	},
-	run: function(dt, d) {
-	},
-}
