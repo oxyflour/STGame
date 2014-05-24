@@ -812,6 +812,8 @@ var GAME = (function() {
 		b: DC.canvas.height
 	};
 	_t.load = function(tl, hk) {
+		if (STORY.state.set)
+			STORY.state.set('ended');
 		STORY.load(tl, hook);
 		STORY.on(STORY.events.STORY_LOAD);
 	};
@@ -3256,7 +3258,7 @@ ieach([
 				return n;
 		},
 		quit: function(d, next) {
-			if (para.ended) {
+			if (para.ended || next != n) {
 				var bg = $i('.diag');
 				bg.classList.remove('active');
 			}
