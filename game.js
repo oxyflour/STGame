@@ -2017,6 +2017,7 @@ function newDrop(type, x, y, extra) {
 	return SPRITE.newObj('Drop', fill(extra, {
 		x: x,
 		y: y,
+		type: type,
 		power_pt: power_pt,
 		frames: RES.frames.Drops[type],
 		frame_small: RES.frames.Drops[type+8],
@@ -2609,6 +2610,7 @@ function newCountDown(duration) {
 		text: {
 			res: 'num',
 			map: RES.nummap,
+			text: '',
 		},
 	});
 	countdown.anim(100, function(d) {
@@ -3109,6 +3111,16 @@ var hook = {
 			STATICS.point += v.data.point_pt || 10;
 			if (v.data.power_pt && (STATICS.power += v.data.power_pt) > 128)
 				STATICS.power = 128;
+			if (v.data.type == 1) SPRITE.newObj('Basic', {
+				x: v.data.x,
+				y: v.data.y,
+				text: {
+					res: 'ascii',
+					map: RES.nummap_small,
+					text: '' + (v.data.point_pt || 10),
+				},
+				duration: 1000,
+			});
 			RES.se_item00.replay();
 		}
 		else if (e == STORY.events.BULLET_HIT) {
