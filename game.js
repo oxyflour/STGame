@@ -3027,8 +3027,8 @@ function newBossDannsEx1(from) {
 	var obj = SPRITE.newObj('Enemy', {
 		frames: RES.frames.EnemyX,
 		life: 10,
-		x: UTIL.getGamePosX(random(1)),
-		y: 0,
+		x: randin([GAME.rect.l, GAME.rect.r]),
+		y: UTIL.getGamePosY(random(0, 0.7)),
 		vy: 0.2,
 		vx: 0,
 		rt: 0,
