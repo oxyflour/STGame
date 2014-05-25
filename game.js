@@ -4017,7 +4017,7 @@ ieach([
 				d.boss.data.damage = 0;
 			if (d.age > para.duration || d.boss.data.damage >= para.damage || d.pass) {
 				d.boss.data.damage = para.damage || 0;
-				return (d.pass ? para.success_pass : para.fail_pass) || n;
+				return (d.pass ? para.success_next : para.fail_next) || n;
 			}
 		},
 		on: function(e, v, d) {
