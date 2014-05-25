@@ -34,7 +34,7 @@
 	<img id="stg1bg" src="res/stg1bg.png" />
 	<img id="front" src="res/front.png" />
 	<canvas id="bombs" from="player0L 0 97 63 64"
-		transform="colormask:White,DeepPink,DodgerBlue,SpringGreen"></canvas>
+		transform="colormask:White,DeepPink,DodgerBlue,SpringGreen,Black"></canvas>
 	<!-- -->
 	<canvas id="mainbg_patt" from="front 0 224 32 32" bg-css=".play"></canvas>
 	<canvas id="scbg1" from="front 80 224 16 16" bg-css=".scbg1"></canvas>
@@ -242,6 +242,10 @@
 				return { res:'lasers', sx:16*j, sy:0, sw:16, sh:RES.lasers.height, w:16, h:RES.lasers.height };
 			});
 
+			_t.TamaMax = array(4, function(i) {
+				return { res:'etama4', sx:64*i, sy:0, sw:64, sh:64, w:64, h:64 }
+			});
+
 			ieach([0, 128], function(i, x) {
 				ieach([0, 32, 64], function(j, y) {
 					_t['Enemy'+i+j] = array(4, function(i) {
@@ -402,8 +406,9 @@
 	<script type="text/html" id="st_stg1_sc0">夜符「月光」</script>
 	<script type="text/html" id="st_stg1_sc1">夜符「夜雀」</script>
 	<script type="text/html" id="st_stg1_sc2">闇符「境界线」</script>
-	<script type="text/html" id="st_stg1_sc_ex1">闇符「境界线-返」</script>
-	<script type="text/html" id="st_stg1_sc_ex2">闇符「十字架」</script>
+	<script type="text/html" id="st_stg1_sc_ex1">闇符「镜界限」</script>
+	<script type="text/html" id="st_stg1_sc_ex2">闇符「...」</script>
+	<script type="text/html" id="st_stg1_sc_ex3">闇符「恶灵缠身」</script>
 	<script type="text/html" id="st_stg1_title">梦幻夜行绘卷  ~ Mystic Flier</script>
 	<script type="text/html" id="st_diag1">感觉真不错呢</script>
 	<script type="text/html" id="st_diag2">每次都在白天出来所以妖怪很少见<br />所以，这次才试着在夜里出来的……</script>

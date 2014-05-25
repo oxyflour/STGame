@@ -2413,7 +2413,7 @@ function newSecEx2(fx, fy, vx, vy) {
 	});
 	obj.anim(60, function(d) {
 		d.vy -= 0.004;
-		newDannsEx2(this, vx < 0 ? 0.2 : -0.2, d.x, d.y);
+		newDannsEx2(this, vx < 0 ? 0.2 : -0.2);
 	}, obj.data);
 }
 
@@ -2460,11 +2460,11 @@ function newDannsEx1(from, rt, v) {
 		frames: RES.frames.TamaSmallX[1],
 	})
 }
-function newDannsEx2(from, vt, x, y) {
+function newDannsEx2(from, vt, f) {
 	var to = UTIL.getNearestAlive(from, 'Player');
 	var dmk = newDannmaku(from, to, 0, 0, 0.2, 0, {
-		sx: x,
-		sy: y,
+		sx: from.data.x,
+		sy: from.data.y,
 		color: 'w',
 		frames: RES.frames.TamaB,
 		vr: 0,
@@ -2483,7 +2483,7 @@ function newDannsEx2(from, vt, x, y) {
 			d.vy = d.vr * sin - d.vt * cos;
 		}
 		else if (d.age < 4000) {
-			redirect_object(d, to.data, 0.2, 0.2);
+			redirect_object(d, to.data, Math.abs(vt), f || 0.2);
 		}
 		else {
 			return true;
@@ -3086,6 +3086,53 @@ function newBossDannsEx2(from, count, num, speed) {
 			}, obj.data);
 		})
 	}, 200, null, count || 25);
+}
+function newBossDannsEx3(from) {
+	function newDmk() {
+		var obj = SPRITE.newObj('Dannmaku', {
+			r: 20,
+			x: UTIL.getGamePosX(random(1)),
+			y: GAME.rect.t,
+			blend: 'lighter',
+			opacity: 0.8,
+			story: STORY.state.n,
+			frame: randin(RES.frames.TamaMax),
+			dir: randin([1, -1]),
+		});
+		obj.anim(20, function(d) {
+			if (d.story !== STORY.state.n)
+				return this.die() || true;
+			if (!d.to || d.to.finished)
+				d.to = UTIL.getNearestAlive(this, 'Player');
+			if (d.to) {
+				var to = d.to.data,
+					dx = d.x - to.x,
+					dy = d.y - to.y,
+					r = sqrt_sum(dx, dy);
+				d.vx -= (1/40 - 1/r)*dx/r*2 + d.dir*dy/r*random(0.06);
+				d.vy -= (1/40 - 1/r)*dy/r*2 - d.dir*dx/r*random(0.06);
+				d.vx *= 0.8;
+				d.vy *= 0.8;
+			}
+		}, obj.data);
+		return obj;
+	}
+	if (!from.dmks_ex3)
+		from.dmks_ex3 = [0, 0, 0, 0, 0];
+	STORY.timeout(function() {
+		ieach(from.dmks_ex3, function(i, v) {
+			if (!v || v.finished)
+				this[i] = newDmk();
+		});
+	}, 200, null, Inf);
+}
+function newBossDannsEx4(from) {
+	STORY.timeout(function(d, j) {
+		if (!from.is_dying)
+			newDannsEx2(from, [-0.24, -0.08, 0.08, 0.24][j % 4], [0.3, 0.2][j % 2]);
+		else
+			return true;
+	}, 50, null, 100);
 }
 
 function newEffect(from, frames, scale) {
@@ -4019,6 +4066,44 @@ ieach([
 		],
 		duration: 15000,
 	},
+	{
+		pathnodes: [
+			{ t:2000, v:0.05 },
+			{ t: 500, fx:0.50, fy:0.20, },
+			{ t: 100, fn:newBossDannsEx3, args:[-1], },
+			{ t: 100, fx:0.50, fy:0.60, },
+			{ t: 100, fn:newBossDannsEx4, },
+			{ t: NaN, },
+			{ t: 100, fx:0.20, fy:0.30, },
+			{ t: 100, fn:newBossDannsEx4, },
+			{ t: NaN, },
+			{ t: 100, fx:0.80, fy:0.30, },
+			{ t: 100, fn:newBossDannsEx4, },
+			{ t: NaN, },
+			{ t: 100, fx:0.50, fy:0.80, },
+			{ t: 100, fn:newBossDannsEx4, },
+			{ t: NaN, },
+			{ t: 100, fx:0.50, fy:0.20, },
+			{ t: 100, fn:newBossDannsEx4, },
+			{ t: NaN, },
+			{ t: 100, fx:0.50, fy:0.60, },
+			{ t: 100, fn:newBossDannsEx4, },
+			{ t: NaN, },
+			{ t: 100, fx:0.20, fy:0.30, },
+			{ t: 100, fn:newBossDannsEx4, },
+			{ t: NaN, },
+			{ t: 100, fx:0.80, fy:0.30, },
+			{ t: 100, fn:newBossDannsEx4, },
+			{ t: NaN, },
+			{ t: 100, fx:0.50, fy:0.80, },
+			{ t: 100, fn:newBossDannsEx4, },
+		],
+		life: 1000,
+		duration: 30000,
+		scname: 'st_stg1_sc_ex3',
+		background: newBossBackground,
+		next: 'bossKill2',
+	},
 ], function(i, para, tl) {
 	var c = para.name || 'boss'+i, n = para.next || 'boss'+(i+1);
 	tl[c] = {
@@ -4088,25 +4173,30 @@ ieach([
 		},
 	}
 }, tl);
-tl.bossKill = {
-	init: function(d) {
-		var boss = UTIL.getOneObj('Enemy', 'boss') || {
-			data: { x:UTIL.getGamePosX(0.5), y:UTIL.getGamePosY(0.5), vx:0, vy:0 },
-		};
-		killCls('Enemy', 'Dannmaku');
-		STORY.timeout(function() {
-			newEffectPiece(boss, 'W', 1, 800);
-		}, 30, null, 50);
-		STORY.timeout(function() {
-			RES.se_tan00.replay();
-		}, 150, null, 12)
-		STORY.timeout(function() {
-			newEffect(boss, RES.frames.EffPlayer, 2);
-			RES.se_enep01.replay();
-		}, 1500);
-	},
-	run: UTIL.newTimeRunner(4000, 'diagC'),
-};
+ieach([
+	{ name:'bossKill', next:'diagC', },
+	{ name:'bossKill2', next:'end', },
+], function(i, para, tl) {
+	tl[para.name] = {
+		init: function(d) {
+			var boss = UTIL.getOneObj('Enemy', 'boss') || {
+				data: { x:UTIL.getGamePosX(0.5), y:UTIL.getGamePosY(0.5), vx:0, vy:0 },
+			};
+			killCls('Enemy', 'Dannmaku');
+			STORY.timeout(function() {
+				newEffectPiece(boss, 'W', 1, 800);
+			}, 30, null, 50);
+			STORY.timeout(function() {
+				RES.se_tan00.replay();
+			}, 150, null, 12)
+			STORY.timeout(function() {
+				newEffect(boss, RES.frames.EffPlayer, 2);
+				RES.se_enep01.replay();
+			}, 1500);
+		},
+		run: UTIL.newTimeRunner(4000, para.next),
+	};
+}, tl);
 tl.askContinue = {
 	init: function(d) {
 		GAME.state = GAME.states.PAUSE;
@@ -4127,4 +4217,15 @@ tl.askContinue = {
 		var e = $e('pause_notice');
 		e.parentNode.removeChild(e);
 	}
+}
+tl.end = {
+	init: function(d) {
+		$i('.menu-pause-continue').parentNode.style.display = 'none';
+	},
+	run: function(dt, d) {
+		GAME.state = GAME.states.PAUSE;
+	},
+	quit: function(d) {
+		$i('.menu-pause-continue').parentNode.style.display = 'block';
+	},
 }
