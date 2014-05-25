@@ -541,7 +541,6 @@
 					<input type="radio" value="window.close()" />
 					<label class="menu menu-pause-quit"></label>
 				</div>
-				<input style="width:0px;opacity:0;" type="submit" />
 			</form>
 		</div>
 		<div class="info absolute">
@@ -760,7 +759,6 @@
 				<input type="radio" value="window.close()" />
 				<label class="menu menu-title-quit"></label>
 			</div>
-			<input style="width:0px;opacity:0;" type="submit" />
 		</form>
 	</div>
 	<div class="screen loading absolute ui"
@@ -833,7 +831,9 @@ function checkActiveRadios() {
 }
 
 function checkFormKey(e, f) {
-	if (e.which == 'Z'.charCodeAt(0)) {
+	if (RES.process !== 1)
+		return;
+	if (e.which == 'Z'.charCodeAt(0) || e.which == 13) {
 		f.submit();
 	}
 	else if (e.which == 27) {
