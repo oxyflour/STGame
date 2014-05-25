@@ -3066,7 +3066,7 @@ function newBossDannsEx2(from, count, num) {
 		range(0.5001, -0.5, 1/(num || 10), function(f) {
 			var ext = i++ % 2 == 0 ?
 				{ color:'y', frames:RES.frames.TamaB[12], v:0.1, }:
-				{ color:'g', frames:RES.frames.LongA[9],  v:0.2, dx:randin([30, 20, -20, -30]), redirect:true, };
+				{ color:'r', frames:RES.frames.LongA[2],  v:0.2, dx:randin([30, 20, -20, -30]), redirect:true, };
 			var obj = newDannmaku(from, to, 0, f*PI*0.5, ext.v, 0, ext);
 			if (ext.redirect) obj.anim(100, function(d) {
 				if (d.age < 1000) {
