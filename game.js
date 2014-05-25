@@ -2030,8 +2030,8 @@ function newDrop(type, x, y, extra) {
 	if (type == 1)
 		point_pt = randin([10, 20]);
 	return SPRITE.newObj('Drop', fill(extra, {
-		x: x,
-		y: y,
+		x: x || UTIL.getGamePosX(0.5),
+		y: y || GAME.rect.t,
 		type: type,
 		power_pt: power_pt,
 		point_pt: point_pt,
@@ -4115,6 +4115,10 @@ tl.askContinue = {
 		}), $i('.menu-pause-text'));
 	},
 	run: function(dt, d) {
+		newDrop(2, 0, 0, { vx:random(-0.3, 0.3), vy:random(-0.1, -0.2), });
+		newDrop(2, 0, 0, { vx:random(-0.3, 0.3), vy:random(-0.1, -0.2), });
+		newDrop(2, 0, 0, { vx:random(-0.3, 0.3), vy:random(-0.1, -0.2), });
+		newDrop(2, 0, 0, { vx:random(-0.3, 0.3), vy:random(-0.1, -0.2), });
 		return 'secX';
 	},
 	quit: function(d) {
