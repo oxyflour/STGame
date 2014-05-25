@@ -1370,7 +1370,7 @@ return proto = {
 
 		this.is_invinc = this.is_invinc > 0 ? decrease_to_zero(this.is_invinc, dt) :
 			this.is_creating || this.is_dying || this.is_bomb || this.is_juesi;
-		this.is_slow = ks.shiftKey;
+		this.is_slow = ks[cf.key_slow];
 
 		d.x0 = d.x;
 		d.y0 = d.y;
@@ -1477,6 +1477,7 @@ return proto = {
 		key_up: 38,
 		key_right: 39,
 		key_down: 40,
+		key_slow: 'shiftKey',
 		key_fire: GAME.keychars.Z,
 		key_bomb: GAME.keychars.X,
 		speed_high: 0.24,
@@ -1707,8 +1708,8 @@ return proto = {
 });
 
 // for test only
-function newPlayer() {
-	var p = SPRITE.newObj('Player');
+function newPlayer(ext) {
+	var p = SPRITE.newObj('Player', ext);
 	p.pslow = newPSlow(p);
 	p.anim(1000/20, function() {
 		if (this.is_firing && this.is_fire_enable)
@@ -3276,8 +3277,21 @@ var hook = {
 	before_on: function(e, v, d) {
 		if (e == STORY.events.STORY_LOAD) {
 			SPRITE.clrObj();
-			newPlayer();
 			newBackground();
+			if (GAME.double_player_mode && !(GAME.double_player_mode = false)) {
+				newPlayer();
+				newPlayer({ conf: {
+					key_left: 100,
+					key_up: 104,
+					key_right: 102,
+					key_down: 101,
+					key_fire: 36,
+					key_bomb: 35,
+					key_slow: 45,
+				}});
+			}
+			else
+				newPlayer();
 			extend(STATICS, {
 				max_point: 1000000,
 				point: 0,
@@ -3331,7 +3345,7 @@ var hook = {
 			STORY.timer.add(newTicker(100, function() {
 				killCls('Dannmaku');
 				if (this.finished = v.finished)
-					newPlayer();
+					newPlayer(v.data.conf && { conf:v.data.conf });
 			}));
 			newEffect(v, RES.frames.EffPlayer);
 			RES.se_pldead00.play();
