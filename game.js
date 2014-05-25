@@ -3278,7 +3278,7 @@ var hook = {
 				if (v.data.power_pt)
 					type = v.data.power_pt >= 128 ? 4 : (v.data.power_pt >= 8 ? 2 : 0);
 				else
-					type = random(1) > 0.7 ? 0 : 1;
+					type = random(1) > 0.8 ? 0 : 1;
 				newDrop(type, v.data.x, v.data.y);
 			}
 			newEffect(v, RES.frames.EffEnemy);
@@ -3966,7 +3966,7 @@ ieach([
 			{ t: 500, fn:newBossDannsEx1, args:[], },
 			{ t: 500, fn:newBossDannsEx1, args:[], },
 		],
-		duration: 25000,
+		duration: 15000,
 		scname: 'st_stg1_sc_ex2',
 		background: newBossBackground,
 	},
