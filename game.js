@@ -3060,14 +3060,14 @@ function newBossDannsEx1(from) {
 		}
 	}, obj.data);
 }
-function newBossDannsEx2(from, count, num) {
+function newBossDannsEx2(from, count, num, speed) {
 	STORY.timeout(function(x, j) {
 		var to = UTIL.getNearestAlive(from, 'Player');
 		var i = 0;
 		range(0.5001, -0.5, 1/(num || 10), function(f) {
 			var ext = i++ % 2 == 0 ?
-				{ color:'y', frames:RES.frames.TamaB[12], v:0.1, }:
-				{ color:'r', frames:RES.frames.LongA[2],  v:0.2, dx:randin([30, 20, -20, -30]), redirect:true, };
+				{ color:'y', frames:RES.frames.TamaB[12], v:speed || 0.10, }:
+				{ color:'r', frames:RES.frames.LongA[2],  v:0.20, dx:randin([35, 25, -25, -35]), redirect:true, };
 			var obj = newDannmaku(from, to, 0, f*PI*0.5, ext.v, 0, ext);
 			if (ext.redirect) obj.anim(100, function(d) {
 				if (d.age < 1000) {
@@ -4007,16 +4007,15 @@ ieach([
 	{
 		pathnodes: [
 			{ v: 0.05 },
-			{ t: 100, fn:newBossDannsEx2, args:[30, 6], },
+			{ t: 100, fn:newBossDannsEx2, args:[30, 4, 0.1], },
 			{ t: NaN, fx:0.5, fy:0.1, },
 			{ t: NaN, fx:0.3, fy:0.2, },
 			{ t: NaN, fx:0.7, fy:0.2, },
-			{ t: 100, fn:newBossDannsEx2, args:[30, 10], },
+			{ t: 100, fn:newBossDannsEx2, args:[20, 8, 0.15], },
 			{ t: NaN, fx:0.5, fy:0.1, },
 			{ t: NaN, fx:0.4, fy:0.3, },
+			{ t: 100, fn:newBossDannsEx2, args:[20, 15, 0.2], },
 			{ t: NaN, fx:0.7, fy:0.4, },
-			{ t: 100, fn:newBossDannsEx2, args:[30, 15], },
-			{ t: NaN, fx:0.3, fy:0.4, },
 		],
 		duration: 15000,
 	},
