@@ -2298,10 +2298,11 @@ function newEnemy(d) {
 }
 */
 
-function newSec1(pth, count, offset, interval, speed, rand) {
+function newSec1(pth, count, offset, interval, speed, rand, life) {
 	STORY.timeout(function (d, n) {
 		ieach(offset || [[0, 0]], function(i, v) {
 			var obj = SPRITE.newObj('Enemy', {
+				life: life || 1,
 				frames: RES.frames.Enemy00,
 				pathnodes: UTIL.pathOffset(RES.path[pth], v[0], v[1]),
 			});
@@ -3398,17 +3399,15 @@ ieach([
 	{ init:newSec1, args:['s0A1', 8, [[+40, 0], [0, 0]]], duration:2000 },
 	{ init:newSec1, args:['s0A2', 8, [[-40, 0], [0, 0]]], duration:7000, next:'diagA' },
 	// ...
-	{ init:newSec3, args:[500, 30, 5], duration:10000, name:'secX' },
+	{ init:newSec3, args:[500, 30, 5, 10], duration:10000, name:'secX' },
 	{ init:newSecList, args:[
 		[newSec3, [500, 300, 5, 10]],
-		[newSec1, ['s0A2', 8, [[-40, 0], [0, 0]], 500, 0.2, 0.04]],
-		[newSec1, ['s0A1', 8, [[+40, 0], [0, 0]], 500, 0.2, 0.04], 2000],
-		[newSec1, ['s0A2', 8, [[-40, 0], [+40, 0]], 500, 0.2, 0.04], 4000],
-		[newSec1, ['s0A1', 8, [[+40, 0], [-40, 0]], 500, 0.2, 0.04], 6000],
-		[newSec1, ['s0A2', 8, [[-40, 0], [+40, 0]], 500, 0.2, 0.04], 8000],
-		[newSec1, ['s0A1', 8, [[+40, 0], [-40, 0]], 500, 0.2, 0.04], 10000],
-		[newSec1, ['s0A2', 8, [[-40, 0], [0, 0]], 500, 0.2, 0.04], 12000],
-		[newSec1, ['s0A1', 8, [[+40, 0], [0, 0]], 500, 0.2, 0.04], 14000],
+		[newSec1, ['s0A2', 8, [[0, 0]], 500, 0.2, 0.04, 10]],
+		[newSec1, ['s0A1', 8, [[0, 0]], 500, 0.2, 0.04, 10], 2000],
+		[newSec1, ['s0A2', 8, [[-40, 0], [+40, 0]], 500, 0.2, 0.04, 10], 6000],
+		[newSec1, ['s0A1', 8, [[+40, 0], [-40, 0]], 500, 0.2, 0.04, 10], 8000],
+		[newSec1, ['s0A2', 8, [[0, 0]], 500, 0.2, 0.04, 10], 12000],
+		[newSec1, ['s0A1', 8, [[0, 0]], 500, 0.2, 0.04, 10], 14000],
 	], duration:15000, },
 	{ init:newSecEx1, args:[0.2], duration:100, },
 	{ init:newSecEx1, args:[-0.2], duration:100, },
@@ -3902,7 +3901,7 @@ ieach([
 	},
 	{
 		pathnodes: [
-			{ t:2000, v:0.1 },
+			{ t:2000, v:0.05 },
 			{ t: 500, fx:0.50, fy:0.20, },
 			{ t: 800, fn:newBossDanns5, args:['r', -1, 5], },
 			{ t: 800, fn:newBossDanns5, args:['m',  1, 5], },
@@ -3912,7 +3911,8 @@ ieach([
 			{ t: 800, fn:newBossDanns5, args:['m',  1, 5], },
 			{ t: 800, fn:newBossDanns5, args:['r', -1, 5], },
 			{ t: 800, fn:newBossDanns5, args:['m',  1, 5], },
-			{ t: 200, fx:0.30, fy:0.10, v:0.05, },
+			{ t: 200, fx:0.30, fy:0.10, },
+			{ t: 100, fn:newBossDanns6, },
 			{ t: 800, fn:newBossDanns5, args:['r', -1, 5], },
 			{ t: 800, fn:newBossDanns5, args:['m',  1, 5], },
 			{ t: 800, fn:newBossDanns5, args:['r', -1, 5], },
@@ -3922,6 +3922,7 @@ ieach([
 			{ t: 800, fn:newBossDanns5, args:['r', -1, 5], },
 			{ t: 800, fn:newBossDanns5, args:['m',  1, 5], },
 			{ t: 200, fx:0.40, fy:0.30, },
+			{ t: 100, fn:newBossDanns6, },
 			{ t: 800, fn:newBossDanns5, args:['r', -1, 5], },
 			{ t: 800, fn:newBossDanns5, args:['m',  1, 5], },
 			{ t: 800, fn:newBossDanns5, args:['r', -1, 5], },
@@ -3931,6 +3932,7 @@ ieach([
 			{ t: 800, fn:newBossDanns5, args:['r', -1, 5], },
 			{ t: 800, fn:newBossDanns5, args:['m',  1, 5], },
 			{ t: 200, fx:0.60, fy:0.20, },
+			{ t: 100, fn:newBossDanns6, },
 			{ t: 800, fn:newBossDanns5, args:['r', -1, 5], },
 			{ t: 800, fn:newBossDanns5, args:['m',  1, 5], },
 			{ t: 800, fn:newBossDanns5, args:['r', -1, 5], },
