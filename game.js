@@ -4092,6 +4092,7 @@ tl.askContinue = {
 		return 'secX';
 	},
 	quit: function(d) {
-		$e('pause_notice').remove();
+		var e = $e('pause_notice');
+		e.parentNode.removeChild(e);
 	}
 }
