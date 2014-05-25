@@ -509,7 +509,7 @@ input[type="radio"] {
  * loading screen
  */
 .loading {
-	background: url(res/th06logo.jpg) white;
+	background: url(res/th06logo.png) white;
 }
 
 /*
