@@ -2428,6 +2428,7 @@ function newDanns1(from, speed, rand) {
 	var to = UTIL.getNearestAlive(from, 'Player');
 	if (!from.is_dying) {
 		newDannmaku(from, to, 0, rand ? random(rand) : 0, speed || 0.2, 0, {
+			r: 3,
 			color: 'b',
 			frames: RES.frames.TamaSmallX[5],
 		});
@@ -2453,6 +2454,7 @@ function newDanns2(from) {
 function newDannsEx1(from, rt, v) {
 	var to = UTIL.getNearestAlive(from, 'Player');
 	return newDannmaku(from, to, 0, rt, v, 0, {
+		r: 3,
 		color: 'r',
 		frames: RES.frames.TamaSmallX[1],
 	})
@@ -2766,6 +2768,7 @@ function newBossDanns0(from) {
 		var r = random(-0.05, 0.05);
 		if (!from.is_dying) range(1, 0.001, 1/50, function(f) {
 			newDannmaku(from, to, 0, f*PI2+r, 0.15, 0, {
+				r: 3,
 				color: 'b',
 				frames: RES.frames.TamaSmallX[5],
 			});
@@ -2809,6 +2812,7 @@ function newBossDanns2(from) {
 		var para = d[j];
 		range(1, 0.001, 1/15, function(f) {
 			var obj = newDannmaku(from, to, 0, f*PI2+j*0.1, 0.1, 0, {
+				r: 3,
 				color: para.color,
 				frames: para.frames,
 			});
@@ -2852,10 +2856,12 @@ function newBossDanns3(from, colors) {
 			v2 = random(0.06, 0.15);
 		range(1, 0.001, 1/20, function(f) {
 			para.frames1 && newDannmaku(from, to, 0, f*PI2+dt1, v1, 0, {
+				r: 3,
 				color: para.color,
 				frames: para.frames1,
 			});
 			para.frames2 && newDannmaku(from, to, 0, f*PI2+dt2, v2, 0, {
+				r: 3,
 				color: para.color,
 				frames: para.frames2,
 			});
@@ -2921,6 +2927,7 @@ function newBossDanns6(from, color, count, angular, rad, v0, dr) {
 	if (!from.is_dying) array(count || 10, function(j) {
 		range(0.501, -0.5, 1/((angular || 5) - 1), function(f) {
 			newDannmaku(from, to, 0, f*(rad || 0.03)*PI2 + (dr || 0)*j, (v0 || 0.1)+j*0.03, 0, {
+				r: 3,
 				color: color,
 				frames: frame,
 			});
@@ -2953,6 +2960,7 @@ function newBossDanns8(from, color, count, delay, dec, dv) {
 		var i = j % 2 ? -1 : 1;
 		range(1, 0.001, 1/60, function(f) {
 			var obj = newDannmaku(from, to, 0, f*PI2, 0.3+0.1*j, 0, {
+				r: 3,
 				color: color,
 				frames: frame,
 				sx: from.data.x,
