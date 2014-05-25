@@ -2385,7 +2385,7 @@ function newSec4(fn, life) {
 function newSecEx1(rad) {
 	var obj = SPRITE.newObj('Enemy', {
 		frames: RES.frames.EnemyX,
-		life: 10,
+		life: 30,
 		x: UTIL.getGamePosX(random(0.5, rad > 0 ? 1 : 0)),
 		y: 0,
 		vy: 0.1,
@@ -2393,7 +2393,7 @@ function newSecEx1(rad) {
 		rt: 0,
 		ri: 0,
 	});
-	obj.anim(20, function(d) {
+	obj.anim(60, function(d) {
 		if (d.age > 500 && !this.is_dying)
 			newDannsEx1(this, Math.sin(d.rt += rad || 0.2), d.ri++ % 2 ? 0.2 : 0.15);
 		if (d.age > 1000)
@@ -2403,7 +2403,7 @@ function newSecEx1(rad) {
 function newSecEx2(fx, fy, vx, vy) {
 	var obj = SPRITE.newObj('Enemy', {
 		frames: RES.frames.EnemyX,
-		life: 20,
+		life: 30,
 		x: UTIL.getGamePosX(fx),
 		y: UTIL.getGamePosX(fy),
 		vx: vx,
@@ -3059,6 +3059,33 @@ function newBossDannsEx1(from) {
 		}
 	}, obj.data);
 }
+function newBossDannsEx2(from, count, num) {
+	STORY.timeout(function(x, j) {
+		var to = UTIL.getNearestAlive(from, 'Player');
+		var i = 0;
+		range(0.5001, -0.5, 1/(num || 10), function(f) {
+			var ext = i++ % 2 == 0 ?
+				{ color:'y', frames:RES.frames.TamaB[12], v:0.1, }:
+				{ color:'g', frames:RES.frames.LongA[9],  v:0.2, dx:randin([30, 20, -20, -30]), redirect:true, };
+			var obj = newDannmaku(from, to, 0, f*PI*0.5, ext.v, 0, ext);
+			if (ext.redirect) obj.anim(100, function(d) {
+				if (d.age < 1000) {
+					d.vx *= 0.9;
+					d.vy *= 0.9;
+				}
+				else if (d.age < 5000) {
+					redirect_object(d, {
+						x: to.data.x + d.dx,
+						y: to.data.y,
+					}, sqrt_sum(d.vx, d.vy)+0.01, 0.25);
+				}
+				else {
+					return true;
+				}
+			}, obj.data);
+		})
+	}, 200, null, count || 25);
+}
 
 function newEffect(from, frames, scale) {
 	var d = from.data;
@@ -3413,14 +3440,10 @@ ieach([
 	], duration:15000, },
 	{ init:newSecEx1, args:[0.2], duration:100, },
 	{ init:newSecEx1, args:[-0.2], duration:100, },
-	{ init:newSecEx1, args:[0.2], duration:100, },
-	{ init:newSecEx1, args:[-0.2], duration:100, },
 	{ init:newSec1, args:['s0A2', 8, [[-40, 0], [0, 0]], 500, 0.3], duration:1500, },
 	{ init:newSec1, args:['s0A1', 8, [[+40, 0], [0, 0]], 500, 0.3], duration:1500, },
 	{ init:newSec1, args:['s0A2', 8, [[-40, 0], [0, 0]], 500, 0.3], duration:1500, },
 	{ init:newSec1, args:['s0A1', 8, [[+40, 0], [0, 0]], 500, 0.3], duration:1500, },
-	{ init:newSecEx1, args:[0.2], duration:100, },
-	{ init:newSecEx1, args:[-0.2], duration:100, },
 	{ init:newSecEx1, args:[0.2], duration:100, },
 	{ init:newSecEx1, args:[-0.2], duration:100, },
 	{ init:newSec1, args:['s0A2', 8, [[-40, 0], [0, 0]], 500, 0.3], duration:1500, },
@@ -3977,6 +4000,22 @@ ieach([
 		duration: 15000,
 		scname: 'st_stg1_sc_ex2',
 		background: newBossBackground,
+	},
+	{
+		pathnodes: [
+			{ v: 0.05 },
+			{ t: 100, fn:newBossDannsEx2, args:[30, 6], },
+			{ t: NaN, fx:0.5, fy:0.1, },
+			{ t: NaN, fx:0.3, fy:0.2, },
+			{ t: NaN, fx:0.7, fy:0.2, },
+			{ t: 100, fn:newBossDannsEx2, args:[30, 10], },
+			{ t: NaN, fx:0.5, fy:0.1, },
+			{ t: NaN, fx:0.4, fy:0.3, },
+			{ t: NaN, fx:0.7, fy:0.4, },
+			{ t: 100, fn:newBossDannsEx2, args:[30, 15], },
+			{ t: NaN, fx:0.3, fy:0.4, },
+		],
+		duration: 15000,
 	},
 ], function(i, para, tl) {
 	var c = para.name || 'boss'+i, n = para.next || 'boss'+(i+1);
