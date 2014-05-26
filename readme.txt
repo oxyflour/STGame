@@ -1,29 +1,47 @@
 This is an HTML5 based Touhou like Shooting Game(STG).
-You'll need a modern browser to play it.
+You need a modern browser to play it.
 
-All textures and tools can be found at:
-http://tieba.baidu.com/p/2211912758#!/l/p1
+这是一个东方红魔乡一面的复刻版本，你需要一个主流的支持 html5 的浏览器才能玩
+
+
+使用的素材：
+
+- 东方红魔乡游戏本体：
+http://down.thwiki.cc/og/game/
+- 对话文本：
+http://thwiki.cc/%E6%B8%B8%E6%88%8F%E5%AF%B9%E8%AF%9D:%E4%B8%9C%E6%96%B9%E7%BA%A2%E9%AD%94%E4%B9%A1/%E5%8D%9A%E4%B8%BD%E7%81%B5%E6%A2%A6
+- 提取工具和音效：
 http://www.shrinemaiden.org/forum/index.php?topic=197.0
 
 
-The following is the TODO list
+下面是待办事项列表
 
 DONEs
-# simple frame animation
-# objects can move along predefined path
-# animated background (based on css transformation)
-# more dannmakus (like lasers, etc)
-# BOMB!
-# HUDs
+- 灵梦A自机
+- 简易的帧动画
+- 敌机沿固定路线的移动和开火
+- 基于 css 动画的背景
+- 更多样的弹幕
+- BOMB!
+- 其他抬头显示
+- 游戏对话
 
 TODOs
-# finish power levels
-# finish dialogs
-# fix sounds in IE
-# do parameters adjustments (speed, life, damage...)
-# do timeline adjustments
+- 弹幕速度校正
+- 时间轴校正
+- 子弹威力校正
+- 完整的得分系统
+- 更多的特效（粒子系统？）
+- 更多音效（比如达到 full power 的音效）
+- 修复不同浏览器音效延迟不同的问题
+- 更好的碰撞检测机制
+- 背景管理器
+- 关卡载入器
 
 MORE
-# game title, ending, etc
-# stage loader
-# background manager
+- 完整的设置页面
+- 更多的自机（灵B，魔A，魔B）
+- 更多关卡（2面，3面）
+
+MAYBE POSSIBLE
+- 游戏录像
