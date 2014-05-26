@@ -651,7 +651,10 @@
 	<div class="screen select absolute no-overflow ui"
 		ui-show="GAME.state == GAME.states.SELECT || GAME.state == GAME.states.SELECT_DIFF ||
 			GAME.state == GAME.states.SELECT_CHAR || GAME.state == GAME.states.SELECT_BOMB">
-		<div class="absolute ui" ui-show="GAME.double_player_mode" style="color:white">Double Player Mode Enabled</div>
+		<div class="absolute" style="color:white">
+			<span class="ui" ui-show="GAME.double_player_mode">Double Player Mode On</span> 
+			<span class="ui" ui-show="GAME.many_lives_mode">Many lives Mode On</span>
+		</div>
 		<form class="select-diff absolute ui" eval-radios
 			ui-focus="GAME.state == GAME.states.SELECT_DIFF"
 			onkeyup="checkFormKey(event, this)" onescape="changeGameState('TITLE')">
@@ -837,12 +840,14 @@ function checkFormKey(e, f) {
 	if (RES.process !== 1)
 		return;
 
-	if (!checkFormKey.str)
-		checkFormKey.str = '';
-	checkFormKey.str += String.fromCharCode(e.which) || ' ';
-	while (checkFormKey.str.length > 20)
-		checkFormKey.str = checkFormKey.str.substring(1);
-	if (/REIMU REIMU GO$/.test(checkFormKey.str))
+	var _t = checkFormKey;
+	if (!_t.str) _t.str = '';
+	_t.str += String.fromCharCode(e.which) || ' ';
+	if (_t.str.length > 20)
+		_t.str = _t.str.substring(_t.str.length - 20);
+	if (str_endwith(_t.str, "&&((%'%'BA"))
+		GAME.many_lives_mode = true;
+	else if (str_endwith(_t.str, 'REIMU REIMU GO'))
 		GAME.double_player_mode = true;
 
 	if (e.which == 'Z'.charCodeAt(0) || e.which == 13) {

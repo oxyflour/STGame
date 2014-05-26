@@ -13,6 +13,9 @@ function return_second(x0, x) {
 function same_type(a, b) {
 	return typeof(a) === typeof(b);
 }
+function str_endwith(s, e) {
+	return s.indexOf(e, s.length - e.length) !== -1;
+}
 function range(e, b, d, fn) {
 	var ls = [];
 	for (var i = b||0, k = d||1; i < e; i += k) {
@@ -3305,6 +3308,11 @@ var hook = {
 
 				time: 0,
 			})
+			if (GAME.many_lives_mode && !(GAME.many_lives_mode = false)) {
+				STATICS.player = 7;
+				STATICS.bomb_reset = 7;
+				STATICS.bomb = STATICS.bomb_reset;
+			}
 		}
 		else if (e == STORY.events.GAME_INPUT) {
 			if (v.type == 'keyup' && v.which == 27) {
@@ -3361,7 +3369,7 @@ var hook = {
 				newBullet(v, STATICS.power);
 		}
 		else if (e == STORY.events.PLAYER_BOMB) {
-			if (!d.disable_fire) {
+			if (!d.disable_fire && STATICS.bomb > 0) {
 				STATICS.bomb --;
 				v.bomb();
 				newBomb(v);
