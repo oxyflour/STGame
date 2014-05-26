@@ -951,7 +951,13 @@ setAudioVolume('audio.se', 0.2);
 setAudioVolume('audio.bgm', 0.5);
 
 GAME.state = GAME.states.LOADING;
-RES.check();
+RES.check(function() {
+	console.log('咦，你也不小心按错键了吗？');
+	console.log('对源代码感兴趣的话，直接到 https://github.com/oxyflour/stgame 去 fork 吧');
+	console.log('虽然现在是三无产品（无设计，无文档，无测试），有人想一起玩的话我会尽量补上的');
+	console.log('对了对了，那个秘籍你看出来了吗？（Chrome 以下反白, FF 和 IE 请手动无视）');
+	console.log('%c在游戏开始前输入“reimu reimu go”激活双人模式，用数字小键盘控制P2方向，Insert, Home, End 分别是低速，开火和BOMB!', 'color:white');
+});
 
 setInterval(function() {
 	if (GAME.state != GAME.states.RUNNING) {
