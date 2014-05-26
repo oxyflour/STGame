@@ -472,7 +472,7 @@
 <div class="main">
 	<div class="screen play absolute ui"
 		ui-show="GAME.state == GAME.states.RUNNING || GAME.state == GAME.states.PAUSE ||
-			GAME.state == GAME.states.ENDED">
+			GAME.state == GAME.states.OVER">
 		<div class="game absolute no-overflow" style="z-index:0">
 			<!-- add no-overflow to fix issue in Firefox -->
 			<div class="game-size absolute bgimg no-overflow"
@@ -524,12 +524,13 @@
 				<div class="text"></div>
 			</div>
 		</div>
-		<div class="game pause mask absolute ui" ui-show="GAME.state == GAME.states.PAUSE">
+		<div class="game pause mask absolute ui"
+			ui-show="GAME.state == GAME.states.PAUSE || GAME.state == GAME.states.OVER">
 			<div class="menu menu-pause-text"></div>
 			<form class="menu-pause ui" eval-radios
-				ui-focus="GAME.state == GAME.states.PAUSE"
+				ui-focus="GAME.state == GAME.states.PAUSE || GAME.state == GAME.states.OVER"
 				onkeyup="checkFormKey(event, this)" onescape="changeGameState('RUNNING'); return false">
-				<div class="menu-line">
+				<div class="menu-line ui" ui-show="GAME.state == GAME.states.PAUSE">
 					<input type="radio" value="changeGameState('RUNNING')" />
 					<label class="menu menu-pause-continue"></label>
 				</div>

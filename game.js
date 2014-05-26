@@ -812,6 +812,7 @@ var GAME = (function() {
 		'SELECT_BOMB',
 		'RUNNING',
 		'PAUSE',
+		'OVER',
 		'ENDED',
 	]);
 	_t.rect = {
@@ -3294,9 +3295,10 @@ var hook = {
 				newPlayer();
 			extend(STATICS, {
 				max_point: 1000000,
+				bomb_reset: 3,
 				point: 0,
-				player: 7,
-				bomb: 7,
+				player: 3,
+				bomb: 3,
 				power: 0,
 				graze: 0,
 				dot: 0,
@@ -3340,12 +3342,16 @@ var hook = {
 				newDrop(type, x, y, { vx:random(-0.2, 0.2), vy:random(-0.25, -0.3) });
 			})
 			STATICS.player --;
-			STATICS.bomb = 7;
+			STATICS.bomb = STATICS.bomb_reset;
 			STATICS.power = limit_between(STATICS.power - 16, 0, 128);
 			STORY.timer.add(newTicker(100, function() {
 				killCls('Dannmaku');
-				if (this.finished = v.finished)
-					newPlayer(v.data.conf && { conf:v.data.conf });
+				if (this.finished = v.finished) {
+					if (STATICS.player >= 0)
+						newPlayer(v.data.conf && { conf:v.data.conf });
+					else
+						GAME.state = GAME.states.OVER;
+				}
 			}));
 			newEffect(v, RES.frames.EffPlayer);
 			RES.se_pldead00.play();
@@ -4189,7 +4195,7 @@ ieach([
 }, tl);
 ieach([
 	{ name:'bossKill', next:'diagC', },
-	{ name:'bossKill2', next:'end', },
+	{ name:'bossKill2', next:'over', },
 ], function(i, para, tl) {
 	tl[para.name] = {
 		init: function(d) {
@@ -4232,14 +4238,8 @@ tl.askContinue = {
 		e.parentNode.removeChild(e);
 	}
 }
-tl.end = {
-	init: function(d) {
-		$i('.menu-pause-continue').parentNode.style.display = 'none';
-	},
+tl.over = {
 	run: function(dt, d) {
-		GAME.state = GAME.states.PAUSE;
-	},
-	quit: function(d) {
-		$i('.menu-pause-continue').parentNode.style.display = 'block';
+		GAME.state = GAME.states.OVER;
 	},
 }
