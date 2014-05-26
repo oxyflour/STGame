@@ -3110,8 +3110,8 @@ function newBossDannsEx3(from) {
 					dx = d.x - to.x,
 					dy = d.y - to.y,
 					r = sqrt_sum(dx, dy);
-				d.vx -= (1/40 - 1/r)*dx/r*2 + d.dir*dy/r*random(0.06);
-				d.vy -= (1/40 - 1/r)*dy/r*2 - d.dir*dx/r*random(0.06);
+				d.vx -= (1/30 - 1/r)*dx/r*2 + d.dir*dy/r*random(0.06);
+				d.vy -= (1/30 - 1/r)*dy/r*2 - d.dir*dx/r*random(0.06);
 				d.vx *= 0.8;
 				d.vy *= 0.8;
 			}
@@ -4075,10 +4075,10 @@ ieach([
 			{ t: 100, fn:newBossDannsEx2, args:[20, 8, 0.15], },
 			{ t: NaN, fx:0.5, fy:0.1, },
 			{ t: NaN, fx:0.4, fy:0.3, },
-			{ t: 100, fn:newBossDannsEx2, args:[20, 15, 0.2], },
+			{ t: 100, fn:newBossDannsEx2, args:[35, 15, 0.2], },
 			{ t: NaN, fx:0.7, fy:0.4, },
 		],
-		duration: 15000,
+		duration: 20000,
 	},
 	{
 		pathnodes: [
@@ -4113,7 +4113,7 @@ ieach([
 			{ t: 100, fn:newBossDannsEx4, },
 		],
 		life: 1000,
-		duration: 30000,
+		duration: 40000,
 		scname: 'st_stg1_sc_ex3',
 		background: newBossBackground,
 		next: 'bossKill2',
