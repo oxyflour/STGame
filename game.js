@@ -1987,8 +1987,7 @@ function newShield(bomb) {
 		d.scale = d.r / 30;
 		return true;
 	};
-	sh.anim(50, function(k) {
-		var d = this.data;
+	sh.anim(50, function(d) {
 		if (!d.to || d.to.finished)
 			d.to = UTIL.getNearestAlive(this, 'Enemy');
 		if (d.to && d.to != this.hit_with)
@@ -2000,7 +1999,11 @@ function newShield(bomb) {
 			d.vx += Math.sin(d.theta) * d.dv;
 			d.vy += Math.cos(d.theta) * d.dv;
 		}
-	});
+		if (this.is_dying) {
+			newEffect(this, RES.frames.EffPlayer, 2);
+			this.finished = true;
+		}
+	}, sh.data);
 	ieach([1, 2, 3], function(i, v) {
 		SPRITE.newObj('Basic', {
 			index: v,
