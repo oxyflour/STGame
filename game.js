@@ -2491,7 +2491,7 @@ function newDannsEx2(from, vt, f) {
 			d.vy = d.vr * sin - d.vt * cos;
 		}
 		else if (d.age < 4000) {
-			redirect_object(d, to.data, Math.abs(vt), f || 0.2);
+			to && redirect_object(d, to.data, Math.abs(vt), f || 0.2);
 		}
 		else {
 			return true;
@@ -3083,7 +3083,7 @@ function newBossDannsEx2(from, count, num, speed) {
 					d.vy *= 0.9;
 				}
 				else if (d.age < 5000) {
-					redirect_object(d, {
+					to && redirect_object(d, {
 						x: to.data.x + d.dx,
 						y: to.data.y,
 					}, sqrt_sum(d.vx, d.vy)+0.01, 0.25);
