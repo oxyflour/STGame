@@ -4181,8 +4181,10 @@ ieach([
 			if (para.invinc)
 				d.boss.data.damage = 0;
 			if (d.age > para.duration || d.boss.data.damage >= para.damage || d.pass) {
+				var success = d.pass || d.boss.data.damage >= para.damage,
+					next = (success ? para.success_next : para.fail_next) || n;
 				d.boss.data.damage = para.damage || 0;
-				return (d.pass ? para.success_next : para.fail_next) || n;
+				return next;
 			}
 		},
 		on: function(e, v, d) {
