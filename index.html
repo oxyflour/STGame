@@ -837,7 +837,7 @@ function checkActiveRadios() {
 }
 
 function checkFormKey(e, f) {
-	if (RES.process !== 1)
+	if (RES.process !== 1 || GAME.state == GAME.states.RUNNING)
 		return;
 
 	var _t = checkFormKey;
