@@ -529,7 +529,7 @@
 			<div class="menu menu-pause-text"></div>
 			<form class="menu-pause ui" eval-radios
 				ui-focus="GAME.state == GAME.states.PAUSE || GAME.state == GAME.states.OVER"
-				onkeyup="checkFormKey(event, this)" onescape="changeGameState('RUNNING'); return false">
+				onescape="changeGameState('RUNNING'); return false">
 				<div class="menu-line ui" ui-show="GAME.state == GAME.states.PAUSE">
 					<input type="radio" value="changeGameState('RUNNING')" />
 					<label class="menu menu-pause-continue"></label>
@@ -657,7 +657,7 @@
 		</div>
 		<form class="select-diff absolute ui" eval-radios
 			ui-focus="GAME.state == GAME.states.SELECT_DIFF"
-			onkeyup="checkFormKey(event, this)" onescape="changeGameState('TITLE')">
+			onescape="changeGameState('TITLE')">
 			<div class="select-title"></div>
 			<div class="menu-line">
 				<input type="radio" value="changeGameState('SELECT_CHAR')" />
@@ -678,7 +678,7 @@
 		</form>
 		<form class="select-char absolute ui" eval-radios
 			ui-focus="GAME.state == GAME.states.SELECT_CHAR"
-			onkeyup="checkFormKey(event, this)" onescape="changeGameState('SELECT_DIFF')">
+			onescape="changeGameState('SELECT_DIFF')">
 			<div class="select-title"></div>
 			<div class="menu-line absolute">
 				<input type="radio" value="changeGameState('SELECT_BOMB')" />
@@ -697,7 +697,7 @@
 		</form>
 		<form class="select-bomb absolute ui" eval-radios
 			ui-focus="GAME.state == GAME.states.SELECT_BOMB"
-			onkeyup="checkFormKey(event, this)" onescape="changeGameState('SELECT_CHAR')">
+			onescape="changeGameState('SELECT_CHAR')">
 			<div class="select-title"></div>
 			<div class="menu-line">
 				<input type="radio" value="loadAndStart()" />
@@ -725,13 +725,12 @@
 		</div>
 		<form class="absolute ui" eval-radios
 			ui-show="GAME.state == GAME.states.TITLE"
-			ui-focus="GAME.state == GAME.states.TITLE"
-			onkeyup="checkFormKey(event, this)">
+			ui-focus="GAME.state == GAME.states.TITLE">
 			<input type="radio" value="changeGameState('MENU')" />
 		</form>
 		<form class="menu-title ui" eval-radios
 			ui-focus="GAME.state == GAME.states.MENU"
-			onkeyup="checkFormKey(event, this)" onescape="checkRadio($i('input', $i('.menu-title-quit').parentNode))">
+			onescape="checkRadio($i('input', $i('.menu-title-quit').parentNode))">
 			<div class="menu-line">
 				<input type="radio" value="changeGameState('SELECT_DIFF')" />
 				<label class="menu menu-title-start"></label>
@@ -786,8 +785,7 @@
 			<h3 class="ui" ui-show="RES.process < 1">loading <span class="ui" ui-bind="(RES.process*100).toFixed(1)+'%'">...</span></h3>
 		</div>
 		<form class="absolute ui" eval-radios
-			ui-focus="GAME.state == GAME.states.LOADING"
-			onkeyup="checkFormKey(event, this)">
+			ui-focus="GAME.state == GAME.states.LOADING">
 			<input type="radio" value="checkStart()" />
 		</form>
 	</div>
@@ -796,6 +794,12 @@
 <script>
 ieach($('form[eval-radios]'), function(i, e) {
 	e.action = 'javascript:evalRadioVal("eval_radio'+i+'")';
+	e.addEventListener('keydown', function(e) {
+		this.active = true;
+	})
+	e.addEventListener('keyup', function(e) {
+		this.active && !(this.active = false) && checkFormKey(e, this);
+	})
 	ieach($('input[type="radio"]', e), function(j, r) {
 		r.name = 'eval_radio'+i;
 	});
