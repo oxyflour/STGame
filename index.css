@@ -193,8 +193,9 @@ input[type="radio"] {
 	background: rgba(0, 0, 0, 0.7);
 	color: #eee;
 }
-.bgimg {
-	-webkit-transform: perspective(600px) rotateX(.001deg);
+.bg-persp {
+	-webkit-transform: perspective(600px) rotateX(70deg);
+	-webkit-transform-origin: 50% -10%;
 }
 
 /*

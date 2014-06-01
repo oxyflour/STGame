@@ -2943,22 +2943,27 @@ function newBackground(scrollImgs) {
 	bg.draw = return_nothing;
 	ieach(scrollImgs, function(i, e) {
 		e.object = bg;
-		e.offset = 0;
-		e.total = parseFloat($style(e, 'height')) - parseFloat($style('.game', 'height'));
-		e.speed = parseFloat($attr(e, 'bg-speed') || '0');
-		e.opacity = parseFloat(e.style.opacity || '1');
+		e.offsetX = parseFloat($attr(e, 'bg-offset-x') || '0');
+		e.offsetY = parseFloat($attr(e, 'bg-offset') || '0');
+		e.totalX = parseFloat($style(e, 'width')) - parseFloat($style('.game', 'width'));
+		e.totalY = parseFloat($style(e, 'height')) - parseFloat($style('.game', 'height'));
+		e.speedX = parseFloat($attr(e, 'bg-speed-x') || '0');
+		e.speedY = parseFloat($attr(e, 'bg-speed') || '0');
 	});
 	bg.anim(50, function() {
 		ieach(scrollImgs, function(i, e) {
-			if (e.speed) {
-				e.offset += e.speed * 50;
-				if (e.offset > 0)
-					e.offset -= e.total;
-				var trans = 'translateY(' + e.offset + 'px)',
+			if (e.speedX || e.speedY) {
+				e.offsetX += e.speedX * 50;
+				if (e.offsetX > 0)
+					e.offsetX -= e.totalX;
+				else if (e.offsetX < -e.totalX)
+					e.offsetX += e.totalX;
+				if ((e.offsetY += e.speedY * 50) > 0)
+					e.offsetY -= e.totalY;
+				var trans = 'translate(' + e.offsetX + 'px, ' + e.offsetY + 'px)',
 					trans2 = trans + ' rotate(0.0001deg)';
 				$prefixStyle(e.style, 'Transform', trans2);
 			}
-			e.style.opacity = e.opacity * bg.data.ph;
 		});
 	});
 	return bg;
@@ -2974,10 +2979,9 @@ function newStg1BgAnim(bg) {
 		$prefixStyle(e.style, 'Transform', trans);
 		$prefixStyle(e.style, 'TransformOrigin', ori);
 		e.style.opacity = interp(v.opacity[0], v.opacity[1], f);
-		e.style.display = e.style.opacity > 0.05 ? 'block' : 'none';
 	}
 
-	var imgs = $('.bgimg');
+	var imgs = $('#bg_stg1_top, #bg_stg1_bottom');
 	ieach(imgs, function(i, e, d) {
 		e.val = d[e.id];
 		updateBgImg(e, 0);
@@ -3028,7 +3032,7 @@ function newStgSecInit(next, para) {
 		init: function(d) {
 			if (GAME.stgbg) GAME.stgbg.die();
 			GAME.stgbg = newBackground(para.bgelem);
-			newStg1BgAnim(GAME.stgbg);
+			para.bganim && para.bganim(GAME.stgbg);
 
 			GAME.bgm_running = undefined;
 			STORY.timeout(function(d) {
@@ -3425,6 +3429,7 @@ function newStage1(difficuty) {
 	stage.hook = newStgHook();
 	stage.init = newStgSecInit('sec0', {
 		bgelem: $('.bg-stg1'),
+		bganim: newStg1BgAnim,
 		title: 'STAGE 1',
 		text: RES.st_stg1_title,
 		bgm: RES.bgm_stg1a,
@@ -3479,40 +3484,40 @@ function newStage1(difficuty) {
 		{ init:killCls, args:['Enemy', 'Dannmaku'], duration:1000, next:'diagD', },
 	], newStgSecNormal, 'sec');
 	newStgSecsFromList(stage, [
-		{ text:RES.st_diag1, pos:'.fl.dg', face:'.f0a', name:'diagA', },
-		{ text:RES.st_diag2, pos:'.fl.dg', face:'.f0a' },
-		{ text:RES.st_diag3, pos:'.fl.dg', face:'.f0c.f2' },
-		{ text:RES.st_diag4, pos:'.fl.dg', face:'.f0c.f2' },
-		{ text:RES.st_diag5, pos:'.fl.dg', face:'.f0b.f2', next:'bossB', },
-		{ text:RES.st_diag6, pos:'.fr.dg', face:'.f3a.f2', name:'diagB', },
-		{ text:RES.st_diag7, pos:'.fl.dg', face:'.f0c.f2' },
-		{ text:RES.st_diag8, pos:'.fr.dg', face:'.f3a' },
-		{ text:RES.st_diag9, pos:'.fl.dg', face:'.f0a' },
-		{ text:RES.st_diag10, pos:'.fr.dg', face:'.f3b.f2' },
-		{ text:RES.st_diag11, pos:'.fl.dg', face:'.f0b.f2' },
-		{ text:RES.st_diag12, pos:'.fr.dg', face:'.f3b' },
-		{ text:RES.st_diag13, pos:'.fl.dg', face:'.f0a' },
-		{ text:RES.st_diag14, pos:'.fr.dg', face:'.f3b' },
-		{ text:RES.st_diag15, pos:'.fl.dg', face:'.f0b.f2', next:'bossC', ended:true, },
-		{ text:RES.st_diagXX, pos:'.fr.dg', face:'.fx', name:'diagC', duration:10 },
-		{ text:RES.st_diag16, pos:'.fl.dg', face:'.f0b.f2', next:'askContinue', ended:true, },
-		{ text:RES.st_diag17, pos:'.fr.dg', face:'.f3a.f2', name:'diagD', },
-		{ text:RES.st_diag18, pos:'.fl.dg', face:'.f0c.f2' },
-		{ text:RES.st_diag19, pos:'.fr.dg', face:'.f3a' },
-		{ text:RES.st_diag20, pos:'.fl.dg', face:'.f0b.f2' },
-		{ text:RES.st_diag21, pos:'.fr.dg', face:'.f3a.f2' },
-		{ text:RES.st_diag22, pos:'.fl.dg', face:'.f0c.f2' },
-		{ text:RES.st_diag23, pos:'.fl.dg', face:'.f0a' },
-		{ text:RES.st_diag24, pos:'.fr.dg', face:'.f3a.f2' },
-		{ text:RES.st_diag25, pos:'.fr.dg', face:'.f3b' },
-		{ text:RES.st_diag26, pos:'.fl.dg', face:'.f0b.f2' },
-		{ text:RES.st_diag27, pos:'.fl.dg', face:'.f0b' },
-		{ text:RES.st_diag28, pos:'.fr.dg', face:'.f3b.f2' },
-		{ text:RES.st_diag29, pos:'.fl.dg', face:'.f0c' },
-		{ text:RES.st_diag30, pos:'.fr.dg', face:'.f3b' },
-		{ text:RES.st_diag31, pos:'.fl.dg', face:'.f0a' },
-		{ text:RES.st_diag32, pos:'.fl.dg', face:'.f0a.f2' },
-		{ text:RES.st_diag33, pos:'.fr.dg', face:'.f3a', next:'bossY', ended:true },
+		{ text:RES.st_stg1_diag1,  pos:'.fl.dg', face:'.f0a', name:'diagA', },
+		{ text:RES.st_stg1_diag2,  pos:'.fl.dg', face:'.f0a' },
+		{ text:RES.st_stg1_diag3,  pos:'.fl.dg', face:'.f0c.f2' },
+		{ text:RES.st_stg1_diag4,  pos:'.fl.dg', face:'.f0c.f2' },
+		{ text:RES.st_stg1_diag5,  pos:'.fl.dg', face:'.f0b.f2', next:'bossB', },
+		{ text:RES.st_stg1_diag6,  pos:'.fr.dg', face:'.f3a.f2', name:'diagB', },
+		{ text:RES.st_stg1_diag7,  pos:'.fl.dg', face:'.f0c.f2' },
+		{ text:RES.st_stg1_diag8,  pos:'.fr.dg', face:'.f3a' },
+		{ text:RES.st_stg1_diag9,  pos:'.fl.dg', face:'.f0a' },
+		{ text:RES.st_stg1_diag10, pos:'.fr.dg', face:'.f3b.f2' },
+		{ text:RES.st_stg1_diag11, pos:'.fl.dg', face:'.f0b.f2' },
+		{ text:RES.st_stg1_diag12, pos:'.fr.dg', face:'.f3b' },
+		{ text:RES.st_stg1_diag13, pos:'.fl.dg', face:'.f0a' },
+		{ text:RES.st_stg1_diag14, pos:'.fr.dg', face:'.f3b' },
+		{ text:RES.st_stg1_diag15, pos:'.fl.dg', face:'.f0b.f2', next:'bossC', ended:true, },
+		{ text:RES.st_stg1_diagXX, pos:'.fr.dg', face:'.fx', name:'diagC', duration:10 },
+		{ text:RES.st_stg1_diag16, pos:'.fl.dg', face:'.f0b.f2', next:'askContinue', ended:true, },
+		{ text:RES.st_stg1_diag17, pos:'.fr.dg', face:'.f3a.f2', name:'diagD', },
+		{ text:RES.st_stg1_diag18, pos:'.fl.dg', face:'.f0c.f2' },
+		{ text:RES.st_stg1_diag19, pos:'.fr.dg', face:'.f3a' },
+		{ text:RES.st_stg1_diag20, pos:'.fl.dg', face:'.f0b.f2' },
+		{ text:RES.st_stg1_diag21, pos:'.fr.dg', face:'.f3a.f2' },
+		{ text:RES.st_stg1_diag22, pos:'.fl.dg', face:'.f0c.f2' },
+		{ text:RES.st_stg1_diag23, pos:'.fl.dg', face:'.f0a' },
+		{ text:RES.st_stg1_diag24, pos:'.fr.dg', face:'.f3a.f2' },
+		{ text:RES.st_stg1_diag25, pos:'.fr.dg', face:'.f3b' },
+		{ text:RES.st_stg1_diag26, pos:'.fl.dg', face:'.f0b.f2' },
+		{ text:RES.st_stg1_diag27, pos:'.fl.dg', face:'.f0b' },
+		{ text:RES.st_stg1_diag28, pos:'.fr.dg', face:'.f3b.f2' },
+		{ text:RES.st_stg1_diag29, pos:'.fl.dg', face:'.f0c' },
+		{ text:RES.st_stg1_diag30, pos:'.fr.dg', face:'.f3b' },
+		{ text:RES.st_stg1_diag31, pos:'.fl.dg', face:'.f0a' },
+		{ text:RES.st_stg1_diag32, pos:'.fl.dg', face:'.f0a.f2' },
+		{ text:RES.st_stg1_diag33, pos:'.fr.dg', face:'.f3a', next:'bossY', ended:true },
 	], newStgSecDiag, 'diag');
 	newStgSecsFromList(stage, [
 		{
@@ -4027,14 +4032,53 @@ function newStage1(difficuty) {
 	], newStgSecBoss, 'boss');
 	newStgSecsFromList(stage, [
 		{ name:'bossKill', next:'diagC', },
-		{ name:'bossKill2', next:'over', },
+		{ name:'bossKill2', next:'score', },
 	], newStgSecBossKill, 'bossKill');
 	stage.askContinue = newStgSecAskContinue('secX');
-	stage.over = {
+	stage.score = {
+		init: function(d) {
+			var elem = $e('bg_score');
+			elem.object = d.mask = SPRITE.newObj('Basic');
+			d.mask.anim(50, function(d) {
+				elem.style.opacity = d.ph;
+				var offset = (1 - d.ph) * (GAME.rect.b - GAME.rect.t);
+				$prefixStyle(elem.style, 'Transform', 'translateY(' + offset + 'px)');
+			}, d.mask.data);
+		},
 		run: function(dt, d) {
-			GAME.state = GAME.states.OVER;
+			d.age = (d.age || 0) + dt;
+			if (d.pass || d.age > 4000)
+				return 'ended';
+		},
+		quit: function(d) {
+			d.mask.die();
+			setTimeout(function() {
+				GAME.load(newStage2());
+				GAME.start('init');
+			}, 10);
+		},
+		on: function(e, v, d) {
+			if (e == STORY.events.GAME_INPUT) {
+				if (v.which == GAME.keychars.Z) {
+					if (v.type == 'keydown')
+						d.pass = 0;
+					else if (v.type == 'keyup' && d.pass === 0)
+						d.pass = 1;
+				}
+			}
 		},
 	}
+	return stage;
+}
+function newStage2(difficuty) {
+	var stage = {};
+	stage.hook = newStgHook();
+	stage.init = newStgSecInit('sec0', {
+		bgelem: $('.bg-stg2'),
+		title: 'STAGE 2',
+		text: RES.st_stg2_title,
+		bgm: RES.bgm_stg1a,
+	});
 	return stage;
 }
 
