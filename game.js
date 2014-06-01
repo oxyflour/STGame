@@ -2892,6 +2892,41 @@ function newBossDannsEx4(from) {
 	}, 50, null, 100);
 }
 
+function newStg2Sec1(interval, count) {
+	STORY.timeout(function (d, n) {
+		var fx = random(1);
+		var obj = SPRITE.newObj('Enemy', {
+			life: 1,
+			frames: RES.frames.Enemy2A,
+			x: UTIL.getGamePosX(fx),
+			y: GAME.rect.t,
+			vx: random(0.1) * (fx > 0.5 ? -1 : 1),
+			vy: random(0.1, 0.15),
+			duration: random(5000),
+		});
+		obj.anim(100, function(d) {
+			d.vy -= (d.y - GAME.rect.t) / (GAME.rect.b - GAME.rect.t) * 0.01;
+			if (this.is_dying)
+				return newStg2Danns(obj, d.damage >= d.life ? 'r' : 'g') || true;
+		}, obj.data)
+	}, interval || 300, null, count || 30);
+}
+function newStg2Danns(from, color) {
+	var frames = {
+		r: RES.frames.LongA[2],
+		g: RES.frames.LongB[9]
+	}[color];
+	var rt = random(PI);
+	range(0.5001, -0.5, 1/10, function(f) {
+		array(2, function(i) {
+			newDannmaku(from, null, 0, f*PI2+rt, 0.07+i*0.03, 0, {
+				color: color,
+				frames: frames,
+			})
+		})
+	})
+}
+
 function newEffect(from, frames, scale) {
 	var d = from.data;
 	SPRITE.newObj('Circle', {
@@ -4082,6 +4117,9 @@ function newStage2(difficuty) {
 		text: RES.st_stg2_title,
 		bgm: RES.bgm_stg1a,
 	});
+	newStgSecsFromList(stage, [
+		{ init:newStg2Sec1, args:[120, 100], duration:12000, },
+	], newStgSecNormal, 'sec');
 	return stage;
 }
 

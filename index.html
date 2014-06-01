@@ -32,6 +32,10 @@
 	<img id="stg1enm2" src="res/stg1enm2.png" />
 	<canvas id="stg1enm2R" from="stg1enm2 0 48 96 48" transform="mirror:x"></canvas>
 	<img id="stg1bg" src="res/stg1bg.png" />
+	<img id="stg2enm" src="res/stg2enm.png" />
+	<canvas id="enm2a" from="stg2enm 128 96 32 32"
+		transform="rotate:{{range(360, 0, 60)}}"></canvas>
+	<img id="stg2enm2" src="res/stg2enm2.png" />
 	<img id="stg2bg" src="res/stg2bg.png" />
 	<img id="front" src="res/front.png" />
 	<canvas id="bombs" from="player0L 0 97 63 64"
@@ -270,6 +274,9 @@
 			_t.EnemyX = array(8, function(i) {
 				return extend({ res:'stg1enm', sy:255-48, sw:32, sh:48, w:32, h:48 }, { sx:32*i });
 			});
+			_t.Enemy2A = array(RES.enm2a.width / 32, function(i) {
+				return extend({ res:'enm2a', sy:0, sw:32, sh:32, w:32, h:32 }, { sx:32*i });
+			})
 
 			_t.Boss = [{ res:'stg1enm2', sx:128, sy:0, sw:32, sh:48, w:32, h:48 }];
 			lastOfArray(_t.Boss).next = 0;
@@ -970,7 +977,7 @@ function changeGameState(k) {
 
 function loadAndStart() {
 	GAME.reset();
-	GAME.load(newStage1());
+	GAME.load(newStage2());
 	GAME.start('init');
 }
 
