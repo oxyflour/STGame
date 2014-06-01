@@ -2982,13 +2982,13 @@ function newStg1BgAnim(bg) {
 		e.val = d[e.id];
 		updateBgImg(e, 0);
 	}, {
-		bg0: {
+		bg_stg1_bottom: {
 			persp: [900, 500],
 			rotate: [50, 70],
 			opacity: [1, 1],
 			oriy: -50,
 		},
-		bg1: {
+		bg_stg1_top: {
 			persp: [700, 500],
 			rotate: [30, 80],
 			opacity: [1, 0],
@@ -3424,7 +3424,7 @@ function newStage1(difficuty) {
 	var stage = {};
 	stage.hook = newStgHook();
 	stage.init = newStgSecInit('sec0', {
-		bgelem: $('.bg1'),
+		bgelem: $('.bg-stg1'),
 		title: 'STAGE 1',
 		text: RES.st_stg1_title,
 		bgm: RES.bgm_stg1a,

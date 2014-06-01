@@ -475,18 +475,16 @@
 			GAME.state == GAME.states.OVER">
 		<div class="game absolute no-overflow" style="z-index:0">
 			<!-- add no-overflow to fix issue in Firefox -->
-			<div class="game-size absolute bgimg no-overflow"
-				id="bg0">
-				<canvas class="ui-obj bg1 game-size" style="height:2400px"
+			<div class="game-size absolute bgimg no-overflow" id="bg_stg1_bottom">
+				<canvas class="ui-obj bg-stg1 game-size" style="height:2400px"
 					id="groundbg" bg-speed="0.01"></canvas>
-				<div class="ui-obj bg1"
+				<div class="ui-obj bg-stg1"
 					style="height:350px;background:linear-gradient(rgba(0,0,0,0.8),transparent);-webkit-transform:translate3d(0,0,0.1px)"></div>
 			</div>
-			<div class="game-size absolute bgimg no-overflow"
-				id="bg1">
-				<canvas class="ui-obj bg1 game-size" style="height:1000px;"
+			<div class="game-size absolute bgimg no-overflow" id="bg_stg1_top">
+				<canvas class="ui-obj bg-stg1 game-size" style="height:1000px;"
 					id="treebg" bg-speed="0.015"></canvas>
-				<div class="ui-obj bg1"
+				<div class="ui-obj bg-stg1"
 					style="height:300px;background:linear-gradient(rgba(0,0,0,0.6),transparent);-webkit-transform:translate3d(0,0,0.1px)"></div>
 			</div>
 			<div class="game-size absolute bgimg">
