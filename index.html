@@ -965,19 +965,20 @@ RES.check(function() {
 	console.log('%c在游戏开始前输入“reimu reimu go”激活双人模式，用数字小键盘控制P2方向，Insert, Home, End 分别是低速，开火和BOMB!', 'color:white');
 });
 
-setInterval(function() {
+setInterval(function checkGame() {
 	if (GAME.state != GAME.states.RUNNING) {
 		var f = $i('input:focus');
 		if (!f || !f.scrollHeight)
 			checkActiveRadios();
 	}
-	var bgm = getBGM();
-	if (GAME.bgm !== bgm) {
-		if (GAME.bgm)
-			GAME.bgm.pause();
-		if (GAME.bgm = bgm) {
-			GAME.bgm.pause();
-			GAME.bgm.play();
+	var _t = checkGame,
+		bgm = getBGM();
+	if (_t.bgm !== bgm) {
+		if (_t.bgm)
+			_t.bgm.pause();
+		if (_t.bgm = bgm) {
+			_t.bgm.pause();
+			_t.bgm.play();
 		}
 	}
 	// remove selection highlight for stubborn Firefox
