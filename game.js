@@ -1080,7 +1080,7 @@ var UTIL = {
 		}],
 		['ui-show', function(e) {
 			return function(v) {
-				this.style.display = v ? 'block' : 'none';
+				v ? this.classList.remove('hidden') : this.classList.add('hidden');
 				this.style.zIndex = v ? 0 : -99;
 			};
 		}],
