@@ -3087,7 +3087,7 @@ function newStgSecDiag(next, para) {
 			bg.classList.add('active');
 			ieach($('.fr.dg, .fl.dg', bg), filter, pos);
 			ieach($('.face', pos), filter, face);
-			text.innerHTML = RES[para.text] || '';
+			text.innerHTML = para.text || '';
 		},
 		run: function(dt, d) {
 			if (d.pass || GAME.keyste.ctrlKey || (d.age+=dt) > (para.duration || 20000))
@@ -3137,12 +3137,12 @@ function newStgSecBoss(next, para) {
 				if (d.scelem = $i('.sc-boss')) {
 					$readdClass(d.scelem.parentNode, 'active');
 					$readdClass(d.scelem, 'active');
-					$i('.text', d.scelem.parentNode).innerHTML = RES[para.scname] || para.scname;
+					$i('.text', d.scelem.parentNode).innerHTML = para.scname;
 				}
 				RES.se_cat00.play();
 			}
 			if (para.bgm)
-				GAME.bgm_running = RES[para.bgm];
+				GAME.bgm_running = para.bgm;
 		},
 		quit: function(d) {
 			killObj(d.countdown, d.background);
@@ -3479,40 +3479,40 @@ function newStage1(difficuty) {
 		{ init:killCls, args:['Enemy', 'Dannmaku'], duration:1000, next:'diagD', },
 	], newStgSecNormal, 'sec');
 	newStgSecsFromList(stage, [
-		{ text:'st_diag1', pos:'.fl.dg', face:'.f0a', name:'diagA', },
-		{ text:'st_diag2', pos:'.fl.dg', face:'.f0a' },
-		{ text:'st_diag3', pos:'.fl.dg', face:'.f0c.f2' },
-		{ text:'st_diag4', pos:'.fl.dg', face:'.f0c.f2' },
-		{ text:'st_diag5', pos:'.fl.dg', face:'.f0b.f2', next:'bossB', },
-		{ text:'st_diag6', pos:'.fr.dg', face:'.f3a.f2', name:'diagB', },
-		{ text:'st_diag7', pos:'.fl.dg', face:'.f0c.f2' },
-		{ text:'st_diag8', pos:'.fr.dg', face:'.f3a' },
-		{ text:'st_diag9', pos:'.fl.dg', face:'.f0a' },
-		{ text:'st_diag10', pos:'.fr.dg', face:'.f3b.f2' },
-		{ text:'st_diag11', pos:'.fl.dg', face:'.f0b.f2' },
-		{ text:'st_diag12', pos:'.fr.dg', face:'.f3b' },
-		{ text:'st_diag13', pos:'.fl.dg', face:'.f0a' },
-		{ text:'st_diag14', pos:'.fr.dg', face:'.f3b' },
-		{ text:'st_diag15', pos:'.fl.dg', face:'.f0b.f2', next:'bossC', ended:true, },
-		{ text:'st_diagXX', pos:'.fr.dg', face:'.fx', name:'diagC', duration:10 },
-		{ text:'st_diag16', pos:'.fl.dg', face:'.f0b.f2', next:'askContinue', ended:true, },
-		{ text:'st_diag17', pos:'.fr.dg', face:'.f3a.f2', name:'diagD', },
-		{ text:'st_diag18', pos:'.fl.dg', face:'.f0c.f2' },
-		{ text:'st_diag19', pos:'.fr.dg', face:'.f3a' },
-		{ text:'st_diag20', pos:'.fl.dg', face:'.f0b.f2' },
-		{ text:'st_diag21', pos:'.fr.dg', face:'.f3a.f2' },
-		{ text:'st_diag22', pos:'.fl.dg', face:'.f0c.f2' },
-		{ text:'st_diag23', pos:'.fl.dg', face:'.f0a' },
-		{ text:'st_diag24', pos:'.fr.dg', face:'.f3a.f2' },
-		{ text:'st_diag25', pos:'.fr.dg', face:'.f3b' },
-		{ text:'st_diag26', pos:'.fl.dg', face:'.f0b.f2' },
-		{ text:'st_diag27', pos:'.fl.dg', face:'.f0b' },
-		{ text:'st_diag28', pos:'.fr.dg', face:'.f3b.f2' },
-		{ text:'st_diag29', pos:'.fl.dg', face:'.f0c' },
-		{ text:'st_diag30', pos:'.fr.dg', face:'.f3b' },
-		{ text:'st_diag31', pos:'.fl.dg', face:'.f0a' },
-		{ text:'st_diag32', pos:'.fl.dg', face:'.f0a.f2' },
-		{ text:'st_diag33', pos:'.fr.dg', face:'.f3a', next:'bossY', ended:true },
+		{ text:RES.st_diag1, pos:'.fl.dg', face:'.f0a', name:'diagA', },
+		{ text:RES.st_diag2, pos:'.fl.dg', face:'.f0a' },
+		{ text:RES.st_diag3, pos:'.fl.dg', face:'.f0c.f2' },
+		{ text:RES.st_diag4, pos:'.fl.dg', face:'.f0c.f2' },
+		{ text:RES.st_diag5, pos:'.fl.dg', face:'.f0b.f2', next:'bossB', },
+		{ text:RES.st_diag6, pos:'.fr.dg', face:'.f3a.f2', name:'diagB', },
+		{ text:RES.st_diag7, pos:'.fl.dg', face:'.f0c.f2' },
+		{ text:RES.st_diag8, pos:'.fr.dg', face:'.f3a' },
+		{ text:RES.st_diag9, pos:'.fl.dg', face:'.f0a' },
+		{ text:RES.st_diag10, pos:'.fr.dg', face:'.f3b.f2' },
+		{ text:RES.st_diag11, pos:'.fl.dg', face:'.f0b.f2' },
+		{ text:RES.st_diag12, pos:'.fr.dg', face:'.f3b' },
+		{ text:RES.st_diag13, pos:'.fl.dg', face:'.f0a' },
+		{ text:RES.st_diag14, pos:'.fr.dg', face:'.f3b' },
+		{ text:RES.st_diag15, pos:'.fl.dg', face:'.f0b.f2', next:'bossC', ended:true, },
+		{ text:RES.st_diagXX, pos:'.fr.dg', face:'.fx', name:'diagC', duration:10 },
+		{ text:RES.st_diag16, pos:'.fl.dg', face:'.f0b.f2', next:'askContinue', ended:true, },
+		{ text:RES.st_diag17, pos:'.fr.dg', face:'.f3a.f2', name:'diagD', },
+		{ text:RES.st_diag18, pos:'.fl.dg', face:'.f0c.f2' },
+		{ text:RES.st_diag19, pos:'.fr.dg', face:'.f3a' },
+		{ text:RES.st_diag20, pos:'.fl.dg', face:'.f0b.f2' },
+		{ text:RES.st_diag21, pos:'.fr.dg', face:'.f3a.f2' },
+		{ text:RES.st_diag22, pos:'.fl.dg', face:'.f0c.f2' },
+		{ text:RES.st_diag23, pos:'.fl.dg', face:'.f0a' },
+		{ text:RES.st_diag24, pos:'.fr.dg', face:'.f3a.f2' },
+		{ text:RES.st_diag25, pos:'.fr.dg', face:'.f3b' },
+		{ text:RES.st_diag26, pos:'.fl.dg', face:'.f0b.f2' },
+		{ text:RES.st_diag27, pos:'.fl.dg', face:'.f0b' },
+		{ text:RES.st_diag28, pos:'.fr.dg', face:'.f3b.f2' },
+		{ text:RES.st_diag29, pos:'.fl.dg', face:'.f0c' },
+		{ text:RES.st_diag30, pos:'.fr.dg', face:'.f3b' },
+		{ text:RES.st_diag31, pos:'.fl.dg', face:'.f0a' },
+		{ text:RES.st_diag32, pos:'.fl.dg', face:'.f0a.f2' },
+		{ text:RES.st_diag33, pos:'.fr.dg', face:'.f3a', next:'bossY', ended:true },
 	], newStgSecDiag, 'diag');
 	newStgSecsFromList(stage, [
 		{
@@ -3559,7 +3559,7 @@ function newStage1(difficuty) {
 				{ t:4000, fn:newBossDanns0A, },
 			],
 			duration: 20000,
-			scname: 'st_stg1_sc0',
+			scname: RES.st_stg1_sc0,
 			background: newBossBackground,
 		},
 		{
@@ -3626,7 +3626,7 @@ function newStage1(difficuty) {
 			],
 			duration: 35000,
 			name: 'bossC',
-			bgm: 'bgm_stg1b',
+			bgm: RES.bgm_stg1b,
 		},
 		{
 			pathnodes: [
@@ -3669,7 +3669,7 @@ function newStage1(difficuty) {
 				{ t: 800, fn:newBossDanns5, args:['c',  1], },
 			],
 			duration: 25000,
-			scname: 'st_stg1_sc1',
+			scname: RES.st_stg1_sc1,
 			background: newBossBackground,
 		},
 		{
@@ -3765,7 +3765,7 @@ function newStage1(difficuty) {
 				{ t:1000, fn:newBossDanns8, args:['r'], },
 			],
 			duration: 25000,
-			scname: 'st_stg1_sc2',
+			scname: RES.st_stg1_sc2,
 			background: newBossBackground,
 			next: 'bossKill',
 		},
@@ -3891,7 +3891,7 @@ function newStage1(difficuty) {
 				{ t: 800, fn:newBossDanns8, args:['r', 1, 3200, 0.952, -0.002], },
 			],
 			duration: 25000,
-			scname: 'st_stg1_sc_ex1',
+			scname: RES.st_stg1_sc_ex1,
 			background: newBossBackground,
 		},
 		{
@@ -3968,7 +3968,7 @@ function newStage1(difficuty) {
 				{ t: 500, fn:newBossDannsEx1, args:[], },
 			],
 			duration: 15000,
-			scname: 'st_stg1_sc_ex2',
+			scname: RES.st_stg1_sc_ex2,
 			background: newBossBackground,
 		},
 		{
@@ -4020,7 +4020,7 @@ function newStage1(difficuty) {
 			],
 			life: 1000,
 			duration: 40000,
-			scname: 'st_stg1_sc_ex3',
+			scname: RES.st_stg1_sc_ex3,
 			background: newBossBackground,
 			next: 'bossKill2',
 		},
