@@ -1992,7 +1992,7 @@ function newShield(bomb) {
 	sh.drawCircle = function(d) {
 		var ph = ease_out(d.ph);
 		d.r = 30 + ph * 20;
-		d.scale = (10 + ph * 40) / 25;
+		d.scale = (10 + ph * 40) / 30;
 		return true;
 	};
 	sh.anim(50, function(d) {
@@ -4038,7 +4038,10 @@ function newStage1(difficuty) {
 	stage.score = {
 		init: function(d) {
 			var elem = $e('bg_score');
-			elem.object = d.mask = SPRITE.newObj('Basic');
+			elem.object = d.mask = SPRITE.newObj('Basic', {
+				dh: 1/1000,
+				kh: 1/1000,
+			});
 			d.mask.anim(50, function(d) {
 				elem.style.opacity = d.ph;
 				var offset = (1 - d.ph) * (GAME.rect.b - GAME.rect.t);
