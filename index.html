@@ -474,23 +474,22 @@
 		ui-show="GAME.state == GAME.states.RUNNING || GAME.state == GAME.states.PAUSE ||
 			GAME.state == GAME.states.OVER">
 		<div class="game absolute no-overflow" style="z-index:0">
-			<!-- add no-overflow to fix issue in Firefox -->
-			<div class="game-size absolute bgimg no-overflow" id="bg_stg1_bottom">
-				<canvas class="ui-obj bg-stg1 game-size" style="height:2400px"
+			<div class="game-size absolute bgimg no-overflow ui-obj bg-stg1" id="bg_stg1_bottom">
+				<canvas class="absolute game-size bg-stg1" style="height:2400px"
 					id="groundbg" bg-speed="0.01"></canvas>
-				<div class="ui-obj bg-stg1"
+				<div class="absolute game-size"
 					style="height:350px;background:linear-gradient(rgba(0,0,0,0.8),transparent);-webkit-transform:translate3d(0,0,0.1px)"></div>
 			</div>
-			<div class="game-size absolute bgimg no-overflow" id="bg_stg1_top">
-				<canvas class="ui-obj bg-stg1 game-size" style="height:1000px;"
+			<div class="game-size absolute bgimg no-overflow ui-obj bg-stg1" id="bg_stg1_top">
+				<canvas class="absolute game-size bg-stg1" style="height:1000px;"
 					id="treebg" bg-speed="0.015"></canvas>
-				<div class="ui-obj bg-stg1"
+				<div class="absolute game-size"
 					style="height:300px;background:linear-gradient(rgba(0,0,0,0.6),transparent);-webkit-transform:translate3d(0,0,0.1px)"></div>
 			</div>
 			<div class="game-size absolute bgimg">
-				<div class="ui-obj bossbg anim-in-01s"
+				<div class="absolute game-size ui-obj anim-in-01s" id="bg_stg1_boss"
 					style="background:url(res/eff01.png);opacity:0"></div>
-				<div class="ui-obj bombbg anim-in-01s"
+				<div class="absolute game-size ui-obj anim-in-01s" id="bg_bomb"
 					style="background:rgba(0,0,0,0.6);opacity:0"></div>
 			</div>
 		</div>

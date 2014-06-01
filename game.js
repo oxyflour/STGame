@@ -1920,7 +1920,7 @@ function newBullet(from, level) {
 function newBomb(player) {
 	var bg = SPRITE.newObj('Shield', {
 		parent: player,
-		elem: $i('.bombbg'),
+		elem: $e('bg_bomb'),
 		duration: player.conf.bomb_duration,
 	});
 	bg.draw = return_nothing;
@@ -2491,7 +2491,7 @@ function newBossBackground(boss) {
 	var obj = SPRITE.newObj('Basic', {
 		x: 0,
 		y: 0,
-		elem: $i('.bossbg'),
+		elem: $e('bg_stg1_boss'),
 	})
 	obj.data.elem.object = obj;
 	obj.anim(50, function(d) {

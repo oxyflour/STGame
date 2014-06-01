@@ -196,11 +196,6 @@ input[type="radio"] {
 .bgimg {
 	-webkit-transform: perspective(600px) rotateX(.001deg);
 }
-.bgimg>* {
-	position: absolute;
-	width: 384px;
-	height: 480px;
-}
 
 /*
  * game data in the info div
