@@ -828,10 +828,10 @@ var GAME = (function() {
 		SPRITE.anim = newAnimateList();
 		STORY.timer = newAnimateList();
 	}
-	_t.load = function(stage, hk) {
+	_t.load = function(stage) {
 		if (STORY.state.set)
 			STORY.state.set('quit');
-		STORY.load(stage, hook);
+		STORY.load(stage, stage.hook);
 		STORY.on(STORY.events.STORY_LOAD);
 	};
 	_t.start = function(n) {
@@ -1040,6 +1040,9 @@ var UTIL = {
 			d.push(v);
 		}, []);
 	},
+};
+
+var STATICS = {
 };
 
 (function() {
@@ -2053,264 +2056,6 @@ function newDrop(type, x, y, extra) {
 	}));
 }
 
-/*
-function newBall(d) {
-	var t = random(-0.6, 0.6) * Math.PI / 2,
-		r = random(10) + 5;
-	SPRITE.newObj('Ball', {
-		x: random(GAME.rect.l, GAME.rect.r),
-		y: random(GAME.rect.t, interp(GAME.rect.t, GAME.rect.b, d.fy)),
-		vx: d.speed*Math.sin(t),
-		vy: d.speed*Math.cos(t),
-		r: r,
-		scale: 2.5*r / 32,
-		frames: randin(RES.frames.TamaLarge),
-	});
-}
-function newDannmaku(d) {
-	var v = SPRITE.newObj('Dannmaku', d);
-	d = v.data;
-	if (d.type == 'FollowTarget') {
-		fill(d, {
-			target_cls: undefined,
-			target: undefined,
-			decrease_duration: 1000,
-			decrease_by: 0.95,
-			velocity_min: 0.02,
-			duration: 1500,
-			gravity: 6e-5,
-			accel_min: 0.1,
-			offset_x: 0,
-			offset_y: 0,
-		});
-		v.anim(50, function(k, v) {
-			var d = v.data;
-			if (v.data.age < d.decrease_duration) {
-				d.vx *= d.decrease_by;
-				d.vy *= d.decrease_by;
-			}
-			else if (v.data.age < d.decrease_duration + d.duration) {
-				if (d.target && !d.target.finished) {
-					var e = d.target.data,
-						dx = e.x - d.x + d.offset_x,
-						dy = e.y - d.y + d.offset_y;
-					d.vx += d.gravity * dx;
-					d.vy += d.gravity * dy;
-
-					var v = sqrt_sum(d.vx, d.vy);
-					if (v < d.accel_min && !d.grazed)
-						redirect_object(d, e, v, 0.4);
-				}
-				else if (d.target_cls)
-					d.target = UTIL.getOneObj(d.target_cls);
-			}
-			d.vx = keep_outside(d.vx, -d.velocity_min, d.velocity_min);
-			d.vy = keep_outside(d.vy, -d.velocity_min, d.velocity_min);
-		});
-	}
-	else if (d.type == 'OrbAround') {
-		fill(d, {
-			source_x: d.from.data.x,
-			source_y: d.from.data.y,
-			theta: 0,
-			speed: 1/500,
-			radius: 100,
-			offset_count: 0.04,
-			offset_speed: 0.1,
-			flip_each_count: true,
-		});
-		if (d.generator)
-			d.theta = d.generator.theta0;
-		if (d.offset_count && d.generator)
-			d.theta += d.generator.count * d.offset_count;
-		if (d.flip_each_count && d.generator)
-			d.speed *= d.generator.count % 2 ? 1 : -1;
-		v.runCircle = function(dt, d) {
-			var f = d.from;
-			if (f && !f.finished && !f.is_dying) {
-				d.x = d.radius*Math.cos(d.theta) + d.source_x;
-				d.y = d.radius*Math.sin(d.theta) + d.source_y;
-				d.theta += dt*d.speed;
-			}
-		};
-	}
-	else if (d.type == 'ZigZag') {
-		fill(d, {
-			count: 0,
-			theta_delta: 0.05,
-			delay: 500,
-			interval: 50,
-			theta_max: 0.05,
-			delay_count: 10,
-			flip_count: 30,
-			flip_each_count: true,
-			flip_each_layer: true,
-			decrease_by: 0.95,
-		});
-		if (d.flip_each_count && d.generator)
-			d.theta_delta *= d.generator.count % 2 ? 1 : -1;
-		if (d.flip_each_layer && d.generator)
-			d.theta_delta *= d.generator.layer % 2 ? 1 : -1,;
-		v.anim(d.interval, function(d, v) {
-			if (d.delay_count-- > 0)
-				return;
-			var vr = sqrt_sum(d.vx, d.vy),
-				t = Math.atan2(d.vy, d.vx) + d.theta_delta;
-			d.vx = Math.cos(t) * vr;
-			d.vy = Math.sin(t) * vr;
-			d.theta_delta *= d.decrease_by;
-			if (d.count++ > d.flip_count) {
-				d.count = 0;
-				d.theta_delta = (d.theta_delta > 0 ? 1 : -1) * d.theta_max;
-			}
-		}, d);
-	}
-	else if (d.type == 'Laser') {
-		fill(d, {
-			radius1: 30,
-			radius2: 30,
-			theta: Math.PI/2,
-		});
-
-		var dim = d.radius1 + d.radius2;
-		v.space = { l:dim, r:dim, t:dim, b:dim };
-
-		var last = v;
-		range(d.radius2, -d.radius1, d.r*1.5, function(r) {
-			if (r > -d.r && d < d.r)
-				return;
-			last = SPRITE.newObj('Dannmaku', {
-				vx: 0,
-				vy: 0,
-				r: v.data.r,
-				head: v,
-				dist: r,
-				parent: last,
-			});
-			last.space = v.space;
-			last.runCircle = function(dt, d) {
-				var pd = d.head.data;
-				d.x = pd.x + d.dist * Math.cos(pd.theta);
-				d.y = pd.y + d.dist * Math.sin(pd.theta);
-			};
-		});
-		v.data.parent = last;
-	}
-}
-function genDannmaku(d) {
-	d = extend({
-		theta: 0,
-		theta_rand: 0.05,
-		theta_rand_min: 0.8,
-		theta_rand_max: 1.2,
-		theta_step: 0.2,
-		theta_count: 9,
-		theta_reverse: false,
-		theta_velocity: 0.0,
-		theta_velocity_flip: false,
-		count: 9,
-		layers: 10,
-		interval: 200,
-		radius: 20,
-		velocity: 0.2,
-		x: undefined,
-		y: undefined,
-		to: undefined,
-		dannmaku: undefined,
-	}, {
-		'com1': {
-			count: 1,
-			layers: 50,
-			interval: 50,
-		},
-		'com2': {
-			count: 1,
-			layers: 50,
-			interval: 50,
-			theta_reverse: true,
-		},
-	}[d && d.preset], d);
-	var idx = 0, cnt = d.theta_count-1;
-	STORY.timeout(function(d, layer) {
-		function getPlayerData() {
-			var player = UTIL.getOneObj('Player');
-			return player ? player.data : {
-				x:interp(GAME.rect.l, GAME.rect.r, 0.5),
-				y:interp(GAME.rect.t, GAME.rect.b, 0.7),
-			};
-		}
-		if (!d.from || d.from.finished || d.from.is_dying) {
-			this.finished = true;
-			return;
-		}
-		var to = d.to ? d.to.data : getPlayerData(),
-			from = +d.x === d.x ? { x:d.x, y:d.y } : d.from.data;
-		for(var count = 0; count < d.count; count ++) {
-			if (idx ++ >= cnt)
-				idx = d.theta_reverse ? -cnt : 0;
-			d.theta = (Math.abs(idx) - cnt/2) * d.theta_step;
-			if (d.theta_velocity_flip)
-				d.theta_velocity = -d.theta_velocity;
-
-			var t0 = Math.atan2(to.y-from.y, to.x-from.x),
-				tp = d.theta*random(d.theta_rand_min, d.theta_rand_max),
-				t = t0 + tp + random(d.theta_rand);
-			(d.create || newDannmaku)(extend({
-				x: from.x + d.radius*Math.cos(t),
-				y: from.y + d.radius*Math.sin(t),
-				vx: d.velocity*Math.cos(t+d.theta_velocity),
-				vy: d.velocity*Math.sin(t+d.theta_velocity),
-				r: 3,
-				from: d.from,
-				frames: RES.frames.LongA,
-				generator: { layer:layer, count:count, theta0:t0, thetap:tp, theta:t },
-			}, d.dannmaku));
-		};
-	}, d.interval, d, d.layers);
-}
-function newEnemy(d) {
-	d = extend({
-		x: random(GAME.rect.l+100, GAME.rect.r-100),
-		vx: random(-0.05, 0.05),
-		vy: random(0.01, 0.1),
-		r: 16,
-		frtick: 150,
-		frames: RES.frames['Enemy'+randin([0,1])+randin([0,1,2])],
-		generator: {
-			preset: '',
-			delay: 1000,
-			dannmaku: {
-				type: 'FollowTarget',
-	  			target_cls: 'Player',
-			},
-	  		create: function(d) {
-				function get(ls, i) {
-					return ls[i % ls.length];
-				}
-				var x = d.generator.count % 2;
-				d.decrease_by = x ? 0.96 : 1;
-				d.decrease_duration = x ? 1000 : 10000;
-				d.frames = x ? RES.frames.LongA : RES.frames.TamaA;
-				d.offset_x = d.generator.layer % 2 ? -40 : 40;
-				newDannmaku(d);
-			}
-		}
-	}, {
-		'com1': {
-			// example
-		}
-	}[d && d.preset], d);
-	var enm = SPRITE.newObj('Enemy', d);
-	if (d.generator) {
-		d.generator.from = enm;
-		STORY.timeout(function(d) {
-			genDannmaku(d);
-		}, d.generator.delay || 0, d.generator)
-	};
-	return enm;
-}
-*/
-
 function newSec1(pth, count, offset, interval, speed, rand, life) {
 	STORY.timeout(function (d, n) {
 		ieach(offset || [[0, 0]], function(i, v) {
@@ -2429,7 +2174,6 @@ function newSecEx2(fx, fy, vx, vy) {
 		newDannsEx2(this, vx < 0 ? 0.2 : -0.2);
 	}, obj.data);
 }
-
 function newSecList() {
 	ieach(arguments, function(i, v) {
 		STORY.timeout(function() {
@@ -3278,329 +3022,57 @@ function killObj() {
 	})
 }
 
-var STATICS = {
-};
+function newStgSecInit(next, para) {
+	return {
+		run: UTIL.newTimeRunner(3000, 'sec0'),
+		init: function(d) {
+			if (GAME.stgbg) GAME.stgbg.die();
+			GAME.stgbg = newBackground(para.bgelem);
+			newStg1BgAnim(GAME.stgbg);
 
-var hook = {
-	init: function(n, d) {
-		console.log('--> ', n)
-	},
-	quit: function(n, d) {
-	},
-	after_run: function(dt, d) {
-		STATICS.time += dt;
-	},
-	before_on: function(e, v, d) {
-		if (e == STORY.events.STORY_LOAD) {
-			UTIL.getOneAlive('Player', 'player', 'p1') ||  newPlayer({ player: 'p1', });
-			if (GAME.double_player_mode && !(GAME.double_player_mode = false)) {
-				UTIL.getOneAlive('Player', 'player', 'p2') || newPlayer({
-					player: 'p2',
-					conf: {
-						key_left: 100,
-						key_up: 104,
-						key_right: 102,
-						key_down: 101,
-						key_fire: 36,
-						key_bomb: 35,
-						key_slow: 45,
-					}
-				});
-			}
-			extend(STATICS, {
-				max_point: 1000000,
-				bomb_reset: 3,
-				point: 0,
-				player: 3,
-				bomb: 3,
-				power: 0,
-				graze: 0,
-				dot: 0,
-
-				time: 0,
-			})
-			if (GAME.many_lives_mode && !(GAME.many_lives_mode = false)) {
-				STATICS.player = 7;
-				STATICS.bomb_reset = 7;
-				STATICS.bomb = STATICS.bomb_reset;
-			}
-		}
-		else if (e == STORY.events.GAME_INPUT) {
-			if (v.type == 'keyup' && v.which == 27) {
-				var s = GAME.state,
-					c = GAME.states;
-				if (s == c.RUNNING) {
-					GAME.state = c.PAUSE;
-					RES.se_pause.play();
-				}
-			}
-		}
-		else if (e == STORY.events.PLAYER_AUTOCOLLECT) {
-			SPRITE.eachObj(function(i, that) {
-				that.data.to = v;
-				that.data.keep = true;
-			}, 'Drop');
-		}
-		else if (e == STORY.events.PLAYER_HIT) {
-			STATICS.graze --;
-			v.juesi();
-			array(8, function() {
-				newEffectPiece(v, 'g');
-			});
-		}
-		else if (e == STORY.events.PLAYER_GRAZE) {
-			STATICS.graze ++;
-			RES.se_graze.play();
-			newEffectPiece(v, 'w', 0.5);
-		}
-		else if (e == STORY.events.PLAYER_DYING) {
-			v.die();
-			var x = v.data.x,
-				y = v.data.y;
-			ieach([0, 0, 0, 0, 2], function(i, type) {
-				newDrop(type, x, y, { vx:random(-0.2, 0.2), vy:random(-0.25, -0.3) });
-			})
-			STATICS.player --;
-			STATICS.bomb = STATICS.bomb_reset;
-			STATICS.power = limit_between(STATICS.power - 16, 0, 128);
-			STORY.timer.add(newTicker(100, function() {
-				killCls('Dannmaku');
-				if (this.finished = v.finished) {
-					if (STATICS.player >= 0) newPlayer({
-						player: v.data.player,
-						conf: v.data.conf
-					});
-					else
-						GAME.state = GAME.states.OVER;
-				}
-			}));
-			newEffect(v, RES.frames.EffPlayer);
-			RES.se_pldead00.play();
-		}
-		else if (e == STORY.events.PLAYER_FIRE) {
-			if (v.is_fire_enable = !d.disable_fire && !v.is_dying)
-				newBullet(v, STATICS.power);
-		}
-		else if (e == STORY.events.PLAYER_BOMB) {
-			if (!d.disable_fire && STATICS.bomb > 0) {
-				STATICS.bomb --;
-				v.bomb();
-				newBomb(v);
-				RES.se_cat00.play();
-				SPRITE.anim.add(newTicker(1000, function(d) {
-					RES.se_gun00.play();
-					this.finished = true;
-				}));
-			}
-		}
-		else if (e == STORY.events.ENEMY_KILL) {
-			if (v.data.respawn-- > 0)
-				v.data.damage = 0;
-			else {
-				v.die();
-				var type;
-				if (v.data.power_pt)
-					type = v.data.power_pt >= 128 ? 4 : (v.data.power_pt >= 8 ? 2 : 0);
-				else
-					type = random(1) > 0.8 ? 0 : 1;
-				newDrop(type, v.data.x, v.data.y);
-			}
-			newEffect(v, RES.frames.EffEnemy);
-			array(4, function() {
-				newEffectPiece(v, 'b');
-			});
-			RES.se_enep00.replay();
-		}
-		else if (e == STORY.events.DROP_COLLECTED) {
-			v.die();
-			STATICS.point += v.data.point_pt || 10;
-			if (v.data.power_pt) {
-				var pt = v.data.power_pt;
-				ieach([8, 16, 32, 48, 60, 80, 100, 128], function(i, c) {
-					if (STATICS.power < c && STATICS.power+pt >= c) {
-						RES.se_powerup.play();
-						SPRITE.newObj('Basic', {
-							x: v.data.x,
-							y: v.data.y,
-							frames: RES.frames.PowerUp,
-							duration: 1000,
-						})
-						return true;
-					}
-				});
-				STATICS.power = limit_between(STATICS.power+pt, 0, 128);
-			}
-			if (v.data.point_pt) {
-				STATICS.dot ++;
-				SPRITE.newObj('Basic', {
-					x: v.data.x,
-					y: v.data.y,
+			GAME.bgm_running = undefined;
+			STORY.timeout(function(d) {
+				d.title = SPRITE.newObj('Basic', {
 					text: {
-						res: 'ascii',
-						map: RES.nummap_small,
-						text: '' + v.data.point_pt,
-					},
-					duration: 1000,
+						text: para.title,
+						res: 'ascii_yellow',
+						map: RES.fontmap,
+					}
 				});
-			}
-			RES.se_item00.replay();
-		}
-		else if (e == STORY.events.BULLET_HIT) {
-			v.die();
-			v.data.vx *= 0.05;
-			v.data.vy *= 0.05;
-			UTIL.addFrameAnim(v, RES.frames.BulletD[v.data.to ? 1 : 0]);
-			newEffectPiece(v, 'r');
-		}
-		else if (e == STORY.events.SHIELD_HIT) {
-			//newEffect(v, RES.frames.EffPlayer, 2);
-		}
-		else if (e == STORY.events.DANNMAKU_HIT) {
-			v.die();
-			v.data.vx *= 0.1;
-			v.data.vy *= 0.1;
-			newDrop(6, v.data.x, v.data.y, {
-				to: UTIL.getOneAlive('Player'),
-				keep: true,
-			});
-		}
+			}, 500, d);
+			STORY.timeout(function(d) {
+				d.text = SPRITE.newObj('Basic', {
+					text: {
+						text: para.text,
+						font: '15px Arial',
+						color: 'Silver',
+					},
+					sy: UTIL.getGamePosY(0.5) + 40,
+				});
+				d.text.drawBasic = function(d) {
+					if (!this.is_dying)
+						d.y = d.sy - ease_out(d.ph)*10;
+					return true;
+				};
+			}, 1000, d);
+		},
+		quit: function(d) {
+			GAME.bgm_running = para.bgm;
+			GAME.bgm_running.currentTime = 0;
+			killObj(d.title, d.text);
+		},
 	}
-};
-var stage = {};
-stage.init = {
-	run: UTIL.newTimeRunner(3000, 'sec0'),
-	init: function(d) {
-		if (GAME.stgbg) GAME.stgbg.die();
-		GAME.stgbg = newBackground($('.bg1'));
-		newStg1BgAnim(GAME.stgbg);
-
-		GAME.bgm_running = undefined;
-		STORY.timeout(function(d) {
-			d.title = SPRITE.newObj('Basic', {
-				text: {
-					text: 'STAGE 1',
-					res: 'ascii_yellow',
-					map: RES.fontmap,
-				}
-			});
-		}, 500, d);
-		STORY.timeout(function(d) {
-			d.text = SPRITE.newObj('Basic', {
-				text: {
-					text: RES.st_stg1_title,
-					font: '15px Arial',
-					color: 'Silver',
-				},
-				sy: UTIL.getGamePosY(0.5) + 40,
-			});
-			d.text.drawBasic = function(d) {
-				if (!this.is_dying)
-					d.y = d.sy - ease_out(d.ph)*10;
-				return true;
-			};
-		}, 1000, d);
-	},
-	quit: function(d) {
-		GAME.bgm_running = RES.bgm_stg1a;
-		GAME.bgm_running.currentTime = 0;
-		killObj(d.title, d.text);
-	}
-};
-ieach([
-	{ init:newSec1, args:['s0A2', 5], duration:3000, },
-	{ init:newSec1, args:['s0A1', 8], duration:2000, },
-	{ init:newSec2, args:[0.4, 10], duration:4000, },
-	{ init:newSec3, args:[1000, 5], duration:5000, },
-	{ init:newSec3, args:[500, 10], duration:5000, },
-	{ init:newSec4, args:[], duration:6000 },
-	{ init:newSec1, args:['s0A2', 8, [[-40, 0], [0, 0]]], duration:2000 },
-	{ init:newSec1, args:['s0A1', 8, [[+40, 0], [0, 0]]], duration:4000, next:'bossA' },
-	// ...
-	{ init:newSec3, args:[1000, 20], duration:16000, name:'secH' },
-	{ init:newSec1, args:['s0A2', 8, [[-40, 0], [0, 0]]], duration:2000 },
-	{ init:newSec1, args:['s0A1', 8, [[+40, 0], [0, 0]]], duration:2000 },
-	{ init:newSec1, args:['s0A2', 8, [[-40, 0], [0, 0]]], duration:7000, next:'diagA' },
-	// ...
-	{ init:newSec3, args:[500, 30, 3, 10], duration:10000, name:'secX' },
-	{ init:newSecList, args:[
-		[newSec3, [500, 300, 3, 10]],
-		[newSec1, ['s0A2', 8, [[0, 0]], 1000, 0.2, 0.04, 10]],
-		[newSec1, ['s0A1', 8, [[0, 0]], 1000, 0.2, 0.04, 10], 2000],
-		[newSec1, ['s0A2', 8, [[-40, 0], [+40, 0]], 1000, 0.2, 0.04, 10], 8000],
-		[newSec1, ['s0A1', 8, [[+40, 0], [-40, 0]], 1000, 0.2, 0.04, 10], 10000],
-		[newSec1, ['s0A2', 8, [[0, 0]], 1000, 0.2, 0.04, 10], 16000],
-		[newSec1, ['s0A1', 8, [[0, 0]], 1000, 0.2, 0.04, 10], 18000],
-	], duration:20000, },
-	{ init:newSecEx1, args:[0.2], duration:100, },
-	{ init:newSecEx1, args:[-0.2], duration:100, },
-	{ init:newSec1, args:['s0A2', 8, [[-40, 0], [0, 0]], 1000, 0.3], duration:1500, },
-	{ init:newSec1, args:['s0A1', 8, [[+40, 0], [0, 0]], 1000, 0.3], duration:1500, },
-	{ init:newSec1, args:['s0A2', 8, [[-40, 0], [0, 0]], 1000, 0.3], duration:1500, },
-	{ init:newSec1, args:['s0A1', 8, [[+40, 0], [0, 0]], 1000, 0.3], duration:1500, },
-	{ init:newSecEx1, args:[0.2], duration:100, },
-	{ init:newSecEx1, args:[-0.2], duration:100, },
-	{ init:newSec1, args:['s0A2', 8, [[-40, 0], [0, 0]], 1000, 0.3], duration:1500, },
-	{ init:newSec1, args:['s0A1', 8, [[+40, 0], [0, 0]], 1000, 0.3], duration:1500, },
-	{ init:newSec1, args:['s0A2', 8, [[-40, 0], [0, 0]], 1000, 0.3], duration:1500, },
-	{ init:newSec1, args:['s0A1', 8, [[+40, 0], [0, 0]], 1000, 0.3], duration:1500, },
-	{ init:newSec4, args:[newDanns2, 10], duration:10000, },
-	{ init:newSecEx2, args:[0, 0, 0.1, 0.2], duration:100, },
-	{ init:newSecEx2, args:[1, 0, -0.1, 0.2], duration:1000, },
-	{ init:newSecEx2, args:[0, 0.3, 0.1, 0.12], duration:100, },
-	{ init:newSecEx2, args:[1, 0.3, -0.1, 0.12], duration:1000, },
-	{ init:newSecEx2, args:[0, 0.3, 0.1, 0.12], duration:100, },
-	{ init:newSecEx2, args:[1, 0.3, -0.1, 0.12], duration:1000, },
-	{ duration:5000, },
-	{ init:newSec4, args:[newDanns2, 10], duration:10000, },
-	{ duration:5000, },
-	{ init:killCls, args:['Enemy', 'Dannmaku'], duration:1000, next:'diagD', },
-], function(i, para, stage) {
-	var c = para.name || 'sec'+i, n = para.next || 'sec'+(i+1);
-	stage[c] = {
-		run: UTIL.newTimeRunner(para.duration, n),
+}
+function newStgSecNormal(next, para) {
+	return {
+		run: UTIL.newTimeRunner(para.duration, next),
 		init: function(d) {
 			para.init && para.init.apply(null, para.args);
 		},
-	};
-}, stage);
-ieach([
-	{ text:'st_diag1', pos:'.fl.dg', face:'.f0a', name:'diagA', },
-	{ text:'st_diag2', pos:'.fl.dg', face:'.f0a' },
-	{ text:'st_diag3', pos:'.fl.dg', face:'.f0c.f2' },
-	{ text:'st_diag4', pos:'.fl.dg', face:'.f0c.f2' },
-	{ text:'st_diag5', pos:'.fl.dg', face:'.f0b.f2', next:'bossB', },
-	{ text:'st_diag6', pos:'.fr.dg', face:'.f3a.f2', name:'diagB', },
-	{ text:'st_diag7', pos:'.fl.dg', face:'.f0c.f2' },
-	{ text:'st_diag8', pos:'.fr.dg', face:'.f3a' },
-	{ text:'st_diag9', pos:'.fl.dg', face:'.f0a' },
-	{ text:'st_diag10', pos:'.fr.dg', face:'.f3b.f2' },
-	{ text:'st_diag11', pos:'.fl.dg', face:'.f0b.f2' },
-	{ text:'st_diag12', pos:'.fr.dg', face:'.f3b' },
-	{ text:'st_diag13', pos:'.fl.dg', face:'.f0a' },
-	{ text:'st_diag14', pos:'.fr.dg', face:'.f3b' },
-	{ text:'st_diag15', pos:'.fl.dg', face:'.f0b.f2', next:'bossC', ended:true, },
-	{ text:'st_diagXX', pos:'.fr.dg', face:'.fx', name:'diagC', duration:10 },
-	{ text:'st_diag16', pos:'.fl.dg', face:'.f0b.f2', next:'askContinue', ended:true, },
-	{ text:'st_diag17', pos:'.fr.dg', face:'.f3a.f2', name:'diagD', },
-	{ text:'st_diag18', pos:'.fl.dg', face:'.f0c.f2' },
-	{ text:'st_diag19', pos:'.fr.dg', face:'.f3a' },
-	{ text:'st_diag20', pos:'.fl.dg', face:'.f0b.f2' },
-	{ text:'st_diag21', pos:'.fr.dg', face:'.f3a.f2' },
-	{ text:'st_diag22', pos:'.fl.dg', face:'.f0c.f2' },
-	{ text:'st_diag23', pos:'.fl.dg', face:'.f0a' },
-	{ text:'st_diag24', pos:'.fr.dg', face:'.f3a.f2' },
-	{ text:'st_diag25', pos:'.fr.dg', face:'.f3b' },
-	{ text:'st_diag26', pos:'.fl.dg', face:'.f0b.f2' },
-	{ text:'st_diag27', pos:'.fl.dg', face:'.f0b' },
-	{ text:'st_diag28', pos:'.fr.dg', face:'.f3b.f2' },
-	{ text:'st_diag29', pos:'.fl.dg', face:'.f0c' },
-	{ text:'st_diag30', pos:'.fr.dg', face:'.f3b' },
-	{ text:'st_diag31', pos:'.fl.dg', face:'.f0a' },
-	{ text:'st_diag32', pos:'.fl.dg', face:'.f0a.f2' },
-	{ text:'st_diag33', pos:'.fr.dg', face:'.f3a', next:'bossY', ended:true },
-], function(i, para, stage) {
-	var c = para.name || 'diag'+i, n = para.next || 'diag'+(i+1);
-	stage[c] = {
+	}
+}
+function newStgSecDiag(next, para) {
+	return {
 		init: function(d) {
 			d.age = 0;
 			d.disable_fire = true;
@@ -3619,10 +3091,10 @@ ieach([
 		},
 		run: function(dt, d) {
 			if (d.pass || GAME.keyste.ctrlKey || (d.age+=dt) > (para.duration || 20000))
-				return n;
+				return next;
 		},
-		quit: function(d, next) {
-			if (para.ended || next != n) {
+		quit: function(d, n) {
+			if (para.ended || n != next) {
 				var bg = $i('.diag');
 				bg.classList.remove('active');
 			}
@@ -3638,520 +3110,9 @@ ieach([
 			}
 		},
 	}
-}, stage);
-ieach([
-	{
-		pathnodes: [
-			{ fx:0.50, fy:0.00, v:0.2, },
-			{ t:1000, fx:0.83, fy:0.28, v:0.2, },
-			{ t:1000, fn:newBossDanns1, args:['b'], },
-			{ t:1000, fx:0.50, fy:0.10, v:0.2, },
-			{ t:1000, fn:newBossDanns2, },
-			{ t:1000, fx:0.17, fy:0.28, v:0.2, },
-			{ t:1000, fn:newBossDanns1, args:['g'], },
-			{ t:1000, fn:newBossDanns1, args:['y'], },
-			{ t:1000, fx:0.50, fy:0.10, v:0.2, },
-			{ t:2000, fn:newBossDanns3, args:['brgyY'], },
-			{ t:1000, fx:0.83, fy:0.28, v:0.2, },
-			{ t: 500, fn:newBossDanns1, args:['b'], },
-			{ t:2000, fn:newBossDanns1, args:['r'], },
-			{ t:1000, fx:0.50, fy:0.10, v:0.2, },
-			{ t:1500, fn:newBossDanns2, },
-			{ t: 500, fx:0.17, fy:0.28, v:0.2, },
-			{ t: 500, fn:newBossDanns1, args:['g'], },
-			{ t:2000, fn:newBossDanns1, args:['y'], },
-			{ t:1000, fx:0.50, fy:0.10, v:0.2, },
-			{ t:2000, fn:newBossDanns3, args:['brgyY'], },
-			{ t: 500, fx:0.83, fy:0.28, v:0.2, },
-			{ t: 500, fn:newBossDanns1, args:['b'], },
-		],
-		damage: 300,
-		duration: 25000,
-		name: 'bossA',
-		fail_next: 'boss2',
-	},
-	{
-		pathnodes: [
-			{ v:0.1 },
-			{ fx:0.5, fy:0.2, },
-			{ t:100, fn:newBossDanns0, },
-			{ t:4000, fn:newBossDanns0A, },
-			{ fx:0.7, fy:0.1, },
-			{ t:4000, fn:newBossDanns0A, },
-			{ fx:0.3, fy:0.1, },
-			{ t:4000, fn:newBossDanns0A, },
-			{ fx:0.1, fy:0.2, },
-			{ t:4000, fn:newBossDanns0A, },
-		],
-		duration: 20000,
-		scname: 'st_stg1_sc0',
-		background: newBossBackground,
-	},
-	{
-		pathnodes: [
-			{ v:0.3 },
-			{ fx:0.5, fy:0.0 },
-			{ fy:-1, v:0.3 },
-		],
-		next: 'secH',
-		duration: 500,
-		no_countdown: true,
-		invinc: true,
-	},
-	{
-		pathnodes: [
-			{ fx:0.00, fy:0.00, v:0.2 },
-			{ fx:0.10, fy:0.10 },
-			{ fx:0.50, fy:0.18 },
-		],
-		duration: 2000,
-		invinc: true,
-		no_countdown: true,
-		no_lifebar: true,
-		disable_fire: true,
-		name: 'bossB',
-		next: 'diagB',
-	},
-	{
-		pathnodes: [
-			{ t:2000, v:0.2 },
-			{ t:2000, fx:0.50, fy:0.10, v:0.2, fn:newBossDanns4, args:[5], },
-			{ t:1000, fx:0.40, fy:0.30, v:0.1, },
-			{ t: 200, fn:newBossDanns5, args:['g', 1], },
-			{ t: 200, fn:newBossDanns5, args:['g', 1], },
-			{ t: 200, fn:newBossDanns5, args:['g', 1], },
-			{ t:2000, },
-			{ t:2500, fx:0.60, fy:0.20, fn:newBossDanns4, args:[5], },
-			{ t:1500, fx:0.60, fy:0.30, },
-			{ t:1500, fn:newBossDanns3, args:['BBBBBBB'], },
-			{ t:1500, fx:0.50, fy:0.10, },
-			{ t: 100, fn:newBossDanns6, },
-			{ t:1500, fn:newBossDanns1NoSound, args:['b', 3, 30, 0.02], },
-			{ t: 500, fx:0.60, fy:0.30, },
-			{ t: 200, fn:newBossDanns5, args:['g', -1], },
-			{ t: 200, fn:newBossDanns5, args:['g', -1], },
-			{ t: 200, fn:newBossDanns5, args:['g', -1], },
-			{ t:2000, },
-			{ t: 500, fx:0.50, fy:0.30, },
-			{ t: 100, fn:newBossDanns6, },
-			{ t: 500, fn:newBossDanns1NoSound, args:['b', 3, 30, 0.02], },
-			{ t: 500, fx:0.60, fy:0.20, },
-			{ t: 200, fn:newBossDanns5, args:['g', 1], },
-			{ t: 200, fn:newBossDanns5, args:['g', 1], },
-			{ t: 200, fn:newBossDanns5, args:['g', 1], },
-			{ t:2000, },
-			{ t:2500, fx:0.50, fy:0.30, fn:newBossDanns4, args:[5], },
-			{ t: 500, fx:0.20, fy:0.20, },
-			{ t:2500, fn:newBossDanns3, args:['BBBBBBB'], },
-			{ t:1000, fx:0.40, fy:0.10, },
-			{ t: 200, fn:newBossDanns5, args:['g', 1], },
-			{ t: 200, fn:newBossDanns5, args:['g', 1], },
-			{ t: 200, fn:newBossDanns5, args:['g', 1], },
-			{ t:1000, },
-		],
-		duration: 35000,
-		name: 'bossC',
-		bgm: 'bgm_stg1b',
-	},
-	{
-		pathnodes: [
-			{ t:2000, v:0.1 },
-			{ t: 500, fx:0.50, fy:0.20, },
-			{ t: 800, fn:newBossDanns5, args:['b', -1], },
-			{ t: 800, fn:newBossDanns5, args:['c',  1], },
-			{ t: 800, fn:newBossDanns5, args:['b', -1], },
-			{ t: 800, fn:newBossDanns5, args:['c',  1], },
-			{ t: 800, fn:newBossDanns5, args:['b', -1], },
-			{ t: 800, fn:newBossDanns5, args:['c',  1], },
-			{ t: 800, fn:newBossDanns5, args:['b', -1], },
-			{ t: 800, fn:newBossDanns5, args:['c',  1], },
-			{ t: 200, fx:0.30, fy:0.10, v:0.05, },
-			{ t: 800, fn:newBossDanns5, args:['b', -1], },
-			{ t: 800, fn:newBossDanns5, args:['c',  1], },
-			{ t: 800, fn:newBossDanns5, args:['b', -1], },
-			{ t: 800, fn:newBossDanns5, args:['c',  1], },
-			{ t: 800, fn:newBossDanns5, args:['b', -1], },
-			{ t: 800, fn:newBossDanns5, args:['c',  1], },
-			{ t: 800, fn:newBossDanns5, args:['b', -1], },
-			{ t: 800, fn:newBossDanns5, args:['c',  1], },
-			{ t: 200, fx:0.40, fy:0.30, },
-			{ t: 800, fn:newBossDanns5, args:['b', -1], },
-			{ t: 800, fn:newBossDanns5, args:['c',  1], },
-			{ t: 800, fn:newBossDanns5, args:['b', -1], },
-			{ t: 800, fn:newBossDanns5, args:['c',  1], },
-			{ t: 800, fn:newBossDanns5, args:['b', -1], },
-			{ t: 800, fn:newBossDanns5, args:['c',  1], },
-			{ t: 800, fn:newBossDanns5, args:['b', -1], },
-			{ t: 800, fn:newBossDanns5, args:['c',  1], },
-			{ t: 200, fx:0.60, fy:0.20, },
-			{ t: 800, fn:newBossDanns5, args:['b', -1], },
-			{ t: 800, fn:newBossDanns5, args:['c',  1], },
-			{ t: 800, fn:newBossDanns5, args:['b', -1], },
-			{ t: 800, fn:newBossDanns5, args:['c',  1], },
-			{ t: 800, fn:newBossDanns5, args:['b', -1], },
-			{ t: 800, fn:newBossDanns5, args:['c',  1], },
-			{ t: 800, fn:newBossDanns5, args:['b', -1], },
-			{ t: 800, fn:newBossDanns5, args:['c',  1], },
-		],
-		duration: 25000,
-		scname: 'st_stg1_sc1',
-		background: newBossBackground,
-	},
-	{
-		pathnodes: [
-			{ v:0.05 },
-			{ t: 500, fx:0.50, fy:0.10, },
-			{ t: 100, fn:newBossDanns6, args:['g', 8, 7, 0.1], },
-			{ t: 200, fn:newBossDanns7, },
-			{ t: 200, fn:newBossDanns7, },
-			{ t: 200, fn:newBossDanns7, },
-			{ t: 200, fn:newBossDanns7, },
-			{ t: 200, fn:newBossDanns7, },
-			{ t:1500, fn:newBossDanns7, },
-			{ t: 200, fx:0.70, fy:0.20, },
-			{ t: 200, fn:newBossDanns5, args:['g', -1], },
-			{ t: 200, fn:newBossDanns5, args:['g', -1], },
-			{ t: 200, fn:newBossDanns5, args:['g', -1], },
-			{ t: 200, fn:newBossDanns5, args:['g', -1], },
-			{ t:2500, },
-			{ t: 500, fx:0.50, fy:0.10, },
-			{ t: 100, fn:newBossDanns6, args:['y', 3, 15, 0.3, 0.05, 0.1], },
-			{ t: 100, fn:newBossDanns6, args:['y', 3, 20, 0.4, 0.08, 0.1], },
-			{ t:2500, },
-			{ t: 200, fx:0.70, fy:0.20, },
-			{ t: 200, fn:newBossDanns5, args:['g', -1], },
-			{ t: 200, fn:newBossDanns5, args:['g', -1], },
-			{ t: 200, fn:newBossDanns5, args:['g', -1], },
-			{ t:1200, fn:newBossDanns5, args:['g', -1], },
-			{ t: 500, fx:0.50, fy:0.10, },
-			{ t: 100, fn:newBossDanns6, args:['y', 3, 15, 0.3, 0.05, 0.1], },
-			{ t: 100, fn:newBossDanns6, args:['y', 3, 20, 0.4, 0.08, 0.1], },
-			{ t:2500, },
-			{ t: 500, fx:0.60, fy:0.30, },
-			{ t:1500, fn:newBossDanns3, args:['ggg'], },
-			{ t: 500, fx:0.70, fy:0.20, },
-			{ t: 100, fn:newBossDanns6, args:['g', 8, 7, 0.1], },
-			{ t: 200, fn:newBossDanns7, },
-			{ t: 200, fn:newBossDanns7, },
-			{ t: 200, fn:newBossDanns7, },
-			{ t: 200, fn:newBossDanns7, },
-			{ t: 200, fn:newBossDanns7, },
-			{ t: 200, fn:newBossDanns7, },
-			{ t:2500, fx:0.60, fy:0.30, },
-			{ t: 200, fn:newBossDanns5, args:['g', -1], },
-			{ t: 200, fn:newBossDanns5, args:['g', -1], },
-			{ t: 200, fn:newBossDanns5, args:['g', -1], },
-			{ t: 200, fn:newBossDanns5, args:['g', -1], },
-		],
-		duration: 30000,
-	},
-	{
-		pathnodes: [
-			{ v:0.1 },
-			{ t: NaN, fx:0.50, fy:0.20, },
-			{ t:1000, fn:newBossDanns8, args:['b'], },
-			{ t:1000, fn:newBossDanns8, args:['g'], },
-			{ t:1000, fn:newBossDanns8, args:['r'], },
-			{ t: 100, fx:0.70, fy:0.30, },
-			{ t: 200, fn:newBossDanns9, args:[ 1], },
-			{ t: 200, fn:newBossDanns9, args:[-1], },
-			{ t: 200, fn:newBossDanns9, args:[ 1], },
-			{ t: 200, fn:newBossDanns9, args:[-1], },
-			{ t: NaN, fx:0.60, fy:0.20, },
-			{ t:1000, fn:newBossDanns8, args:['b'], },
-			{ t:1000, fn:newBossDanns8, args:['g'], },
-			{ t:1000, fn:newBossDanns8, args:['r'], },
-			{ t: 100, fx:0.30, fy:0.20, },
-			{ t: 200, fn:newBossDanns9, args:[ 1], },
-			{ t: 200, fn:newBossDanns9, args:[-1], },
-			{ t: 200, fn:newBossDanns9, args:[ 1], },
-			{ t: 200, fn:newBossDanns9, args:[-1], },
-			{ t: NaN, fx:0.50, fy:0.30, },
-			{ t:1000, fn:newBossDanns8, args:['b'], },
-			{ t:1000, fn:newBossDanns8, args:['g'], },
-			{ t:1000, fn:newBossDanns8, args:['r'], },
-			{ t: 100, fx:0.60, fy:0.10, },
-			{ t: 200, fn:newBossDanns9, args:[ 1], },
-			{ t: 200, fn:newBossDanns9, args:[-1], },
-			{ t: 200, fn:newBossDanns9, args:[ 1], },
-			{ t: 200, fn:newBossDanns9, args:[-1], },
-			{ t: NaN, fx:0.60, fy:0.20, },
-			{ t:1000, fn:newBossDanns8, args:['b'], },
-			{ t:1000, fn:newBossDanns8, args:['g'], },
-			{ t:1000, fn:newBossDanns8, args:['r'], },
-			{ t: 100, fx:0.50, fy:0.10, },
-			{ t: 200, fn:newBossDanns9, args:[ 1], },
-			{ t: 200, fn:newBossDanns9, args:[-1], },
-			{ t: 200, fn:newBossDanns9, args:[ 1], },
-			{ t: 200, fn:newBossDanns9, args:[-1], },
-			{ t: NaN, fx:0.60, fy:0.10, },
-			{ t:1000, fn:newBossDanns8, args:['b'], },
-			{ t:1000, fn:newBossDanns8, args:['g'], },
-			{ t:1000, fn:newBossDanns8, args:['r'], },
-		],
-		duration: 25000,
-		scname: 'st_stg1_sc2',
-		background: newBossBackground,
-		next: 'bossKill',
-	},
-	{
-		pathnodes: [
-			{ fx:0.00, fy:0.00, v:0.2 },
-			{ fx:0.10, fy:0.10 },
-			{ fx:0.50, fy:0.18 },
-		],
-		duration: 2000,
-		invinc: true,
-		no_countdown: true,
-		no_lifebar: true,
-		disable_fire: true,
-		name: 'bossX',
-		next: 'diagD',
-	},
-	{
-		pathnodes: [
-			{ t: 800, v:0.2 },
-			{ t: 800, fx:0.50, fy:0.10, v:0.2, fn:newBossDanns4, args:[5], },
-			{ t: 800, fx:0.40, fy:0.30, v:0.1, },
-			{ t: 200, fn:newBossDanns5, args:['g', 1], },
-			{ t: 200, fn:newBossDanns5, args:['g', 1], },
-			{ t: 200, fn:newBossDanns5, args:['g', 1], },
-			{ t: 800, },
-			{ t: 800, fx:0.60, fy:0.20, fn:newBossDanns4, args:[5], },
-			{ t: 800, fx:0.60, fy:0.30, },
-			{ t: 800, fn:newBossDanns3, args:['BBBBBBB'], },
-			{ t: 800, fx:0.50, fy:0.10, },
-			{ t: 100, fn:newBossDanns6, },
-			{ t: 500, fn:newBossDanns1NoSound, args:['b', 3, 30, 0.02], },
-			{ t: 500, fx:0.60, fy:0.30, },
-			{ t: 200, fn:newBossDanns5, args:['g', -1], },
-			{ t: 200, fn:newBossDanns5, args:['g', -1], },
-			{ t: 200, fn:newBossDanns5, args:['g', -1], },
-			{ t: 800, },
-			{ t: 500, fx:0.50, fy:0.30, },
-			{ t: 100, fn:newBossDanns6, },
-			{ t: 500, fn:newBossDanns1NoSound, args:['b', 3, 30, 0.02], },
-			{ t: 500, fx:0.60, fy:0.20, },
-			{ t: 200, fn:newBossDanns5, args:['g', 1], },
-			{ t: 200, fn:newBossDanns5, args:['g', 1], },
-			{ t: 200, fn:newBossDanns5, args:['g', 1], },
-			{ t: 800, },
-			{ t: 800, fx:0.50, fy:0.30, fn:newBossDanns4, args:[5], },
-			{ t: 500, fx:0.20, fy:0.20, },
-			{ t: 800, fn:newBossDanns3, args:['BBBBBBB'], },
-			{ t: 800, fx:0.40, fy:0.10, },
-			{ t: 200, fn:newBossDanns5, args:['g', 1], },
-			{ t: 200, fn:newBossDanns5, args:['g', 1], },
-			{ t: 200, fn:newBossDanns5, args:['g', 1], },
-			{ t: 800, },
-			{ t: 800, fx:0.50, fy:0.30, fn:newBossDanns4, args:[5], },
-			{ t: 500, fx:0.20, fy:0.20, },
-			{ t: 800, fn:newBossDanns3, args:['BBBBBBB'], },
-			{ t: 800, fx:0.40, fy:0.10, },
-			{ t: 200, fn:newBossDanns5, args:['g', 1], },
-			{ t: 200, fn:newBossDanns5, args:['g', 1], },
-			{ t: 200, fn:newBossDanns5, args:['g', 1], },
-			{ t: 800, },
-		],
-		duration: 25000,
-		name: 'bossY',
-	},
-	{
-		pathnodes: [
-			{ v:0.1 },
-			{ t: NaN, fx:0.50, fy:0.20, },
-			{ t: 200, fn:newBossDanns8, args:['b', 1, 1500, 0.88], },
-			{ t: 800, fn:newBossDanns8, args:['b', 1, 3200, 0.952, -0.002], },
-			{ t: 200, fn:newBossDanns8, args:['g', 1, 1500, 0.88], },
-			{ t: 800, fn:newBossDanns8, args:['g', 1, 3200, 0.952, -0.002], },
-			{ t: 200, fn:newBossDanns8, args:['r', 1, 1500, 0.88], },
-			{ t: 800, fn:newBossDanns8, args:['r', 1, 3200, 0.952, -0.002], },
-			{ t: 100, fx:0.70, fy:0.30, },
-			{ t: 200, fn:newBossDanns9, args:[ 1, 100], },
-			{ t: 200, fn:newBossDanns9, args:[-1, 100], },
-			{ t: 200, fn:newBossDanns9, args:[ 1, 100], },
-			{ t: 200, fn:newBossDanns9, args:[-1, 100], },
-			{ t: NaN, fx:0.60, fy:0.20, },
-			{ t: 200, fn:newBossDanns8, args:['b', 1, 1500, 0.88], },
-			{ t: 800, fn:newBossDanns8, args:['b', 1, 3200, 0.952, -0.002], },
-			{ t: 200, fn:newBossDanns8, args:['g', 1, 1500, 0.88], },
-			{ t: 800, fn:newBossDanns8, args:['g', 1, 3200, 0.952, -0.002], },
-			{ t: 200, fn:newBossDanns8, args:['r', 1, 1500, 0.88], },
-			{ t: 800, fn:newBossDanns8, args:['r', 1, 3200, 0.952, -0.002], },
-			{ t: 100, fx:0.30, fy:0.20, },
-			{ t: 200, fn:newBossDanns9, args:[ 1, 100], },
-			{ t: 200, fn:newBossDanns9, args:[-1, 100], },
-			{ t: 200, fn:newBossDanns9, args:[ 1, 100], },
-			{ t: 200, fn:newBossDanns9, args:[-1, 100], },
-			{ t: NaN, fx:0.50, fy:0.30, },
-			{ t: 200, fn:newBossDanns8, args:['b', 1, 1500, 0.88], },
-			{ t: 800, fn:newBossDanns8, args:['b', 1, 3200, 0.952, -0.002], },
-			{ t: 200, fn:newBossDanns8, args:['g', 1, 1500, 0.88], },
-			{ t: 800, fn:newBossDanns8, args:['g', 1, 3200, 0.952, -0.002], },
-			{ t: 200, fn:newBossDanns8, args:['r', 1, 1500, 0.88], },
-			{ t: 800, fn:newBossDanns8, args:['r', 1, 3200, 0.952, -0.002], },
-			{ t: 100, fx:0.60, fy:0.10, },
-			{ t: 200, fn:newBossDanns9, args:[ 1, 100], },
-			{ t: 200, fn:newBossDanns9, args:[-1, 100], },
-			{ t: 200, fn:newBossDanns9, args:[ 1, 100], },
-			{ t: 200, fn:newBossDanns9, args:[-1, 100], },
-			{ t: NaN, fx:0.60, fy:0.20, },
-			{ t: 200, fn:newBossDanns8, args:['b', 1, 1500, 0.88], },
-			{ t: 800, fn:newBossDanns8, args:['b', 1, 3200, 0.952, -0.002], },
-			{ t: 200, fn:newBossDanns8, args:['g', 1, 1500, 0.88], },
-			{ t: 800, fn:newBossDanns8, args:['g', 1, 3200, 0.952, -0.002], },
-			{ t: 200, fn:newBossDanns8, args:['r', 1, 1500, 0.88], },
-			{ t: 800, fn:newBossDanns8, args:['r', 1, 3200, 0.952, -0.002], },
-			{ t: 100, fx:0.50, fy:0.10, },
-			{ t: 200, fn:newBossDanns9, args:[ 1, 100], },
-			{ t: 200, fn:newBossDanns9, args:[-1, 100], },
-			{ t: 200, fn:newBossDanns9, args:[ 1, 100], },
-			{ t: 200, fn:newBossDanns9, args:[-1, 100], },
-			{ t: NaN, fx:0.60, fy:0.10, },
-			{ t: 200, fn:newBossDanns8, args:['b', 1, 1500, 0.88], },
-			{ t: 800, fn:newBossDanns8, args:['b', 1, 3200, 0.952, -0.002], },
-			{ t: 200, fn:newBossDanns8, args:['g', 1, 1500, 0.88], },
-			{ t: 800, fn:newBossDanns8, args:['g', 1, 3200, 0.952, -0.002], },
-			{ t: 200, fn:newBossDanns8, args:['r', 1, 1500, 0.88], },
-			{ t: 800, fn:newBossDanns8, args:['r', 1, 3200, 0.952, -0.002], },
-		],
-		duration: 25000,
-		scname: 'st_stg1_sc_ex1',
-		background: newBossBackground,
-	},
-	{
-		pathnodes: [
-			{ t:2000, v:0.05 },
-			{ t: 500, fx:0.50, fy:0.20, },
-			{ t: 800, fn:newBossDanns5, args:['r', -1, 5], },
-			{ t: 800, fn:newBossDanns5, args:['m',  1, 5], },
-			{ t: 800, fn:newBossDanns5, args:['r', -1, 5], },
-			{ t: 800, fn:newBossDanns5, args:['m',  1, 5], },
-			{ t: 800, fn:newBossDanns5, args:['r', -1, 5], },
-			{ t: 800, fn:newBossDanns5, args:['m',  1, 5], },
-			{ t: 800, fn:newBossDanns5, args:['r', -1, 5], },
-			{ t: 800, fn:newBossDanns5, args:['m',  1, 5], },
-			{ t: 200, fx:0.30, fy:0.10, },
-			{ t: 100, fn:newBossDanns6, },
-			{ t: 800, fn:newBossDanns5, args:['r', -1, 5], },
-			{ t: 800, fn:newBossDanns5, args:['m',  1, 5], },
-			{ t: 800, fn:newBossDanns5, args:['r', -1, 5], },
-			{ t: 800, fn:newBossDanns5, args:['m',  1, 5], },
-			{ t: 800, fn:newBossDanns5, args:['r', -1, 5], },
-			{ t: 800, fn:newBossDanns5, args:['m',  1, 5], },
-			{ t: 800, fn:newBossDanns5, args:['r', -1, 5], },
-			{ t: 800, fn:newBossDanns5, args:['m',  1, 5], },
-			{ t: 200, fx:0.40, fy:0.30, },
-			{ t: 100, fn:newBossDanns6, },
-			{ t: 800, fn:newBossDanns5, args:['r', -1, 5], },
-			{ t: 800, fn:newBossDanns5, args:['m',  1, 5], },
-			{ t: 800, fn:newBossDanns5, args:['r', -1, 5], },
-			{ t: 800, fn:newBossDanns5, args:['m',  1, 5], },
-			{ t: 800, fn:newBossDanns5, args:['r', -1, 5], },
-			{ t: 800, fn:newBossDanns5, args:['m',  1, 5], },
-			{ t: 800, fn:newBossDanns5, args:['r', -1, 5], },
-			{ t: 800, fn:newBossDanns5, args:['m',  1, 5], },
-			{ t: 200, fx:0.60, fy:0.20, },
-			{ t: 100, fn:newBossDanns6, },
-			{ t: 800, fn:newBossDanns5, args:['r', -1, 5], },
-			{ t: 800, fn:newBossDanns5, args:['m',  1, 5], },
-			{ t: 800, fn:newBossDanns5, args:['r', -1, 5], },
-			{ t: 800, fn:newBossDanns5, args:['m',  1, 5], },
-			{ t: 800, fn:newBossDanns5, args:['r', -1, 5], },
-			{ t: 800, fn:newBossDanns5, args:['m',  1, 5], },
-			{ t: 800, fn:newBossDanns5, args:['r', -1, 5], },
-			{ t: 800, fn:newBossDanns5, args:['m',  1, 5], },
-		],
-		duration: 25000,
-		damage: 200,
-	},
-	{
-		pathnodes: [
-			{ t:2000, v:0.05 },
-			{ t: 100, fn:newBossDannsEx0, },
-			{ t: 500, fx:0.50, fy:0.20, },
-			{ t: 500, fn:newBossDannsEx1, args:[], },
-			{ t: 500, fn:newBossDannsEx1, args:[], },
-			{ t: 500, fn:newBossDannsEx1, args:[], },
-			{ t: 500, fn:newBossDannsEx1, args:[], },
-			{ t: 500, fn:newBossDannsEx1, args:[], },
-			{ t: 200, fx:0.40, fy:0.30, },
-			{ t: 600, fn:newBossDanns4, args:[3, 'o'], },
-			{ t: 200, fx:0.30, fy:0.10, },
-			{ t: 500, fn:newBossDannsEx1, args:[], },
-			{ t: 500, fn:newBossDannsEx1, args:[], },
-			{ t: 500, fn:newBossDannsEx1, args:[], },
-			{ t: 500, fn:newBossDannsEx1, args:[], },
-			{ t: 500, fn:newBossDannsEx1, args:[], },
-			{ t: 200, fx:0.60, fy:0.20, },
-			{ t: 600, fn:newBossDanns4, args:[3, 'o'], },
-			{ t: 200, fx:0.50, fy:0.20, },
-			{ t: 500, fn:newBossDannsEx1, args:[], },
-			{ t: 500, fn:newBossDannsEx1, args:[], },
-			{ t: 500, fn:newBossDannsEx1, args:[], },
-			{ t: 500, fn:newBossDannsEx1, args:[], },
-			{ t: 500, fn:newBossDannsEx1, args:[], },
-		],
-		duration: 15000,
-		scname: 'st_stg1_sc_ex2',
-		background: newBossBackground,
-	},
-	{
-		pathnodes: [
-			{ v: 0.05 },
-			{ t: 100, fn:newBossDannsEx2, args:[30, 4, 0.1], },
-			{ t: NaN, fx:0.5, fy:0.1, },
-			{ t: NaN, fx:0.3, fy:0.2, },
-			{ t: NaN, fx:0.7, fy:0.2, },
-			{ t: 100, fn:newBossDannsEx2, args:[20, 8, 0.15], },
-			{ t: NaN, fx:0.5, fy:0.1, },
-			{ t: NaN, fx:0.4, fy:0.3, },
-			{ t: 100, fn:newBossDannsEx2, args:[35, 15, 0.2], },
-			{ t: NaN, fx:0.7, fy:0.4, },
-		],
-		duration: 20000,
-	},
-	{
-		pathnodes: [
-			{ t:2000, v:0.05 },
-			{ t: 500, fx:0.50, fy:0.20, },
-			{ t: 100, fn:newBossDannsEx3, args:[-1], },
-			{ t: 100, fx:0.50, fy:0.60, },
-			{ t: 100, fn:newBossDannsEx4, },
-			{ t: NaN, },
-			{ t: 100, fx:0.20, fy:0.30, },
-			{ t: 100, fn:newBossDannsEx4, },
-			{ t: NaN, },
-			{ t: 100, fx:0.80, fy:0.30, },
-			{ t: 100, fn:newBossDannsEx4, },
-			{ t: NaN, },
-			{ t: 100, fx:0.50, fy:0.80, },
-			{ t: 100, fn:newBossDannsEx4, },
-			{ t: NaN, },
-			{ t: 100, fx:0.50, fy:0.20, },
-			{ t: 100, fn:newBossDannsEx4, },
-			{ t: NaN, },
-			{ t: 100, fx:0.50, fy:0.60, },
-			{ t: 100, fn:newBossDannsEx4, },
-			{ t: NaN, },
-			{ t: 100, fx:0.20, fy:0.30, },
-			{ t: 100, fn:newBossDannsEx4, },
-			{ t: NaN, },
-			{ t: 100, fx:0.80, fy:0.30, },
-			{ t: 100, fn:newBossDannsEx4, },
-			{ t: NaN, },
-			{ t: 100, fx:0.50, fy:0.80, },
-			{ t: 100, fn:newBossDannsEx4, },
-		],
-		life: 1000,
-		duration: 40000,
-		scname: 'st_stg1_sc_ex3',
-		background: newBossBackground,
-		next: 'bossKill2',
-	},
-], function(i, para, stage) {
-	var c = para.name || 'boss'+i, n = para.next || 'boss'+(i+1);
-	stage[c] = {
+}
+function newStgSecBoss(next, para) {
+	return {
 		init: function(d) {
 			killCls('Dannmaku');
 			d.age = 0;
@@ -4196,9 +3157,9 @@ ieach([
 				d.boss.data.damage = 0;
 			if (d.age > para.duration || d.boss.data.damage >= para.damage || d.pass) {
 				var success = d.pass || d.boss.data.damage >= para.damage,
-					next = (success ? para.success_next : para.fail_next) || n;
+					nextsec = (success ? para.success_next : para.fail_next) || next;
 				d.boss.data.damage = para.damage || 0;
-				return next;
+				return nextsec;
 			}
 		},
 		on: function(e, v, d) {
@@ -4219,12 +3180,9 @@ ieach([
 			}
 		},
 	}
-}, stage);
-ieach([
-	{ name:'bossKill', next:'diagC', },
-	{ name:'bossKill2', next:'over', },
-], function(i, para, stage) {
-	stage[para.name] = {
+}
+function newStgSecBossKill(next, para) {
+	return {
 		init: function(d) {
 			var boss = UTIL.getOneAlive('Enemy', 'boss') || {
 				data: { x:UTIL.getGamePosX(0.5), y:UTIL.getGamePosY(0.5), vx:0, vy:0 },
@@ -4241,32 +3199,842 @@ ieach([
 				RES.se_enep01.replay();
 			}, 1500);
 		},
-		run: UTIL.newTimeRunner(4000, para.next),
-	};
-}, stage);
-stage.askContinue = {
-	init: function(d) {
-		GAME.state = GAME.states.PAUSE;
-		$i('.game.pause').insertBefore($new('div', {
-			id: 'pause_notice',
-			style: 'position:absolute;margin:1em',
-			innerHTML: RES.st_ask_continue,
-		}), $i('.menu-pause-text'));
-	},
-	run: function(dt, d) {
-		newDrop(2, 0, 0, { vx:random(-0.3, 0.3), vy:random(-0.1, -0.2), });
-		newDrop(2, 0, 0, { vx:random(-0.3, 0.3), vy:random(-0.1, -0.2), });
-		newDrop(2, 0, 0, { vx:random(-0.3, 0.3), vy:random(-0.1, -0.2), });
-		newDrop(2, 0, 0, { vx:random(-0.3, 0.3), vy:random(-0.1, -0.2), });
-		return 'secX';
-	},
-	quit: function(d) {
-		var e = $e('pause_notice');
-		e.parentNode.removeChild(e);
+		run: UTIL.newTimeRunner(4000, next),
 	}
 }
-stage.over = {
-	run: function(dt, d) {
-		GAME.state = GAME.states.OVER;
-	},
+function newStgSecAskContinue(next, para) {
+	return {
+		init: function(d) {
+			GAME.state = GAME.states.PAUSE;
+			$i('.game.pause').insertBefore($new('div', {
+				id: 'pause_notice',
+				style: 'position:absolute;margin:1em',
+				innerHTML: RES.st_ask_continue,
+			}), $i('.menu-pause-text'));
+		},
+		run: function(dt, d) {
+			newDrop(2, 0, 0, { vx:random(-0.3, 0.3), vy:random(-0.1, -0.2), });
+			newDrop(2, 0, 0, { vx:random(-0.3, 0.3), vy:random(-0.1, -0.2), });
+			newDrop(2, 0, 0, { vx:random(-0.3, 0.3), vy:random(-0.1, -0.2), });
+			newDrop(2, 0, 0, { vx:random(-0.3, 0.3), vy:random(-0.1, -0.2), });
+			return next;
+		},
+		quit: function(d) {
+			var e = $e('pause_notice');
+			e.parentNode.removeChild(e);
+		}
+	}
 }
+function newStgSecsFromList(stage, list, newStageFn, prefix) {
+	ieach(list, function(i, para, prefix) {
+		var name = para.name || prefix+i,
+			next = para.next || prefix+(i+1);
+		stage[name] = newStageFn(next, para);
+	}, prefix);
+}
+function newStgHook() {
+	return {
+		init: function(n, d) {
+			console.log('--> ', n)
+		},
+		quit: function(n, d) {
+		},
+		after_run: function(dt, d) {
+			STATICS.time += dt;
+		},
+		before_on: function(e, v, d) {
+			if (e == STORY.events.STORY_LOAD) {
+				UTIL.getOneAlive('Player', 'player', 'p1') ||  newPlayer({ player: 'p1', });
+				if (GAME.double_player_mode && !(GAME.double_player_mode = false)) {
+					UTIL.getOneAlive('Player', 'player', 'p2') || newPlayer({
+						player: 'p2',
+						conf: {
+							key_left: 100,
+							key_up: 104,
+							key_right: 102,
+							key_down: 101,
+							key_fire: 36,
+							key_bomb: 35,
+							key_slow: 45,
+						}
+					});
+				}
+				extend(STATICS, {
+					max_point: 1000000,
+					bomb_reset: 3,
+					point: 0,
+					player: 3,
+					bomb: 3,
+					power: 0,
+					graze: 0,
+					dot: 0,
+
+					time: 0,
+				})
+				if (GAME.many_lives_mode && !(GAME.many_lives_mode = false)) {
+					STATICS.player = 7;
+					STATICS.bomb_reset = 7;
+					STATICS.bomb = STATICS.bomb_reset;
+				}
+			}
+			else if (e == STORY.events.GAME_INPUT) {
+				if (v.type == 'keyup' && v.which == 27) {
+					var s = GAME.state,
+						c = GAME.states;
+					if (s == c.RUNNING) {
+						GAME.state = c.PAUSE;
+						RES.se_pause.play();
+					}
+				}
+			}
+			else if (e == STORY.events.PLAYER_AUTOCOLLECT) {
+				SPRITE.eachObj(function(i, that) {
+					that.data.to = v;
+					that.data.keep = true;
+				}, 'Drop');
+			}
+			else if (e == STORY.events.PLAYER_HIT) {
+				STATICS.graze --;
+				v.juesi();
+				array(8, function() {
+					newEffectPiece(v, 'g');
+				});
+			}
+			else if (e == STORY.events.PLAYER_GRAZE) {
+				STATICS.graze ++;
+				RES.se_graze.play();
+				newEffectPiece(v, 'w', 0.5);
+			}
+			else if (e == STORY.events.PLAYER_DYING) {
+				v.die();
+				var x = v.data.x,
+					y = v.data.y;
+				ieach([0, 0, 0, 0, 2], function(i, type) {
+					newDrop(type, x, y, { vx:random(-0.2, 0.2), vy:random(-0.25, -0.3) });
+				})
+				STATICS.player --;
+				STATICS.bomb = STATICS.bomb_reset;
+				STATICS.power = limit_between(STATICS.power - 16, 0, 128);
+				STORY.timer.add(newTicker(100, function() {
+					killCls('Dannmaku');
+					if (this.finished = v.finished) {
+						if (STATICS.player >= 0) newPlayer({
+							player: v.data.player,
+							conf: v.data.conf
+						});
+						else
+							GAME.state = GAME.states.OVER;
+					}
+				}));
+				newEffect(v, RES.frames.EffPlayer);
+				RES.se_pldead00.play();
+			}
+			else if (e == STORY.events.PLAYER_FIRE) {
+				if (v.is_fire_enable = !d.disable_fire && !v.is_dying)
+					newBullet(v, STATICS.power);
+			}
+			else if (e == STORY.events.PLAYER_BOMB) {
+				if (!d.disable_fire && STATICS.bomb > 0) {
+					STATICS.bomb --;
+					v.bomb();
+					newBomb(v);
+					RES.se_cat00.play();
+					SPRITE.anim.add(newTicker(1000, function(d) {
+						RES.se_gun00.play();
+						this.finished = true;
+					}));
+				}
+			}
+			else if (e == STORY.events.ENEMY_KILL) {
+				if (v.data.respawn-- > 0)
+					v.data.damage = 0;
+				else {
+					v.die();
+					var type;
+					if (v.data.power_pt)
+						type = v.data.power_pt >= 128 ? 4 : (v.data.power_pt >= 8 ? 2 : 0);
+					else
+						type = random(1) > 0.8 ? 0 : 1;
+					newDrop(type, v.data.x, v.data.y);
+				}
+				newEffect(v, RES.frames.EffEnemy);
+				array(4, function() {
+					newEffectPiece(v, 'b');
+				});
+				RES.se_enep00.replay();
+			}
+			else if (e == STORY.events.DROP_COLLECTED) {
+				v.die();
+				STATICS.point += v.data.point_pt || 10;
+				if (v.data.power_pt) {
+					var pt = v.data.power_pt;
+					ieach([8, 16, 32, 48, 60, 80, 100, 128], function(i, c) {
+						if (STATICS.power < c && STATICS.power+pt >= c) {
+							RES.se_powerup.play();
+							SPRITE.newObj('Basic', {
+								x: v.data.x,
+								y: v.data.y,
+								frames: RES.frames.PowerUp,
+								duration: 1000,
+							})
+							return true;
+						}
+					});
+					STATICS.power = limit_between(STATICS.power+pt, 0, 128);
+				}
+				if (v.data.point_pt) {
+					STATICS.dot ++;
+					SPRITE.newObj('Basic', {
+						x: v.data.x,
+						y: v.data.y,
+						text: {
+							res: 'ascii',
+							map: RES.nummap_small,
+							text: '' + v.data.point_pt,
+						},
+						duration: 1000,
+					});
+				}
+				RES.se_item00.replay();
+			}
+			else if (e == STORY.events.BULLET_HIT) {
+				v.die();
+				v.data.vx *= 0.05;
+				v.data.vy *= 0.05;
+				UTIL.addFrameAnim(v, RES.frames.BulletD[v.data.to ? 1 : 0]);
+				newEffectPiece(v, 'r');
+			}
+			else if (e == STORY.events.SHIELD_HIT) {
+				//newEffect(v, RES.frames.EffPlayer, 2);
+			}
+			else if (e == STORY.events.DANNMAKU_HIT) {
+				v.die();
+				v.data.vx *= 0.1;
+				v.data.vy *= 0.1;
+				newDrop(6, v.data.x, v.data.y, {
+					to: UTIL.getOneAlive('Player'),
+					keep: true,
+				});
+			}
+		}
+	}
+}
+
+function newStage1(difficuty) {
+	var stage = {};
+	stage.hook = newStgHook();
+	stage.init = newStgSecInit('sec0', {
+		bgelem: $('.bg1'),
+		title: 'STAGE 1',
+		text: RES.st_stg1_title,
+		bgm: RES.bgm_stg1a,
+	});
+	newStgSecsFromList(stage, [
+		{ init:newSec1, args:['s0A2', 5], duration:3000, },
+		{ init:newSec1, args:['s0A1', 8], duration:2000, },
+		{ init:newSec2, args:[0.4, 10], duration:4000, },
+		{ init:newSec3, args:[1000, 5], duration:5000, },
+		{ init:newSec3, args:[500, 10], duration:5000, },
+		{ init:newSec4, args:[], duration:6000 },
+		{ init:newSec1, args:['s0A2', 8, [[-40, 0], [0, 0]]], duration:2000 },
+		{ init:newSec1, args:['s0A1', 8, [[+40, 0], [0, 0]]], duration:4000, next:'bossA' },
+		// ...
+		{ init:newSec3, args:[1000, 20], duration:16000, name:'secH' },
+		{ init:newSec1, args:['s0A2', 8, [[-40, 0], [0, 0]]], duration:2000 },
+		{ init:newSec1, args:['s0A1', 8, [[+40, 0], [0, 0]]], duration:2000 },
+		{ init:newSec1, args:['s0A2', 8, [[-40, 0], [0, 0]]], duration:7000, next:'diagA' },
+		// ...
+		{ init:newSec3, args:[500, 30, 3, 10], duration:10000, name:'secX' },
+		{ init:newSecList, args:[
+			[newSec3, [500, 300, 3, 10]],
+			[newSec1, ['s0A2', 8, [[0, 0]], 1000, 0.2, 0.04, 10]],
+			[newSec1, ['s0A1', 8, [[0, 0]], 1000, 0.2, 0.04, 10], 2000],
+			[newSec1, ['s0A2', 8, [[-40, 0], [+40, 0]], 1000, 0.2, 0.04, 10], 8000],
+			[newSec1, ['s0A1', 8, [[+40, 0], [-40, 0]], 1000, 0.2, 0.04, 10], 10000],
+			[newSec1, ['s0A2', 8, [[0, 0]], 1000, 0.2, 0.04, 10], 16000],
+			[newSec1, ['s0A1', 8, [[0, 0]], 1000, 0.2, 0.04, 10], 18000],
+		], duration:20000, },
+		{ init:newSecEx1, args:[0.2], duration:100, },
+		{ init:newSecEx1, args:[-0.2], duration:100, },
+		{ init:newSec1, args:['s0A2', 8, [[-40, 0], [0, 0]], 1000, 0.3], duration:1500, },
+		{ init:newSec1, args:['s0A1', 8, [[+40, 0], [0, 0]], 1000, 0.3], duration:1500, },
+		{ init:newSec1, args:['s0A2', 8, [[-40, 0], [0, 0]], 1000, 0.3], duration:1500, },
+		{ init:newSec1, args:['s0A1', 8, [[+40, 0], [0, 0]], 1000, 0.3], duration:1500, },
+		{ init:newSecEx1, args:[0.2], duration:100, },
+		{ init:newSecEx1, args:[-0.2], duration:100, },
+		{ init:newSec1, args:['s0A2', 8, [[-40, 0], [0, 0]], 1000, 0.3], duration:1500, },
+		{ init:newSec1, args:['s0A1', 8, [[+40, 0], [0, 0]], 1000, 0.3], duration:1500, },
+		{ init:newSec1, args:['s0A2', 8, [[-40, 0], [0, 0]], 1000, 0.3], duration:1500, },
+		{ init:newSec1, args:['s0A1', 8, [[+40, 0], [0, 0]], 1000, 0.3], duration:1500, },
+		{ init:newSec4, args:[newDanns2, 10], duration:10000, },
+		{ init:newSecEx2, args:[0, 0, 0.1, 0.2], duration:100, },
+		{ init:newSecEx2, args:[1, 0, -0.1, 0.2], duration:1000, },
+		{ init:newSecEx2, args:[0, 0.3, 0.1, 0.12], duration:100, },
+		{ init:newSecEx2, args:[1, 0.3, -0.1, 0.12], duration:1000, },
+		{ init:newSecEx2, args:[0, 0.3, 0.1, 0.12], duration:100, },
+		{ init:newSecEx2, args:[1, 0.3, -0.1, 0.12], duration:1000, },
+		{ duration:5000, },
+		{ init:newSec4, args:[newDanns2, 10], duration:10000, },
+		{ duration:5000, },
+		{ init:killCls, args:['Enemy', 'Dannmaku'], duration:1000, next:'diagD', },
+	], newStgSecNormal, 'sec');
+	newStgSecsFromList(stage, [
+		{ text:'st_diag1', pos:'.fl.dg', face:'.f0a', name:'diagA', },
+		{ text:'st_diag2', pos:'.fl.dg', face:'.f0a' },
+		{ text:'st_diag3', pos:'.fl.dg', face:'.f0c.f2' },
+		{ text:'st_diag4', pos:'.fl.dg', face:'.f0c.f2' },
+		{ text:'st_diag5', pos:'.fl.dg', face:'.f0b.f2', next:'bossB', },
+		{ text:'st_diag6', pos:'.fr.dg', face:'.f3a.f2', name:'diagB', },
+		{ text:'st_diag7', pos:'.fl.dg', face:'.f0c.f2' },
+		{ text:'st_diag8', pos:'.fr.dg', face:'.f3a' },
+		{ text:'st_diag9', pos:'.fl.dg', face:'.f0a' },
+		{ text:'st_diag10', pos:'.fr.dg', face:'.f3b.f2' },
+		{ text:'st_diag11', pos:'.fl.dg', face:'.f0b.f2' },
+		{ text:'st_diag12', pos:'.fr.dg', face:'.f3b' },
+		{ text:'st_diag13', pos:'.fl.dg', face:'.f0a' },
+		{ text:'st_diag14', pos:'.fr.dg', face:'.f3b' },
+		{ text:'st_diag15', pos:'.fl.dg', face:'.f0b.f2', next:'bossC', ended:true, },
+		{ text:'st_diagXX', pos:'.fr.dg', face:'.fx', name:'diagC', duration:10 },
+		{ text:'st_diag16', pos:'.fl.dg', face:'.f0b.f2', next:'askContinue', ended:true, },
+		{ text:'st_diag17', pos:'.fr.dg', face:'.f3a.f2', name:'diagD', },
+		{ text:'st_diag18', pos:'.fl.dg', face:'.f0c.f2' },
+		{ text:'st_diag19', pos:'.fr.dg', face:'.f3a' },
+		{ text:'st_diag20', pos:'.fl.dg', face:'.f0b.f2' },
+		{ text:'st_diag21', pos:'.fr.dg', face:'.f3a.f2' },
+		{ text:'st_diag22', pos:'.fl.dg', face:'.f0c.f2' },
+		{ text:'st_diag23', pos:'.fl.dg', face:'.f0a' },
+		{ text:'st_diag24', pos:'.fr.dg', face:'.f3a.f2' },
+		{ text:'st_diag25', pos:'.fr.dg', face:'.f3b' },
+		{ text:'st_diag26', pos:'.fl.dg', face:'.f0b.f2' },
+		{ text:'st_diag27', pos:'.fl.dg', face:'.f0b' },
+		{ text:'st_diag28', pos:'.fr.dg', face:'.f3b.f2' },
+		{ text:'st_diag29', pos:'.fl.dg', face:'.f0c' },
+		{ text:'st_diag30', pos:'.fr.dg', face:'.f3b' },
+		{ text:'st_diag31', pos:'.fl.dg', face:'.f0a' },
+		{ text:'st_diag32', pos:'.fl.dg', face:'.f0a.f2' },
+		{ text:'st_diag33', pos:'.fr.dg', face:'.f3a', next:'bossY', ended:true },
+	], newStgSecDiag, 'diag');
+	newStgSecsFromList(stage, [
+		{
+			pathnodes: [
+				{ fx:0.50, fy:0.00, v:0.2, },
+				{ t:1000, fx:0.83, fy:0.28, v:0.2, },
+				{ t:1000, fn:newBossDanns1, args:['b'], },
+				{ t:1000, fx:0.50, fy:0.10, v:0.2, },
+				{ t:1000, fn:newBossDanns2, },
+				{ t:1000, fx:0.17, fy:0.28, v:0.2, },
+				{ t:1000, fn:newBossDanns1, args:['g'], },
+				{ t:1000, fn:newBossDanns1, args:['y'], },
+				{ t:1000, fx:0.50, fy:0.10, v:0.2, },
+				{ t:2000, fn:newBossDanns3, args:['brgyY'], },
+				{ t:1000, fx:0.83, fy:0.28, v:0.2, },
+				{ t: 500, fn:newBossDanns1, args:['b'], },
+				{ t:2000, fn:newBossDanns1, args:['r'], },
+				{ t:1000, fx:0.50, fy:0.10, v:0.2, },
+				{ t:1500, fn:newBossDanns2, },
+				{ t: 500, fx:0.17, fy:0.28, v:0.2, },
+				{ t: 500, fn:newBossDanns1, args:['g'], },
+				{ t:2000, fn:newBossDanns1, args:['y'], },
+				{ t:1000, fx:0.50, fy:0.10, v:0.2, },
+				{ t:2000, fn:newBossDanns3, args:['brgyY'], },
+				{ t: 500, fx:0.83, fy:0.28, v:0.2, },
+				{ t: 500, fn:newBossDanns1, args:['b'], },
+			],
+			damage: 300,
+			duration: 25000,
+			name: 'bossA',
+			fail_next: 'boss2',
+		},
+		{
+			pathnodes: [
+				{ v:0.1 },
+				{ fx:0.5, fy:0.2, },
+				{ t:100, fn:newBossDanns0, },
+				{ t:4000, fn:newBossDanns0A, },
+				{ fx:0.7, fy:0.1, },
+				{ t:4000, fn:newBossDanns0A, },
+				{ fx:0.3, fy:0.1, },
+				{ t:4000, fn:newBossDanns0A, },
+				{ fx:0.1, fy:0.2, },
+				{ t:4000, fn:newBossDanns0A, },
+			],
+			duration: 20000,
+			scname: 'st_stg1_sc0',
+			background: newBossBackground,
+		},
+		{
+			pathnodes: [
+				{ v:0.3 },
+				{ fx:0.5, fy:0.0 },
+				{ fy:-1, v:0.3 },
+			],
+			next: 'secH',
+			duration: 500,
+			no_countdown: true,
+			invinc: true,
+		},
+		{
+			pathnodes: [
+				{ fx:0.00, fy:0.00, v:0.2 },
+				{ fx:0.10, fy:0.10 },
+				{ fx:0.50, fy:0.18 },
+			],
+			duration: 2000,
+			invinc: true,
+			no_countdown: true,
+			no_lifebar: true,
+			disable_fire: true,
+			name: 'bossB',
+			next: 'diagB',
+		},
+		{
+			pathnodes: [
+				{ t:2000, v:0.2 },
+				{ t:2000, fx:0.50, fy:0.10, v:0.2, fn:newBossDanns4, args:[5], },
+				{ t:1000, fx:0.40, fy:0.30, v:0.1, },
+				{ t: 200, fn:newBossDanns5, args:['g', 1], },
+				{ t: 200, fn:newBossDanns5, args:['g', 1], },
+				{ t: 200, fn:newBossDanns5, args:['g', 1], },
+				{ t:2000, },
+				{ t:2500, fx:0.60, fy:0.20, fn:newBossDanns4, args:[5], },
+				{ t:1500, fx:0.60, fy:0.30, },
+				{ t:1500, fn:newBossDanns3, args:['BBBBBBB'], },
+				{ t:1500, fx:0.50, fy:0.10, },
+				{ t: 100, fn:newBossDanns6, },
+				{ t:1500, fn:newBossDanns1NoSound, args:['b', 3, 30, 0.02], },
+				{ t: 500, fx:0.60, fy:0.30, },
+				{ t: 200, fn:newBossDanns5, args:['g', -1], },
+				{ t: 200, fn:newBossDanns5, args:['g', -1], },
+				{ t: 200, fn:newBossDanns5, args:['g', -1], },
+				{ t:2000, },
+				{ t: 500, fx:0.50, fy:0.30, },
+				{ t: 100, fn:newBossDanns6, },
+				{ t: 500, fn:newBossDanns1NoSound, args:['b', 3, 30, 0.02], },
+				{ t: 500, fx:0.60, fy:0.20, },
+				{ t: 200, fn:newBossDanns5, args:['g', 1], },
+				{ t: 200, fn:newBossDanns5, args:['g', 1], },
+				{ t: 200, fn:newBossDanns5, args:['g', 1], },
+				{ t:2000, },
+				{ t:2500, fx:0.50, fy:0.30, fn:newBossDanns4, args:[5], },
+				{ t: 500, fx:0.20, fy:0.20, },
+				{ t:2500, fn:newBossDanns3, args:['BBBBBBB'], },
+				{ t:1000, fx:0.40, fy:0.10, },
+				{ t: 200, fn:newBossDanns5, args:['g', 1], },
+				{ t: 200, fn:newBossDanns5, args:['g', 1], },
+				{ t: 200, fn:newBossDanns5, args:['g', 1], },
+				{ t:1000, },
+			],
+			duration: 35000,
+			name: 'bossC',
+			bgm: 'bgm_stg1b',
+		},
+		{
+			pathnodes: [
+				{ t:2000, v:0.1 },
+				{ t: 500, fx:0.50, fy:0.20, },
+				{ t: 800, fn:newBossDanns5, args:['b', -1], },
+				{ t: 800, fn:newBossDanns5, args:['c',  1], },
+				{ t: 800, fn:newBossDanns5, args:['b', -1], },
+				{ t: 800, fn:newBossDanns5, args:['c',  1], },
+				{ t: 800, fn:newBossDanns5, args:['b', -1], },
+				{ t: 800, fn:newBossDanns5, args:['c',  1], },
+				{ t: 800, fn:newBossDanns5, args:['b', -1], },
+				{ t: 800, fn:newBossDanns5, args:['c',  1], },
+				{ t: 200, fx:0.30, fy:0.10, v:0.05, },
+				{ t: 800, fn:newBossDanns5, args:['b', -1], },
+				{ t: 800, fn:newBossDanns5, args:['c',  1], },
+				{ t: 800, fn:newBossDanns5, args:['b', -1], },
+				{ t: 800, fn:newBossDanns5, args:['c',  1], },
+				{ t: 800, fn:newBossDanns5, args:['b', -1], },
+				{ t: 800, fn:newBossDanns5, args:['c',  1], },
+				{ t: 800, fn:newBossDanns5, args:['b', -1], },
+				{ t: 800, fn:newBossDanns5, args:['c',  1], },
+				{ t: 200, fx:0.40, fy:0.30, },
+				{ t: 800, fn:newBossDanns5, args:['b', -1], },
+				{ t: 800, fn:newBossDanns5, args:['c',  1], },
+				{ t: 800, fn:newBossDanns5, args:['b', -1], },
+				{ t: 800, fn:newBossDanns5, args:['c',  1], },
+				{ t: 800, fn:newBossDanns5, args:['b', -1], },
+				{ t: 800, fn:newBossDanns5, args:['c',  1], },
+				{ t: 800, fn:newBossDanns5, args:['b', -1], },
+				{ t: 800, fn:newBossDanns5, args:['c',  1], },
+				{ t: 200, fx:0.60, fy:0.20, },
+				{ t: 800, fn:newBossDanns5, args:['b', -1], },
+				{ t: 800, fn:newBossDanns5, args:['c',  1], },
+				{ t: 800, fn:newBossDanns5, args:['b', -1], },
+				{ t: 800, fn:newBossDanns5, args:['c',  1], },
+				{ t: 800, fn:newBossDanns5, args:['b', -1], },
+				{ t: 800, fn:newBossDanns5, args:['c',  1], },
+				{ t: 800, fn:newBossDanns5, args:['b', -1], },
+				{ t: 800, fn:newBossDanns5, args:['c',  1], },
+			],
+			duration: 25000,
+			scname: 'st_stg1_sc1',
+			background: newBossBackground,
+		},
+		{
+			pathnodes: [
+				{ v:0.05 },
+				{ t: 500, fx:0.50, fy:0.10, },
+				{ t: 100, fn:newBossDanns6, args:['g', 8, 7, 0.1], },
+				{ t: 200, fn:newBossDanns7, },
+				{ t: 200, fn:newBossDanns7, },
+				{ t: 200, fn:newBossDanns7, },
+				{ t: 200, fn:newBossDanns7, },
+				{ t: 200, fn:newBossDanns7, },
+				{ t:1500, fn:newBossDanns7, },
+				{ t: 200, fx:0.70, fy:0.20, },
+				{ t: 200, fn:newBossDanns5, args:['g', -1], },
+				{ t: 200, fn:newBossDanns5, args:['g', -1], },
+				{ t: 200, fn:newBossDanns5, args:['g', -1], },
+				{ t: 200, fn:newBossDanns5, args:['g', -1], },
+				{ t:2500, },
+				{ t: 500, fx:0.50, fy:0.10, },
+				{ t: 100, fn:newBossDanns6, args:['y', 3, 15, 0.3, 0.05, 0.1], },
+				{ t: 100, fn:newBossDanns6, args:['y', 3, 20, 0.4, 0.08, 0.1], },
+				{ t:2500, },
+				{ t: 200, fx:0.70, fy:0.20, },
+				{ t: 200, fn:newBossDanns5, args:['g', -1], },
+				{ t: 200, fn:newBossDanns5, args:['g', -1], },
+				{ t: 200, fn:newBossDanns5, args:['g', -1], },
+				{ t:1200, fn:newBossDanns5, args:['g', -1], },
+				{ t: 500, fx:0.50, fy:0.10, },
+				{ t: 100, fn:newBossDanns6, args:['y', 3, 15, 0.3, 0.05, 0.1], },
+				{ t: 100, fn:newBossDanns6, args:['y', 3, 20, 0.4, 0.08, 0.1], },
+				{ t:2500, },
+				{ t: 500, fx:0.60, fy:0.30, },
+				{ t:1500, fn:newBossDanns3, args:['ggg'], },
+				{ t: 500, fx:0.70, fy:0.20, },
+				{ t: 100, fn:newBossDanns6, args:['g', 8, 7, 0.1], },
+				{ t: 200, fn:newBossDanns7, },
+				{ t: 200, fn:newBossDanns7, },
+				{ t: 200, fn:newBossDanns7, },
+				{ t: 200, fn:newBossDanns7, },
+				{ t: 200, fn:newBossDanns7, },
+				{ t: 200, fn:newBossDanns7, },
+				{ t:2500, fx:0.60, fy:0.30, },
+				{ t: 200, fn:newBossDanns5, args:['g', -1], },
+				{ t: 200, fn:newBossDanns5, args:['g', -1], },
+				{ t: 200, fn:newBossDanns5, args:['g', -1], },
+				{ t: 200, fn:newBossDanns5, args:['g', -1], },
+			],
+			duration: 30000,
+		},
+		{
+			pathnodes: [
+				{ v:0.1 },
+				{ t: NaN, fx:0.50, fy:0.20, },
+				{ t:1000, fn:newBossDanns8, args:['b'], },
+				{ t:1000, fn:newBossDanns8, args:['g'], },
+				{ t:1000, fn:newBossDanns8, args:['r'], },
+				{ t: 100, fx:0.70, fy:0.30, },
+				{ t: 200, fn:newBossDanns9, args:[ 1], },
+				{ t: 200, fn:newBossDanns9, args:[-1], },
+				{ t: 200, fn:newBossDanns9, args:[ 1], },
+				{ t: 200, fn:newBossDanns9, args:[-1], },
+				{ t: NaN, fx:0.60, fy:0.20, },
+				{ t:1000, fn:newBossDanns8, args:['b'], },
+				{ t:1000, fn:newBossDanns8, args:['g'], },
+				{ t:1000, fn:newBossDanns8, args:['r'], },
+				{ t: 100, fx:0.30, fy:0.20, },
+				{ t: 200, fn:newBossDanns9, args:[ 1], },
+				{ t: 200, fn:newBossDanns9, args:[-1], },
+				{ t: 200, fn:newBossDanns9, args:[ 1], },
+				{ t: 200, fn:newBossDanns9, args:[-1], },
+				{ t: NaN, fx:0.50, fy:0.30, },
+				{ t:1000, fn:newBossDanns8, args:['b'], },
+				{ t:1000, fn:newBossDanns8, args:['g'], },
+				{ t:1000, fn:newBossDanns8, args:['r'], },
+				{ t: 100, fx:0.60, fy:0.10, },
+				{ t: 200, fn:newBossDanns9, args:[ 1], },
+				{ t: 200, fn:newBossDanns9, args:[-1], },
+				{ t: 200, fn:newBossDanns9, args:[ 1], },
+				{ t: 200, fn:newBossDanns9, args:[-1], },
+				{ t: NaN, fx:0.60, fy:0.20, },
+				{ t:1000, fn:newBossDanns8, args:['b'], },
+				{ t:1000, fn:newBossDanns8, args:['g'], },
+				{ t:1000, fn:newBossDanns8, args:['r'], },
+				{ t: 100, fx:0.50, fy:0.10, },
+				{ t: 200, fn:newBossDanns9, args:[ 1], },
+				{ t: 200, fn:newBossDanns9, args:[-1], },
+				{ t: 200, fn:newBossDanns9, args:[ 1], },
+				{ t: 200, fn:newBossDanns9, args:[-1], },
+				{ t: NaN, fx:0.60, fy:0.10, },
+				{ t:1000, fn:newBossDanns8, args:['b'], },
+				{ t:1000, fn:newBossDanns8, args:['g'], },
+				{ t:1000, fn:newBossDanns8, args:['r'], },
+			],
+			duration: 25000,
+			scname: 'st_stg1_sc2',
+			background: newBossBackground,
+			next: 'bossKill',
+		},
+		{
+			pathnodes: [
+				{ fx:0.00, fy:0.00, v:0.2 },
+				{ fx:0.10, fy:0.10 },
+				{ fx:0.50, fy:0.18 },
+			],
+			duration: 2000,
+			invinc: true,
+			no_countdown: true,
+			no_lifebar: true,
+			disable_fire: true,
+			name: 'bossX',
+			next: 'diagD',
+		},
+		{
+			pathnodes: [
+				{ t: 800, v:0.2 },
+				{ t: 800, fx:0.50, fy:0.10, v:0.2, fn:newBossDanns4, args:[5], },
+				{ t: 800, fx:0.40, fy:0.30, v:0.1, },
+				{ t: 200, fn:newBossDanns5, args:['g', 1], },
+				{ t: 200, fn:newBossDanns5, args:['g', 1], },
+				{ t: 200, fn:newBossDanns5, args:['g', 1], },
+				{ t: 800, },
+				{ t: 800, fx:0.60, fy:0.20, fn:newBossDanns4, args:[5], },
+				{ t: 800, fx:0.60, fy:0.30, },
+				{ t: 800, fn:newBossDanns3, args:['BBBBBBB'], },
+				{ t: 800, fx:0.50, fy:0.10, },
+				{ t: 100, fn:newBossDanns6, },
+				{ t: 500, fn:newBossDanns1NoSound, args:['b', 3, 30, 0.02], },
+				{ t: 500, fx:0.60, fy:0.30, },
+				{ t: 200, fn:newBossDanns5, args:['g', -1], },
+				{ t: 200, fn:newBossDanns5, args:['g', -1], },
+				{ t: 200, fn:newBossDanns5, args:['g', -1], },
+				{ t: 800, },
+				{ t: 500, fx:0.50, fy:0.30, },
+				{ t: 100, fn:newBossDanns6, },
+				{ t: 500, fn:newBossDanns1NoSound, args:['b', 3, 30, 0.02], },
+				{ t: 500, fx:0.60, fy:0.20, },
+				{ t: 200, fn:newBossDanns5, args:['g', 1], },
+				{ t: 200, fn:newBossDanns5, args:['g', 1], },
+				{ t: 200, fn:newBossDanns5, args:['g', 1], },
+				{ t: 800, },
+				{ t: 800, fx:0.50, fy:0.30, fn:newBossDanns4, args:[5], },
+				{ t: 500, fx:0.20, fy:0.20, },
+				{ t: 800, fn:newBossDanns3, args:['BBBBBBB'], },
+				{ t: 800, fx:0.40, fy:0.10, },
+				{ t: 200, fn:newBossDanns5, args:['g', 1], },
+				{ t: 200, fn:newBossDanns5, args:['g', 1], },
+				{ t: 200, fn:newBossDanns5, args:['g', 1], },
+				{ t: 800, },
+				{ t: 800, fx:0.50, fy:0.30, fn:newBossDanns4, args:[5], },
+				{ t: 500, fx:0.20, fy:0.20, },
+				{ t: 800, fn:newBossDanns3, args:['BBBBBBB'], },
+				{ t: 800, fx:0.40, fy:0.10, },
+				{ t: 200, fn:newBossDanns5, args:['g', 1], },
+				{ t: 200, fn:newBossDanns5, args:['g', 1], },
+				{ t: 200, fn:newBossDanns5, args:['g', 1], },
+				{ t: 800, },
+			],
+			duration: 25000,
+			name: 'bossY',
+		},
+		{
+			pathnodes: [
+				{ v:0.1 },
+				{ t: NaN, fx:0.50, fy:0.20, },
+				{ t: 200, fn:newBossDanns8, args:['b', 1, 1500, 0.88], },
+				{ t: 800, fn:newBossDanns8, args:['b', 1, 3200, 0.952, -0.002], },
+				{ t: 200, fn:newBossDanns8, args:['g', 1, 1500, 0.88], },
+				{ t: 800, fn:newBossDanns8, args:['g', 1, 3200, 0.952, -0.002], },
+				{ t: 200, fn:newBossDanns8, args:['r', 1, 1500, 0.88], },
+				{ t: 800, fn:newBossDanns8, args:['r', 1, 3200, 0.952, -0.002], },
+				{ t: 100, fx:0.70, fy:0.30, },
+				{ t: 200, fn:newBossDanns9, args:[ 1, 100], },
+				{ t: 200, fn:newBossDanns9, args:[-1, 100], },
+				{ t: 200, fn:newBossDanns9, args:[ 1, 100], },
+				{ t: 200, fn:newBossDanns9, args:[-1, 100], },
+				{ t: NaN, fx:0.60, fy:0.20, },
+				{ t: 200, fn:newBossDanns8, args:['b', 1, 1500, 0.88], },
+				{ t: 800, fn:newBossDanns8, args:['b', 1, 3200, 0.952, -0.002], },
+				{ t: 200, fn:newBossDanns8, args:['g', 1, 1500, 0.88], },
+				{ t: 800, fn:newBossDanns8, args:['g', 1, 3200, 0.952, -0.002], },
+				{ t: 200, fn:newBossDanns8, args:['r', 1, 1500, 0.88], },
+				{ t: 800, fn:newBossDanns8, args:['r', 1, 3200, 0.952, -0.002], },
+				{ t: 100, fx:0.30, fy:0.20, },
+				{ t: 200, fn:newBossDanns9, args:[ 1, 100], },
+				{ t: 200, fn:newBossDanns9, args:[-1, 100], },
+				{ t: 200, fn:newBossDanns9, args:[ 1, 100], },
+				{ t: 200, fn:newBossDanns9, args:[-1, 100], },
+				{ t: NaN, fx:0.50, fy:0.30, },
+				{ t: 200, fn:newBossDanns8, args:['b', 1, 1500, 0.88], },
+				{ t: 800, fn:newBossDanns8, args:['b', 1, 3200, 0.952, -0.002], },
+				{ t: 200, fn:newBossDanns8, args:['g', 1, 1500, 0.88], },
+				{ t: 800, fn:newBossDanns8, args:['g', 1, 3200, 0.952, -0.002], },
+				{ t: 200, fn:newBossDanns8, args:['r', 1, 1500, 0.88], },
+				{ t: 800, fn:newBossDanns8, args:['r', 1, 3200, 0.952, -0.002], },
+				{ t: 100, fx:0.60, fy:0.10, },
+				{ t: 200, fn:newBossDanns9, args:[ 1, 100], },
+				{ t: 200, fn:newBossDanns9, args:[-1, 100], },
+				{ t: 200, fn:newBossDanns9, args:[ 1, 100], },
+				{ t: 200, fn:newBossDanns9, args:[-1, 100], },
+				{ t: NaN, fx:0.60, fy:0.20, },
+				{ t: 200, fn:newBossDanns8, args:['b', 1, 1500, 0.88], },
+				{ t: 800, fn:newBossDanns8, args:['b', 1, 3200, 0.952, -0.002], },
+				{ t: 200, fn:newBossDanns8, args:['g', 1, 1500, 0.88], },
+				{ t: 800, fn:newBossDanns8, args:['g', 1, 3200, 0.952, -0.002], },
+				{ t: 200, fn:newBossDanns8, args:['r', 1, 1500, 0.88], },
+				{ t: 800, fn:newBossDanns8, args:['r', 1, 3200, 0.952, -0.002], },
+				{ t: 100, fx:0.50, fy:0.10, },
+				{ t: 200, fn:newBossDanns9, args:[ 1, 100], },
+				{ t: 200, fn:newBossDanns9, args:[-1, 100], },
+				{ t: 200, fn:newBossDanns9, args:[ 1, 100], },
+				{ t: 200, fn:newBossDanns9, args:[-1, 100], },
+				{ t: NaN, fx:0.60, fy:0.10, },
+				{ t: 200, fn:newBossDanns8, args:['b', 1, 1500, 0.88], },
+				{ t: 800, fn:newBossDanns8, args:['b', 1, 3200, 0.952, -0.002], },
+				{ t: 200, fn:newBossDanns8, args:['g', 1, 1500, 0.88], },
+				{ t: 800, fn:newBossDanns8, args:['g', 1, 3200, 0.952, -0.002], },
+				{ t: 200, fn:newBossDanns8, args:['r', 1, 1500, 0.88], },
+				{ t: 800, fn:newBossDanns8, args:['r', 1, 3200, 0.952, -0.002], },
+			],
+			duration: 25000,
+			scname: 'st_stg1_sc_ex1',
+			background: newBossBackground,
+		},
+		{
+			pathnodes: [
+				{ t:2000, v:0.05 },
+				{ t: 500, fx:0.50, fy:0.20, },
+				{ t: 800, fn:newBossDanns5, args:['r', -1, 5], },
+				{ t: 800, fn:newBossDanns5, args:['m',  1, 5], },
+				{ t: 800, fn:newBossDanns5, args:['r', -1, 5], },
+				{ t: 800, fn:newBossDanns5, args:['m',  1, 5], },
+				{ t: 800, fn:newBossDanns5, args:['r', -1, 5], },
+				{ t: 800, fn:newBossDanns5, args:['m',  1, 5], },
+				{ t: 800, fn:newBossDanns5, args:['r', -1, 5], },
+				{ t: 800, fn:newBossDanns5, args:['m',  1, 5], },
+				{ t: 200, fx:0.30, fy:0.10, },
+				{ t: 100, fn:newBossDanns6, },
+				{ t: 800, fn:newBossDanns5, args:['r', -1, 5], },
+				{ t: 800, fn:newBossDanns5, args:['m',  1, 5], },
+				{ t: 800, fn:newBossDanns5, args:['r', -1, 5], },
+				{ t: 800, fn:newBossDanns5, args:['m',  1, 5], },
+				{ t: 800, fn:newBossDanns5, args:['r', -1, 5], },
+				{ t: 800, fn:newBossDanns5, args:['m',  1, 5], },
+				{ t: 800, fn:newBossDanns5, args:['r', -1, 5], },
+				{ t: 800, fn:newBossDanns5, args:['m',  1, 5], },
+				{ t: 200, fx:0.40, fy:0.30, },
+				{ t: 100, fn:newBossDanns6, },
+				{ t: 800, fn:newBossDanns5, args:['r', -1, 5], },
+				{ t: 800, fn:newBossDanns5, args:['m',  1, 5], },
+				{ t: 800, fn:newBossDanns5, args:['r', -1, 5], },
+				{ t: 800, fn:newBossDanns5, args:['m',  1, 5], },
+				{ t: 800, fn:newBossDanns5, args:['r', -1, 5], },
+				{ t: 800, fn:newBossDanns5, args:['m',  1, 5], },
+				{ t: 800, fn:newBossDanns5, args:['r', -1, 5], },
+				{ t: 800, fn:newBossDanns5, args:['m',  1, 5], },
+				{ t: 200, fx:0.60, fy:0.20, },
+				{ t: 100, fn:newBossDanns6, },
+				{ t: 800, fn:newBossDanns5, args:['r', -1, 5], },
+				{ t: 800, fn:newBossDanns5, args:['m',  1, 5], },
+				{ t: 800, fn:newBossDanns5, args:['r', -1, 5], },
+				{ t: 800, fn:newBossDanns5, args:['m',  1, 5], },
+				{ t: 800, fn:newBossDanns5, args:['r', -1, 5], },
+				{ t: 800, fn:newBossDanns5, args:['m',  1, 5], },
+				{ t: 800, fn:newBossDanns5, args:['r', -1, 5], },
+				{ t: 800, fn:newBossDanns5, args:['m',  1, 5], },
+			],
+			duration: 25000,
+			damage: 200,
+		},
+		{
+			pathnodes: [
+				{ t:2000, v:0.05 },
+				{ t: 100, fn:newBossDannsEx0, },
+				{ t: 500, fx:0.50, fy:0.20, },
+				{ t: 500, fn:newBossDannsEx1, args:[], },
+				{ t: 500, fn:newBossDannsEx1, args:[], },
+				{ t: 500, fn:newBossDannsEx1, args:[], },
+				{ t: 500, fn:newBossDannsEx1, args:[], },
+				{ t: 500, fn:newBossDannsEx1, args:[], },
+				{ t: 200, fx:0.40, fy:0.30, },
+				{ t: 600, fn:newBossDanns4, args:[3, 'o'], },
+				{ t: 200, fx:0.30, fy:0.10, },
+				{ t: 500, fn:newBossDannsEx1, args:[], },
+				{ t: 500, fn:newBossDannsEx1, args:[], },
+				{ t: 500, fn:newBossDannsEx1, args:[], },
+				{ t: 500, fn:newBossDannsEx1, args:[], },
+				{ t: 500, fn:newBossDannsEx1, args:[], },
+				{ t: 200, fx:0.60, fy:0.20, },
+				{ t: 600, fn:newBossDanns4, args:[3, 'o'], },
+				{ t: 200, fx:0.50, fy:0.20, },
+				{ t: 500, fn:newBossDannsEx1, args:[], },
+				{ t: 500, fn:newBossDannsEx1, args:[], },
+				{ t: 500, fn:newBossDannsEx1, args:[], },
+				{ t: 500, fn:newBossDannsEx1, args:[], },
+				{ t: 500, fn:newBossDannsEx1, args:[], },
+			],
+			duration: 15000,
+			scname: 'st_stg1_sc_ex2',
+			background: newBossBackground,
+		},
+		{
+			pathnodes: [
+				{ v: 0.05 },
+				{ t: 100, fn:newBossDannsEx2, args:[30, 4, 0.1], },
+				{ t: NaN, fx:0.5, fy:0.1, },
+				{ t: NaN, fx:0.3, fy:0.2, },
+				{ t: NaN, fx:0.7, fy:0.2, },
+				{ t: 100, fn:newBossDannsEx2, args:[20, 8, 0.15], },
+				{ t: NaN, fx:0.5, fy:0.1, },
+				{ t: NaN, fx:0.4, fy:0.3, },
+				{ t: 100, fn:newBossDannsEx2, args:[35, 15, 0.2], },
+				{ t: NaN, fx:0.7, fy:0.4, },
+			],
+			duration: 20000,
+		},
+		{
+			pathnodes: [
+				{ t:2000, v:0.05 },
+				{ t: 500, fx:0.50, fy:0.20, },
+				{ t: 100, fn:newBossDannsEx3, args:[-1], },
+				{ t: 100, fx:0.50, fy:0.60, },
+				{ t: 100, fn:newBossDannsEx4, },
+				{ t: NaN, },
+				{ t: 100, fx:0.20, fy:0.30, },
+				{ t: 100, fn:newBossDannsEx4, },
+				{ t: NaN, },
+				{ t: 100, fx:0.80, fy:0.30, },
+				{ t: 100, fn:newBossDannsEx4, },
+				{ t: NaN, },
+				{ t: 100, fx:0.50, fy:0.80, },
+				{ t: 100, fn:newBossDannsEx4, },
+				{ t: NaN, },
+				{ t: 100, fx:0.50, fy:0.20, },
+				{ t: 100, fn:newBossDannsEx4, },
+				{ t: NaN, },
+				{ t: 100, fx:0.50, fy:0.60, },
+				{ t: 100, fn:newBossDannsEx4, },
+				{ t: NaN, },
+				{ t: 100, fx:0.20, fy:0.30, },
+				{ t: 100, fn:newBossDannsEx4, },
+				{ t: NaN, },
+				{ t: 100, fx:0.80, fy:0.30, },
+				{ t: 100, fn:newBossDannsEx4, },
+				{ t: NaN, },
+				{ t: 100, fx:0.50, fy:0.80, },
+				{ t: 100, fn:newBossDannsEx4, },
+			],
+			life: 1000,
+			duration: 40000,
+			scname: 'st_stg1_sc_ex3',
+			background: newBossBackground,
+			next: 'bossKill2',
+		},
+	], newStgSecBoss, 'boss');
+	newStgSecsFromList(stage, [
+		{ name:'bossKill', next:'diagC', },
+		{ name:'bossKill2', next:'over', },
+	], newStgSecBossKill, 'bossKill');
+	stage.askContinue = newStgSecAskContinue('secX');
+	stage.over = {
+		run: function(dt, d) {
+			GAME.state = GAME.states.OVER;
+		},
+	}
+	return stage;
+}
+
