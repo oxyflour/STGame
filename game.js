@@ -830,7 +830,7 @@ var GAME = (function() {
 	}
 	_t.load = function(stage, hk) {
 		if (STORY.state.set)
-			STORY.state.set('ended');
+			STORY.state.set('quit');
 		STORY.load(stage, hook);
 		STORY.on(STORY.events.STORY_LOAD);
 	};
