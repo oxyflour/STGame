@@ -3190,49 +3190,18 @@ function newEffectPiece(from, color, scale, duration) {
 	}, p.data);
 	return p;
 }
-function newBackground() {
-	function updateImgs(imgs, f) {
-		ieach(bg.imgs, function(i, e) {
-			var v = e.val = {
-				bg0: {
-					persp: [900, 500],
-					rotate: [50, 70],
-					opacity: [1, 1],
-					oriy: -50,
-				},
-				bg1: {
-					persp: [700, 500],
-					rotate: [30, 80],
-					opacity: [1, 0],
-					oriy: -100,
-				}
-			}[e.id];
-			if (v) {
-				var p = interp(v.persp[0], v.persp[1], f),
-					r = interp(v.rotate[0], v.rotate[1], f),
-					trans = 'perspective('+p+'px) rotateX('+r+'deg)',
-					ori = '50% '+v.oriy+'px';
-				$prefixStyle(e.style, 'Transform', trans);
-				$prefixStyle(e.style, 'TransformOrigin', ori);
-				e.style.opacity = interp(v.opacity[0], v.opacity[1], f);
-				e.style.display = e.style.opacity > 0.05 ? 'block' : 'none';
-			}
-		});
-	}
+function newBackground(scrollImgs) {
 	var bg = SPRITE.newObj('Basic');
 	bg.draw = return_nothing;
-	bg.imgs = $('.bgimg');
-	updateImgs(bg.imgs, 0);
-	bg.elems = $('.bg1');
-	ieach(bg.elems, function(i, e) {
+	ieach(scrollImgs, function(i, e) {
 		e.object = bg;
 		e.offset = 0;
 		e.total = parseFloat($style(e, 'height')) - parseFloat($style('.game', 'height'));
 		e.speed = parseFloat($attr(e, 'bg-speed') || '0');
 		e.opacity = parseFloat(e.style.opacity || '1');
 	});
-	bg.anim(50, function(d) {
-		ieach(this.elems, function(i, e) {
+	bg.anim(50, function() {
+		ieach(scrollImgs, function(i, e) {
 			if (e.speed) {
 				e.offset += e.speed * 50;
 				if (e.offset > 0)
@@ -3243,17 +3212,52 @@ function newBackground() {
 			}
 			e.style.opacity = e.opacity * bg.data.ph;
 		});
-		var age = bg.data.age,
+	});
+	return bg;
+}
+function newStg1BgAnim(bg) {
+	function updateBgImg(e, f) {
+		if (!e.val) return;
+		var v = e.val;
+		var p = interp(v.persp[0], v.persp[1], f),
+			r = interp(v.rotate[0], v.rotate[1], f),
+			trans = 'perspective('+p+'px) rotateX('+r+'deg)',
+			ori = '50% '+v.oriy+'px';
+		$prefixStyle(e.style, 'Transform', trans);
+		$prefixStyle(e.style, 'TransformOrigin', ori);
+		e.style.opacity = interp(v.opacity[0], v.opacity[1], f);
+		e.style.display = e.style.opacity > 0.05 ? 'block' : 'none';
+	}
+
+	var imgs = $('.bgimg');
+	ieach(imgs, function(i, e, d) {
+		e.val = d[e.id];
+		updateBgImg(e, 0);
+	}, {
+		bg0: {
+			persp: [900, 500],
+			rotate: [50, 70],
+			opacity: [1, 1],
+			oriy: -50,
+		},
+		bg1: {
+			persp: [700, 500],
+			rotate: [30, 80],
+			opacity: [1, 0],
+			oriy: -100,
+		}
+	});
+	bg.anim(50, function(d) {
+		var age = d.age,
 			begin = 25000,
 			end = 30000;
 		if (age >= begin && age <= end) {
 			var f = ease_in_out((age - begin) / (end - begin));
-			ieach(this.imgs, function(i, e) {
-				updateImgs(e, f);
+			ieach(imgs, function(i, e) {
+				updateBgImg(e, f);
 			});
 		}
-	});
-	return bg;
+	}, bg.data);
 }
 function killCls() {
 	ieach(arguments, function(i, c) {
@@ -3285,7 +3289,6 @@ var hook = {
 	before_on: function(e, v, d) {
 		if (e == STORY.events.STORY_LOAD) {
 			SPRITE.clrObj();
-			newBackground();
 			if (GAME.double_player_mode && !(GAME.double_player_mode = false)) {
 				newPlayer();
 				newPlayer({ conf: {
@@ -3461,6 +3464,10 @@ var stage = {};
 stage.init = {
 	run: UTIL.newTimeRunner(3000, 'sec0'),
 	init: function(d) {
+		if (GAME.stgbg) GAME.stgbg.die();
+		GAME.stgbg = newBackground($('.bg1'));
+		newStg1BgAnim(GAME.stgbg);
+
 		GAME.bgm_running = undefined;
 		STORY.timeout(function(d) {
 			d.title = SPRITE.newObj('Basic', {
