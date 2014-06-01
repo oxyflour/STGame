@@ -692,6 +692,7 @@ var SPRITE = (function() {
 	var _t = {
 		cls: newGroupAnim(),
 		layers: newGroupAnim(),
+		anim: newAnimateList(),
 		proto: {},
 	};
 	_t.newCls = function(c, f, fn) {
@@ -823,8 +824,6 @@ var GAME = (function() {
 		r: DC.canvas.width,
 		b: DC.canvas.height
 	};
-	_t.anim = newAnimateList();
-	_t.timer = newAnimateList();
 	_t.load = function(stage, hk) {
 		if (STORY.state.set)
 			STORY.state.set('ended');
@@ -1214,7 +1213,7 @@ return proto = {
 				this.finished = obj.finished || fn.call(obj, d);
 			}, this);
 
-			GAME.anim.add(t);
+			SPRITE.anim.add(t);
 			t.f(t.d);
 		}
 
@@ -1943,7 +1942,7 @@ function newBomb(player) {
 		$readdClass(bg.scelem, 'active');
 		$i('.text', bg.scelem.parentNode).innerHTML = RES.st_bomb_sc;
 	}
-	GAME.anim.add(newTicker(100, function() {
+	SPRITE.anim.add(newTicker(100, function() {
 		if (bg.finished || bg.is_dying) {
 			if (bg.scelem) {
 				bg.scelem.classList.remove('active');
@@ -3381,7 +3380,7 @@ var hook = {
 				v.bomb();
 				newBomb(v);
 				RES.se_cat00.play();
-				GAME.anim.add(newTicker(1000, function(d) {
+				SPRITE.anim.add(newTicker(1000, function(d) {
 					RES.se_gun00.play();
 					this.finished = true;
 				}));
