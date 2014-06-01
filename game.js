@@ -743,8 +743,8 @@ var STORY = (function() {
 		'DANNMAKU_HIT',
 		'ENEMY_KILL'
 	]);
-	_t.load = function(tl, hook) {
-		_t.state = newStateMachine(tl);
+	_t.load = function(stage, hook) {
+		_t.state = newStateMachine(stage);
 		_t.timer = newAnimateList();
 		_t.hook = extend({
 			init: undefined,
@@ -824,10 +824,10 @@ var GAME = (function() {
 		r: DC.canvas.width,
 		b: DC.canvas.height
 	};
-	_t.load = function(tl, hk) {
+	_t.load = function(stage, hk) {
 		if (STORY.state.set)
 			STORY.state.set('ended');
-		STORY.load(tl, hook);
+		STORY.load(stage, hook);
 		STORY.on(STORY.events.STORY_LOAD);
 	};
 	_t.start = function(n) {
@@ -3456,8 +3456,8 @@ var hook = {
 		}
 	}
 };
-var tl = {};
-tl.init = {
+var stage = {};
+stage.init = {
 	run: UTIL.newTimeRunner(3000, 'sec0'),
 	init: function(d) {
 		GAME.bgm_running = undefined;
@@ -3540,15 +3540,15 @@ ieach([
 	{ init:newSec4, args:[newDanns2, 10], duration:10000, },
 	{ duration:5000, },
 	{ init:killCls, args:['Enemy', 'Dannmaku'], duration:1000, next:'diagD', },
-], function(i, para, tl) {
+], function(i, para, stage) {
 	var c = para.name || 'sec'+i, n = para.next || 'sec'+(i+1);
-	tl[c] = {
+	stage[c] = {
 		run: UTIL.newTimeRunner(para.duration, n),
 		init: function(d) {
 			para.init && para.init.apply(null, para.args);
 		},
 	};
-}, tl);
+}, stage);
 ieach([
 	{ text:'st_diag1', pos:'.fl.dg', face:'.f0a', name:'diagA', },
 	{ text:'st_diag2', pos:'.fl.dg', face:'.f0a' },
@@ -3584,9 +3584,9 @@ ieach([
 	{ text:'st_diag31', pos:'.fl.dg', face:'.f0a' },
 	{ text:'st_diag32', pos:'.fl.dg', face:'.f0a.f2' },
 	{ text:'st_diag33', pos:'.fr.dg', face:'.f3a', next:'bossY', ended:true },
-], function(i, para, tl) {
+], function(i, para, stage) {
 	var c = para.name || 'diag'+i, n = para.next || 'diag'+(i+1);
-	tl[c] = {
+	stage[c] = {
 		init: function(d) {
 			d.age = 0;
 			d.disable_fire = true;
@@ -3624,7 +3624,7 @@ ieach([
 			}
 		},
 	}
-}, tl);
+}, stage);
 ieach([
 	{
 		pathnodes: [
@@ -4135,9 +4135,9 @@ ieach([
 		background: newBossBackground,
 		next: 'bossKill2',
 	},
-], function(i, para, tl) {
+], function(i, para, stage) {
 	var c = para.name || 'boss'+i, n = para.next || 'boss'+(i+1);
-	tl[c] = {
+	stage[c] = {
 		init: function(d) {
 			killCls('Dannmaku');
 			d.age = 0;
@@ -4205,12 +4205,12 @@ ieach([
 			}
 		},
 	}
-}, tl);
+}, stage);
 ieach([
 	{ name:'bossKill', next:'diagC', },
 	{ name:'bossKill2', next:'over', },
-], function(i, para, tl) {
-	tl[para.name] = {
+], function(i, para, stage) {
+	stage[para.name] = {
 		init: function(d) {
 			var boss = UTIL.getOneObj('Enemy', 'boss') || {
 				data: { x:UTIL.getGamePosX(0.5), y:UTIL.getGamePosY(0.5), vx:0, vy:0 },
@@ -4229,8 +4229,8 @@ ieach([
 		},
 		run: UTIL.newTimeRunner(4000, para.next),
 	};
-}, tl);
-tl.askContinue = {
+}, stage);
+stage.askContinue = {
 	init: function(d) {
 		GAME.state = GAME.states.PAUSE;
 		$i('.game.pause').insertBefore($new('div', {
@@ -4251,7 +4251,7 @@ tl.askContinue = {
 		e.parentNode.removeChild(e);
 	}
 }
-tl.over = {
+stage.over = {
 	run: function(dt, d) {
 		GAME.state = GAME.states.OVER;
 	},
