@@ -195,7 +195,11 @@ input[type="radio"] {
 }
 .bg-persp {
 	-webkit-transform: perspective(600px) rotateX(70deg);
+	    -ms-transform: perspective(600px) rotateX(70deg);
+	   -moz-transform: perspective(600px) rotateX(70deg);
 	-webkit-transform-origin: 50% -10%;
+	    -ms-transform-origin: 50% -10%;
+	   -moz-transform-origin: 50% -10%;
 }
 
 /*
