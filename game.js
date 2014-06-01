@@ -745,7 +745,6 @@ var STORY = (function() {
 	]);
 	_t.load = function(stage, hook) {
 		_t.state = newStateMachine(stage);
-		_t.timer = newAnimateList();
 		_t.hook = extend({
 			init: undefined,
 			quit: undefined,
@@ -824,6 +823,11 @@ var GAME = (function() {
 		r: DC.canvas.width,
 		b: DC.canvas.height
 	};
+	_t.reset = function() {
+		SPRITE.clrObj();
+		SPRITE.anim = newAnimateList();
+		STORY.timer = newAnimateList();
+	}
 	_t.load = function(stage, hk) {
 		if (STORY.state.set)
 			STORY.state.set('ended');
@@ -842,7 +846,7 @@ var GAME = (function() {
 			});
 		});
 		SPRITE.cls.run(dt);
-		_t.anim.run(dt);
+		SPRITE.anim.run(dt);
 		STORY.run(dt);
 	};
 	_t.draw = function() {
@@ -872,15 +876,15 @@ var GAME = (function() {
 })();
 
 var UTIL = {
-	getOneObj: function(c, fn) {
-		if (same_type(fn, '')) {
-			var id = fn;
-			fn = function(i, v) {
-				if (v.data.id == id)
-					return v;
-			};
-		}
-		return SPRITE.eachObj(fn || return_second, c);
+	getOneAlive: function(c, k, v) {
+		return SPRITE.eachObj(function(i, obj) {
+			if (obj.is_dying)
+				return;
+			if (!k ||
+				(v !== undefined && obj.data[k] == v) ||
+				(v === undefined && obj.data[k]))
+				return obj;
+		}, c);
 	},
 	getNearestAlive: function(v, c) {
 		var r = Inf, t = undefined;
@@ -1218,7 +1222,7 @@ return proto = {
 		}
 
 		if (id) {
-			var k = 'anim_' + id;
+			var k = 'anim' + '_' + id;
 			if (this[k])
 				this[k].finished = true;
 			this[k] = t;
@@ -2627,7 +2631,7 @@ function newBoss() {
 			return fs;
 		},
 		respawn: Inf,
-		id: 'boss',
+		boss: 'Rumia',
 	});
 	boss.effects = array(3, function(i) {
 		return newBossGadgets(boss);
@@ -3287,21 +3291,21 @@ var hook = {
 	},
 	before_on: function(e, v, d) {
 		if (e == STORY.events.STORY_LOAD) {
-			SPRITE.clrObj();
+			UTIL.getOneAlive('Player', 'player', 'p1') ||  newPlayer({ player: 'p1', });
 			if (GAME.double_player_mode && !(GAME.double_player_mode = false)) {
-				newPlayer();
-				newPlayer({ conf: {
-					key_left: 100,
-					key_up: 104,
-					key_right: 102,
-					key_down: 101,
-					key_fire: 36,
-					key_bomb: 35,
-					key_slow: 45,
-				}});
+				UTIL.getOneAlive('Player', 'player', 'p2') || newPlayer({
+					player: 'p2',
+					conf: {
+						key_left: 100,
+						key_up: 104,
+						key_right: 102,
+						key_down: 101,
+						key_fire: 36,
+						key_bomb: 35,
+						key_slow: 45,
+					}
+				});
 			}
-			else
-				newPlayer();
 			extend(STATICS, {
 				max_point: 1000000,
 				bomb_reset: 3,
@@ -3361,8 +3365,10 @@ var hook = {
 			STORY.timer.add(newTicker(100, function() {
 				killCls('Dannmaku');
 				if (this.finished = v.finished) {
-					if (STATICS.player >= 0)
-						newPlayer(v.data.conf && { conf:v.data.conf });
+					if (STATICS.player >= 0) newPlayer({
+						player: v.data.player,
+						conf: v.data.conf
+					});
 					else
 						GAME.state = GAME.states.OVER;
 				}
@@ -3453,7 +3459,7 @@ var hook = {
 			v.data.vx *= 0.1;
 			v.data.vy *= 0.1;
 			newDrop(6, v.data.x, v.data.y, {
-				to: UTIL.getOneObj('Player'),
+				to: UTIL.getOneAlive('Player'),
 				keep: true,
 			});
 		}
@@ -4150,7 +4156,7 @@ ieach([
 			d.age = 0;
 			d.disable_fire = para.disable_fire;
 
-			d.boss = UTIL.getOneObj('Enemy', 'boss') || newBoss();
+			d.boss = UTIL.getOneAlive('Enemy', 'boss') || newBoss();
 			if (para.pathnodes)
 				UTIL.addPathAnim(d.boss, para.pathnodes);
 			if (!para.no_lifebar &&
@@ -4196,7 +4202,7 @@ ieach([
 		},
 		on: function(e, v, d) {
 			if (e == STORY.events.ENEMY_KILL) {
-				if (v.data.id == 'boss') {
+				if (v.data.boss) {
 					d.pass = true;
 					SPRITE.eachObj(function(i, obj) {
 						STORY.on(STORY.events.DANNMAKU_HIT, obj);
@@ -4219,7 +4225,7 @@ ieach([
 ], function(i, para, stage) {
 	stage[para.name] = {
 		init: function(d) {
-			var boss = UTIL.getOneObj('Enemy', 'boss') || {
+			var boss = UTIL.getOneAlive('Enemy', 'boss') || {
 				data: { x:UTIL.getGamePosX(0.5), y:UTIL.getGamePosY(0.5), vx:0, vy:0 },
 			};
 			killCls('Enemy', 'Dannmaku');
