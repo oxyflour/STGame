@@ -745,7 +745,7 @@ var STORY = (function() {
 	]);
 	_t.load = function(tl, hook) {
 		_t.state = newStateMachine(tl);
-		_t.anim = newAnimateList();
+		_t.timer = newAnimateList();
 		_t.hook = extend({
 			init: undefined,
 			quit: undefined,
