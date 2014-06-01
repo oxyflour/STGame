@@ -1987,8 +1987,9 @@ function newShield(bomb) {
 		damage_pt: 10,
 	});
 	sh.drawCircle = function(d) {
-		d.r = 1 + ease_out(d.ph) * 40;
-		d.scale = d.r / 30;
+		var ph = ease_out(d.ph);
+		d.r = 30 + ph * 20;
+		d.scale = (10 + ph * 40) / 25;
 		return true;
 	};
 	sh.anim(50, function(d) {
