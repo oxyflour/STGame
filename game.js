@@ -3115,6 +3115,11 @@ function chirunoFireSc1(from) {
 		});
 	}, 100, null, 3);
 }
+function chirunoFireSc1A(from) {
+	STORY.timeout(function() {
+		chirunoFireSc1(from);
+	}, 300, null, 8);
+}
 function chirunoFire4(from, count, speed) {
 	STORY.timeout(function() {
 		chirunoFire2(from, 50, 30, 2, speed || 0.15, 0.1, 'a');
@@ -3579,10 +3584,7 @@ function newStgSecScore(next, para) {
 		},
 		quit: function(d) {
 			d.mask.die();
-			setTimeout(function() {
-				GAME.load(newStage2());
-				GAME.start('init');
-			}, 10);
+			para.quit && para.quit(d);
 		},
 		on: function(e, v, d) {
 			if (e == STORY.events.GAME_INPUT) {
@@ -4396,7 +4398,14 @@ function newStage1(difficuty) {
 		{ name:'bossKill2', next:'score', },
 	], newStgSecBossKill, 'bossKill');
 	stage.askContinue = newStgSecAskContinue('secX');
-	stage.score = newStgSecScore('ended');
+	stage.score = newStgSecScore('ended', {
+		quit: function() {
+			setTimeout(function() {
+				GAME.load(newStage2());
+				GAME.start('init');
+			}, 10);
+		}
+	});
 	return stage;
 }
 function newStage2(difficuty) {
@@ -4448,6 +4457,8 @@ function newStage2(difficuty) {
 		{ text:RES.st_stg2_diag7,  pos:'.fl.dg', face:'.f0b.f2', },
 		{ text:RES.st_stg2_diag8,  pos:'.fr.dg', face:'.f5a.f2', },
 		{ text:RES.st_stg2_diag9,  pos:'.fr.dg', face:'.f5a.f2', next:'bossC', ended:true, },
+		{ text:RES.st_stg2_diagXX, pos:'.fr.dg', face:'.fx', name:'diagC', duration:10 },
+		{ text:RES.st_stg2_diag10, pos:'.fl.dg', face:'.f0b.f2', next:'askContinue', ended:true, },
 	], newStgSecDiag, 'diag');
 	newStgSecsFromList(stage, [
 		{
@@ -4495,7 +4506,7 @@ function newStage2(difficuty) {
 			pathnodes: [
 				{ fx:0.5, fy:0.2 },
 			],
-			duration: 2000,
+			duration: 1000,
 			invinc: true,
 			no_countdown: true,
 			no_lifebar: true,
@@ -4561,65 +4572,29 @@ function newStage2(difficuty) {
 			pathnodes: [
 				{ v:0.05 },
 				{ t:NaN, fx:0.5, fy:0.2, },
-				{ t:300, fn:chirunoFireSc1, },
-				{ t:300, fn:chirunoFireSc1, },
-				{ t:300, fn:chirunoFireSc1, },
-				{ t:300, fn:chirunoFireSc1, },
-				{ t:300, fn:chirunoFireSc1, },
-				{ t:300, fn:chirunoFireSc1, },
-				{ t:300, fn:chirunoFireSc1, },
-				{ t:300, fn:chirunoFireSc1, },
-				{ t:500, },
+				{ t:300, fn:chirunoFireSc1A, },
+				{ t:3000, },
 				{ t:200, fx:0.6, fy:0.1, },
-				{ t:300, fn:chirunoFireSc1, },
-				{ t:300, fn:chirunoFireSc1, },
-				{ t:300, fn:chirunoFireSc1, },
-				{ t:300, fn:chirunoFireSc1, },
-				{ t:300, fn:chirunoFireSc1, },
-				{ t:300, fn:chirunoFireSc1, },
-				{ t:300, fn:chirunoFireSc1, },
-				{ t:300, fn:chirunoFireSc1, },
-				{ t:500, },
+				{ t:300, fn:chirunoFireSc1A, },
+				{ t:3000, },
 				{ t:200, fx:0.4, fy:0.2, },
-				{ t:300, fn:chirunoFireSc1, },
-				{ t:300, fn:chirunoFireSc1, },
-				{ t:300, fn:chirunoFireSc1, },
-				{ t:300, fn:chirunoFireSc1, },
-				{ t:300, fn:chirunoFireSc1, },
-				{ t:300, fn:chirunoFireSc1, },
-				{ t:300, fn:chirunoFireSc1, },
-				{ t:300, fn:chirunoFireSc1, },
-				{ t:500, },
+				{ t:300, fn:chirunoFireSc1A, },
+				{ t:3000, },
 				{ t:200, fx:0.5, fy:0.3, },
-				{ t:300, fn:chirunoFireSc1, },
-				{ t:300, fn:chirunoFireSc1, },
-				{ t:300, fn:chirunoFireSc1, },
-				{ t:300, fn:chirunoFireSc1, },
-				{ t:300, fn:chirunoFireSc1, },
-				{ t:300, fn:chirunoFireSc1, },
-				{ t:300, fn:chirunoFireSc1, },
-				{ t:300, fn:chirunoFireSc1, },
-				{ t:500, },
+				{ t:300, fn:chirunoFireSc1A, },
+				{ t:3000, },
 				{ t:200, fx:0.6, fy:0.2, },
-				{ t:300, fn:chirunoFireSc1, },
-				{ t:300, fn:chirunoFireSc1, },
-				{ t:300, fn:chirunoFireSc1, },
-				{ t:300, fn:chirunoFireSc1, },
-				{ t:300, fn:chirunoFireSc1, },
-				{ t:300, fn:chirunoFireSc1, },
-				{ t:300, fn:chirunoFireSc1, },
-				{ t:300, fn:chirunoFireSc1, },
-				{ t:500, },
+				{ t:300, fn:chirunoFireSc1A, },
+				{ t:3000, },
 				{ t:200, fx:0.7, fy:0.3, },
-				{ t:300, fn:chirunoFireSc1, },
-				{ t:300, fn:chirunoFireSc1, },
-				{ t:300, fn:chirunoFireSc1, },
-				{ t:300, fn:chirunoFireSc1, },
-				{ t:300, fn:chirunoFireSc1, },
-				{ t:300, fn:chirunoFireSc1, },
-				{ t:300, fn:chirunoFireSc1, },
-				{ t:300, fn:chirunoFireSc1, },
-				{ t:500, },
+				{ t:300, fn:chirunoFireSc1A, },
+				{ t:3000, },
+				{ t:200, fx:0.5, fy:0.3, },
+				{ t:300, fn:chirunoFireSc1A, },
+				{ t:3000, },
+				{ t:200, fx:0.6, fy:0.2, },
+				{ t:300, fn:chirunoFireSc1A, },
+				{ t:3000, },
 			],
 			duration: 35000,
 			scname: RES.st_stg2_sc1,
@@ -4721,8 +4696,13 @@ function newStage2(difficuty) {
 			],
 			duration: 40000,
 			scname: RES.st_stg2_sc3,
+			next: 'bossKill',
 		},
 	], newStgSecBoss, 'boss');
+	newStgSecsFromList(stage, [
+		{ name:'bossKill', next:'diagC', },
+	], newStgSecBossKill, 'bossKill');
+	stage.askContinue = newStgSecAskContinue('secX');
 	return stage;
 }
 
