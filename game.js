@@ -209,6 +209,10 @@ function redirect_object(from, to, v, f) {
 	from.vy = vy;
 	return r;
 }
+function decrease_object_speed(obj, f) {
+	obj.vx *= f;
+	obj.vy *= f;
+}
 
 // see http://stackoverflow.com/questions/2353211/hsl-to-rgb-color-conversion
 function hue2rgb(p, q, t) {
@@ -2002,8 +2006,7 @@ function newShield(bomb) {
 		if (d.to && d.to != this.hit_with)
 			redirect_object(d, d.to.data, sqrt_sum(d.vx, d.vy)+0.04, 0.2);
 		else {
-			d.vx *= 0.92;
-			d.vy *= 0.92;
+			decrease_object_speed(d, 0.92);
 			d.theta += d.dtheta;
 			d.vx += Math.sin(d.theta) * d.dv;
 			d.vy += Math.cos(d.theta) * d.dv;
@@ -2201,12 +2204,7 @@ function newDanns2(from) {
 			frames: RES.frames.TamaA[2],
 		});
 		obj.anim(50, function(d) {
-			if (d.age < 800) {
-				d.vx *= 0.85;
-				d.vy *= 0.85;
-			}
-			else
-				return true;
+			return d.age < 800 ? decrease_object_speed(d, 0.85) : true;
 		}, obj.data);
 	})
 }
@@ -2230,8 +2228,7 @@ function newDannsEx2(from, vt, f) {
 	});
 	dmk.anim(100, function(d) {
 		if (d.age < 500) {
-			d.vx *= 0.9;
-			d.vy *= 0.9;
+			decrease_object_speed(d, 0.9);
 		}
 		else if (d.age < 2000) {
 			var r = sqrt_sum(d.x - d.sx, d.y - d.sy),
@@ -2596,8 +2593,7 @@ function newBossDanns2(from) {
 			});
 			obj.anim(50, function(d) {
 				if (d.age < 2000) {
-					d.vx *= 0.95;
-					d.vy *= 0.95;
+					decrease_object_speed(d, 0.95);
 				}
 				else if (d.age > 2500) {
 					var v = sqrt_sum(d.vx, d.vy);
@@ -2682,12 +2678,7 @@ function newBossDanns5(from, color, direction, count) {
 				frames: frame,
 			})
 			obj.anim(50, function(d) {
-				if (d.age < 600) {
-					d.vx *= 0.9;
-					d.vy *= 0.9;
-				}
-				else
-					return true;
+				return d.age < 600 ? decrease_object_speed(d, 0.9) : true;
 			}, obj.data);
 		});
 	}, 30, null, n);
@@ -2750,8 +2741,7 @@ function newBossDanns8(from, color, count, delay, dec, dv) {
 			obj.space = { l:50, r:50, t:50, b:80, };
 			obj.anim(80, function(d) {
 				if (d.age < (delay || 1000)) {
-					d.vx *= dec || 0.8;
-					d.vy *= dec || 0.8;
+					decrease_object_speed(d, dec || 0.8);
 				}
 				else {
 					d.vr += d.dv;
@@ -2782,8 +2772,7 @@ function newBossDanns9(from, direction, interval) {
 		});
 		obj.anim(90, function(d) {
 			if (d.age < 2000 + j*tick) {
-				d.vx *= 0.90;
-				d.vy *= 0.90;
+				decrease_object_speed(d, 0.9);
 			}
 			else if (d.age < 4000) {
 				var e = to && to.data || { x:UTIL.getGamePosX(0.5), y:UTIL.getGamePosY(0.9) };
@@ -2848,8 +2837,7 @@ function newBossDannsEx2(from, count, num, speed) {
 			var obj = newDannmaku(from, to, 0, f*PI*0.5, ext.v, 0, ext);
 			if (ext.redirect) obj.anim(100, function(d) {
 				if (d.age < 1000) {
-					d.vx *= 0.9;
-					d.vy *= 0.9;
+					decrease_object_speed(d, 0.9);
 				}
 				else if (d.age < 5000) {
 					to && redirect_object(d, {
@@ -2888,8 +2876,7 @@ function newBossDannsEx3(from) {
 					r = sqrt_sum(dx, dy);
 				d.vx -= (1/30 - 1/r)*dx/r*2 + d.dir*dy/r*random(0.06);
 				d.vy -= (1/30 - 1/r)*dy/r*2 - d.dir*dx/r*random(0.06);
-				d.vx *= 0.8;
-				d.vy *= 0.8;
+				decrease_object_speed(d, 0.8);
 			}
 		}, obj.data);
 		return obj;
@@ -3011,12 +2998,7 @@ function daiyouseiFire1(from, color, direction) {
 					frames: frames,
 				});
 				obj.anim(100, function(d) {
-					if (d.age < 1000) {
-						d.vx *= 0.95;
-						d.vy *= 0.95;
-					}
-					else
-						return true;
+					return d.age < 1000 ? decrease_object_speed(d, 0.95) : true;
 				}, obj.data);
 			})
 		});
@@ -3034,10 +3016,8 @@ function daiyouseiFire2(from) {
 				frames: RES.frames.LongC[5],
 			})
 			if (j % 2) obj.anim(100, function(d) {
-				if (d.age < 1000) {
-					d.vx *= 0.9;
-					d.vy *= 0.9;
-				}
+				if (d.age < 1000)
+					decrease_object_speed(d, 0.9);
 				else if (d.age < 1500 && to)
 					redirect_object(d, to.data, 0.2);
 			}, obj.data);
@@ -3086,8 +3066,7 @@ function newEffectPiece(from, color, scale, duration) {
 		return true;
 	};
 	p.anim(50, function(d) {
-		d.vx *= 0.97;
-		d.vy *= 0.97;
+		decrease_object_speed(d, 0.97);
 	}, p.data);
 	return p;
 }
@@ -3594,8 +3573,7 @@ function newStgHook() {
 			}
 			else if (e == STORY.events.BULLET_HIT) {
 				v.die();
-				v.data.vx *= 0.05;
-				v.data.vy *= 0.05;
+				decrease_object_speed(v.data, 0.05);
 				UTIL.addFrameAnim(v, RES.frames.BulletD[v.data.to ? 1 : 0]);
 				newEffectPiece(v, 'r');
 			}
@@ -3604,8 +3582,7 @@ function newStgHook() {
 			}
 			else if (e == STORY.events.DANNMAKU_HIT) {
 				v.die();
-				v.data.vx *= 0.1;
-				v.data.vy *= 0.1;
+				decrease_object_speed(v.data, 0.1);
 				newDrop(6, v.data.x, v.data.y, {
 					to: UTIL.getOneAlive('Player'),
 					keep: true,
