@@ -3211,6 +3211,24 @@ function chirunoFireSc2A(from) {
 		})
 	}, 80, null, 20);
 }
+function chirunoFireSc3(from) {
+	STORY.timeout(function() {
+		var pos = {};
+		pos.data = {
+			x: from.data.x + random(-100, 100),
+			y: from.data.y + random(-100, 100),
+		}
+		array(15, function(i) {
+			var obj = newDannmaku(pos, null, 0, random(PI2), random(0.1, 0.4), 0, {
+				color: 'b',
+				frames: RES.frames.LongC[6],
+			})
+			obj.anim(100, function(d) {
+				return d.age < 1000 ? decrease_object_speed(d, 0.85) : true;
+			}, obj.data)
+		})
+	}, 100, null, Inf);
+}
 
 function newEffect(from, frames, scale) {
 	var d = from.data;
@@ -4700,6 +4718,28 @@ function newStage2(difficuty) {
 			],
 			duration: 40000,
 			scname: RES.st_stg2_sc2,
+			background: 'bg_stg2_boss',
+		},
+		{
+			pathnodes: [
+				{ v:0.05, },
+				{ t: 100, fx:0.5, fy:0.2, },
+				{ t: 100, fn:chirunoFireSc3, },
+				{ t: NaN, fx:0.3, fy:0.1, },
+				{ t: NaN, fx:0.4, fy:0.3, },
+				{ t: NaN, fx:0.8, fy:0.3, },
+				{ t: NaN, fx:0.7, fy:0.2, },
+				{ t: NaN, fx:0.6, fy:0.3, },
+				{ t: NaN, fx:0.4, fy:0.3, },
+				{ t: NaN, fx:0.5, fy:0.2, },
+				{ t: NaN, fx:0.3, fy:0.1, },
+				{ t: NaN, fx:0.4, fy:0.3, },
+				{ t: NaN, fx:0.8, fy:0.3, },
+				{ t: NaN, fx:0.7, fy:0.2, },
+				{ t: NaN, fx:0.6, fy:0.3, },
+			],
+			duration: 40000,
+			scname: RES.st_stg2_sc3,
 			background: 'bg_stg2_boss',
 		},
 	], newStgSecBoss, 'boss');
