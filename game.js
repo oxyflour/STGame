@@ -4395,6 +4395,17 @@ function newStage2(difficuty) {
 		], duration:7000, next: 'diagA', },
 	], newStgSecNormal, 'sec');
 	newStgSecsFromList(stage, [
+		{ text:RES.st_stg2_diag1,  pos:'.fl.dg', face:'.f0c.f2', name:'diagA', },
+		{ text:RES.st_stg2_diag2,  pos:'.fl.dg', face:'.f0a' },
+		{ text:RES.st_stg2_diag3,  pos:'.fl.dg', face:'.f0c.f2', next:'bossB', },
+		{ text:RES.st_stg2_diag4,  pos:'.fr.dg', face:'.f5a', name:'diagB', },
+		{ text:RES.st_stg2_diag5,  pos:'.fl.dg', face:'.f0b', },
+		{ text:RES.st_stg2_diag6,  pos:'.fr.dg', face:'.f5a.f2', },
+		{ text:RES.st_stg2_diag7,  pos:'.fl.dg', face:'.f0b.f2', },
+		{ text:RES.st_stg2_diag8,  pos:'.fr.dg', face:'.f5a.f2', },
+		{ text:RES.st_stg2_diag9,  pos:'.fr.dg', face:'.f5a.f2', next:'bossC', ended:true, },
+	], newStgSecDiag, 'diag');
+	newStgSecsFromList(stage, [
 		{
 			name: 'bossA',
 			boss: 'Daiyousei',
@@ -4608,17 +4619,6 @@ function newStage2(difficuty) {
 			duration: 50000,
 		},
 	], newStgSecBoss, 'boss');
-	newStgSecsFromList(stage, [
-		{ text:RES.st_stg2_diag1,  pos:'.fl.dg', face:'.f0c.f2', name:'diagA', },
-		{ text:RES.st_stg2_diag2,  pos:'.fl.dg', face:'.f0a' },
-		{ text:RES.st_stg2_diag3,  pos:'.fl.dg', face:'.f0c.f2', next:'bossB', },
-		{ text:RES.st_stg2_diag4,  pos:'.fr.dg', face:'.f5a', name:'diagB', },
-		{ text:RES.st_stg2_diag5,  pos:'.fl.dg', face:'.f0b', },
-		{ text:RES.st_stg2_diag6,  pos:'.fr.dg', face:'.f5a.f2', },
-		{ text:RES.st_stg2_diag7,  pos:'.fl.dg', face:'.f0b.f2', },
-		{ text:RES.st_stg2_diag8,  pos:'.fr.dg', face:'.f5a.f2', },
-		{ text:RES.st_stg2_diag9,  pos:'.fr.dg', face:'.f5a.f2', next:'bossC', ended:true, },
-	], newStgSecDiag, 'diag');
 	return stage;
 }
 
