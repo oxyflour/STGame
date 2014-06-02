@@ -36,6 +36,7 @@
 	<canvas id="enm2a" from="stg2enm 128 96 32 32"
 		transform="rotate:{{range(360, 0, 60)}}"></canvas>
 	<img id="stg2enm2" src="res/stg2enm2.png" />
+	<canvas id="stg2enm2R" from="stg2enm2 32 0 48 64" transform="mirror:x"></canvas>
 	<img id="stg2bg" src="res/stg2bg.png" />
 	<img id="front" src="res/front.png" />
 	<canvas id="bombs" from="player0L 0 97 63 64"
@@ -311,7 +312,26 @@
 			_t.Boss2A = [
 				{ res:'stg2enm', sx: 0, sy:256-48, sw:48, sh:48, w:48, h:48 },
 				{ res:'stg2enm', sx:48, sy:256-48, sw:48, sh:48, w:48, h:48 },
-			]
+			];
+
+			_t.Chiruno = [
+				{ res:'stg2enm2', sx:0, sy:0, sw:32, sh:64, w:32, h:64 },
+			];
+			lastOfArray(_t.Chiruno).next = 0;
+
+			_t.Chiruno.reset_index = _t.Chiruno.length;
+			_t.Chiruno.push({ res:'stg2enm2', sx: 80, sy: 0, sw:48, sh:64, w:48, h:64 });
+			_t.Chiruno.push({ res:'stg2enm2', sx:128, sy: 0, sw:48, sh:64, w:48, h:64 });
+			_t.Chiruno.push({ res:'stg2enm2', sx:176, sy: 0, sw:48, sh:64, w:48, h:64 });
+			_t.Chiruno.push({ res:'stg2enm2', sx:  0, sy:64, sw:48, sh:64, w:48, h:64 });
+			lastOfArray(_t.Chiruno).next = 0;
+
+			_t.ChirunoL = [
+				{ res:'stg2enm2', sx:32, sy:0, sw:48, sh:64, w:48, h:64 },
+			];
+			_t.CHirunoR = [
+				{ res:'stg2enm2R', sx: 0, sy:0, sw:48, sh:64, w:48, h:64 },
+			];
 
 			_t.EffBullet = array(RES.effbullet.width/16, function(i) {
 				return { res:'effbullet', sx:i*16, sy:0, sw:16, sh:16, w:16, h:16 };
@@ -436,6 +456,7 @@
 		继续玩可能出现节操过量流失或者弹幕过敏症状，作者不对产生的后果负任何责任。<br />
 		同意请解除暂停继续，不同意请回到标题画面</script>
 	<script type="text/html" id="st_bomb_sc">灵符「梦想封印」</script>
+	<!-- stage 1 -->
 	<script type="text/html" id="st_stg1_sc0">夜符「月光」</script>
 	<script type="text/html" id="st_stg1_sc1">夜符「夜雀」</script>
 	<script type="text/html" id="st_stg1_sc2">闇符「境界线」</script>
@@ -476,7 +497,18 @@
 	<script type="text/html" id="st_stg1_diag31">说起来确实没有打招呼呢...</script>
 	<script type="text/html" id="st_stg1_diag32">不管了，那种事情还是先把你打倒，然后再去确认吧</script>
 	<script type="text/html" id="st_stg1_diag33">后悔药什么的，即使是竹林里的那家店也是没有卖的哦</script>
+	<!-- stage 2 -->
 	<script type="text/html" id="st_stg2_title">湖上的妖精  ~ Water Magus</script>
+	<script type="text/html" id="st_stg2_diag1">这座湖原来是如此宽广的吗？</script>
+	<script type="text/html" id="st_stg2_diag2">浓雾遮天视野不良啊。</script>
+	<script type="text/html" id="st_stg2_diag3">难不成我是路痴？</script>
+	<script type="text/html" id="st_stg2_diag4">如果迷路，定是妖精所为</script>
+	<script type="text/html" id="st_stg2_diag5">啊啦是吗？那么，带个路吧？<br />这附近有岛对不对？</script>
+	<script type="text/html" id="st_stg2_diag6">你啊，听了不要吓一大跳<br />在你面前可是有个强敌呢。</script>
+	<script type="text/html" id="st_stg2_diag7">靶子？<br />这还真是令人吃惊啊</script>
+	<script type="text/html" id="st_stg2_diag8">开什么玩笑啊～</script>
+	<script type="text/html" id="st_stg2_diag9">像你这样的话，就让我把你和<br />英吉利牛肉一起冰冻冷藏起来吧！！</script>
+	<script type="text/html" id="st_stg2_diag10">啊啊，可真是冷呢<br />这样会得空调病的啊</script>
 	<!-- sfx -->
 	<audio preload oncanplaythrough="this.complete=true" class="se" id="se_graze" src="res/se_graze.mp3"></audio>
 	<audio preload oncanplaythrough="this.complete=true" class="se" id="se_pldead00" src="res/se_pldead00.mp3"></audio>
@@ -561,6 +593,8 @@
 				<div class="face f3a f2"></div>
 				<div class="face f3b"></div>
 				<div class="face f3b f2"></div>
+				<div class="face f5a"></div>
+				<div class="face f5a f2"></div>
 			</div>
 			<div class="ft dg">
 				<div class="text"></div>

@@ -2397,17 +2397,37 @@ function newBoss(name) {
 		});
 	}
 	else if (name == 'Daiyousei') {
+		UTIL.addFrameAnim(boss, RES.frames.Boss2A);
 		boss.data.size = 0;
-		UTIL.addFrameAnim(boss, function(fd) {
-			var d = this.data;
+		boss.anim(30, function(d) {
 			d.size = limit_between(d.size+(d.ph < 1 ? d.dh : d.ds)*30, 0, 1);
 			d.frame.w = d.frame.sw * d.size;
 			d.frame.h = d.frame.sh * (2 - d.size);
 			d.opacity = d.size;
 			d.y += Math.sin(d.age * 0.003);
 			this.is_invinc = d.size < 1;
-			return RES.frames.Boss2A;
-		}, 30);
+		}, boss.data);
+	}
+	else if (name == 'Chiruno') {
+		UTIL.addFrameAnim(boss, function(fd) {
+			var d = this.data,
+				fs = RES.frames.Chiruno,
+				vx = Math.abs(d.vx);
+			if (vx > 0.02 || vx < -0.02) {
+				fs = d.vx > 0 ? RES.frames.ChirunoL : RES.frames.ChirunoR;
+				if (fd.frames != fs)
+					fd.index = 0;
+			}
+			else if (this.is_firing && !(this.is_firing = false)) {
+				fd.index = fs.reset_index;
+			}
+			return fs;
+		});
+		boss.data.dh = 1/500;
+		boss.anim(30, function(d) {
+			d.frame.w = d.frame.sw * d.ph;
+			d.frame.h = d.frame.sh * (2 - d.ph);
+		}, boss.data);
 	}
 
 	return boss;
@@ -4258,7 +4278,7 @@ function newStage2(difficuty) {
 		{ init:newSecList, args:[
 			[newStg2Sec3, ['Enemy2C', 500, 20]],
 			[newSec3, [500, 20, 5]],
-		], duration:7000, next: 'bossB', },
+		], duration:7000, next: 'diagA', },
 	], newStgSecNormal, 'sec');
 	newStgSecsFromList(stage, [
 		{
@@ -4300,8 +4320,32 @@ function newStage2(difficuty) {
 			duration: 500,
 			no_countdown: true,
 			invinc: true,
-		}
+		},
+		{
+			boss: 'Chiruno',
+			pathnodes: [
+				{ fx:0.5, fy:0.2 },
+			],
+			duration: 2000,
+			invinc: true,
+			no_countdown: true,
+			no_lifebar: true,
+			disable_fire: true,
+			name: 'bossB',
+			next: 'diagB',
+		},
 	], newStgSecBoss, 'boss');
+	newStgSecsFromList(stage, [
+		{ text:RES.st_stg2_diag1,  pos:'.fl.dg', face:'.f0c.f2', name:'diagA', },
+		{ text:RES.st_stg2_diag2,  pos:'.fl.dg', face:'.f0a' },
+		{ text:RES.st_stg2_diag3,  pos:'.fl.dg', face:'.f0c.f2', next:'bossB', },
+		{ text:RES.st_stg2_diag4,  pos:'.fr.dg', face:'.f5a', name:'diagB', },
+		{ text:RES.st_stg2_diag5,  pos:'.fl.dg', face:'.f0b', },
+		{ text:RES.st_stg2_diag6,  pos:'.fr.dg', face:'.f5a.f2', },
+		{ text:RES.st_stg2_diag7,  pos:'.fl.dg', face:'.f0b.f2', },
+		{ text:RES.st_stg2_diag8,  pos:'.fr.dg', face:'.f5a.f2', },
+		{ text:RES.st_stg2_diag9,  pos:'.fr.dg', face:'.f5a.f2', ended:true, },
+	], newStgSecDiag, 'diag');
 	return stage;
 }
 
