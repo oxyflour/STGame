@@ -2987,7 +2987,40 @@ function daiyouseiMove(from, fx, fy, t) {
 		from.data.y = UTIL.getGamePosX(fy);
 	}, t || 800);
 }
-function daiyouseiFire1(from, color) {
+function daiyouseiFire1(from, color, direction) {
+	var count = 48,
+		player = UTIL.getOneAlive('Player');
+	var frames = {
+		g: RES.frames.LongB[9],
+		r: RES.frames.LongB[2],
+	}[color];
+	var to = {
+		data: {
+			x: player ? player.data.x : UTIL.getGamePosX(0.5),
+			y: player ? player.data.y : UTIL.getGamePosY(0.9),
+		}
+	}
+	var r0 = direction > 0 ? 1 : 0,
+		dr = direction > 0 ? -1/count : 1/count;
+	STORY.timeout(function(d, j) {
+		r0 += dr;
+		ieach([0, 0.5, 1, 1.5], function(i, rt) {
+			array(2, function(k) {
+				var obj = newDannmaku(from, to, 0, (rt+r0*2)*PI, 0.2 + k*0.03, 0, {
+					color: color,
+					frames: frames,
+				});
+				obj.anim(100, function(d) {
+					if (d.age < 1000) {
+						d.vx *= 0.95;
+						d.vy *= 0.95;
+					}
+					else
+						return true;
+				}, obj.data);
+			})
+		});
+	}, 10, null, count);
 }
 function daiyouseiFire2(from) {
 }
@@ -4221,16 +4254,17 @@ function newStage2(difficuty) {
 		},
 		{
 			pathnodes: [
-				{ t:4000, fn:daiyouseiFire1, args:['r'], },
-				{ t:1000, fn:daiyouseiMove,  args:[0.7, 0.3]},
-				{ t:4000, fn:daiyouseiFire1, args:['g'], },
-				{ t:1000, fn:daiyouseiMove,  args:[0.5, 0.3]},
+				{ },
+				{ t:3000, fn:daiyouseiFire1, args:['r', 1], },
+				{ t:2000, fn:daiyouseiMove,  args:[0.7, 0.3]},
+				{ t:3000, fn:daiyouseiFire1, args:['g', -1], },
+				{ t:2000, fn:daiyouseiMove,  args:[0.5, 0.3]},
 				{ t:4000, fn:daiyouseiFire2, },
-				{ t:1000, fn:daiyouseiMove,  args:[0.3, 0.3]},
-				{ t:4000, fn:daiyouseiFire1, args:['r'], },
-				{ t:1000, fn:daiyouseiMove,  args:[0.5, 0.3]},
-				{ t:4000, fn:daiyouseiFire1, args:['g'], },
-				{ t:1000, fn:daiyouseiMove,  args:[0.7, 0.3]},
+				{ t:2000, fn:daiyouseiMove,  args:[0.3, 0.3]},
+				{ t:3000, fn:daiyouseiFire1, args:['r', 1], },
+				{ t:2000, fn:daiyouseiMove,  args:[0.5, 0.3]},
+				{ t:3000, fn:daiyouseiFire1, args:['g', -1], },
+				{ t:2000, fn:daiyouseiMove,  args:[0.7, 0.3]},
 				{ t:4000, fn:daiyouseiFire2, },
 			],
 			duration: 30000,
