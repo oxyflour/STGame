@@ -3455,8 +3455,9 @@ function newStgSecBoss(next, para) {
 
 			if (para.duration > 0 && !para.no_countdown)
 				d.countdown = newCountDown(d.boss, para.duration);
-			if (para.background)
+			if (para.background) STORY.timeout(function() {
 				d.background = newBossBackground(d.boss, para.background);
+			}, 1000);
 
 			if (para.scname) {
 				if (d.scelem = $i('.sc-boss')) {
@@ -4700,7 +4701,7 @@ function newStage2(difficuty) {
 			duration: 40000,
 			scname: RES.st_stg2_sc2,
 			background: 'bg_stg2_boss',
-		}
+		},
 	], newStgSecBoss, 'boss');
 	return stage;
 }
