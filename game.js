@@ -2900,7 +2900,7 @@ function newBossDannsEx4(from) {
 }
 
 function newStg2Sec1(interval, count) {
-	STORY.timeout(function (d, n) {
+	STORY.timeout(function(d, n) {
 		var fx = random(1);
 		var obj = SPRITE.newObj('Enemy', {
 			frames: RES.frames.Enemy2A,
@@ -2937,6 +2937,19 @@ function newStg2Sec2(direction, count) {
 			});
 		}, random(1500));
 	}, 300, null, count);
+}
+function newStg2Sec3(enm, interval, count) {
+	STORY.timeout(function(d, n) {
+		var fx = random(1);
+		var obj = SPRITE.newObj('Enemy', {
+			frames: enm == 'Enemy2C' ? randin(RES.frames.Enemy2C) : RES.frames[enm],
+			rotate: enm == 'Enemy2C' ? random(PI2) : 0,
+			x: UTIL.getGamePosX(fx),
+			y: GAME.rect.t,
+			vx: random(0.15) * (fx > 0.5 ? -1 : 1),
+			vy: random(0.1, 0.2),
+		});
+	}, interval || 300, null, count || 30);
 }
 
 function newStg2Danns1(from, color) {
@@ -4235,6 +4248,17 @@ function newStage2(difficuty) {
 			[newStg2Sec1, [500, 12]],
 			[newStg2Sec2, [-1]],
 		], duration:6000, next:'bossA', },
+		{ init:newStg2Sec3, args:['Enemy2B', 100, 80], duration:8000, name:'secH', },
+		{ init:newStg2Sec3, args:['Enemy2C', 100, 30], duration:3000, },
+		{ init:newSecList, args:[
+			[newStg2Sec3, ['Enemy2C', 500, 20]],
+			[newSec3, [500, 20, 5]],
+		], duration:7000, },
+		{ init:newStg2Sec3, args:['Enemy2C', 100, 30], duration:3000, },
+		{ init:newSecList, args:[
+			[newStg2Sec3, ['Enemy2C', 500, 20]],
+			[newSec3, [500, 20, 5]],
+		], duration:7000, next: 'bossB', },
 	], newStgSecNormal, 'sec');
 	newStgSecsFromList(stage, [
 		{

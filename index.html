@@ -276,7 +276,13 @@
 			});
 			_t.Enemy2A = array(RES.enm2a.width / 32, function(i) {
 				return extend({ res:'enm2a', sy:0, sw:32, sh:32, w:32, h:32 }, { sx:32*i });
-			})
+			});
+			_t.Enemy2B = array(4, function(i) {
+				return extend({ res:'stg2enm', sy:128, sw:32, sh:32, w:32, h:32 }, { sx:32*i });
+			});
+			_t.Enemy2C = array(4, function(i) {
+				return extend({ res:'stg2enm', sy:96, sw:32, sh:32, w:32, h:32 }, { sx:32*i });
+			});
 
 			_t.Boss = [
 				{ res:'stg1enm2', sx:128, sy:0, sw:32, sh:48, w:32, h:48 }
