@@ -1788,7 +1788,7 @@ function newBulletB(to, x, y, vx, vy) {
 	obj.anim(50, function(d) {
 		var that = d.to,
 			e = that && that.data;
-		if (that && !that.finished && e.damage_pt && !this.is_dying)
+		if (that && !that.finished && !that.is_invinc && !this.is_dying)
 			redirect_object(d, e, sqrt_sum(d.vx, d.vy), 0.4);
 	}, obj.data);
 	return obj;
