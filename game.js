@@ -3004,7 +3004,7 @@ function daiyouseiFire1(from, color, direction) {
 		dr = direction > 0 ? -1/count : 1/count;
 	STORY.timeout(function(d, j) {
 		r0 += dr;
-		ieach([0, 0.5, 1, 1.5], function(i, rt) {
+		if (!from.is_dying) ieach([0, 0.5, 1, 1.5], function(i, rt) {
 			array(2, function(k) {
 				var obj = newDannmaku(from, to, 0, (rt+r0*2)*PI, 0.2 + k*0.03, 0, {
 					color: color,
@@ -3023,6 +3023,26 @@ function daiyouseiFire1(from, color, direction) {
 	}, 10, null, count);
 }
 function daiyouseiFire2(from) {
+	var to = UTIL.getOneAlive('Player');
+	STORY.timeout(function(d, j) {
+		if (!from.is_dying) range(0.5001, -0.5, 1/8, function(f) {
+			var obj = newDannmaku(from, to, 0, f*PI*0.5, 0.2, 0, j % 2 ? {
+				color: 'w',
+				frames: RES.frames.LongC[15],
+			} : {
+				color: 'b',
+				frames: RES.frames.LongC[5],
+			})
+			if (j % 2) obj.anim(100, function(d) {
+				if (d.age < 1000) {
+					d.vx *= 0.9;
+					d.vy *= 0.9;
+				}
+				else if (d.age < 1500 && to)
+					redirect_object(d, to.data, 0.2);
+			}, obj.data);
+		})
+	}, 100, null, 30);
 }
 
 function newEffect(from, frames, scale) {
