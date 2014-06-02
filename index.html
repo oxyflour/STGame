@@ -278,7 +278,9 @@
 				return extend({ res:'enm2a', sy:0, sw:32, sh:32, w:32, h:32 }, { sx:32*i });
 			})
 
-			_t.Boss = [{ res:'stg1enm2', sx:128, sy:0, sw:32, sh:48, w:32, h:48 }];
+			_t.Boss = [
+				{ res:'stg1enm2', sx:128, sy:0, sw:32, sh:48, w:32, h:48 }
+			];
 			lastOfArray(_t.Boss).next = 0;
 
 			_t.Boss.reset_index = _t.Boss.length;
@@ -299,6 +301,11 @@
 				return extend({ res:'stg1enm2R', sy:0, sw:32, sh:48, w:32, h:48 }, { sx:32*i });
 			});
 			_t.BossR.push({ res:'stg1enm2', sx:192, sy:0, sw:32, sh:48, w:32, h:48 });
+
+			_t.Boss2A = [
+				{ res:'stg2enm', sx: 0, sy:256-48, sw:48, sh:48, w:48, h:48 },
+				{ res:'stg2enm', sx:48, sy:256-48, sw:48, sh:48, w:48, h:48 },
+			]
 
 			_t.EffBullet = array(RES.effbullet.width/16, function(i) {
 				return { res:'effbullet', sx:i*16, sy:0, sw:16, sh:16, w:16, h:16 };

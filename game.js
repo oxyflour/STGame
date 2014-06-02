@@ -1590,7 +1590,7 @@ return proto = {
 	hitWith: function(that) {
 		var d = this.data,
 			e = that.data;
-		if (!this.is_dying && !that.is_dying &&
+		if (!this.is_dying && !that.is_dying && !this.is_invinc &&
 				that.hit_with != this && circle_intersect(d, e)) {
 			that.hit_with = this;
 			d.damage += e.damage_pt || 1;
@@ -2355,28 +2355,14 @@ function newLaser2(from, to) {
 	return newLaser(from, px, py, dx, dy);
 }
 
-function newBoss() {
+function newBoss(name) {
 	var boss = SPRITE.newObj('Enemy', {
 		r: 24,
 		life: 400,
 		frtick: 150,
-		frames: function(v) {
-			var fs = RES.frames.Boss,
-				vx = Math.abs(v.data.vx);
-			if (vx > 0.02 || vx < -0.02) {
-				fs = v.data.vx > 0 ? RES.frames.BossL : RES.frames.BossR;
-				if (this.frames != fs)
-					this.index = 0;
-				var max = vx > 0.1 ? fs.length - 2 : fs.length - 3;
-				this.index = limit_between(this.index, 0, max);
-			}
-			else if (v.data.is_firing && !(v.data.is_firing = false)) {
-				this.index = fs.reset_index;
-			}
-			return fs;
-		},
+		frames: frames,
 		respawn: Inf,
-		boss: 'Rumia',
+		boss: name,
 	});
 	boss.effects = array(3, function(i) {
 		return newBossGadgets(boss);
@@ -2393,6 +2379,38 @@ function newBoss() {
 				v.drawEffects();
 		});
 	}
+
+	if (name == 'Rumia') {
+		UTIL.addFrameAnim(boss, function(v) {
+			var fs = RES.frames.Boss,
+				vx = Math.abs(v.data.vx);
+			if (vx > 0.02 || vx < -0.02) {
+				fs = v.data.vx > 0 ? RES.frames.BossL : RES.frames.BossR;
+				if (this.frames != fs)
+					this.index = 0;
+				var max = vx > 0.1 ? fs.length - 2 : fs.length - 3;
+				this.index = limit_between(this.index, 0, max);
+			}
+			else if (v.data.is_firing && !(v.data.is_firing = false)) {
+				this.index = fs.reset_index;
+			}
+			return fs;
+		});
+	}
+	else if (name == 'Daiyousei') {
+		boss.data.size = 0;
+		UTIL.addFrameAnim(boss, function(v) {
+			var d = v.data;
+			d.size = limit_between(d.size+(d.ph < 1 ? d.dh : d.ds)*30, 0, 1);
+			d.frame.w = d.frame.sw * d.size;
+			d.frame.h = d.frame.sh * (2 - d.size);
+			d.opacity = d.size;
+			d.y += Math.sin(d.age * 0.003);
+			v.is_invinc = d.size < 1;
+			return RES.frames.Boss2A;
+		}, 30);
+	}
+
 	return boss;
 }
 function newBossGadgets(boss) {
@@ -2467,7 +2485,7 @@ function newLifeBar(boss) {
 	};
 	return bar;
 }
-function newCountDown(duration) {
+function newCountDown(boss, duration) {
 	var countdown = SPRITE.newObj('Basic', {
 		x: GAME.rect.r-20,
 		y: GAME.rect.t+8,
@@ -2896,7 +2914,6 @@ function newStg2Sec1(interval, count) {
 	STORY.timeout(function (d, n) {
 		var fx = random(1);
 		var obj = SPRITE.newObj('Enemy', {
-			life: 1,
 			frames: RES.frames.Enemy2A,
 			x: UTIL.getGamePosX(fx),
 			y: GAME.rect.t,
@@ -2907,17 +2924,39 @@ function newStg2Sec1(interval, count) {
 		obj.anim(100, function(d) {
 			d.vy -= (d.y - GAME.rect.t) / (GAME.rect.b - GAME.rect.t) * 0.01;
 			if (this.is_dying)
-				return newStg2Danns(obj, d.damage >= d.life ? 'r' : 'g') || true;
+				return newStg2Danns1(obj, d.damage >= d.life ? 'r' : 'g') || true;
 		}, obj.data)
 	}, interval || 300, null, count || 30);
 }
-function newStg2Danns(from, color) {
+function newStg2Sec2(direction, count) {
+	count = count || 16;
+	STORY.timeout(function(d, j) {
+		var f = j / count;
+		var obj = SPRITE.newObj('Enemy', {
+			x: UTIL.getGamePosX(direction > 0 ? 1-f : f),
+			y: GAME.rect.t,
+			vx: direction > 0 ? 0.03 : -0.03,
+			vy: 0.1,
+			frames: RES.frames.Enemy00,
+		});
+		obj.anim(100, function(d) {
+			d.vx += random(-0.005, 0.005);
+		}, obj.data);
+		STORY.timeout(function() {
+			obj.anim(1500, function() {
+				newStg2Danns2(obj);
+			});
+		}, random(1500));
+	}, 300, null, count);
+}
+
+function newStg2Danns1(from, color) {
 	var frames = {
 		r: RES.frames.LongA[2],
 		g: RES.frames.LongB[9]
 	}[color];
 	var rt = random(PI);
-	range(0.5001, -0.5, 1/10, function(f) {
+	range(1.001, 0, 1/10, function(f) {
 		array(2, function(i) {
 			newDannmaku(from, null, 0, f*PI2+rt, 0.07+i*0.03, 0, {
 				color: color,
@@ -2925,6 +2964,30 @@ function newStg2Danns(from, color) {
 			})
 		})
 	})
+}
+function newStg2Danns2(from) {
+	var to = UTIL.getNearestAlive(from, 'Player'),
+		rt = random(-0.1, 0.1);
+	if (!from.is_dying) ieach([-0.1, 0, 0.1], function(i, x) {
+		newDannmaku(from, to, 0, rt+x, 0.2, 0, {
+			r: 3,
+			color: 'b',
+			frames: RES.frames.TamaSmallX[5],
+		});
+	})
+}
+
+function daiyouseiMove(from, fx, fy, t) {
+	from.data.ds = -1/500;
+	STORY.timeout(function() {
+		from.data.ds = 1/500;
+		from.data.x = UTIL.getGamePosX(fx);
+		from.data.y = UTIL.getGamePosX(fy);
+	}, t || 800);
+}
+function daiyouseiFire1(from, color) {
+}
+function daiyouseiFire2(from) {
 }
 
 function newEffect(from, frames, scale) {
@@ -3157,7 +3220,7 @@ function newStgSecBoss(next, para) {
 			d.age = 0;
 			d.disable_fire = para.disable_fire;
 
-			d.boss = UTIL.getOneAlive('Enemy', 'boss') || newBoss();
+			d.boss = UTIL.getOneAlive('Enemy', 'boss', para.boss) || newBoss(para.boss);
 			if (para.pathnodes)
 				UTIL.addPathAnim(d.boss, para.pathnodes);
 			if (!para.no_lifebar &&
@@ -3168,7 +3231,7 @@ function newStgSecBoss(next, para) {
 				d.boss.lifebar.die();
 
 			if (para.duration > 0 && !para.no_countdown)
-				d.countdown = newCountDown(para.duration);
+				d.countdown = newCountDown(d.boss, para.duration);
 			if (para.background)
 				d.background = para.background(d.boss);
 
@@ -3264,6 +3327,44 @@ function newStgSecAskContinue(next, para) {
 		}
 	}
 }
+function newStgSecScore(next, para) {
+	return {
+		init: function(d) {
+			var elem = $e('bg_score');
+			elem.object = d.mask = SPRITE.newObj('Basic', {
+				dh: 1/1000,
+				kh: 1/1000,
+			});
+			d.mask.anim(50, function(d) {
+				elem.style.opacity = d.ph;
+				var offset = (1 - d.ph) * (GAME.rect.b - GAME.rect.t);
+				$prefixStyle(elem.style, 'Transform', 'translateY(' + offset + 'px)');
+			}, d.mask.data);
+		},
+		run: function(dt, d) {
+			d.age = (d.age || 0) + dt;
+			if (d.pass || d.age > 4000)
+				return next;
+		},
+		quit: function(d) {
+			d.mask.die();
+			setTimeout(function() {
+				GAME.load(newStage2());
+				GAME.start('init');
+			}, 10);
+		},
+		on: function(e, v, d) {
+			if (e == STORY.events.GAME_INPUT) {
+				if (v.which == GAME.keychars.Z) {
+					if (v.type == 'keydown')
+						d.pass = 0;
+					else if (v.type == 'keyup' && d.pass === 0)
+						d.pass = 1;
+				}
+			}
+		},
+	};
+}
 function newStgSecsFromList(stage, list, newStageFn, prefix) {
 	ieach(list, function(i, para, prefix) {
 		var name = para.name || prefix+i,
@@ -3302,7 +3403,7 @@ function newStgHook() {
 					max_point: 1000000,
 					bomb_reset: 3,
 					point: 0,
-					player: 3,
+					player: 99,
 					bomb: 3,
 					power: 0,
 					graze: 0,
@@ -3556,6 +3657,7 @@ function newStage1(difficuty) {
 	], newStgSecDiag, 'diag');
 	newStgSecsFromList(stage, [
 		{
+			boss: 'Rumia',
 			pathnodes: [
 				{ fx:0.50, fy:0.00, v:0.2, },
 				{ t:1000, fx:0.83, fy:0.28, v:0.2, },
@@ -3614,6 +3716,7 @@ function newStage1(difficuty) {
 			invinc: true,
 		},
 		{
+			boss: 'Rumia',
 			pathnodes: [
 				{ fx:0.00, fy:0.00, v:0.2 },
 				{ fx:0.10, fy:0.10 },
@@ -4070,42 +4173,7 @@ function newStage1(difficuty) {
 		{ name:'bossKill2', next:'score', },
 	], newStgSecBossKill, 'bossKill');
 	stage.askContinue = newStgSecAskContinue('secX');
-	stage.score = {
-		init: function(d) {
-			var elem = $e('bg_score');
-			elem.object = d.mask = SPRITE.newObj('Basic', {
-				dh: 1/1000,
-				kh: 1/1000,
-			});
-			d.mask.anim(50, function(d) {
-				elem.style.opacity = d.ph;
-				var offset = (1 - d.ph) * (GAME.rect.b - GAME.rect.t);
-				$prefixStyle(elem.style, 'Transform', 'translateY(' + offset + 'px)');
-			}, d.mask.data);
-		},
-		run: function(dt, d) {
-			d.age = (d.age || 0) + dt;
-			if (d.pass || d.age > 4000)
-				return 'ended';
-		},
-		quit: function(d) {
-			d.mask.die();
-			setTimeout(function() {
-				GAME.load(newStage2());
-				GAME.start('init');
-			}, 10);
-		},
-		on: function(e, v, d) {
-			if (e == STORY.events.GAME_INPUT) {
-				if (v.which == GAME.keychars.Z) {
-					if (v.type == 'keydown')
-						d.pass = 0;
-					else if (v.type == 'keyup' && d.pass === 0)
-						d.pass = 1;
-				}
-			}
-		},
-	}
+	stage.score = newStgSecScore('ended');
 	return stage;
 }
 function newStage2(difficuty) {
@@ -4119,7 +4187,54 @@ function newStage2(difficuty) {
 	});
 	newStgSecsFromList(stage, [
 		{ init:newStg2Sec1, args:[120, 100], duration:12000, },
+		{ init:newSecList, args:[
+			[newStg2Sec1, [500, 12]],
+			[newStg2Sec2, [ 1]],
+		], duration:6000 },
+		{ init:newSecList, args:[
+			[newStg2Sec1, [500, 12]],
+			[newStg2Sec2, [-1]],
+		], duration:6000 },
+		{ init:newSecList, args:[
+			[newStg2Sec1, [500, 12]],
+			[newStg2Sec2, [ 1]],
+		], duration:6000 },
+		{ init:newSecList, args:[
+			[newStg2Sec1, [500, 12]],
+			[newStg2Sec2, [-1]],
+		], duration:6000, next:'bossA', },
 	], newStgSecNormal, 'sec');
+	newStgSecsFromList(stage, [
+		{
+			name: 'bossA',
+			boss: 'Daiyousei',
+			pathnodes: [
+				{ v:0.1, },
+				{ t:NaN, fx:0.5, fy:0.3, }
+			],
+			duration: 2000,
+			no_countdown: true,
+			no_lifebar: true,
+			invinc: true,
+		},
+		{
+			pathnodes: [
+				{ t:4000, fn:daiyouseiFire1, args:['r'], },
+				{ t:1000, fn:daiyouseiMove,  args:[0.7, 0.3]},
+				{ t:4000, fn:daiyouseiFire1, args:['g'], },
+				{ t:1000, fn:daiyouseiMove,  args:[0.5, 0.3]},
+				{ t:4000, fn:daiyouseiFire2, },
+				{ t:1000, fn:daiyouseiMove,  args:[0.3, 0.3]},
+				{ t:4000, fn:daiyouseiFire1, args:['r'], },
+				{ t:1000, fn:daiyouseiMove,  args:[0.5, 0.3]},
+				{ t:4000, fn:daiyouseiFire1, args:['g'], },
+				{ t:1000, fn:daiyouseiMove,  args:[0.7, 0.3]},
+				{ t:4000, fn:daiyouseiFire2, },
+			],
+			duration: 30000,
+			next: 'secH',
+		}
+	], newStgSecBoss, 'boss');
 	return stage;
 }
 
