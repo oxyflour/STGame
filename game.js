@@ -1948,7 +1948,6 @@ function newBomb(player) {
 			newShield(bg);
 	});
 
-
 	if (bg.active = $i('.sc-bomb')) {
 		bg.scelem = bg.active.parentNode;
 		$readdClass(bg.scelem, 'active');
@@ -1966,15 +1965,7 @@ function newBomb(player) {
 		}
 	}));
 
-	SPRITE.newObj('Basic', {
-		x: player.data.x,
-		y: player.data.y,
-		frames: RES.frames.EffPlayer,
-		scale: 1.5,
-		dh: 1/100,
-		kh: 1/850,
-		duration: 150,
-	});
+	newEffect(player, RES.frames.EffPlayer, 2);
 }
 function newShield(bomb) {
 	var p = bomb.data.parent;
