@@ -2964,6 +2964,7 @@ function newStg2Danns1(from, color) {
 	range(1.001, 0, 1/10, function(f) {
 		array(2, function(i) {
 			newDannmaku(from, null, 0, f*PI2+rt, 0.07+i*0.03, 0, {
+				r: 3,
 				color: color,
 				frames: frames,
 			})
@@ -3213,6 +3214,7 @@ function chirunoFireSc3(from) {
 		}
 		array(15, function(i) {
 			var obj = newDannmaku(pos, null, 0, random(PI2), random(0.1, 0.4), 0, {
+				r: 3,
 				color: 'b',
 				frames: RES.frames.LongC[6],
 			})
