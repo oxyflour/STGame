@@ -2962,8 +2962,7 @@ function newStg2Sec3(enm, interval, count) {
 	STORY.timeout(function(d, n) {
 		var fx = random(1);
 		var obj = SPRITE.newObj('Enemy', {
-			frames: enm == 'Enemy2C' ? randin(RES.frames.Enemy2C) : RES.frames[enm],
-			rotate: enm == 'Enemy2C' ? random(PI2) : 0,
+			frames: enm == 'Enemy2C' ? fill({ rotate:random(PI2) }, randin(RES.frames.Enemy2C)) : RES.frames[enm],
 			x: UTIL.getGamePosX(fx),
 			y: GAME.rect.t,
 			vx: random(0.15) * (fx > 0.5 ? -1 : 1),
