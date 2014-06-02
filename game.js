@@ -2263,7 +2263,7 @@ function newDannmaku(from, to, r, rt, v, vt, ext) {
 	}));
 	obj.runCircle = function(dt, d) {
 		if (this.is_creating) {
-			if (!this.is_freezed && (this.is_freezed = true)) {
+			if (!this.is_firing && (this.is_firing = true)) {
 				d.vx0 = d.vx;
 				d.vy0 = d.vy;
 				d.scale0 = d.scale;
@@ -2275,7 +2275,7 @@ function newDannmaku(from, to, r, rt, v, vt, ext) {
 			d.scale = 2.5 - d.ph * d.scale0;
 		}
 		else {
-			if (this.is_freezed && !(this.is_freezed = false)) {
+			if (this.is_firing && !(this.is_firing = false)) {
 				d.vx = d.vx0;
 				d.vy = d.vy0;
 				d.scale = d.scale0;
@@ -3169,6 +3169,47 @@ function chirunoFire6(from) {
 				return true;
 		}, obj.data);
 	})
+}
+function chirunoFireSc2(from, interval, count) {
+	STORY.timeout(function(d, j) {
+		var color = randin('rgbo'),
+			frames = RES.frames.TamaA[('k r m b c g y ow').indexOf(color)];
+		range(1, 0, 1/10, function(f) {
+			var obj = newDannmaku(from, null, 0, random(PI2), random(0.1, 0.2), 0, {
+				color: color,
+				frames: frames,
+				freeze: 800 + j*60,
+			})
+			obj.anim(100, function(d) {
+				if (d.age > d.freeze && !this.is_freezed && (this.is_freezed = true)) {
+					d.vx = d.vy = 0;
+					var sin = random(-1, 1),
+						cos = Math.sqrt(1 - sin*sin);
+					d.dvx = cos * 0.01;
+					d.dvy = sin * 0.01;
+					d.color = 'w';
+					UTIL.addFrameAnim(obj, RES.frames.TamaA[15]);
+				}
+				if (d.age > d.freeze + 4000) {
+					d.vx += d.dvx;
+					d.vy += d.dvy;
+				}
+			}, obj.data);
+		})
+	}, interval || 60, null, count || 50);
+}
+function chirunoFireSc2A(from) {
+	var to = UTIL.getOneAlive('Player');
+	STORY.timeout(function() {
+		range(0.5001, -0.5, 1/2, function(f) {
+			array(2, function(i) {
+				newDannmaku(from, to, 0, f*PI*0.2+random(0.1), 0.15+i*0.05, 0, {
+					color: 'b',
+					frames: RES.frames.TamaB[6],
+				})
+			})
+		})
+	}, 80, null, 20);
 }
 
 function newEffect(from, frames, scale) {
@@ -4637,6 +4678,29 @@ function newStage2(difficuty) {
 			],
 			duration: 50000,
 		},
+		{
+			pathnodes: [
+				{ v:0.05, },
+				{ fx:0.5, fy:0.2, },
+				{ t: 100, fx:0.3, fy:0.1, },
+				{ t:4000, fn:chirunoFireSc2, },
+				{ t: 500, fx:0.5, fy:0.2, },
+				{ t:6000, fn:chirunoFireSc2A, },
+				{ t: 100, fx:0.5, fy:0.1, },
+				{ t:4000, fn:chirunoFireSc2, },
+				{ t: 500, fx:0.6, fy:0.3, },
+				{ t:6000, fn:chirunoFireSc2A, },
+				{ t: 100, fx:0.5, fy:0.1, },
+				{ t:4000, fn:chirunoFireSc2, },
+				{ t: 500, fx:0.3, fy:0.1, },
+				{ t:6000, fn:chirunoFireSc2A, },
+				{ t: 100, fx:0.5, fy:0.1, },
+				{ t:4000, fn:chirunoFireSc2, },
+			],
+			duration: 40000,
+			scname: RES.st_stg2_sc2,
+			background: 'bg_stg2_boss',
+		}
 	], newStgSecBoss, 'boss');
 	return stage;
 }
