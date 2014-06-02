@@ -4680,8 +4680,8 @@ function newStage2(difficuty) {
 		{
 			pathnodes: [
 				{ v:0.05, },
-				{ t: 100, fx:0.5, fy:0.2, },
-				{ t: 100, fn:chirunoFireSc3, },
+				{ t: NaN, fx:0.5, fy:0.2, },
+				{ t: 500, fn:chirunoFireSc3, },
 				{ t: NaN, fx:0.3, fy:0.1, },
 				{ t: NaN, fx:0.4, fy:0.3, },
 				{ t: NaN, fx:0.8, fy:0.3, },
