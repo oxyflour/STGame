@@ -4265,7 +4265,17 @@ function newStage2(difficuty) {
 				{ t:4000, fn:daiyouseiFire2, },
 			],
 			duration: 30000,
+		},
+		{
+			pathnodes: [
+				{ v:0.3 },
+				{ fx:0.5, fy:0.0 },
+				{ fy:-1 },
+			],
 			next: 'secH',
+			duration: 500,
+			no_countdown: true,
+			invinc: true,
 		}
 	], newStgSecBoss, 'boss');
 	return stage;
