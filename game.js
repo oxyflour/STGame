@@ -3177,10 +3177,9 @@ function chirunoFireSc2(from, interval, count) {
 			obj.anim(100, function(d) {
 				if (d.age > d.freeze && !this.is_freezed && (this.is_freezed = true)) {
 					d.vx = d.vy = 0;
-					var sin = random(-1, 1),
-						cos = Math.sqrt(1 - sin*sin);
-					d.dvx = cos * 0.01;
-					d.dvy = sin * 0.01;
+					var rt = random(PI2);
+					d.dvx = Math.cos(rt) * 0.01;
+					d.dvy = Math.sin(rt) * 0.01;
 					d.color = 'w';
 					UTIL.addFrameAnim(obj, RES.frames.TamaA[15]);
 				}
