@@ -339,7 +339,6 @@
 			_t.EffBoss = array(RES.effboss.width/16, function(i) {
 				return { res:'effboss', sx:i*16, sy:0, sw:16, sh:16, w:16, h:16 };
 			});
-			stayLastFrame(_t.EffBoss);
 			_t.EffEnemy = ieach([32,42,52,62,60,58,56,54,52,50,48,46,44,42,40,38,36,34,32,30,28,26], function(i, d, ls) {
 				ls.push(extend({ res:'eff00', sx:32, sy:0, sw:32, sh:32, rotate:-i*0.5 }, { w:d, h:d }));
 			}, []);
