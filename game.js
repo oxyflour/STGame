@@ -1949,17 +1949,15 @@ function newBomb(player) {
 	});
 
 
-	if (bg.scelem = $i('.sc-bomb')) {
-		$readdClass(bg.scelem.parentNode, 'active');
+	if (bg.active = $i('.sc-bomb')) {
+		bg.scelem = bg.active.parentNode;
 		$readdClass(bg.scelem, 'active');
-		$i('.text', bg.scelem.parentNode).innerHTML = RES.st_bomb_sc;
+		$i('.text', bg.scelem).innerHTML = RES.st_bomb_sc;
 	}
 	SPRITE.anim.add(newTicker(100, function() {
 		if (bg.finished || bg.is_dying) {
-			if (bg.scelem) {
+			if (bg.scelem)
 				bg.scelem.classList.remove('active');
-				bg.scelem.parentNode.classList.remove('active');
-			}
 			DC.setTransform(1, 0, 0, 1, 0, 0);
 			this.finished = true;
 		}
@@ -2373,7 +2371,7 @@ function newBoss(name) {
 		});
 	}
 
-	if (name == 'Rumia') {
+	if (name == 'rumia') {
 		UTIL.addFrameAnim(boss, function(fd) {
 			var d = this.data,
 				fs = RES.frames.Boss,
@@ -2391,7 +2389,7 @@ function newBoss(name) {
 			return fs;
 		});
 	}
-	else if (name == 'Daiyousei') {
+	else if (name == 'daiyousei') {
 		UTIL.addFrameAnim(boss, RES.frames.Boss2A);
 		boss.data.size = 0;
 		boss.anim(30, function(d) {
@@ -2403,7 +2401,7 @@ function newBoss(name) {
 			this.is_invinc = d.size < 1;
 		}, boss.data);
 	}
-	else if (name == 'Chiruno') {
+	else if (name == 'chiruno') {
 		UTIL.addFrameAnim(boss, function(fd) {
 			var d = this.data,
 				fs = RES.frames.Chiruno,
@@ -2523,12 +2521,11 @@ function newBossBackground(boss, elem) {
 	var obj = SPRITE.newObj('Basic', {
 		x: 0,
 		y: 0,
-		elem: $e(elem),
 	})
-	obj.data.elem.object = obj;
+	elem.object = obj;
 	obj.anim(50, function(d) {
-		d.elem.style.opacity = d.ph;
-		d.elem.style.backgroundPosition = '0 '+(-d.age*0.1)+'px';
+		elem.style.opacity = d.ph;
+		elem.style.backgroundPosition = '0 '+(-d.age*0.1)+'px';
 	}, obj.data)
 	return obj;
 }
@@ -3473,16 +3470,19 @@ function newStgSecBoss(next, para) {
 
 			if (para.duration > 0 && !para.no_countdown)
 				d.countdown = newCountDown(d.boss, para.duration);
-			if (para.background) STORY.timeout(function() {
-				d.background = newBossBackground(d.boss, para.background);
-			}, 1000);
 
 			if (para.scname) {
-				if (d.scelem = $i('.sc-boss')) {
-					$readdClass(d.scelem.parentNode, 'active');
+				if (d.scactive = $e(para.scface || 'face_sc_'+d.boss.data.boss)) {
+					d.scelem = d.scactive.parentNode;
 					$readdClass(d.scelem, 'active');
-					$i('.text', d.scelem.parentNode).innerHTML = para.scname;
+					$i('.text', d.scelem).innerHTML = para.scname;
+					ieach($('.face', d.scelem), function(i, e) {
+						e.classList[e === d.scactive ? 'remove' : 'add']('hidden');
+					});
 				}
+				if (d.bgelem = $e(para.background || 'bg_sc_'+d.boss.data.boss)) STORY.timeout(function() {
+					d.background = newBossBackground(d.boss, d.bgelem);
+				}, 1000);
 				RES.se_cat00.play();
 			}
 			if (para.bgm)
@@ -3490,10 +3490,8 @@ function newStgSecBoss(next, para) {
 		},
 		quit: function(d) {
 			killObj(d.countdown, d.background);
-			if (d.scelem) {
+			if (d.scelem)
 				d.scelem.classList.remove('active');
-				d.scelem.parentNode.classList.remove('active');
-			}
 		},
 		run: function(dt, d) {
 			d.age += dt;
@@ -3897,7 +3895,7 @@ function newStage1(difficuty) {
 	], newStgSecDiag, 'diag');
 	newStgSecsFromList(stage, [
 		{
-			boss: 'Rumia',
+			boss: 'rumia',
 			pathnodes: [
 				{ fx:0.50, fy:0.00, v:0.2, },
 				{ t:1000, fx:0.83, fy:0.28, v:0.2, },
@@ -3942,7 +3940,6 @@ function newStage1(difficuty) {
 			],
 			duration: 20000,
 			scname: RES.st_stg1_sc0,
-			background: 'bg_stg1_boss',
 		},
 		{
 			pathnodes: [
@@ -3956,7 +3953,7 @@ function newStage1(difficuty) {
 			invinc: true,
 		},
 		{
-			boss: 'Rumia',
+			boss: 'rumia',
 			pathnodes: [
 				{ fx:0.00, fy:0.00, v:0.2 },
 				{ fx:0.10, fy:0.10 },
@@ -4053,7 +4050,6 @@ function newStage1(difficuty) {
 			],
 			duration: 25000,
 			scname: RES.st_stg1_sc1,
-			background: 'bg_stg1_boss',
 		},
 		{
 			pathnodes: [
@@ -4149,7 +4145,6 @@ function newStage1(difficuty) {
 			],
 			duration: 25000,
 			scname: RES.st_stg1_sc2,
-			background: 'bg_stg1_boss',
 			next: 'bossKill',
 		},
 		{
@@ -4275,7 +4270,6 @@ function newStage1(difficuty) {
 			],
 			duration: 25000,
 			scname: RES.st_stg1_sc_ex1,
-			background: 'bg_stg1_boss',
 		},
 		{
 			pathnodes: [
@@ -4352,7 +4346,6 @@ function newStage1(difficuty) {
 			],
 			duration: 15000,
 			scname: RES.st_stg1_sc_ex2,
-			background: 'bg_stg1_boss',
 		},
 		{
 			pathnodes: [
@@ -4404,7 +4397,6 @@ function newStage1(difficuty) {
 			life: 1000,
 			duration: 40000,
 			scname: RES.st_stg1_sc_ex3,
-			background: 'bg_stg1_boss',
 			next: 'bossKill2',
 		},
 	], newStgSecBoss, 'boss');
@@ -4469,7 +4461,7 @@ function newStage2(difficuty) {
 	newStgSecsFromList(stage, [
 		{
 			name: 'bossA',
-			boss: 'Daiyousei',
+			boss: 'daiyousei',
 			pathnodes: [
 				{ v:0.1, },
 				{ t:NaN, fx:0.5, fy:0.3, }
@@ -4508,7 +4500,7 @@ function newStage2(difficuty) {
 			invinc: true,
 		},
 		{
-			boss: 'Chiruno',
+			boss: 'chiruno',
 			pathnodes: [
 				{ fx:0.5, fy:0.2 },
 			],
@@ -4639,7 +4631,6 @@ function newStage2(difficuty) {
 				{ t:500, },
 			],
 			duration: 35000,
-			background: 'bg_stg2_boss',
 			scname: RES.st_stg2_sc1,
 		},
 		{
@@ -4718,7 +4709,6 @@ function newStage2(difficuty) {
 			],
 			duration: 40000,
 			scname: RES.st_stg2_sc2,
-			background: 'bg_stg2_boss',
 		},
 		{
 			pathnodes: [
@@ -4740,7 +4730,6 @@ function newStage2(difficuty) {
 			],
 			duration: 40000,
 			scname: RES.st_stg2_sc3,
-			background: 'bg_stg2_boss',
 		},
 	], newStgSecBoss, 'boss');
 	return stage;
