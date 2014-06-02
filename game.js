@@ -2523,12 +2523,12 @@ function newCountDown(boss, duration) {
 	}, countdown.data);
 	return countdown;
 }
-function newBossBackground(boss) {
+function newBossBackground(boss, elem) {
 	var st = STORY.state.n;
 	var obj = SPRITE.newObj('Basic', {
 		x: 0,
 		y: 0,
-		elem: $e('bg_stg1_boss'),
+		elem: $e(elem),
 	})
 	obj.data.elem.object = obj;
 	obj.anim(50, function(d) {
@@ -2539,7 +2539,7 @@ function newBossBackground(boss) {
 }
 
 function newBossDanns1NoSound(from, color, count, angular, dv) {
-	from.data.is_firing = true;
+	from.is_firing = true;
 	var to = UTIL.getNearestAlive(from, 'Player'),
 		frame = RES.frames.TamaA[('k rm b c g  y  w').indexOf(color)];
 	if (!from.is_dying) array(count || 7, function(j) {
@@ -2592,7 +2592,7 @@ function newBossDanns0A(from) {
 	});
 }
 function newBossDanns2(from) {
-	from.data.is_firing = true;
+	from.is_firing = true;
 	var to = UTIL.getNearestAlive(from, 'Player');
 	var ds = [
 		{ color:'k', frames:RES.frames.TamaSmallX[0] },
@@ -3007,18 +3007,13 @@ function daiyouseiMove(from, fx, fy, t) {
 	}, t || 800);
 }
 function daiyouseiFire1(from, color, direction) {
-	var count = 48,
-		player = UTIL.getOneAlive('Player');
+	var count = 48;
 	var frames = {
 		g: RES.frames.LongB[9],
 		r: RES.frames.LongB[2],
 	}[color];
-	var to = {
-		data: {
-			x: player ? player.data.x : UTIL.getGamePosX(0.5),
-			y: player ? player.data.y : UTIL.getGamePosY(0.9),
-		}
-	}
+	var to = UTIL.getOneAlive('Player');
+	if (to) to = { data: { x:to.data.x, y:to.data.y, }, };
 	var r0 = direction > 0 ? 1 : 0,
 		dr = direction > 0 ? -1/count : 1/count;
 	STORY.timeout(function(d, j) {
@@ -3026,6 +3021,7 @@ function daiyouseiFire1(from, color, direction) {
 		if (!from.is_dying) ieach([0, 0.5, 1, 1.5], function(i, rt) {
 			array(2, function(k) {
 				var obj = newDannmaku(from, to, 0, (rt+r0*2)*PI, 0.2 + k*0.03, 0, {
+					r: 3,
 					color: color,
 					frames: frames,
 				});
@@ -3041,9 +3037,11 @@ function daiyouseiFire2(from) {
 	STORY.timeout(function(d, j) {
 		if (!from.is_dying) range(0.5001, -0.5, 1/8, function(f) {
 			var obj = newDannmaku(from, to, 0, f*PI*0.5, 0.2, 0, j % 2 ? {
+				r: 3,
 				color: 'w',
 				frames: RES.frames.LongC[15],
 			} : {
+				r: 3,
 				color: 'b',
 				frames: RES.frames.LongC[5],
 			})
@@ -3055,6 +3053,73 @@ function daiyouseiFire2(from) {
 			}, obj.data);
 		})
 	}, 100, null, 30);
+}
+
+function chirunoFire1(from, count) {
+	count = count || 7;
+	var to = UTIL.getOneAlive('Player');
+	if (to) to = { data: { x:to.data.x, y:to.data.y, }, };
+	STORY.timeout(function(d, j) {
+		var n = count - j;
+		range(0.5001, -0.5, 1/n, function(f) {
+			newDannmaku(from, to, 0, f*n*0.1, 0.22+j*0.01, 0, {
+				r: 3,
+				color: 'b',
+				frames: RES.frames.LongC[6],
+			})
+		})
+	}, 50, null, count);
+}
+function chirunoFire2(from, count, layers) {
+	count = count || 40;
+	layers = layers || 2;
+	var to = UTIL.getOneAlive('Player');
+	STORY.timeout(function(d, j) {
+		range(1, 0, 1/count, function(f) {
+			newDannmaku(from, to, 0, f*PI2, 0.15+j*0.02, 0, {
+				color: 'b',
+				frames: RES.frames.TamaB[6],
+			})
+		})
+	}, 50, null, layers);
+}
+function chirunoFire3(from) {
+	var to = UTIL.getOneAlive('Player');
+	if (!from.is_dying) range(1, 0, 1/40, function(f) {
+		var obj = newDannmaku(from, to, 0, f*PI2, 0.2, 0, {
+			r: 3,
+			color: 'w',
+			frames: RES.frames.LongC[15],
+		})
+		obj.anim(100, function(d) {
+			if (d.age < 1200)
+				decrease_object_speed(d, 0.95);
+			else
+				return to && redirect_object(d, to.data, 0.2) || true;
+		}, obj.data);
+	});
+}
+function chirunoFireSc1(from) {
+	var to = UTIL.getOneAlive('Player');
+	var dr = random(0.1),
+		dv = random(0.2, 0.3),
+		dx = random(-1, 1),
+		dy = random(1);
+	STORY.timeout(function(d, j) {
+		if (!from.is_dying) range(1, 0, 1/18, function(f) {
+			var obj = newDannmaku(from, to, 0, f*PI2+dr, dv+j*0.1, 0, {
+				r: 3,
+				color: 'b',
+				frames: RES.frames.LongC[6],
+			})
+			obj.anim(100, function(d) {
+				if (d.age < 1200)
+					decrease_object_speed(d, 0.85);
+				else
+					return redirect_object(d, { x:d.x+dx+f-0.5, y:d.y+dy }, 0.08) || true;
+			}, obj.data);
+		});
+	}, 100, null, 3);
 }
 
 function newEffect(from, frames, scale) {
@@ -3280,6 +3345,8 @@ function newStgSecDiag(next, para) {
 	}
 }
 function newStgSecBoss(next, para) {
+	var _t = newStgSecBoss;
+	para.boss ? (_t.lastBoss = para.boss) : (para.boss = _t.lastBoss);
 	return {
 		init: function(d) {
 			killCls('Dannmaku');
@@ -3299,7 +3366,7 @@ function newStgSecBoss(next, para) {
 			if (para.duration > 0 && !para.no_countdown)
 				d.countdown = newCountDown(d.boss, para.duration);
 			if (para.background)
-				d.background = para.background(d.boss);
+				d.background = newBossBackground(d.boss, para.background);
 
 			if (para.scname) {
 				if (d.scelem = $i('.sc-boss')) {
@@ -3766,7 +3833,7 @@ function newStage1(difficuty) {
 			],
 			duration: 20000,
 			scname: RES.st_stg1_sc0,
-			background: newBossBackground,
+			background: 'bg_stg1_boss',
 		},
 		{
 			pathnodes: [
@@ -3877,7 +3944,7 @@ function newStage1(difficuty) {
 			],
 			duration: 25000,
 			scname: RES.st_stg1_sc1,
-			background: newBossBackground,
+			background: 'bg_stg1_boss',
 		},
 		{
 			pathnodes: [
@@ -3973,7 +4040,7 @@ function newStage1(difficuty) {
 			],
 			duration: 25000,
 			scname: RES.st_stg1_sc2,
-			background: newBossBackground,
+			background: 'bg_stg1_boss',
 			next: 'bossKill',
 		},
 		{
@@ -4099,7 +4166,7 @@ function newStage1(difficuty) {
 			],
 			duration: 25000,
 			scname: RES.st_stg1_sc_ex1,
-			background: newBossBackground,
+			background: 'bg_stg1_boss',
 		},
 		{
 			pathnodes: [
@@ -4176,7 +4243,7 @@ function newStage1(difficuty) {
 			],
 			duration: 15000,
 			scname: RES.st_stg1_sc_ex2,
-			background: newBossBackground,
+			background: 'bg_stg1_boss',
 		},
 		{
 			pathnodes: [
@@ -4228,7 +4295,7 @@ function newStage1(difficuty) {
 			life: 1000,
 			duration: 40000,
 			scname: RES.st_stg1_sc_ex3,
-			background: newBossBackground,
+			background: 'bg_stg1_boss',
 			next: 'bossKill2',
 		},
 	], newStgSecBoss, 'boss');
@@ -4333,6 +4400,128 @@ function newStage2(difficuty) {
 			name: 'bossB',
 			next: 'diagB',
 		},
+		{
+			pathnodes: [
+				{ },
+				{ t:1000 },
+				{ t: 100, fn:chirunoFire1, },
+				{ t:1000, fn:chirunoFire2, },
+				{ t: 100, fn:chirunoFire1, },
+				{ t:1000, fn:chirunoFire2, },
+				{ t: 100, fn:chirunoFire1, },
+				{ t:1000, fn:chirunoFire2, },
+				{ t: 100, fx:0.8, fy:0.2, v:0.1, },
+				{ t: 400, fn:chirunoFire2, },
+				{ t: 400, fn:chirunoFire3, },
+				{ t: 400, fn:chirunoFire2, },
+				{ t: 400, fn:chirunoFire3, },
+				{ t: 400, fn:chirunoFire2, },
+				{ t: 100, fx:0.5, fy:0.2, v:0.05, },
+				{ t: 400, fn:chirunoFire2, },
+				{ t: 400, fn:chirunoFire3, },
+				{ t: 400, fn:chirunoFire2, },
+				{ t: 400, fn:chirunoFire3, },
+				{ t: 400, fn:chirunoFire2, },
+				{ t: NaN, },
+				{ t: 100, fn:chirunoFire1, },
+				{ t:1000, fn:chirunoFire2, },
+				{ t: 100, fn:chirunoFire1, },
+				{ t:1000, fn:chirunoFire2, },
+				{ t: 100, fn:chirunoFire1, },
+				{ t:1000, fn:chirunoFire2, },
+				{ t: NaN, fx:0.2, fy:0.2, v:0.1, },
+				{ t: 100, fx:0.5, fy:0.2, v:0.05, },
+				{ t: 400, fn:chirunoFire2, },
+				{ t: 400, fn:chirunoFire3, },
+				{ t: 400, fn:chirunoFire2, },
+				{ t: 400, fn:chirunoFire3, },
+				{ t: 400, fn:chirunoFire2, },
+				{ t: NaN, },
+				{ t: 100, fn:chirunoFire1, },
+				{ t:1000, fn:chirunoFire2, },
+				{ t: 100, fn:chirunoFire1, },
+				{ t:1000, fn:chirunoFire2, },
+				{ t: 100, fn:chirunoFire1, },
+				{ t:1000, fn:chirunoFire2, },
+				{ t: NaN, fx:0.8, fy:0.2, v:0.1, },
+				{ t: 100, fx:0.5, fy:0.2, v:0.05, },
+				{ t: 400, fn:chirunoFire2, },
+				{ t: 400, fn:chirunoFire3, },
+				{ t: 400, fn:chirunoFire2, },
+				{ t: 400, fn:chirunoFire3, },
+				{ t: 400, fn:chirunoFire2, },
+			],
+			duration: 25000,
+			name: 'bossC',
+		},
+		{
+			pathnodes: [
+				{ v:0.05 },
+				{ t:NaN, fx:0.5, fy:0.2, },
+				{ t:300, fn:chirunoFireSc1, },
+				{ t:300, fn:chirunoFireSc1, },
+				{ t:300, fn:chirunoFireSc1, },
+				{ t:300, fn:chirunoFireSc1, },
+				{ t:300, fn:chirunoFireSc1, },
+				{ t:300, fn:chirunoFireSc1, },
+				{ t:300, fn:chirunoFireSc1, },
+				{ t:300, fn:chirunoFireSc1, },
+				{ t:500, },
+				{ t:200, fx:0.6, fy:0.1, },
+				{ t:300, fn:chirunoFireSc1, },
+				{ t:300, fn:chirunoFireSc1, },
+				{ t:300, fn:chirunoFireSc1, },
+				{ t:300, fn:chirunoFireSc1, },
+				{ t:300, fn:chirunoFireSc1, },
+				{ t:300, fn:chirunoFireSc1, },
+				{ t:300, fn:chirunoFireSc1, },
+				{ t:300, fn:chirunoFireSc1, },
+				{ t:500, },
+				{ t:200, fx:0.4, fy:0.2, },
+				{ t:300, fn:chirunoFireSc1, },
+				{ t:300, fn:chirunoFireSc1, },
+				{ t:300, fn:chirunoFireSc1, },
+				{ t:300, fn:chirunoFireSc1, },
+				{ t:300, fn:chirunoFireSc1, },
+				{ t:300, fn:chirunoFireSc1, },
+				{ t:300, fn:chirunoFireSc1, },
+				{ t:300, fn:chirunoFireSc1, },
+				{ t:500, },
+				{ t:200, fx:0.5, fy:0.3, },
+				{ t:300, fn:chirunoFireSc1, },
+				{ t:300, fn:chirunoFireSc1, },
+				{ t:300, fn:chirunoFireSc1, },
+				{ t:300, fn:chirunoFireSc1, },
+				{ t:300, fn:chirunoFireSc1, },
+				{ t:300, fn:chirunoFireSc1, },
+				{ t:300, fn:chirunoFireSc1, },
+				{ t:300, fn:chirunoFireSc1, },
+				{ t:500, },
+				{ t:200, fx:0.6, fy:0.2, },
+				{ t:300, fn:chirunoFireSc1, },
+				{ t:300, fn:chirunoFireSc1, },
+				{ t:300, fn:chirunoFireSc1, },
+				{ t:300, fn:chirunoFireSc1, },
+				{ t:300, fn:chirunoFireSc1, },
+				{ t:300, fn:chirunoFireSc1, },
+				{ t:300, fn:chirunoFireSc1, },
+				{ t:300, fn:chirunoFireSc1, },
+				{ t:500, },
+				{ t:200, fx:0.7, fy:0.3, },
+				{ t:300, fn:chirunoFireSc1, },
+				{ t:300, fn:chirunoFireSc1, },
+				{ t:300, fn:chirunoFireSc1, },
+				{ t:300, fn:chirunoFireSc1, },
+				{ t:300, fn:chirunoFireSc1, },
+				{ t:300, fn:chirunoFireSc1, },
+				{ t:300, fn:chirunoFireSc1, },
+				{ t:300, fn:chirunoFireSc1, },
+				{ t:500, },
+			],
+			duration: 35000,
+			background: 'bg_stg2_boss',
+			scname: RES.st_stg2_sc1,
+		},
 	], newStgSecBoss, 'boss');
 	newStgSecsFromList(stage, [
 		{ text:RES.st_stg2_diag1,  pos:'.fl.dg', face:'.f0c.f2', name:'diagA', },
@@ -4343,7 +4532,7 @@ function newStage2(difficuty) {
 		{ text:RES.st_stg2_diag6,  pos:'.fr.dg', face:'.f5a.f2', },
 		{ text:RES.st_stg2_diag7,  pos:'.fl.dg', face:'.f0b.f2', },
 		{ text:RES.st_stg2_diag8,  pos:'.fr.dg', face:'.f5a.f2', },
-		{ text:RES.st_stg2_diag9,  pos:'.fr.dg', face:'.f5a.f2', ended:true, },
+		{ text:RES.st_stg2_diag9,  pos:'.fr.dg', face:'.f5a.f2', next:'bossC', ended:true, },
 	], newStgSecDiag, 'diag');
 	return stage;
 }
