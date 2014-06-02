@@ -946,7 +946,7 @@ var UTIL = {
 		}
 		else v.anim(t, function(d) {
 			if (d.callback)
-				d.frames = d.callback(v);
+				d.frames = d.callback.call(v, d);
 			if (d.frames) {
 				var f = d.frames[d.index];
 				d.index = (f && f.next >= 0) ? f.next :
@@ -1469,16 +1469,17 @@ return proto = {
 		y0: 0,
 
 		frtick: 100,
-	  	frames: function(v) {
-			var fs = RES.frames.Player0;
-			if (Math.abs(v.data.vx) > 0.1) {
-				fs = v.data.vx < 0 ? RES.frames.PlayerL : RES.frames.PlayerR;
-				if (this.frames != fs)
-					this.index = 0;
+	  	frames: function(fd) {
+			var d = this.data,
+				fs = RES.frames.Player0;
+			if (d.vx > 0.1 || d.vx < -0.1) {
+				fs = d.vx < 0 ? RES.frames.PlayerL : RES.frames.PlayerR;
+				if (fd.frames != fs)
+					fd.index = 0;
 			}
 			else {
-				if (this.frames === RES.frames.PlayerL || this.frames === RES.frames.PlayerR)
-					this.index = this.frames.reset_index;
+				if (fd.frames === RES.frames.PlayerL || fd.frames === RES.frames.PlayerR)
+					fd.index = fd.frames.reset_index;
 			}
 			return fs;
 		},
@@ -2381,32 +2382,33 @@ function newBoss(name) {
 	}
 
 	if (name == 'Rumia') {
-		UTIL.addFrameAnim(boss, function(v) {
-			var fs = RES.frames.Boss,
-				vx = Math.abs(v.data.vx);
+		UTIL.addFrameAnim(boss, function(fd) {
+			var d = this.data,
+				fs = RES.frames.Boss,
+				vx = Math.abs(d.vx);
 			if (vx > 0.02 || vx < -0.02) {
-				fs = v.data.vx > 0 ? RES.frames.BossL : RES.frames.BossR;
-				if (this.frames != fs)
-					this.index = 0;
+				fs = d.vx > 0 ? RES.frames.BossL : RES.frames.BossR;
+				if (fd.frames != fs)
+					fd.index = 0;
 				var max = vx > 0.1 ? fs.length - 2 : fs.length - 3;
-				this.index = limit_between(this.index, 0, max);
+				fd.index = limit_between(fd.index, 0, max);
 			}
-			else if (v.data.is_firing && !(v.data.is_firing = false)) {
-				this.index = fs.reset_index;
+			else if (this.is_firing && !(this.is_firing = false)) {
+				fd.index = fs.reset_index;
 			}
 			return fs;
 		});
 	}
 	else if (name == 'Daiyousei') {
 		boss.data.size = 0;
-		UTIL.addFrameAnim(boss, function(v) {
-			var d = v.data;
+		UTIL.addFrameAnim(boss, function(fd) {
+			var d = this.data;
 			d.size = limit_between(d.size+(d.ph < 1 ? d.dh : d.ds)*30, 0, 1);
 			d.frame.w = d.frame.sw * d.size;
 			d.frame.h = d.frame.sh * (2 - d.size);
 			d.opacity = d.size;
 			d.y += Math.sin(d.age * 0.003);
-			v.is_invinc = d.size < 1;
+			this.is_invinc = d.size < 1;
 			return RES.frames.Boss2A;
 		}, 30);
 	}
