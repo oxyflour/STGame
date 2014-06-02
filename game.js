@@ -2291,20 +2291,9 @@ function newDannmaku(from, to, r, rt, v, vt, ext) {
 	};
 	return obj;
 }
-function newLaser(from, x, y, dx, dy, width) {
-	var dot = SPRITE.newObj('Dannmaku', {
-		r: 10,
-		x: x,
-		y: y,
-		vx: 0,
-		vy: 0,
-		frame: RES.frames.TamaFire[2],
-		scale: 1.5,
-		blend: 'lighter',
-		duration: 5000,
-	});
-	var obj = SPRITE.newObj('Dannmaku', {
-		r: 10,
+function newLaser(from, x, y, dx, dy, width, ext) {
+	var obj = SPRITE.newObj('Dannmaku', fill(ext, {
+		r: width/2,
 		x: x,
 		y: y,
 		vx: 0,
@@ -2313,11 +2302,7 @@ function newLaser(from, x, y, dx, dy, width) {
 		dy: dy,
 		frame: RES.frames.LaserLong[6],
 		blend: 'lighter',
-		duration: 4500,
-		dh: 1/3000,
-		kh: 1/500,
-		dot: dot,
-	});
+	}));
 	obj.is_line = true;
 	obj.mkRect = function(rt, d) {
 		rt.l = Math.min(d.x0, d.x, d.x + d.dx);
@@ -2330,27 +2315,37 @@ function newLaser(from, x, y, dx, dy, width) {
 	};
 	obj.drawCircle = function(d) {
 		var f = d.frame,
-			w = f.w * d.scale * (this.is_creating ? Math.max(d.ph*3-2, 0.1) : d.ph);
+			w = f.w * d.scale * d.r / 5 * (this.is_creating ? Math.max(d.ph*3-2, 0.1) : d.ph),
+			h = sqrt_sum(d.dx, d.dy);
 		DC.translate(d.x, d.y);
 		DC.rotate(-Math.atan2(d.dx, d.dy));
 		DC.drawImage(RES[f.res],
 			f.sx, f.sy, f.sw, f.sh,
-			-w/2, 0, w, f.h);
+			-w/2, 0, w, h);
 	};
+	obj.anim(100, function() {
+		if (this.data.ph > 0.8) {
+			RES.se_lazer00.replay();
+			return true;
+		}
+	});
 	return obj;
 }
-function newLaser2(from, to) {
-	if (!to || !to.data) to = {
-		data: { x: UTIL.getGamePosX(0.5), y: UTIL.getGamePosY(0.9), },
-	};
-	var to = UTIL.getNearestAlive(from, 'Player') || {
-		data: { x:UTIL.getGamePosX(0.5), y:GAME.rect.b, },
-	}
-	var px = from.data.x + random(-50, 50),
-		py = from.data.y + random(-50, 50),
-		dy = (GAME.rect.b - GAME.rect.t),
-		dx = dy * (to.data.x - px) / (to.data.y - py);
-	return newLaser(from, px, py, dx, dy);
+function newLaserWithDot(from, x, y, dx, dy, width, ext) {
+	var dot = SPRITE.newObj('Dannmaku', {
+		r: width / 2,
+		x: x,
+		y: y,
+		vx: 0,
+		vy: 0,
+		frame: RES.frames.TamaFire[2],
+		scale: width / 10 * 1.5,
+		blend: 'lighter',
+	});
+	var obj = newLaser(from, x, y, dx, dy, width, ext);
+	obj.data.dot = dot;
+	dot.data.duration = obj.data.duration + 500;
+	return obj;
 }
 
 function newBoss(name) {
@@ -2572,23 +2567,14 @@ function newBossDanns0(from) {
 }
 function newBossDanns0A(from) {
 	if (!from.is_dying) ieach([1350, -1350], function(i, x) {
-		var obj = newLaser(from, from.data.x, from.data.y, x, 500);
-		obj.data.r = 20;
-		obj.data.scale = 2;
-		obj.data.dh = 1/500;
-		obj.data.duration = 3000;
-		obj.data.dot.data.scale = 2;
-		obj.data.dot.data.duration = 3500;
+		var obj = newLaserWithDot(from, from.data.x, from.data.y, x, 500, 20, {
+			duration: 3000,
+			dh: 1/500,
+		});
 		obj.anim(20, function(d) {
 			if (!this.is_creating && !this.is_dying)
 				d.dx += d.dx > 0 ? -10: 10;
 		}, obj.data);
-		obj.anim(100, function() {
-			if (this.data.ph > 0.8) {
-				RES.se_lazer00.replay();
-				return true;
-			}
-		})
 	});
 }
 function newBossDanns2(from) {
@@ -2728,8 +2714,18 @@ function newBossDanns6(from, color, count, angular, rad, v0, dr) {
 }
 function newBossDanns7(from) {
 	var to = UTIL.getNearestAlive(from, 'Player');
+	if (!to || !to.data) to = {
+		data: { x: UTIL.getGamePosX(0.5), y: UTIL.getGamePosY(0.9), },
+	};
 	if (!from.is_dying) {
-		var obj = newLaser2(from, to);
+		var px = from.data.x + random(-50, 50),
+			py = from.data.y + random(-50, 50),
+			dy = (GAME.rect.b - GAME.rect.t),
+			dx = dy * (to.data.x - px) / (to.data.y - py);
+		var obj = newLaserWithDot(from, px, py, dx, dy, 10, {
+			duration: 4500,
+			dh: 1/3000,
+		});
 		obj.anim(100, function() {
 			if (this.data.ph > 0.8) {
 				RES.se_lazer00.replay();
@@ -3070,18 +3066,28 @@ function chirunoFire1(from, count) {
 		})
 	}, 50, null, count);
 }
-function chirunoFire2(from, count, layers) {
+function chirunoFire2(from, interval, count, layers, speed, rand, type) {
 	count = count || 40;
-	layers = layers || 2;
+	type = type || 'b';
 	var to = UTIL.getOneAlive('Player');
 	STORY.timeout(function(d, j) {
+		var dr = rand ? random(rand) : 0;
 		range(1, 0, 1/count, function(f) {
-			newDannmaku(from, to, 0, f*PI2, 0.15+j*0.02, 0, {
+			newDannmaku(from, to, 0, f*PI2+dr, (speed || 0.15)+j*0.02, 0, {
+				r: {
+					b: 5,
+					a: 5,
+					s: 3,
+				}[type],
 				color: 'b',
-				frames: RES.frames.TamaB[6],
+				frames: {
+					b: RES.frames.TamaB[6],
+					a: RES.frames.TamaA[6],
+					s: RES.frames.TamaSmallX[7],
+				}[type],
 			})
 		})
-	}, 50, null, layers);
+	}, interval || 50, null, layers || 2);
 }
 function chirunoFire3(from) {
 	var to = UTIL.getOneAlive('Player');
@@ -3120,6 +3126,48 @@ function chirunoFireSc1(from) {
 			}, obj.data);
 		});
 	}, 100, null, 3);
+}
+function chirunoFire4(from, count, speed) {
+	STORY.timeout(function() {
+		chirunoFire2(from, 50, 30, 2, speed || 0.15, 0.1, 'a');
+	}, 500, null, count || 20);
+}
+function chirunoFire5(from) {
+	STORY.timeout(function() {
+		chirunoFire2(from, 50, 8, 1, 0.1, 0.1, 's');
+	}, 200, null, 5);
+}
+function chirunoFire6(from) {
+	var to = UTIL.getOneAlive('Player') || {
+		data: { x:UTIL.getGamePosX(0.5), y:UTIL.getGamePosY(0.9), },
+	};
+	var dx = to.data.x - from.data.x,
+		dy = to.data.y - from.data.y,
+		r0 = Math.atan2(dy, dx);
+	range(0.501, -0.5, 1/2, function(f) {
+		var rt = r0 + f * 0.2 * PI,
+			cos = Math.cos(rt),
+			sin = Math.sin(rt),
+			sx = from.data.x,
+			sy = from.data.y,
+			v = 0.2;
+		var obj = newLaser(from, sx, sy, 0, 0, 3, {
+			sx: sx,
+			sy: sy,
+			vx: v * cos,
+			vy: v * sin,
+		});
+		obj.anim(30, function(d) {
+			var dx = d.sx - d.x,
+				dy = d.sy - d.y;
+			if (sqrt_sum(dx, dy) < 200) {
+				d.dx = dx;
+				d.dy = dy;
+			}
+			else
+				return true;
+		}, obj.data);
+	})
 }
 
 function newEffect(from, frames, scale) {
@@ -4521,6 +4569,43 @@ function newStage2(difficuty) {
 			duration: 35000,
 			background: 'bg_stg2_boss',
 			scname: RES.st_stg2_sc1,
+		},
+		{
+			pathnodes: [
+				{ v:0.06 },
+				{ t: 100, fx:0.5, fy:0.2, },
+				{ t:3000, fn:chirunoFire4, args:[6, 0.2], },
+				{ t: 100, fn:chirunoFire5, },
+				{ t: 100, fn:chirunoFire4, args:[6, 0.1], },
+				{ t:2000, fn:chirunoFire6, },
+				{ t: 100, fx:0.4, fy:0.3, },
+				{ t:3000, fn:chirunoFire4, args:[6, 0.2], },
+				{ t: 100, fn:chirunoFire5, },
+				{ t: 100, fn:chirunoFire4, args:[6, 0.1], },
+				{ t:2000, fn:chirunoFire6, },
+				{ t: 100, fx:0.3, fy:0.1, },
+				{ t:3000, fn:chirunoFire4, args:[6, 0.2], },
+				{ t: 100, fn:chirunoFire5, },
+				{ t: 100, fn:chirunoFire4, args:[6, 0.1], },
+				{ t:2000, fn:chirunoFire6, },
+				{ fx:0.5, fy:0.1, },
+				{ t:3000, fn:chirunoFire4, args:[6, 0.2], },
+				{ t: 100, fn:chirunoFire5, },
+				{ t: 100, fn:chirunoFire4, args:[6, 0.1], },
+				{ t:2000, fn:chirunoFire6, },
+				{ fx:0.4, fy:0.3, },
+				{ t:3000, fn:chirunoFire4, args:[6, 0.2], },
+				{ t: 100, fn:chirunoFire5, },
+				{ t: 100, fn:chirunoFire4, args:[6, 0.1], },
+				{ t:2000, fn:chirunoFire6, },
+				{ fx:0.5, fy:0.2, },
+				{ t:3000, fn:chirunoFire4, args:[6, 0.2], },
+				{ t: 100, fn:chirunoFire5, },
+				{ t: 100, fn:chirunoFire4, args:[6, 0.1], },
+				{ t:2000, fn:chirunoFire6, },
+				{ fx:0.6, fy:0.1, },
+			],
+			duration: 50000,
 		},
 	], newStgSecBoss, 'boss');
 	newStgSecsFromList(stage, [
