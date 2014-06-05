@@ -2001,6 +2001,7 @@ function newShield(bomb) {
 			d.vy += Math.cos(d.theta) * d.dv;
 		}
 		if (this.is_dying) {
+			RES.se_tan00.play();
 			newEffect(this, RES.frames.EffPlayer, 2);
 			this.finished = true;
 		}
