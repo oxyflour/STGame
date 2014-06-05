@@ -2908,6 +2908,7 @@ function newStg2Sec1(interval, count) {
 	STORY.timeout(function(d, n) {
 		var fx = random(1);
 		var obj = SPRITE.newObj('Enemy', {
+			life: 3,
 			frames: RES.frames.Enemy2A,
 			x: UTIL.getGamePosX(fx),
 			y: GAME.rect.t,
@@ -2927,6 +2928,7 @@ function newStg2Sec2(direction, count) {
 	STORY.timeout(function(d, j) {
 		var f = j / count;
 		var obj = SPRITE.newObj('Enemy', {
+			life: 6,
 			x: UTIL.getGamePosX(direction > 0 ? 1-f : f),
 			y: GAME.rect.t,
 			vx: direction > 0 ? 0.03 : -0.03,
@@ -2947,11 +2949,13 @@ function newStg2Sec3(enm, interval, count) {
 	STORY.timeout(function(d, n) {
 		var fx = random(1);
 		var obj = SPRITE.newObj('Enemy', {
+			life: 3,
 			frames: enm == 'Enemy2C' ? fill({ rotate:random(PI2) }, randin(RES.frames.Enemy2C)) : RES.frames[enm],
 			x: UTIL.getGamePosX(fx),
 			y: GAME.rect.t,
 			vx: random(0.15) * (fx > 0.5 ? -1 : 1),
 			vy: random(0.1, 0.2),
+			blend: 'lighter',
 		});
 	}, interval || 300, null, count || 30);
 }
@@ -2963,7 +2967,7 @@ function newStg2Danns1(from, color) {
 	}[color];
 	var rt = random(PI);
 	range(1.001, 0, 1/10, function(f) {
-		array(2, function(i) {
+		array(color == 'r' ? 1 : 2, function(i) {
 			newDannmaku(from, null, 0, f*PI2+rt, 0.07+i*0.03, 0, {
 				r: 3,
 				color: color,
@@ -4445,7 +4449,7 @@ function newStage2(difficuty) {
 		{ init:newSecList, args:[
 			[newStg2Sec1, [500, 12]],
 			[newStg2Sec2, [-1]],
-		], duration:6000, next:'bossA', },
+		], duration:8000, next:'bossA', },
 		{ init:newStg2Sec3, args:['Enemy2B', 100, 80], duration:8000, name:'secH', },
 		{ init:newStg2Sec3, args:['Enemy2C', 100, 30], duration:3000, },
 		{ init:newSecList, args:[
@@ -4456,7 +4460,7 @@ function newStage2(difficuty) {
 		{ init:newSecList, args:[
 			[newStg2Sec3, ['Enemy2C', 500, 20]],
 			[newSec3, [500, 20, 5]],
-		], duration:7000, next: 'diagA', },
+		], duration:8000, next: 'diagA', },
 	], newStgSecNormal, 'sec');
 	newStgSecsFromList(stage, [
 		{ text:RES.st_stg2_diag1,  pos:'.fl.dg', face:'.f0c.f2', name:'diagA', },
