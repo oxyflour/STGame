@@ -3016,6 +3016,7 @@ function daiyouseiFire1(from, color, direction) {
 			})
 		});
 	}, 10, null, count);
+	RES.se_power1.play();
 }
 function daiyouseiFire2(from) {
 	var to = UTIL.getOneAlive('Player');
@@ -3037,6 +3038,7 @@ function daiyouseiFire2(from) {
 					redirect_object(d, to.data, 0.2);
 			}, obj.data);
 		})
+		RES.se_tan01.play();
 	}, 100, null, 30);
 }
 
@@ -3054,6 +3056,7 @@ function chirunoFire1(from, count) {
 			})
 		})
 	}, 50, null, count);
+	RES.se_tan01.play();
 }
 function chirunoFire2(from, interval, count, layers, speed, rand, type) {
 	count = count || 40;
@@ -3077,6 +3080,7 @@ function chirunoFire2(from, interval, count, layers, speed, rand, type) {
 			})
 		})
 	}, interval || 50, null, layers || 2);
+	RES.se_tan01.play();
 }
 function chirunoFire3(from) {
 	var to = UTIL.getOneAlive('Player');
@@ -3093,6 +3097,7 @@ function chirunoFire3(from) {
 				return to && redirect_object(d, to.data, 0.2) || true;
 		}, obj.data);
 	});
+	RES.se_tan01.play();
 }
 function chirunoFireSc1(from) {
 	var to = UTIL.getOneAlive('Player');
@@ -3114,6 +3119,7 @@ function chirunoFireSc1(from) {
 					return redirect_object(d, { x:d.x+dx+f-0.5, y:d.y+dy }, 0.08) || true;
 			}, obj.data);
 		});
+		RES.se_tan02.play();
 	}, 100, null, 3);
 }
 function chirunoFireSc1A(from) {
@@ -3189,11 +3195,12 @@ function chirunoFireSc2(from, interval, count) {
 				}
 			}, obj.data);
 		})
+		if (j % 2 == 0) RES.se_tan02.replay();
 	}, interval || 60, null, count || 50);
 }
 function chirunoFireSc2A(from) {
 	var to = UTIL.getOneAlive('Player');
-	STORY.timeout(function() {
+	STORY.timeout(function(d, j) {
 		range(0.5001, -0.5, 1/2, function(f) {
 			array(2, function(i) {
 				newDannmaku(from, to, 0, f*PI*0.2+random(0.1), 0.15+i*0.05, 0, {
@@ -3202,10 +3209,11 @@ function chirunoFireSc2A(from) {
 				})
 			})
 		})
+		if (j % 2 == 0) RES.se_tan02.replay();
 	}, 80, null, 20);
 }
 function chirunoFireSc3(from) {
-	STORY.timeout(function() {
+	STORY.timeout(function(d, j) {
 		var pos = {};
 		pos.data = {
 			x: from.data.x + random(-100, 100),
@@ -3221,7 +3229,8 @@ function chirunoFireSc3(from) {
 				return d.age < 1000 ? decrease_object_speed(d, 0.85) : true;
 			}, obj.data)
 		})
-	}, 100, null, Inf);
+		if (j % 2 == 0) RES.se_tan02.replay();
+	}, 100, null, 1000);
 }
 
 function newEffect(from, frames, scale) {
