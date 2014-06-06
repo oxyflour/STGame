@@ -4544,6 +4544,20 @@ function newStage2(difficuty) {
 		{ text:RES.st_stg2_diag9,  pos:'.fr.dg', face:'.f5a.f2', next:'bossC', ended:true, },
 		{ text:RES.st_stg2_diagXX, pos:'.fr.dg', face:'.fx', name:'diagC', duration:10 },
 		{ text:RES.st_stg2_diag10, pos:'.fl.dg', face:'.f0b.f2', next:'askContinue', ended:true, },
+		{ text:RES.st_stg2_diag11, pos:'.fl.dg', face:'.f0b.f2', name:'diagD', next:'bossX', },
+		{ text:RES.st_stg2_diag12, pos:'.fr.dg', face:'.f5a.f2', name:'diagX', },
+		{ text:RES.st_stg2_diag13, pos:'.fl.dg', face:'.f0c', },
+		{ text:RES.st_stg2_diag14, pos:'.fr.dg', face:'.f5a', },
+		{ text:RES.st_stg2_diag15, pos:'.fr.dg', face:'.f5a.f2', },
+		{ text:RES.st_stg2_diag16, pos:'.fl.dg', face:'.f0c.f2', },
+		{ text:RES.st_stg2_diag17, pos:'.fl.dg', face:'.f0a', },
+		{ text:RES.st_stg2_diag18, pos:'.fr.dg', face:'.f5a', },
+		{ text:RES.st_stg2_diag19, pos:'.fr.dg', face:'.f5a.f2', },
+		{ text:RES.st_stg2_diag20, pos:'.fl.dg', face:'.f0c.f2', },
+		{ text:RES.st_stg2_diag21, pos:'.fl.dg', face:'.f0a', },
+		{ text:RES.st_stg2_diag22, pos:'.fr.dg', face:'.f5a.f2', },
+		{ text:RES.st_stg2_diag23, pos:'.fl.dg', face:'.f0b', },
+		{ text:RES.st_stg2_diag24, pos:'.fl.dg', face:'.f0a.f2', next:'bossY', ended:true, },
 	], newStgSecDiag, 'diag');
 	newStgSecsFromList(stage, [
 		{
@@ -4782,6 +4796,19 @@ function newStage2(difficuty) {
 			duration: 40000,
 			scname: RES.st_stg2_sc3,
 			next: 'bossKill',
+		},
+		{
+			boss: 'chiruno',
+			pathnodes: [
+				{ fx:0.5, fy:0.2 },
+			],
+			duration: 1000,
+			invinc: true,
+			no_countdown: true,
+			no_lifebar: true,
+			disable_fire: true,
+			name: 'bossX',
+			next: 'diagX',
 		},
 	], newStgSecBoss, 'boss');
 	newStgSecsFromList(stage, [
