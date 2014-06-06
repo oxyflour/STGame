@@ -2383,6 +2383,7 @@ function newBoss(name) {
 	}
 	else if (name == 'daiyousei') {
 		UTIL.addFrameAnim(boss, RES.frames.Boss2A);
+		boss.data.respawn = 0;
 		boss.data.size = 0;
 		boss.anim(30, function(d) {
 			d.size = limit_between(d.size+(d.ph < 1 ? d.dh : d.ds)*30, 0, 1);
@@ -2904,7 +2905,7 @@ function newBossDannsEx4(from) {
 	}, 50, null, 100);
 }
 
-function newStg2Sec1(interval, count) {
+function newStg2Sec1(interval, count, color) {
 	STORY.timeout(function(d, n) {
 		var fx = random(1);
 		var obj = SPRITE.newObj('Enemy', {
@@ -2919,7 +2920,7 @@ function newStg2Sec1(interval, count) {
 		obj.anim(100, function(d) {
 			d.vy -= (d.y - GAME.rect.t) / (GAME.rect.b - GAME.rect.t) * 0.01;
 			if (this.is_dying)
-				return newStg2Danns1(obj, d.damage >= d.life ? 'r' : 'g') || true;
+				return newStg2Danns1(obj, d.damage >= d.life ? 'r' : (color || 'g')) || true;
 		}, obj.data)
 	}, interval || 300, null, count || 30);
 }
@@ -2959,15 +2960,42 @@ function newStg2Sec3(enm, interval, count) {
 		});
 	}, interval || 300, null, count || 30);
 }
+function newStg2SecEx1() {
+	STORY.timeout(function(d, j) {
+		var obj = SPRITE.newObj('Enemy', {
+			life: 10,
+			frames: RES.frames.EnemyX,
+			x: UTIL.getGamePosX(random(1)),
+			y: GAME.rect.t,
+			vx: 0,
+			vy: 0.2,
+			rt: 0,
+			color: randin('rgb'),
+		});
+		obj.anim(100, function(d) {
+			d.vy -= 0.01;
+			newStg2DannsEx1(this, d.color, Math.sin(d.rt += 0.5) * 0.5, 4000 - d.age);
+			return d.age < 3000 ? undefined : true;
+		}, obj.data);
+		STORY.timeout(function() {
+			RES.se_tan00.play();
+		}, 3000);
+	}, 1000, null, 1000);
+}
 
 function newStg2Danns1(from, color) {
 	var frames = {
 		r: RES.frames.LongA[2],
-		g: RES.frames.LongB[9]
+		g: RES.frames.LongB[9],
+		w: RES.frames.LongB[15],
 	}[color];
 	var rt = random(PI);
 	range(1.001, 0, 1/10, function(f) {
-		array(color == 'r' ? 1 : 2, function(i) {
+		array({
+			r: 1,
+			g: 2,
+			w: 3,
+		}[color], function(i) {
 			newDannmaku(from, null, 0, f*PI2+rt, 0.07+i*0.03, 0, {
 				r: 3,
 				color: color,
@@ -2986,6 +3014,32 @@ function newStg2Danns2(from) {
 			frames: RES.frames.TamaSmallX[5],
 		});
 	})
+}
+function newStg2DannsEx1(from, color, rt, freeze) {
+	var to = UTIL.getNearestAlive(from, 'Player');
+	if (!from.is_dying) {
+		var obj = newDannmaku(from, to, 0, rt, 0.2, 0, {
+			color: color,
+			frames: RES.frames.TamaB[{ r:2, g:10, b:6, }[color]],
+		});
+		obj.anim(100, function(d) {
+			if (d.age < freeze)
+				decrease_object_speed(d, 0.96);
+			else if (d.age < freeze + 4000) {
+				if (d.color != 'w' && (d.color = 'w')) {
+					UTIL.addFrameAnim(this, RES.frames.TamaB[15]);
+					d.vx = d.vy = 0;
+				}
+			}
+			else if (d.age < freeze + 5000)
+				redirect_object(d, to ? to.data : {
+					x: UTIL.getGamePosX(0.5),
+					y: GAME.rect.b,
+				}, 0.15, 0.2);
+			else
+				return true;
+		}, obj.data);
+	}
 }
 
 function daiyouseiMove(from, fx, fy, t) {
@@ -3111,6 +3165,7 @@ function chirunoFireSc1(from) {
 		dx = random(-1, 1),
 		dy = random(1);
 	STORY.timeout(function(d, j) {
+		from.is_firing = true;
 		if (!from.is_dying) range(1, 0, 1/18, function(f) {
 			var obj = newDannmaku(from, to, 0, f*PI2+dr, dv+j*0.1, 0, {
 				r: 3,
@@ -3177,6 +3232,7 @@ function chirunoFire6(from) {
 }
 function chirunoFireSc2(from, interval, count) {
 	STORY.timeout(function(d, j) {
+		from.is_firing = true;
 		var color = randin('rgbo'),
 			frames = RES.frames.TamaA[('k r m b c g y ow').indexOf(color)];
 		range(1, 0, 1/10, function(f) {
@@ -3219,6 +3275,7 @@ function chirunoFireSc2A(from) {
 }
 function chirunoFireSc3(from) {
 	STORY.timeout(function(d, j) {
+		from.is_firing = true;
 		var pos = {};
 		pos.data = {
 			x: from.data.x + random(-100, 100),
@@ -3690,7 +3747,7 @@ function newStgHook() {
 			}
 			else if (e == STORY.events.PLAYER_GRAZE) {
 				STATICS.graze ++;
-				RES.se_graze.play();
+				RES.se_graze.replay();
 				newEffectPiece(v, 'w', 0.5);
 			}
 			else if (e == STORY.events.PLAYER_DYING) {
@@ -4433,7 +4490,7 @@ function newStage2(difficuty) {
 		bgm: RES.bgm_stg1a,
 	});
 	newStgSecsFromList(stage, [
-		{ init:newStg2Sec1, args:[120, 100], duration:12000, },
+		{ init:newStg2Sec1, args:[150, 70], duration:12000, },
 		{ init:newSecList, args:[
 			[newStg2Sec1, [500, 12]],
 			[newStg2Sec2, [ 1]],
@@ -4460,7 +4517,20 @@ function newStage2(difficuty) {
 		{ init:newSecList, args:[
 			[newStg2Sec3, ['Enemy2C', 500, 20]],
 			[newSec3, [500, 20, 5]],
-		], duration:8000, next: 'diagA', },
+		], duration:10000, next: 'diagA', },
+		{ init:newStg2Sec1, args:[120, 100, 'w'], duration:12000, name:'secX', },
+		{ init:newSecList, args:[
+			[newStg2Sec1, [300, 20, 'w']],
+			[newStg2Sec2, [ 1]],
+			[newStg2Sec2, [-1]],
+		], duration:8000 },
+		{ init:newStg2SecEx1, duration:12000, },
+		{ duration:6000, },
+		{ init:newSecList, args:[
+			[newStg2Sec3, ['Enemy2C', 500, 20]],
+			[newStg2Sec2, [ 1]],
+			[newStg2Sec2, [-1]],
+		], duration:8000, next:'diagD' },
 	], newStgSecNormal, 'sec');
 	newStgSecsFromList(stage, [
 		{ text:RES.st_stg2_diag1,  pos:'.fl.dg', face:'.f0c.f2', name:'diagA', },
