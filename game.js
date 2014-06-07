@@ -2320,7 +2320,7 @@ function newLaserWithDot(from, x, y, dx, dy, width, ext) {
 		vx: 0,
 		vy: 0,
 		frame: RES.frames.TamaFire[2],
-		scale: width / 10 * 1.5,
+		scale: width / 12,
 		blend: 'lighter',
 	});
 	var obj = newLaser(from, x, y, dx, dy, width, ext);
@@ -2549,7 +2549,8 @@ function newBossDanns0(from) {
 }
 function newBossDanns0A(from) {
 	if (!from.is_dying) ieach([1350, -1350], function(i, x) {
-		var obj = newLaserWithDot(from, from.data.x, from.data.y, x, 500, 20, {
+		var obj = newLaserWithDot(from, from.data.x, from.data.y, x, 500, 32, {
+			opacity: 0.9,
 			duration: 3000,
 			dh: 1/500,
 		});
@@ -2704,7 +2705,7 @@ function newBossDanns7(from) {
 			py = from.data.y + random(-50, 50),
 			dy = (GAME.rect.b - GAME.rect.t),
 			dx = dy * (to.data.x - px) / (to.data.y - py);
-		var obj = newLaserWithDot(from, px, py, dx, dy, 10, {
+		var obj = newLaserWithDot(from, px, py, dx, dy, 16, {
 			duration: 4500,
 			dh: 1/3000,
 		});
