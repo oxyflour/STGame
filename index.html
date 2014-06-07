@@ -629,7 +629,7 @@
 			<div class="menu menu-pause-text"></div>
 			<form class="menu-pause ui" eval-radios
 				ui-focus="GAME.state == GAME.states.PAUSE || GAME.state == GAME.states.OVER"
-				onescape="changeGameState('RUNNING'); return false">
+				onescape="GAME.state == GAME.states.PAUSE && changeGameState('RUNNING'); return false">
 				<div class="menu-line ui" ui-show="GAME.state == GAME.states.PAUSE">
 					<input type="radio" value="changeGameState('RUNNING')" />
 					<label class="menu menu-pause-continue"></label>
