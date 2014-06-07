@@ -3992,7 +3992,7 @@ function newStage1(difficuty) {
 		{ init:newSecEx2, args:[1, 0.3, -0.1, 0.12], duration:1000, },
 		{ duration:5000, },
 		{ init:newSec4, args:[newDanns2, 10], duration:10000, },
-		{ duration:5000, },
+		{ duration:3000, },
 		{ init:killCls, args:['Enemy', 'Dannmaku'], duration:1000, next:'diagD', },
 	], newStgSecNormal, 'sec');
 	newStgSecsFromList(stage, [
