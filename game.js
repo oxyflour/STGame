@@ -2018,22 +2018,13 @@ function newShield(bomb) {
 	});
 }
 function newDrop(type, x, y, extra) {
-	var power_pt = 0,
-		point_pt = 0;
-	if (type == 0)
-		power_pt = 1;
-	else if (type == 2)
-		power_pt = 8;
-	else if (type == 4)
-		power_pt = 128;
-	if (type == 1)
-		point_pt = randin([10, 20]);
 	return SPRITE.newObj('Drop', fill(extra, {
 		x: x || UTIL.getGamePosX(0.5),
 		y: y || GAME.rect.t,
 		type: type,
-		power_pt: power_pt,
-		point_pt: point_pt,
+		power_pt: { 0:1, 2:8, 4:128, }[type],
+		point_pt: type == 1 && randin([10, 20]),
+		bomb_pt: type == 3 && 1,
 		frames: RES.frames.Drops[type],
 		frame_small: RES.frames.Drops[type+8],
 	}));
@@ -2372,6 +2363,7 @@ function newBoss(name) {
 	}
 	else if (name == 'daiyousei') {
 		UTIL.addFrameAnim(boss, RES.frames.Boss2A);
+		boss.data.bomb_pt = 1;
 		boss.data.respawn = 0;
 		boss.data.size = 0;
 		boss.anim(30, function(d) {
@@ -3874,6 +3866,8 @@ function newStgHook() {
 					var type;
 					if (v.data.power_pt)
 						type = v.data.power_pt >= 128 ? 4 : (v.data.power_pt >= 8 ? 2 : 0);
+					else if (v.data.bomb_pt)
+						type = 3;
 					else
 						type = random(1) > 0.8 ? 0 : 1;
 					newDrop(type, v.data.x, v.data.y);
@@ -3902,6 +3896,9 @@ function newStgHook() {
 						}
 					});
 					STATICS.power = limit_between(STATICS.power+pt, 0, 128);
+				}
+				if (v.data.bomb_pt) {
+					STATICS.bomb = limit_between(STATICS.bomb + v.data.bomb_pt, 0, STATICS.bomb_reset);
 				}
 				if (v.data.point_pt) {
 					STATICS.dot ++;
