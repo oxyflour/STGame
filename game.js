@@ -157,6 +157,7 @@ function line_circle_intersect(ln, cr) {
 		ret.y = (dxq*ln.y+dyq*cr.y + dxy*(cr.x-ln.x)) / (dxq + dyq);
 		return ret;
 	}
+	/*
 	else if (t1 <= 0 && squa_sum(dx1, dy1) < squa_sum(cr.r+ln.r, 0)) {
 		ret.x = ln.x;
 		ret.y = ln.y;
@@ -167,6 +168,7 @@ function line_circle_intersect(ln, cr) {
 		ret.y = ln.y + dy;
 		return ret;
 	}
+	*/
 }
 function circles_hit(cr1, cr2) {
 	if (cr1.x == cr2.x && cr1.y == cr2.y)
@@ -909,37 +911,12 @@ var UTIL = {
 	getGamePosY: function(f) {
 		return interp(GAME.rect.t, GAME.rect.b, f);
 	},
-	/*
-	addAnim: function(v, d, t, id) {
-		fill(d, {
-			value: 0,
-			min: 0,
-			max: 1,
-			callback: undefined,
-			step: 1,
-			loop: undefined,
-		});
-		function loop(d, begin, end) {
-			if (d.loop && d.loop.apply)
-				d.loop(begin, end);
-			else if (d.loop == 'restart')
-				d.value = begin;
-			else if (d.loop == 'reverse')
-				d.step = -d.step;
-			else
-				d.value = end;
-		}
-		v.anim(t || 15, function(d) {
-			if (d.value > d.max && d.step > 0)
-				loop(d, d.min, d.max);
-			else if (d.value < d.min && d.step < 0)
-				loop(d, d.max, d.min);
-			if (d.callback)
-				d.callback(v);
-			d.value += d.step;
-		}, d, id);
+	getGamePosXY: function(fx, fy) {
+		return {
+			x: UTIL.getGamePosX(fx),
+			y: UTIL.getGamePosY(fy),
+		};
 	},
-	*/
 	// fs can be function, frame array, or a single frame
 	addFrameAnim: function(v, fs, t) {
 		t = t || v.data.frtick || 50;
@@ -964,8 +941,18 @@ var UTIL = {
 		}, 'frame');
 	},
 	// ps should be array of objects like
-	// { x/fx:0, y/fy:0, v:10 }
-	// x and y should be between 0 and 1
+	// { t:100, x/fx:0, y/fy:0, v:10, fn:func, args:[], }
+	// t:
+	//    if t > 0, will go to the next path nodes right after t millisecs
+	//    else it will go next only after arriving the target coordinates
+	// x and y:
+	//    pathnode target coordinates
+	// fx and fy:
+	//    coordinates inside GAME.rect, should between 0 and 1
+	// v:
+	//    speed when moving
+	// fn and args [optional]:
+	//    fn.apply(v, args) will be call when beginning this pathnode
 	addPathAnim: function(v, ps, t) {
 		t = t || v.data.pathtick || 50;
 		ieach(ps, function(i, n, d) {
@@ -2305,7 +2292,7 @@ function newLaser(from, x, y, dx, dy, width, ext) {
 	};
 	obj.drawCircle = function(d) {
 		var f = d.frame,
-			w = f.w * d.scale * d.r / 5 * (this.is_creating ? Math.max(d.ph*3-2, 0.1) : d.ph),
+			w = f.w * d.scale * d.r / 8 * (this.is_creating ? Math.max(d.ph*3-2, 0.1) : d.ph),
 			h = sqrt_sum(d.dx, d.dy);
 		DC.translate(d.x, d.y);
 		DC.rotate(-Math.atan2(d.dx, d.dy));
@@ -3187,24 +3174,24 @@ function chirunoFireSc1A(from) {
 		chirunoFireSc1(from);
 	}, 300, null, 8);
 }
-function chirunoFire4(from, count, speed) {
+function chirunoFire4(from, count, speed, layers) {
 	STORY.timeout(function() {
-		chirunoFire2(from, 50, 30, 2, speed || 0.15, 0.1, 'a');
+		chirunoFire2(from, 50, 30, layers || 2, speed || 0.15, 0.1, 'a');
 	}, 500, null, count || 20);
 }
-function chirunoFire5(from) {
+function chirunoFire5(from, rads, speed) {
 	STORY.timeout(function() {
-		chirunoFire2(from, 50, 8, 1, 0.1, 0.1, 's');
+		chirunoFire2(from, 50, rads || 8, 1, speed || 0.1, 0.1, 's');
 	}, 200, null, 5);
 }
-function chirunoFire6(from) {
+function chirunoFire6(from, rads) {
 	var to = UTIL.getOneAlive('Player') || {
-		data: { x:UTIL.getGamePosX(0.5), y:UTIL.getGamePosY(0.9), },
+		data: UTIL.getGamePosXY(0.5, 0.9)
 	};
 	var dx = to.data.x - from.data.x,
 		dy = to.data.y - from.data.y,
 		r0 = Math.atan2(dy, dx);
-	range(0.501, -0.5, 1/2, function(f) {
+	range(0.501, -0.5, 1/(rads || 2), function(f) {
 		var rt = r0 + f * 0.2 * PI,
 			cos = Math.cos(rt),
 			sin = Math.sin(rt),
@@ -3230,13 +3217,13 @@ function chirunoFire6(from) {
 		}, obj.data);
 	})
 }
-function chirunoFireSc2(from, interval, count) {
+function chirunoFireSc2(from, interval, count, speed) {
 	STORY.timeout(function(d, j) {
 		from.is_firing = true;
 		var color = randin('rgbo'),
 			frames = RES.frames.TamaA[('k r m b c g y ow').indexOf(color)];
 		range(1, 0, 1/10, function(f) {
-			var obj = newDannmaku(from, null, 0, random(PI2), random(0.1, 0.2), 0, {
+			var obj = newDannmaku(from, null, 0, random(PI2), random(0.1, speed || 0.2), 0, {
 				color: color,
 				frames: frames,
 				freeze: 800 + j*60,
@@ -3259,10 +3246,10 @@ function chirunoFireSc2(from, interval, count) {
 		if (j % 2 == 0) RES.se_tan02.replay();
 	}, interval || 60, null, count || 50);
 }
-function chirunoFireSc2A(from) {
+function chirunoFireSc2A(from, rads) {
 	var to = UTIL.getOneAlive('Player');
 	STORY.timeout(function(d, j) {
-		range(0.5001, -0.5, 1/2, function(f) {
+		range(0.5001, -0.5, 1/(rads || 2), function(f) {
 			array(2, function(i) {
 				newDannmaku(from, to, 0, f*PI*0.2+random(0.1), 0.15+i*0.05, 0, {
 					color: 'b',
@@ -3273,7 +3260,7 @@ function chirunoFireSc2A(from) {
 		if (j % 2 == 0) RES.se_tan02.replay();
 	}, 80, null, 20);
 }
-function chirunoFireSc3(from) {
+function chirunoFireSc3(from, freq) {
 	STORY.timeout(function(d, j) {
 		from.is_firing = true;
 		var pos = {};
@@ -3281,18 +3268,85 @@ function chirunoFireSc3(from) {
 			x: from.data.x + random(-100, 100),
 			y: from.data.y + random(-100, 100),
 		}
+		var to = j % freq == 0 ? UTIL.getOneAlive('Player') : null;
 		array(15, function(i) {
 			var obj = newDannmaku(pos, null, 0, random(PI2), random(0.1, 0.4), 0, {
 				r: 3,
-				color: 'b',
-				frames: RES.frames.LongC[6],
+				to: to,
+				color: to ? 'r' : 'b',
+				frames: RES.frames.LongC[to ? 2 : 6],
 			})
 			obj.anim(100, function(d) {
-				return d.age < 1000 ? decrease_object_speed(d, 0.85) : true;
+				if (d.age < 1000)
+					decrease_object_speed(d, 0.85);
+				else if (d.to)
+					redirect_object(d, d.to.data, sqrt_sum(d.vx, d.vy)+0.005, 0.06);
+				else
+					return true;
 			}, obj.data)
 		})
 		if (j % 2 == 0) RES.se_tan02.replay();
 	}, 100, null, 1000);
+}
+function chirunoFireEx1(from, dr, dist, xr) {
+	var to = UTIL.getOneAlive('Player') || {
+		data: UTIL.getGamePosXY(0.5, 0.9)
+	};
+	var r0 = Math.atan2(to.data.y - from.data.y, to.data.x - from.data.x),
+		rt = r0 + (dr || 0),
+		cos = Math.cos(rt),
+		sin = Math.sin(rt),
+		sx = from.data.x - (dist || 150) * Math.cos(r0 + (xr || 0)),
+		sy = from.data.y - (dist || 150) * Math.sin(r0 + (xr || 0));
+	var obj = newLaser(from, sx, sy, 0, 0, 20, {
+		sx: sx,
+		sy: sy,
+		vx: 0.5 * cos,
+		vy: 0.5 * sin,
+	});
+	obj.space = { l:300, r:300, t:300, b:300, };
+	obj.anim(30, function(d) {
+			var dx = d.sx - d.x,
+				dy = d.sy - d.y;
+			if (sqrt_sum(dx, dy) < 600) {
+				d.dx = dx;
+				d.dy = dy;
+			}
+			else if (d.age < 3000) {
+				d.vx = d.vy = 0;
+			}
+			else if (d.age < 4000) {
+				if (!d.is_firing && (d.is_firing = true))
+					chirunoFireEx2(from, d.sx, d.sy, d.x, d.y);
+			}
+			else {
+				this.die();
+				return true;
+			}
+	}, obj.data);
+}
+function chirunoFireEx1A(from, dr, dist, xr) {
+	chirunoFireEx1(from,  dr, dist,  xr);
+	chirunoFireEx1(from, -dr, dist, -xr);
+}
+function chirunoFireEx2(from, sx, sy, tx, ty) {
+	var count = 30;
+	STORY.timeout(function(d, j) {
+		var f = j / count,
+			x = interp(tx, sx, f),
+			y = interp(ty, sy, f);
+		ieach([0.6, -1, -0.6], function(i, rt) {
+			newDannmaku({
+				data: { x:x, y:y, },
+			}, {
+				data: UTIL.getGamePosXY(0.5, 1),
+			}, 0, rt*PI, 0.2, 0, {
+				r: 3,
+				color: 'b',
+				frames: RES.frames.LongC[6],
+			});
+		})
+	}, 30, null, count);
 }
 
 function newEffect(from, frames, scale) {
@@ -4809,6 +4863,153 @@ function newStage2(difficuty) {
 			disable_fire: true,
 			name: 'bossX',
 			next: 'diagX',
+		},
+		{
+			pathnodes: [
+				{ v:0.06 },
+				{ t: 100, fx:0.5, fy:0.2, },
+				{ t:3000, fn:chirunoFire4, args:[6, 0.2, 4], },
+				{ t: 100, fn:chirunoFire5, args:[20, 0.2], },
+				{ t: 100, fn:chirunoFire4, args:[8, 0.1, 4], },
+				{ t: 800, fn:chirunoFire6, args:[4], },
+				{ t: 800, fn:chirunoFire6, args:[4], },
+				{ t:1000, fn:chirunoFire6, args:[4], },
+				{ t: 100, fx:0.4, fy:0.3, },
+				{ t:3000, fn:chirunoFire4, args:[6, 0.2, 4], },
+				{ t: 100, fn:chirunoFire5, args:[20, 0.2], },
+				{ t: 100, fn:chirunoFire4, args:[8, 0.1, 4], },
+				{ t: 800, fn:chirunoFire6, args:[4], },
+				{ t: 800, fn:chirunoFire6, args:[4], },
+				{ t:1000, fn:chirunoFire6, args:[4], },
+				{ t: 100, fx:0.3, fy:0.1, },
+				{ t:3000, fn:chirunoFire4, args:[6, 0.2, 4], },
+				{ t: 100, fn:chirunoFire5, args:[20, 0.2], },
+				{ t: 100, fn:chirunoFire4, args:[8, 0.1, 4], },
+				{ t: 800, fn:chirunoFire6, args:[4], },
+				{ t: 800, fn:chirunoFire6, args:[4], },
+				{ t:1000, fn:chirunoFire6, args:[4], },
+				{ fx:0.5, fy:0.1, },
+				{ t:3000, fn:chirunoFire4, args:[6, 0.2, 4], },
+				{ t: 100, fn:chirunoFire5, args:[20, 0.2], },
+				{ t: 100, fn:chirunoFire4, args:[8, 0.1, 4], },
+				{ t: 800, fn:chirunoFire6, args:[4], },
+				{ t: 800, fn:chirunoFire6, args:[4], },
+				{ t:1000, fn:chirunoFire6, args:[4], },
+				{ fx:0.4, fy:0.3, },
+				{ t:3000, fn:chirunoFire4, args:[6, 0.2, 4], },
+				{ t: 100, fn:chirunoFire5, args:[20, 0.2], },
+				{ t: 100, fn:chirunoFire4, args:[8, 0.1, 4], },
+				{ t: 800, fn:chirunoFire6, args:[4], },
+				{ t: 800, fn:chirunoFire6, args:[4], },
+				{ t:1000, fn:chirunoFire6, args:[4], },
+				{ fx:0.5, fy:0.2, },
+				{ t:3000, fn:chirunoFire4, args:[6, 0.2, 4], },
+				{ t: 100, fn:chirunoFire5, args:[20, 0.2], },
+				{ t: 100, fn:chirunoFire4, args:[8, 0.1, 4], },
+				{ t: 800, fn:chirunoFire6, args:[4], },
+				{ t: 800, fn:chirunoFire6, args:[4], },
+				{ t:1000, fn:chirunoFire6, args:[4], },
+				{ fx:0.6, fy:0.1, },
+				{ t:3000, fn:chirunoFire4, args:[6, 0.2, 4], },
+				{ t: 100, fn:chirunoFire5, args:[20, 0.2], },
+				{ t: 100, fn:chirunoFire4, args:[8, 0.1, 4], },
+				{ t: 800, fn:chirunoFire6, args:[4], },
+				{ t: 800, fn:chirunoFire6, args:[4], },
+				{ t:1000, fn:chirunoFire6, args:[4], },
+			],
+			duration: 40000,
+			name: 'bossY',
+		},
+		{
+			pathnodes: [
+				{ v:0.05, },
+				{ fx:0.5, fy:0.2, },
+				{ t: 100, fx:0.3, fy:0.1, },
+				{ t:1000, fn:chirunoFireSc2, args:[150, 30, 0.3], },
+				{ t:1000, fn:chirunoFireSc2, args:[150, 30, 0.3], },
+				{ t:1000, fn:chirunoFireSc2, args:[150, 30, 0.3], },
+				{ t: 500, fx:0.5, fy:0.2, },
+				{ t:5000, fn:chirunoFireSc2A, args:[3], },
+				{ t: 100, fx:0.5, fy:0.1, },
+				{ t:1000, fn:chirunoFireSc2, args:[150, 30, 0.3], },
+				{ t:1000, fn:chirunoFireSc2, args:[150, 30, 0.3], },
+				{ t:1000, fn:chirunoFireSc2, args:[150, 30, 0.3], },
+				{ t: 500, fx:0.6, fy:0.3, },
+				{ t:5000, fn:chirunoFireSc2A, args:[3], },
+				{ t: 100, fx:0.5, fy:0.1, },
+				{ t:1000, fn:chirunoFireSc2, args:[150, 30, 0.3], },
+				{ t:1000, fn:chirunoFireSc2, args:[150, 30, 0.3], },
+				{ t:1000, fn:chirunoFireSc2, args:[150, 30, 0.3], },
+				{ t: 500, fx:0.3, fy:0.1, },
+				{ t:5000, fn:chirunoFireSc2A, args:[3], },
+				{ t: 100, fx:0.5, fy:0.1, },
+				{ t:1000, fn:chirunoFireSc2, args:[150, 30, 0.3], },
+				{ t:1000, fn:chirunoFireSc2, args:[150, 30, 0.3], },
+				{ t:1000, fn:chirunoFireSc2, args:[150, 30, 0.3], },
+			],
+			duration: 40000,
+			scname: RES.st_stg2_sc_ex1,
+		},
+		{
+			pathnodes: [
+				{ v:0.05, },
+				{ t: NaN, fx:0.5, fy:0.2, },
+				{ t: 500, fn:chirunoFireSc3, args:[4], },
+				{ t: NaN, fx:0.3, fy:0.1, },
+				{ t: NaN, fx:0.4, fy:0.3, },
+				{ t: NaN, fx:0.8, fy:0.3, },
+				{ t: NaN, fx:0.7, fy:0.2, },
+				{ t: NaN, fx:0.6, fy:0.3, },
+				{ t: NaN, fx:0.4, fy:0.3, },
+				{ t: NaN, fx:0.5, fy:0.2, },
+				{ t: NaN, fx:0.3, fy:0.1, },
+				{ t: NaN, fx:0.4, fy:0.3, },
+				{ t: NaN, fx:0.8, fy:0.3, },
+				{ t: NaN, fx:0.7, fy:0.2, },
+				{ t: NaN, fx:0.6, fy:0.3, },
+			],
+			duration: 30000,
+		},
+		{
+			pathnodes: [
+				{ v:0.1, },
+				{ fx:0.5, fy:0.2, },
+				{ t:1000, fn:chirunoFireEx1A, args:[0.38, 200, 1], },
+				{ t:1000, fn:chirunoFireEx1A, args:[0.60, 200, 1], },
+				{ t:1000, fn:chirunoFireEx1A, args:[0.05, 150, 0], },
+				{ t:1000, fn:chirunoFireEx1A, args:[0.20, 150, 0], },
+				{ t:1000, fn:chirunoFire2, args:[50, 30, 5, 0.15, 0.5], },
+				{ t:2000, },
+				{ fx:0.3, fy:0.2, },
+				{ t:1000, fn:chirunoFireEx1A, args:[0.38, 200, 1], },
+				{ t:1000, fn:chirunoFireEx1A, args:[0.60, 200, 1], },
+				{ t:1000, fn:chirunoFireEx1A, args:[0.05, 150, 0], },
+				{ t:1000, fn:chirunoFireEx1A, args:[0.20, 150, 0], },
+				{ t:1000, fn:chirunoFire2, args:[50, 30, 5, 0.15, 0.5], },
+				{ t:2000, },
+				{ fx:0.5, fy:0.2, },
+				{ t:1000, fn:chirunoFireEx1A, args:[0.38, 200, 1], },
+				{ t:1000, fn:chirunoFireEx1A, args:[0.60, 200, 1], },
+				{ t:1000, fn:chirunoFireEx1A, args:[0.05, 150, 0], },
+				{ t:1000, fn:chirunoFireEx1A, args:[0.20, 150, 0], },
+				{ t:1000, fn:chirunoFire2, args:[50, 30, 5, 0.15, 0.5], },
+				{ t:2000, },
+				{ fx:0.7, fy:0.2, },
+				{ t:1000, fn:chirunoFireEx1A, args:[0.38, 200, 1], },
+				{ t:1000, fn:chirunoFireEx1A, args:[0.60, 200, 1], },
+				{ t:1000, fn:chirunoFireEx1A, args:[0.05, 150, 0], },
+				{ t:1000, fn:chirunoFireEx1A, args:[0.20, 150, 0], },
+				{ t:1000, fn:chirunoFire2, args:[50, 30, 5, 0.15, 0.5], },
+				{ t:2000, },
+				{ fx:0.7, fy:0.2, },
+				{ t:1000, fn:chirunoFireEx1A, args:[0.38, 200, 1], },
+				{ t:1000, fn:chirunoFireEx1A, args:[0.60, 200, 1], },
+				{ t:1000, fn:chirunoFireEx1A, args:[0.05, 150, 0], },
+				{ t:1000, fn:chirunoFireEx1A, args:[0.20, 150, 0], },
+				{ t:1000, fn:chirunoFire2, args:[50, 30, 5, 0.15, 0.5], },
+			],
+			duration: 40000,
+			scname: RES.st_stg2_sc_ex2,
 		},
 	], newStgSecBoss, 'boss');
 	newStgSecsFromList(stage, [
