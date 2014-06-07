@@ -3348,6 +3348,24 @@ function chirunoFireEx2(from, sx, sy, tx, ty) {
 		})
 	}, 30, null, count);
 }
+function chirunoFireEx3(from) {
+	STORY.timeout(function() {
+		var fx = random(0.3, 0.7);
+		newLaser(from, GAME.rect.l, GAME.rect.t,  UTIL.getGamePosX(fx-0.1), 0, 30, {
+			vx: 0,
+			vy: 0.1,
+		})
+		newLaser(from, GAME.rect.r, GAME.rect.t, -UTIL.getGamePosX(0.9-fx), 0, 30, {
+			vx: 0,
+			vy: 0.1,
+		})
+	}, 2000, null, 1000);
+	STORY.timeout(function() {
+		SPRITE.eachObj(function(i, v) {
+			v.data.vx -= 0.01;
+		}, 'Player');
+	}, 50);
+}
 
 function newEffect(from, frames, scale) {
 	var d = from.data;
@@ -5010,6 +5028,15 @@ function newStage2(difficuty) {
 			],
 			duration: 40000,
 			scname: RES.st_stg2_sc_ex2,
+		},
+		{
+			pathnodes: [
+				{ v:0.1, },
+				{ fx:0.5, fy:0.2, },
+				{ t:1000, fn:chirunoFireEx3, },
+			],
+			duration: 99000,
+			scname: RES.st_stg2_sc_ex3,
 		},
 	], newStgSecBoss, 'boss');
 	newStgSecsFromList(stage, [
