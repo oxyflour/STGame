@@ -1391,8 +1391,10 @@ return proto = {
 			vx /= 1.414;
 			vy /= 1.414
 		}
-		d.vx = vx;
-		d.vy = vy;
+		if (d.vx != vx)
+			d.vx = interp(d.vx, vx, 0.2);
+		if (d.vy != vy)
+			d.vy = interp(d.vy, vy, 0.2);
 		d.x += d.vx * dt;
 		d.y += d.vy * dt;
 
