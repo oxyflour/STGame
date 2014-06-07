@@ -3532,8 +3532,6 @@ function newStgSecInit(next, para) {
 			}, 1000, d);
 		},
 		quit: function(d) {
-			GAME.bgm_running = para.bgm;
-			GAME.bgm_running.currentTime = 0;
 			killObj(d.title, d.text);
 		},
 	}
@@ -3543,6 +3541,10 @@ function newStgSecNormal(next, para) {
 		run: UTIL.newTimeRunner(para.duration, next),
 		init: function(d) {
 			para.init && para.init.apply(null, para.args);
+			if (para.bgm) {
+				GAME.bgm_running = para.bgm;
+				GAME.bgm_running.currentTime = 0;
+			}
 		},
 	}
 }
@@ -3622,8 +3624,10 @@ function newStgSecBoss(next, para) {
 				}, 1000);
 				RES.se_cat00.play();
 			}
-			if (para.bgm)
+			if (para.bgm) {
 				GAME.bgm_running = para.bgm;
+				GAME.bgm_running.currentTime = 0;
+			}
 		},
 		quit: function(d) {
 			killObj(d.countdown, d.background);
@@ -3945,10 +3949,9 @@ function newStage1(difficuty) {
 		bganim: newStg1BgAnim,
 		title: 'STAGE 1',
 		text: RES.st_stg1_title,
-		bgm: RES.bgm_stg1a,
 	});
 	newStgSecsFromList(stage, [
-		{ init:newSec1, args:['s0A2', 5], duration:3000, },
+		{ init:newSec1, args:['s0A2', 5], duration:3000, bgm:RES.bgm_stg1a, },
 		{ init:newSec1, args:['s0A1', 8], duration:2000, },
 		{ init:newSec2, args:[0.4, 10], duration:4000, },
 		{ init:newSec3, args:[1000, 5], duration:5000, },
@@ -3962,7 +3965,7 @@ function newStage1(difficuty) {
 		{ init:newSec1, args:['s0A1', 8, [[+40, 0], [0, 0]]], duration:2000 },
 		{ init:newSec1, args:['s0A2', 8, [[-40, 0], [0, 0]]], duration:7000, next:'diagA' },
 		// ...
-		{ init:newSec3, args:[500, 30, 3, 10], duration:10000, name:'secX' },
+		{ init:newSec3, args:[500, 30, 3, 10], duration:10000, bgm:RES.bgm_stg1a, name:'secX' },
 		{ init:newSecList, args:[
 			[newSec3, [500, 300, 3, 10]],
 			[newSec1, ['s0A2', 8, [[0, 0]], 1000, 0.2, 0.04, 10]],
@@ -4346,6 +4349,7 @@ function newStage1(difficuty) {
 			],
 			duration: 25000,
 			name: 'bossY',
+			bgm: RES.bgm_stg1b,
 		},
 		{
 			pathnodes: [
@@ -4560,10 +4564,9 @@ function newStage2(difficuty) {
 		bgelem: $('.bg-stg2'),
 		title: 'STAGE 2',
 		text: RES.st_stg2_title,
-		bgm: RES.bgm_stg2a,
 	});
 	newStgSecsFromList(stage, [
-		{ init:newStg2Sec1, args:[150, 70], duration:12000, },
+		{ init:newStg2Sec1, args:[150, 70], duration:12000, bgm:RES.bgm_stg2a, },
 		{ init:newSecList, args:[
 			[newStg2Sec1, [500, 12]],
 			[newStg2Sec2, [ 1]],
@@ -4591,7 +4594,7 @@ function newStage2(difficuty) {
 			[newStg2Sec3, ['Enemy2C', 500, 20]],
 			[newSec3, [500, 20, 5]],
 		], duration:10000, next: 'diagA', },
-		{ init:newStg2Sec1, args:[120, 100, 'w'], duration:12000, name:'secX', },
+		{ init:newStg2Sec1, args:[120, 100, 'w'], duration:12000, name:'secX', bgm:RES.bgm_stg2a, },
 		{ init:newSecList, args:[
 			[newStg2Sec1, [300, 20, 'w']],
 			[newStg2Sec2, [ 1]],
@@ -4938,6 +4941,7 @@ function newStage2(difficuty) {
 			],
 			duration: 40000,
 			name: 'bossY',
+			bgm: RES.bgm_stg2b,
 		},
 		{
 			pathnodes: [
