@@ -3778,6 +3778,7 @@ function newStgHook() {
 				extend(STATICS, {
 					max_point: 1000000,
 					bomb_reset: 3,
+					bomb_max: 7,
 					point: 0,
 					player: 3,
 					bomb: 3,
@@ -3900,7 +3901,7 @@ function newStgHook() {
 					STATICS.power = limit_between(STATICS.power+pt, 0, 128);
 				}
 				if (v.data.bomb_pt) {
-					STATICS.bomb = limit_between(STATICS.bomb + v.data.bomb_pt, 0, STATICS.bomb_reset);
+					STATICS.bomb = limit_between(STATICS.bomb + v.data.bomb_pt, 0, STATICS.bomb_max);
 				}
 				if (v.data.point_pt) {
 					STATICS.dot ++;
