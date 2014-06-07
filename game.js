@@ -3192,7 +3192,7 @@ function chirunoFire6(from, rads) {
 			sx = from.data.x,
 			sy = from.data.y,
 			v = 0.2;
-		var obj = newLaser(from, sx, sy, 0, 0, 3, {
+		var obj = newLaser(from, sx, sy, 0, 0, 4, {
 			sx: sx,
 			sy: sy,
 			vx: v * cos,
@@ -3341,6 +3341,7 @@ function chirunoFireEx2(from, sx, sy, tx, ty) {
 			});
 		})
 	}, 30, null, count);
+	RES.se_tan00.play();
 }
 function chirunoFireEx3(from) {
 	STORY.timeout(function() {
@@ -3724,7 +3725,7 @@ function newStgSecScore(next, para) {
 		},
 		quit: function(d) {
 			d.mask.die();
-			para.quit && para.quit(d);
+			para && para.quit && para.quit(d);
 		},
 		on: function(e, v, d) {
 			if (e == STORY.events.GAME_INPUT) {
@@ -5047,20 +5048,21 @@ function newStage2(difficuty) {
 				{ t:2000, fx:0.6, fy:0.3, },
 			],
 			duration: 40000,
-		},
-		{
-			pathnodes: [
-				{ v:0.1, },
-				{ fx:0.5, fy:0.2, },
-			],
 			scname: RES.st_stg2_sc_ex3,
-			duration: 99000,
+			next: 'bossKill2',
 		},
 	], newStgSecBoss, 'boss');
 	newStgSecsFromList(stage, [
 		{ name:'bossKill', next:'diagC', },
+		{ name:'bossKill2', next:'score', },
 	], newStgSecBossKill, 'bossKill');
 	stage.askContinue = newStgSecAskContinue('secX');
+	stage.score = newStgSecScore('over');
+	stage.over = {
+		run: function(dt, d) {
+			GAME.state = GAME.states.OVER;
+		}
+	}
 	return stage;
 }
 
