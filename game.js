@@ -1713,7 +1713,18 @@ return proto = {
 });
 
 // for test only
-function newPlayer(ext) {
+function newPlayer(name, ext) {
+	ext = ext || {};
+	ext.name = name || 'reimuA';
+	if (ext.name == 'p2') ext.conf = fill(ext.conf, {
+		key_left: 100,
+		key_up: 104,
+		key_right: 102,
+		key_down: 101,
+		key_slow: 45, // Insert
+		key_fire: 36, // Home
+		key_bomb: 33, // PageUp
+	});
 	var p = SPRITE.newObj('Player', ext);
 	p.pslow = newPSlow(p);
 	p.anim(1000/20, function() {
@@ -3762,21 +3773,7 @@ function newStgHook() {
 		},
 		before_on: function(e, v, d) {
 			if (e == STORY.events.STORY_LOAD) {
-				UTIL.getOneAlive('Player', 'player', 'p1') ||  newPlayer({ player: 'p1', });
-				if (GAME.double_player_mode && !(GAME.double_player_mode = false)) {
-					UTIL.getOneAlive('Player', 'player', 'p2') || newPlayer({
-						player: 'p2',
-						conf: {
-							key_left: 100,
-							key_up: 104,
-							key_right: 102,
-							key_down: 101,
-							key_slow: 45, // Insert
-							key_fire: 36, // Home
-							key_bomb: 33, // PageUp
-						}
-					});
-				}
+				SPRITE.eachObj(return_second, 'Player') || newPlayer();
 				extend(STATICS, {
 					max_point: 1000000,
 					bomb_reset: 3,
@@ -3786,9 +3783,10 @@ function newStgHook() {
 					power: 0,
 					graze: 0,
 					dot: 0,
-
 					time: 0,
 				})
+				if (GAME.double_player_mode && !(GAME.double_player_mode = false))
+					newPlayer('p2');
 				if (GAME.many_lives_mode && !(GAME.many_lives_mode = false)) {
 					STATICS.player = 7;
 					STATICS.bomb_reset = 7;
@@ -3836,10 +3834,8 @@ function newStgHook() {
 				STORY.timer.add(newTicker(100, function() {
 					killCls('Dannmaku');
 					if (this.finished = v.finished) {
-						if (STATICS.player >= 0) newPlayer({
-							player: v.data.player,
-							conf: v.data.conf
-						});
+						if (STATICS.player >= 0)
+							newPlayer(v.data.name);
 						else
 							GAME.state = GAME.states.OVER;
 					}
