@@ -3767,9 +3767,9 @@ function newStgHook() {
 							key_up: 104,
 							key_right: 102,
 							key_down: 101,
-							key_fire: 36,
-							key_bomb: 35,
-							key_slow: 45,
+							key_slow: 45, // Insert
+							key_fire: 36, // Home
+							key_bomb: 33, // PageUp
 						}
 					});
 				}
@@ -3777,7 +3777,7 @@ function newStgHook() {
 					max_point: 1000000,
 					bomb_reset: 3,
 					point: 0,
-					player: 99,
+					player: 3,
 					bomb: 3,
 					power: 0,
 					graze: 0,
@@ -4560,7 +4560,7 @@ function newStage2(difficuty) {
 		bgelem: $('.bg-stg2'),
 		title: 'STAGE 2',
 		text: RES.st_stg2_title,
-		bgm: RES.bgm_stg1a,
+		bgm: RES.bgm_stg2a,
 	});
 	newStgSecsFromList(stage, [
 		{ init:newStg2Sec1, args:[150, 70], duration:12000, },
@@ -4738,6 +4738,7 @@ function newStage2(difficuty) {
 			],
 			duration: 25000,
 			name: 'bossC',
+			bgm: RES.bgm_stg2b,
 		},
 		{
 			pathnodes: [
