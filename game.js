@@ -3352,21 +3352,23 @@ function chirunoFireEx2(from, sx, sy, tx, ty) {
 }
 function chirunoFireEx3(from) {
 	STORY.timeout(function() {
-		var fx = random(0.3, 0.7);
-		newLaser(from, GAME.rect.l, GAME.rect.t,  UTIL.getGamePosX(fx-0.1), 0, 30, {
-			vx: 0,
-			vy: 0.1,
-		})
-		newLaser(from, GAME.rect.r, GAME.rect.t, -UTIL.getGamePosX(0.9-fx), 0, 30, {
-			vx: 0,
-			vy: 0.1,
-		})
-	}, 2000, null, 1000);
-	STORY.timeout(function() {
-		SPRITE.eachObj(function(i, v) {
-			v.data.vx -= 0.01;
-		}, 'Player');
-	}, 50);
+		var fd = 0.15,
+			fx = random(0.3, 0.7);
+		newLaser(from, GAME.rect.l, GAME.rect.t-20,  UTIL.getGamePosY(fx-fd),     0, 30, { vy: 0.15, })
+		newLaser(from, GAME.rect.r, GAME.rect.t-20, -UTIL.getGamePosY(1-(fx+fd)), 0, 30, { vy: 0.15, })
+	}, 1000, null, 1000);
+	STORY.timeout(function(d, j) {
+		var x = j % 2,
+			f = (j % 6 + 1) / 6;
+		newDannmaku({
+			data: UTIL.getGamePosXY(x ? 1 : 0, f),
+		}, {
+			data: UTIL.getGamePosXY(x ? 0 : 1, ease_out(f)),
+		}, 0, random(-0.2, 0.2), 0.15, 0, {
+			color: 'w',
+			frames: RES.frames.TamaB[15],
+		});
+	}, 50, null, 5000);
 }
 
 function newEffect(from, frames, scale) {
@@ -5036,9 +5038,28 @@ function newStage2(difficuty) {
 				{ v:0.1, },
 				{ fx:0.5, fy:0.2, },
 				{ t:1000, fn:chirunoFireEx3, },
+				{ t:2000, fx:0.3, fy:0.1, },
+				{ t:2000, fx:0.4, fy:0.3, },
+				{ t:2000, fx:0.8, fy:0.3, },
+				{ t:2000, fx:0.7, fy:0.2, },
+				{ t:2000, fx:0.6, fy:0.3, },
+				{ t:2000, fx:0.4, fy:0.3, },
+				{ t:2000, fx:0.5, fy:0.2, },
+				{ t:2000, fx:0.3, fy:0.1, },
+				{ t:2000, fx:0.4, fy:0.3, },
+				{ t:2000, fx:0.8, fy:0.3, },
+				{ t:2000, fx:0.7, fy:0.2, },
+				{ t:2000, fx:0.6, fy:0.3, },
 			],
-			duration: 99000,
+			duration: 40000,
+		},
+		{
+			pathnodes: [
+				{ v:0.1, },
+				{ fx:0.5, fy:0.2, },
+			],
 			scname: RES.st_stg2_sc_ex3,
+			duration: 99000,
 		},
 	], newStgSecBoss, 'boss');
 	newStgSecsFromList(stage, [
