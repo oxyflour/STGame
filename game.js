@@ -1338,7 +1338,7 @@ return proto = {
 			return;
 		var d = this.data,
 			e = that.data;
-		if (that.clsName == SPRITE.proto.Drop.clsName && !that.is_dying && !that.is_creating) {
+		if (that.clsName == SPRITE.proto.Drop.clsName && !that.is_dying) {
 			if (circle_intersect(d, { x:e.x, y:e.y, r:10 }))
 				STORY.on(STORY.events.DROP_COLLECTED, that);
 			else if (circle_intersect(d, e))
@@ -3828,7 +3828,7 @@ function newStgHook() {
 				var x = v.data.x,
 					y = v.data.y;
 				ieach([0, 0, 0, 0, 2], function(i, type) {
-					newDrop(type, x, y, { vx:random(-0.2, 0.2), vy:random(-0.25, -0.3) });
+					newDrop(type, x, y-80, { vx:random(-0.2, 0.2), vy:random(-0.25, -0.3) });
 				})
 				STATICS.player --;
 				STATICS.bomb = STATICS.bomb_reset;
