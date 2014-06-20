@@ -3376,6 +3376,32 @@ function chirunoFireEx3(from) {
 	}, 50, null, 5000);
 }
 
+function stg3Sec1(pth, count, offset, speed, rand, life) {
+	STORY.timeout(function (d, n) {
+		ieach(offset || [[0, 0]], function(i, v) {
+			var obj = SPRITE.newObj('Enemy', {
+				life: life || 1,
+				frames: RES.frames.Enemy2A,
+				pathnodes: UTIL.pathOffset(RES.path[pth], v[0], v[1]),
+			});
+			STORY.timeout(function() {
+				stg3Danns1(obj, speed, rand);
+			}, random(1500));
+		});
+	}, 250, null, count);
+}
+function stg3Danns1(from, speed, rand) {
+	var to = UTIL.getOneAlive('Player');
+	array(2, function(j) {
+		range(1, 0, 1/10, function(f) {
+			newDannmaku(from, null, 10*j, f+random(0.1), 0.1+0.02*j, 0, {
+				color: 'b',
+				frames: RES.frames.LongB[6],
+			})
+		})
+	})
+}
+
 function newEffect(from, frames, scale) {
 	var d = from.data;
 	SPRITE.newObj('Circle', {
@@ -5067,5 +5093,14 @@ function newStage2(difficuty) {
 		}
 	}
 	return stage;
+}
+function newStage3(difficuty) {
+	var stage = {};
+	stage.hook = newStgHook();
+	stage.init = newStgSecInit('sec0', {
+		bgelem: $('.bg-stg3'),
+		title: 'STAGE 3',
+		text: RES.st_stg3_title,
+	});
 }
 
