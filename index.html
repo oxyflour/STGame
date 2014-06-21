@@ -52,7 +52,7 @@
 		transform="mirror:x"></canvas>
 	<script id="gen_treebg">
 		(function(RES) {
-			var cv = $e('treebg'),
+			var cv = $e('stg1cv2'),
 				dc = getCanvasDC(cv);
 			cv.width = parseInt($style(cv, 'width'));
 			cv.height = parseInt($style(cv, 'height'));
@@ -94,7 +94,7 @@
 	<canvas id="ground_brush2" from="ground_brush1 0 0 48 32"></canvas>
 	<script id="gen_groundbg">
 		(function(RES) {
-			var cv = $e('groundbg'),
+			var cv = $e('stg1cv1'),
 				dc = getCanvasDC(cv),
 				patt = RES.ground_patt;
 			cv.width = parseInt($style(cv, 'width'));
@@ -122,7 +122,7 @@
 				dc.drawImage(RES.ground_tileB, x, y + ph - sc.height);
 			}
 
-			var bg = $e('treebg'),
+			var bg = $e('stg1cv2'),
 				hw = bg.width / 2,
 				dw = bg.width * 0.1;
 			dc.globalAlpha = 0.4;
@@ -132,6 +132,58 @@
 
 			var rh = parseInt($style('.game', 'height'));
 			dc.repeatSelf(0, cv.height - rh, cv.width, rh, 0, 0);
+		})
+	</script>
+	<!-- stg3 -->
+	<img id="stg3bg" src="res/stg3bg.png" />
+	<canvas id="stg3_gnd1" scale="2" from="stg3bg 48 0 34 34"></canvas>
+	<canvas id="stg3_gnd2" scale="2" from="stg3bg 96 0 34 34"></canvas>
+	<canvas id="stg3_gnd3" scale="2" from="stg3bg 144 0 34 34"></canvas>
+	<canvas id="stg3_gnd4" scale="2" from="stg3bg 0 0 34 34"></canvas>
+	<canvas id="stg3_gnd2_pad" from="stg3bg 128 48 48 16"></canvas>
+	<canvas id="stg3_gnd3_pad" from="stg3bg 64 48 48 16"></canvas>
+	<canvas id="stg3_gnd_ring" from="stg3bg 0 48 32 32"></canvas>
+	<canvas id="stg3_gnd_dot" from="stg3bg 32 48 32 32"></canvas>
+	<script id="gen_stg3bg">
+		(function(RES) {
+			var cv = $e('stg3cv'),
+				dc = getCanvasDC(cv);
+			cv.width = parseInt($style(cv, 'width'));
+			cv.height = parseInt($style(cv, 'height'));
+			var y = cv.height;
+			ieach([
+				[600, RES.stg3_gnd1],
+				[400, RES.stg3_gnd2, RES.stg3_gnd2_pad],
+				[400, RES.stg3_gnd3, RES.stg3_gnd3_pad],
+			], function (i, v) {
+				var h = v[0],
+					r = v[1],
+					p = v[2];
+				dc.fillStyle = dc.createPattern(r, 'repeat');
+				dc.fillRect(0, y -= h, cv.width, h);
+				if (p) {
+					dc.fillStyle = dc.createPattern(p, 'repeat');
+					range(cv.width + p.width, 0, p.width, function(x) {
+						dc.drawImage(p, x, y+h-p.height/2);
+					})
+				}
+			})
+			dc.fillStyle = dc.createPattern(RES.stg3_gnd4, 'repeat');
+			dc.fillRect(0, 0, cv.width, y);
+
+			cv.towers = [];
+			range(y, 0, 128, function(y) {
+				var c = cv.width/2,
+					f = RES.stg3_gnd_ring,
+					w = f.width/2,
+					h = f.height/2;
+				dc.drawImage(f, c-w-96, y-h);
+				dc.drawImage(f, c-w+96, y-h);
+				array(6, function(i) {
+					cv.towers.push({ px:c-96, py:y, pz:10+i*20, r:24-i*3 });
+					cv.towers.push({ px:c+96, py:y, pz:10+i*20, r:24-i*3 });
+				})
+			})
 		})
 	</script>
 	<!-- -->
@@ -574,13 +626,13 @@
 		<div class="game absolute no-overflow" style="z-index:0">
 			<div class="game-size absolute no-overflow ui-obj bg-stg1" id="bg_stg1_bottom">
 				<canvas class="absolute game-size bg-stg1" style="height:2400px"
-					id="groundbg" bg-speed="0.01"></canvas>
+					id="stg1cv1" bg-speed="0.01"></canvas>
 				<div class="absolute game-size"
 					style="height:350px;background:linear-gradient(rgba(0,0,0,0.8),transparent);-webkit-transform:translate3d(0,0,0.1px)"></div>
 			</div>
 			<div class="game-size absolute no-overflow ui-obj bg-stg1" id="bg_stg1_top">
 				<canvas class="absolute game-size bg-stg1" style="height:1000px;"
-					id="treebg" bg-speed="0.015"></canvas>
+					id="stg1cv2" bg-speed="0.015"></canvas>
 				<div class="absolute game-size"
 					style="height:300px;background:linear-gradient(rgba(0,0,0,0.6),transparent);-webkit-transform:translate3d(0,0,0.1px)"></div>
 			</div>
@@ -592,6 +644,13 @@
 				<div class="absolute game-size"
 					style="height:300px;background:linear-gradient(rgba(0,0,100,0.7),transparent);-webkit-transform:translate3d(0,0,0.1px)"></div>
 			</div>
+			<div class="game-size absolute no-overflow ui-obj bg-stg3 bg-persp" id="bg_stg3">
+				<canvas class="absolute game-size bg-stg3" style="height:3200px;"
+					id="stg3cv" bg-speed="0.02"></canvas>
+				<div class="absolute game-size" id="bg_stg3_mask"
+					style="height:500px;background:linear-gradient(rgba(190,171,107,0.9),transparent);-webkit-transform:translate3d(0,0,0.1px)"></div>
+			</div>
+			<canvas class="game-size absolute no-overflow ui-obj bg-stg3" id="bg_stg3_dot"></canvas>
 			<div class="game-size absolute">
 				<div class="absolute game-size ui-obj anim-in-01s" id="bg_sc_rumia"
 					style="background:url(res/eff01.png);opacity:0;background-size:100%"></div>
@@ -1060,7 +1119,7 @@ function changeGameState(k) {
 
 function loadAndStart() {
 	GAME.reset();
-	GAME.load((GAME.begin_stage || newStage1)());
+	GAME.load((GAME.begin_stage || newStage3)());
 	GAME.start('init');
 	if (GAME.begin_stage)
 		GAME.begin_stage = 0;

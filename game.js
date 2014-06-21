@@ -288,19 +288,30 @@ function $attr(e, a) {
 	var attr = e && e.attributes[a];
 	return attr && attr.textContent;
 }
-function $style(e, k) {
+function $style(e, k, v) {
 	if (same_type(e, '')) e = $i(e);
-	var style = getComputedStyle(e);
-	return style && style.getPropertyValue(k);
-}
-function $prefixStyle(s, k, v) {
-	ieach([
-		'webkit',
-		'ms',
-		'Moz',
-	], function(i, p, s) {
-		s[p+k] = v;
-	}, s)
+	if (v === undefined) {
+		var style = getComputedStyle(e);
+		return style && style.getPropertyValue(k);
+	}
+	else {
+		var pk = {
+			'transform': 'Transform',
+			'transform-origin': 'TransformOrigin',
+		}[k];
+		if (pk) {
+			ieach([
+				'webkit',
+				'ms',
+				'Moz',
+			], function(i, p) {
+				e.style[p+pk] = v;
+			});
+		}
+		else {
+			e.style[k] = v;
+		}
+	}
 }
 function $readdClass(e, c) {
 	e.classList.remove(c);
@@ -3471,25 +3482,26 @@ function newBackground(scrollImgs) {
 					e.offsetY -= e.totalY;
 				var trans = 'translate(' + e.offsetX + 'px, ' + e.offsetY + 'px)',
 					trans2 = trans + ' rotate(0.0001deg)';
-				$prefixStyle(e.style, 'Transform', trans2);
+				$style(e, 'transform', trans2);
 			}
 		});
 	});
 	return bg;
 }
-function newStg1BgAnim(bg) {
-	function updateBgImg(e, f) {
-		if (!e.val) return;
-		var v = e.val;
-		var p = interp(v.persp[0], v.persp[1], f),
-			r = interp(v.rotate[0], v.rotate[1], f),
-			trans = 'perspective('+p+'px) rotateX('+r+'deg)',
-			ori = '50% '+v.oriy+'px';
-		$prefixStyle(e.style, 'Transform', trans);
-		$prefixStyle(e.style, 'TransformOrigin', ori);
-		e.style.opacity = interp(v.opacity[0], v.opacity[1], f);
+function updateBgImg(e, f) {
+	function interpVal(v, f) {
+		return v ? (v.push ? interp(v[0], v[1], f) : v) : 0;
 	}
-
+	if (!e.val) return;
+	var v = e.val;
+	var p = e.persp = interpVal(v.persp, f),
+		r = e.rotate = interpVal(v.rotate, f),
+		y = e.oriy = interpVal(v.oriy, f);
+	$style(e, 'transform', 'perspective('+p+'px) rotateX('+r+'deg)');
+	$style(e, 'transform-origin', '50% '+y+'px');
+	if (v.opacity) e.style.opacity = interpVal(v.opacity, f);
+}
+function newStg1BgAnim(bg) {
 	var imgs = $('#bg_stg1_top, #bg_stg1_bottom');
 	ieach(imgs, function(i, e, d) {
 		e.val = d[e.id];
@@ -3498,7 +3510,6 @@ function newStg1BgAnim(bg) {
 		bg_stg1_bottom: {
 			persp: [900, 500],
 			rotate: [50, 70],
-			opacity: [1, 1],
 			oriy: -50,
 		},
 		bg_stg1_top: {
@@ -3518,6 +3529,72 @@ function newStg1BgAnim(bg) {
 				updateBgImg(e, f);
 			});
 		}
+	}, bg.data);
+}
+function newStg3BgAnim(bg) {
+	var e = $e('bg_stg3'),
+		gnd = $e('stg3cv'),
+		mask = $e('bg_stg3_mask');
+	e.width = parseFloat($style(e, 'width'));
+	e.height = parseFloat($style(e, 'height'));
+	e.val = {
+		persp: 600,
+		rotate: [50, 30],
+	}
+	e.val2 = {
+		persp: 600,
+		rotate: [30, 60],
+	}
+	updateBgImg(e, 0);
+
+	var cv = $e('bg_stg3_dot'),
+		dc = cv.getContext('2d');
+	cv.width = parseFloat($style(cv, 'width'));
+	cv.height = parseFloat($style(cv, 'height'));
+	bg.anim(50, function(d) {
+		var age = d.age,
+			begin  =  50000, end  =  70000,
+			begin2 = 130000, end2 = 140000;
+		if (age < begin) {
+		}
+		else if (age <= end) {
+			var f = ease_in_out((age - begin) / (end - begin));
+			updateBgImg(e, f);
+			mask.style.opacity = 1 - f;
+		}
+		else if (age < begin2) {
+		}
+		else if (age <= end2) {
+			if (gnd.speedY > 0)
+				gnd.speedY = decrease_to_zero(gnd.speedY, 0.1/1000*50);
+			if (e.val !== e.val2)
+				e.val = e.val2;
+			var f = ease_in_out((age - begin2) / (end2 - begin2));
+			updateBgImg(e, f);
+			mask.style.opacity = f;
+		}
+
+		dc.clearRect(0, 0, cv.width, cv.height);
+		ieach(gnd.towers, function(i, v) {
+			var py = v.py + gnd.offsetY - e.oriy,
+				t = e.rotate/180*PI + Math.atan2(v.pz, py),
+				r = sqrt_sum(v.pz, py),
+				sin = Math.sin(t) * r,
+				cos = Math.cos(t) * r,
+				x = e.width / 2 - v.px,
+				y = cos,
+				z = e.persp - sin;
+			v.x = e.width/2 - x / z * e.persp;
+			v.y = e.oriy + y / z * e.persp;
+			if (v.x > GAME.rect.l - v.r &&
+				v.x < GAME.rect.r + v.r &&
+				v.y > GAME.rect.t - v.r &&
+				v.y < GAME.rect.b + v.r) {
+				var f = RES.stg3_gnd_dot,
+					r = v.r * 500/Math.sqrt(x*x + y*y + z*z);
+				dc.drawImage(f, 0, 0, f.width, f.height, v.x-r, v.y-r, r*2, r*2);
+			}
+		});
 	}, bg.data);
 }
 function killCls() {
@@ -3757,7 +3834,7 @@ function newStgSecScore(next, para) {
 			d.mask.anim(50, function(d) {
 				elem.style.opacity = d.ph;
 				var offset = (1 - d.ph) * (GAME.rect.b - GAME.rect.t);
-				$prefixStyle(elem.style, 'Transform', 'translateY(' + offset + 'px)');
+				$style(elem, 'transform', 'translateY(' + offset + 'px)');
 			}, d.mask.data);
 		},
 		run: function(dt, d) {
@@ -5099,8 +5176,10 @@ function newStage3(difficuty) {
 	stage.hook = newStgHook();
 	stage.init = newStgSecInit('sec0', {
 		bgelem: $('.bg-stg3'),
+		bganim: newStg3BgAnim,
 		title: 'STAGE 3',
 		text: RES.st_stg3_title,
 	});
+	return stage;
 }
 
