@@ -41,11 +41,12 @@
 	<img id="front" src="res/front.png" />
 	<canvas id="bombs" from="player0L 0 97 63 64"
 		transform="colormask:White,DeepPink,DodgerBlue,SpringGreen,Black"></canvas>
-	<!-- -->
+	<!-- use these patterns as background -->
 	<canvas id="mainbg_patt" from="front 0 224 32 32" bg-css=".play"></canvas>
 	<canvas id="scbg1" from="front 80 224 16 16" bg-css=".scbg1"></canvas>
 	<canvas id="scbg2" from="front 96 224 16 16" bg-css=".scbg2"></canvas>
-	<!-- -->
+	<canvas id="logo_patt" from="front 128 128 128 128" bg-css=".logo"></canvas>
+	<!-- stg1 bg -->
 	<canvas id="tree_pattL" from="stg1bg 0 48 64 128"
 		transform="mirror:0,y" stack="y"></canvas>
 	<canvas id="tree_pattR" from="tree_pattL"
@@ -78,7 +79,6 @@
 			dc.repeatSelf(0, cv.height - rh, cv.width, rh, 0, 0);
 		})
 	</script>
-	<!-- -->
 	<canvas id="ground_patt" from="stg1bg 0 0 64 32"></canvas>
 	<canvas id="ground_pattX" class="ground_patt" from="stg1bg 64 0 16 16"></canvas>
 	<canvas id="ground_patt0" class="ground_patt" from="stg1bg 64 0 16 16"></canvas>
@@ -134,7 +134,7 @@
 			dc.repeatSelf(0, cv.height - rh, cv.width, rh, 0, 0);
 		})
 	</script>
-	<!-- stg3 -->
+	<!-- stg3 bg -->
 	<img id="stg3bg" src="res/stg3bg.png" />
 	<canvas id="stg3_gnd1" scale="2" from="stg3bg 48 0 34 34"></canvas>
 	<canvas id="stg3_gnd2" scale="2" from="stg3bg 96 0 34 34"></canvas>
@@ -186,9 +186,7 @@
 			})
 		})
 	</script>
-	<!-- -->
-	<canvas id="logo_patt" from="front 128 128 128 128" bg-css=".logo"></canvas>
-	<!-- -->
+	<!-- creating background css with toDataUrl -->
 	<script id="gen_bgcss">
 		(function(RES) {
 			/*
@@ -202,6 +200,7 @@
 			}, document.styleSheets[0]);
 		})
 	</script>
+	<!-- fill some canvas -->
 	<script id="gen_fill">
 		(function(RES) {
 			ieach($('canvas[fill-with]'), function(i, cv) {
@@ -215,7 +214,7 @@
 			})
 		})
 	</script>
-	<!-- -->
+	<!-- predefined frames -->
 	<script id="frames">
 		(function(RES) {
 			var _t = {};
@@ -423,7 +422,35 @@
 			return _t;
 		})
 	</script>
-	<!-- -->
+	<!-- path data -->
+	<script id="path">
+		(function(RES) {
+			var _t = {}, px, py;
+			px = [ 289.0000, 291.4871, 293.9646, 296.5264, 299.1865, 301.8095, 304.3419, 306.5720, 308.3281, 309.4115, 309.5326, 307.9323, 304.2901, 298.9275, 292.1941, 284.0961, 275.0194, 265.3390, 254.5708, 242.6049, 230.7947, 220.4594, 211.7473, 203.7928, 195.1450, 184.0242, 170.3047, 156.2471, 143.8316, 133.3488, 124.9875, 118.7166, 112.8136, 106.7639, 101.3582, 96.6113, 91.5299, 86.1616, 80.6570, 75.0152, 69.6112, 65.5902, 63.1142, 61.4212, 60.0489, 59.2489, 59.0167, 59.0271, 59.3274, 60.3901, 62.8355, 66.5539, 71.1331, 76.1267, 81.5210, 86.8354, 91.7015, 96.1465, 100.4320, 104.7082,];
+			py = [ 46.0000, 52.4794, 59.4428, 67.3262, 75.9989, 85.1050, 94.3881, 103.3935, 112.0092, 120.6787, 129.7307, 139.3384, 148.8354, 157.0588, 163.2260, 167.5118, 169.9836, 170.8704, 170.8188, 170.2619, 169.2804, 167.8313, 165.6173, 162.4749, 158.7617, 155.3717, 153.1626, 152.5871, 154.1525, 157.9328, 163.2417, 169.2466, 175.9969, 183.0085, 189.9010, 196.9946, 205.1844, 214.3816, 224.4499, 235.6024, 247.7896, 260.0121, 272.7309, 287.0547, 302.7754, 319.1230, 335.2127, 350.5645, 365.5082, 380.8962, 397.0706, 413.3549, 429.7201, 446.1817, 462.4964, 477.5713, 490.6602, 501.7282, 511.5860, 520.6555,];
+			_t.s0A1 = ieach(px, function(i, v, d) {
+				d.push({x:px[i]-32, y:py[i]-36, v:0.12});
+			}, []);
+			_t.s0A1.push({fy:2, v:0.12});
+			_t.s0A2 = ieach(_t.s0A1, function(i, v, d) {
+				d.push({x:GAME.rect.r+GAME.rect.l-v.x, y:v.y, v:v.v});
+			}, []);
+			_t.s0A2.push({fy:2, v:0.12});
+			
+			px = [32.0000, 45.1159, 60.0000, 75.6341, 91.0000, 105.5976, 121.0000, 138.6003, 157.0000, 174.3762, 190.0000, 203.2700, 213.0000, 218.0437, 218.0000, 212.9300, 204.0000, 192.3612, 178.0000, 161.0003, 143.0000, 125.7626, 110.0000, 96.3242, 86.0000, 80.4404, 81.0000, 87.1640, 91.0000, 87.7787, 93.0000, 127.2213, ,  211.0000,];
+			py = [99.0000, 105.9226, 114.0000, 122.8274, 132.0000, 141.0178, 149.0000, 154.7266, 156.0000, 151.2010, 142.0000, 130.3446, 116.0000, 98.6706, 80.0000, 61.9729, 46.0000, 33.1879, 24.0000, 18.7755, 18.0000, 22.0851, 31.0000, 44.1341, 59.0000, 74.0037, 93.0000, 116.7263, 128.0000, 118.4662, 133.0000, 229.7838, 467.0000,];
+			_t.s3A1 = ieach(px, function(i, v, d) {
+				d.push({x:px[i]-32, y:py[i]-36, v:0.12});
+			}, []);
+			_t.s3A1.push({fy:2, v:0.12});
+			_t.s3A2 = ieach(_t.s0A1, function(i, v, d) {
+				d.push({x:GAME.rect.r+GAME.rect.l-v.x, y:v.y, v:v.v});
+			}, []);
+			_t.s3A2.push({fy:2, v:0.12});
+			return _t;
+		})
+	</script>
+	<!-- fonts -->
 	<img id="ascii" src="res/ascii.png" />
 	<canvas id="ascii_yellow" from="ascii"
 		transform="colormap:l->rgb(255,255,64)"></canvas>
@@ -453,7 +480,7 @@
 			return _t;
 		})
 	</script>
-	<!-- -->
+	<!-- number fonts -->
 	<canvas id="num" from="ascii 0 48 256 16"></canvas>
 	<canvas id="num0" from="num"
 		transform="colormap:l->rgb(123,192,249)"></canvas>
@@ -493,45 +520,19 @@
 			return _t;
 		})
 	</script>
-	<!-- -->
-	<script id="path">
-		(function(RES) {
-			var _t = {}, px, py;
-			px = [ 289.0000, 291.4871, 293.9646, 296.5264, 299.1865, 301.8095, 304.3419, 306.5720, 308.3281, 309.4115, 309.5326, 307.9323, 304.2901, 298.9275, 292.1941, 284.0961, 275.0194, 265.3390, 254.5708, 242.6049, 230.7947, 220.4594, 211.7473, 203.7928, 195.1450, 184.0242, 170.3047, 156.2471, 143.8316, 133.3488, 124.9875, 118.7166, 112.8136, 106.7639, 101.3582, 96.6113, 91.5299, 86.1616, 80.6570, 75.0152, 69.6112, 65.5902, 63.1142, 61.4212, 60.0489, 59.2489, 59.0167, 59.0271, 59.3274, 60.3901, 62.8355, 66.5539, 71.1331, 76.1267, 81.5210, 86.8354, 91.7015, 96.1465, 100.4320, 104.7082,];
-			py = [ 46.0000, 52.4794, 59.4428, 67.3262, 75.9989, 85.1050, 94.3881, 103.3935, 112.0092, 120.6787, 129.7307, 139.3384, 148.8354, 157.0588, 163.2260, 167.5118, 169.9836, 170.8704, 170.8188, 170.2619, 169.2804, 167.8313, 165.6173, 162.4749, 158.7617, 155.3717, 153.1626, 152.5871, 154.1525, 157.9328, 163.2417, 169.2466, 175.9969, 183.0085, 189.9010, 196.9946, 205.1844, 214.3816, 224.4499, 235.6024, 247.7896, 260.0121, 272.7309, 287.0547, 302.7754, 319.1230, 335.2127, 350.5645, 365.5082, 380.8962, 397.0706, 413.3549, 429.7201, 446.1817, 462.4964, 477.5713, 490.6602, 501.7282, 511.5860, 520.6555,];
-			_t.s0A1 = ieach(px, function(i, v, d) {
-				d.push({x:px[i]-32, y:py[i]-36, v:0.12});
-			}, []);
-			_t.s0A1.push({fy:2, v:0.12});
-			_t.s0A2 = ieach(_t.s0A1, function(i, v, d) {
-				d.push({x:GAME.rect.r+GAME.rect.l-v.x, y:v.y, v:v.v});
-			}, []);
-			_t.s0A2.push({fy:2, v:0.12});
-			px = [32.0000, 45.1159, 60.0000, 75.6341, 91.0000, 105.5976, 121.0000, 138.6003, 157.0000, 174.3762, 190.0000, 203.2700, 213.0000, 218.0437, 218.0000, 212.9300, 204.0000, 192.3612, 178.0000, 161.0003, 143.0000, 125.7626, 110.0000, 96.3242, 86.0000, 80.4404, 81.0000, 87.1640, 91.0000, 87.7787, 93.0000, 127.2213, ,  211.0000,];
-			py = [99.0000, 105.9226, 114.0000, 122.8274, 132.0000, 141.0178, 149.0000, 154.7266, 156.0000, 151.2010, 142.0000, 130.3446, 116.0000, 98.6706, 80.0000, 61.9729, 46.0000, 33.1879, 24.0000, 18.7755, 18.0000, 22.0851, 31.0000, 44.1341, 59.0000, 74.0037, 93.0000, 116.7263, 128.0000, 118.4662, 133.0000, 229.7838, 467.0000,];
-			_t.s3A1 = ieach(px, function(i, v, d) {
-				d.push({x:px[i]-32, y:py[i]-36, v:0.12});
-			}, []);
-			_t.s3A1.push({fy:2, v:0.12});
-			_t.s3A2 = ieach(_t.s0A1, function(i, v, d) {
-				d.push({x:GAME.rect.r+GAME.rect.l-v.x, y:v.y, v:v.v});
-			}, []);
-			_t.s3A2.push({fy:2, v:0.12});
-			return _t;
-		})
-	</script>
+	<!-- strings -->
 	<script type="text/html" id="st_ask_continue"><strong>注意：</strong>以下不是红魔乡的内容<br />
 		继续玩可能出现节操过量流失或者弹幕过敏症状，作者不对产生的后果负任何责任。<br />
 		同意请解除暂停继续，不同意请回到标题画面</script>
 	<script type="text/html" id="st_bomb_sc">灵符「梦想封印」</script>
 	<!-- stage 1 -->
+	<script type="text/html" id="st_stg1_title">梦幻夜行绘卷  ~ Mystic Flier</script>
 	<script type="text/html" id="st_stg1_sc0">夜符「月光」</script>
 	<script type="text/html" id="st_stg1_sc1">夜符「夜雀」</script>
 	<script type="text/html" id="st_stg1_sc2">闇符「境界线」</script>
 	<script type="text/html" id="st_stg1_sc_ex1">闇符「镜界限」</script>
 	<script type="text/html" id="st_stg1_sc_ex2">闇符「铁十字军」</script>
 	<script type="text/html" id="st_stg1_sc_ex3">闇符「恶灵缠身」</script>
-	<script type="text/html" id="st_stg1_title">梦幻夜行绘卷  ~ Mystic Flier</script>
 	<script type="text/html" id="st_stg1_diag1">感觉真不错呢</script>
 	<script type="text/html" id="st_stg1_diag2">每次都在白天出来所以妖怪很少见<br />所以，这次才试着在夜里出来的……</script>
 	<script type="text/html" id="st_stg1_diag3">不过该往哪边走都搞不清楚了<br />这么暗</script>
@@ -566,13 +567,13 @@
 	<script type="text/html" id="st_stg1_diag32">不管了，那种事情还是先把你打倒，然后再去确认吧</script>
 	<script type="text/html" id="st_stg1_diag33">后悔药什么的，即使是竹林里的那家店也是没有卖的哦</script>
 	<!-- stage 2 -->
+	<script type="text/html" id="st_stg2_title">湖上的妖精  ~ Water Magus</script>
 	<script type="text/html" id="st_stg2_sc1">雹符「冰雹暴风」</script>
 	<script type="text/html" id="st_stg2_sc2">冻符「完美冻结」</script>
 	<script type="text/html" id="st_stg2_sc3">雪符「钻石风暴」</script>
 	<script type="text/html" id="st_stg2_sc_ex1">冻符「一日之寒」</script>
 	<script type="text/html" id="st_stg2_sc_ex2">雪符「冻空雷暴」</script>
 	<script type="text/html" id="st_stg2_sc_ex3">雪符「冰牢残雪」</script>
-	<script type="text/html" id="st_stg2_title">湖上的妖精  ~ Water Magus</script>
 	<script type="text/html" id="st_stg2_diag1">这座湖原来是如此宽广的吗？</script>
 	<script type="text/html" id="st_stg2_diag2">浓雾遮天视野不良啊。</script>
 	<script type="text/html" id="st_stg2_diag3">难不成我是路痴？</script>
@@ -597,6 +598,8 @@
 	<script type="text/html" id="st_stg2_diag22">老娘挡道的本事也是最强的！</script>
 	<script type="text/html" id="st_stg2_diag23">这个妖精，其实是吃不好的牛肉吃坏脑子了吧</script>
 	<script type="text/html" id="st_stg2_diag24">总之，挡路的话还是要处理掉呢</script>
+	<!-- stage 3 -->
+	<script type="text/html" id="st_stg3_title">红色之境  ~ Scalet Land</script>
 	<!-- sfx -->
 	<audio preload oncanplaythrough="this.complete=true" class="se" id="se_graze" src="res/se_graze.mp3" replay-queue="4"></audio>
 	<audio preload oncanplaythrough="this.complete=true" class="se" id="se_pldead00" src="res/se_pldead00.mp3"></audio>
@@ -966,7 +969,10 @@
 		</form>
 	</div>
 </div>
-<script src="game.js"></script>
+<script src="js/game.js"></script>
+<script src="js/stg1.js"></script>
+<script src="js/stg2.js"></script>
+<script src="js/stg3.js"></script>
 <script>
 ieach($('form[eval-radios]'), function(i, e) {
 	e.action = 'javascript:evalRadioVal("eval_radio'+i+'")';
