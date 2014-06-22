@@ -265,8 +265,22 @@ function newStage3(difficuty) {
 			[stg3Sec1, ['s3A4', 12], 2000, ],
 			[stg3Sec3, [500, 4], 3000],
 			[stg3Sec2, [[0.1, 0.2, 0.3], 300], 6000, ],
-		], duration: 8000 },
+		], duration: 8000, next:'bossIn' },
 	], newStgSecNormal, 'sec');
+	newStgSecsFromList(stage, [
+		{
+			name: 'bossIn',
+			boss: 'meiling',
+			pathnodes: [
+				{ fx:0.8, fy:0, v:0.2, },
+				{ fx:0.5, fy:0.3, }
+			],
+			duration: 2000,
+			no_countdown: true,
+			no_lifebar: true,
+			invinc: true,
+		},
+	], newStgSecBoss, 'boss');
 	return stage;
 }
 

@@ -40,6 +40,9 @@
 	<img id="stg2bg" src="res/stg2bg.png" />
 	<img id="stg3enm" src="res/stg3enm.png" />
 	<img id="front" src="res/front.png" />
+	<canvas id="dotmeiling" from="stg3enm 144 208 48 48" transform="scale:1 0.5"></canvas>
+	<canvas id="dotmeiling2" from="dotmeiling" transform="offset:0 -12"></canvas>
+	<canvas id="effmeiling" from="dotmeiling2" transform="rotate:{{range(180, 0, 30)}}"></canvas>
 	<canvas id="bombs" from="player0L 0 97 63 64"
 		transform="colormask:White,DeepPink,DodgerBlue,SpringGreen,Black"></canvas>
 	<!-- use these patterns as background -->
@@ -426,6 +429,13 @@
 			_t.Enemy3B = array(4, function(i) {
 				return extend({ res:'stg3enm', sy:160, sw:32, sh:32, w:32, h:32 }, { sx:128+32*i });
 			})
+
+			_t.Meiling = [
+				{ res:'stg3enm', sx:0, sy:208, sw:48, sh:48, w:48, h:48 },
+			]
+			_t.EffMeiling = array(RES.effmeiling.width/48, function(i) {
+				return { res:'effmeiling', sx:i*48, sy:0, sw:48, sh:48, w:48, h:48 };
+			});
 
 			return _t;
 		})

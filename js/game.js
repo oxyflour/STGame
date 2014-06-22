@@ -2241,6 +2241,25 @@ function newBoss(name) {
 		}, boss.data);
 	}
 	else if (name == 'meiling') {
+		UTIL.addFrameAnim(boss, RES.frames.Meiling);
+		boss.anim(50, function(d) {
+			if (d.age > 100 && (d.x != d.x0 || d.y != d.y0) && (this.is_moving = true))
+				newEffectPiece(boss, 'w');
+			else if (this.is_moving && !(this.is_moving = false)) {
+				var obj = SPRITE.newObj('Basic', {
+					x: d.x,
+					y: d.y,
+					opacity: 0.5,
+					scale: 1,
+					frames: randin(RES.frames.EffMeiling),
+					duration: 500,
+					dh: 1/200,
+				})
+				obj.runBasic = function(dt, d) {
+					d.scale += 0.0025 * dt;
+				}
+			}
+		}, boss.data)
 	}
 
 	return boss;
@@ -2463,7 +2482,7 @@ function newSecList() {
 }
 function newStgSecInit(next, para) {
 	return {
-		run: UTIL.newTimeRunner(3000, 'sec0'),
+		run: UTIL.newTimeRunner(3000, next),
 		init: function(d) {
 			if (GAME.stgbg) GAME.stgbg.die();
 			GAME.stgbg = newBackground(para.bgelem);
