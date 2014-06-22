@@ -866,9 +866,9 @@ var GAME = (function() {
 		SPRITE.anim.run(dt);
 		STORY.run(dt);
 	};
-	_t.draw = function() {
+	_t.draw = function(dt) {
 		DC.clear();
-		SPRITE.layers.run();
+		SPRITE.layers.run(dt);
 	};
 	_t.keyste = {};
 	var chars = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
@@ -1117,10 +1117,11 @@ var STATICS = {
 		uiTick.run(dt);
 	}, 5);
 
-	var fpsCounter = newFPSCounter();
+	var fpsCounter = newFPSCounter(), fpsTick = Date.now();
 	requestAnimationFrame(function render(t) {
-		GAME.fps = fpsCounter(t);
-		GAME.draw();
+		var dt = t - fpsTick;
+		GAME.fps = fpsCounter(fpsTick = t);
+		GAME.draw(dt);
 		requestAnimationFrame(render);
 	});
 	
