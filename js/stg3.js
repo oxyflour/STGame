@@ -128,6 +128,7 @@ function newStage3(difficuty) {
 		text: RES.st_stg3_title,
 	});
 	newStgSecsFromList(stage, [
+		{ init:stg3Sec1, args:['s3A1', 16], duration:12000, bgm:RES.bgm_stg2a, },
 	], newStgSecNormal, 'sec');
 	return stage;
 }

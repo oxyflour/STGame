@@ -131,6 +131,11 @@ function keep_outside(x, min, max) {
 function interp(x0, x1, f) {
 	return x0 * (1-f) + x1 * f;
 }
+function bezier(xs, f) {
+	return xs.length > 1 ? bezier(array(xs.length - 1, function(i) {
+		return interp(xs[i], xs[i+1], f)
+	}), f) : xs[0];
+}
 function squa_sum(x, y) {
 	return x*x + y*y;
 }
