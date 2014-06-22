@@ -102,10 +102,78 @@ function stg3Sec1(pth, count, offset, speed, rand, life) {
 			});
 			STORY.timeout(function() {
 				stg3Danns1(obj, speed, rand);
+			}, random(3000));
+		});
+	}, 250, null, count);
+}
+function stg3Sec2(range, interval) {
+	STORY.timeout(function (d, n) {
+		var x = range.pop();
+		ieach([1, -1], function(i, k) {
+			var obj = SPRITE.newObj('Enemy', {
+				x: UTIL.getGamePosX(0.5 + k*x),
+				y: GAME.rect.t,
+				vx: 0,
+				vy: 0.1,
+				frames: RES.frames.Enemy3A,
+			})
+			obj.anim(50, function(d) {
+				if (d.age < 500)
+					;
+				else if (d.age < 2000) {
+					decrease_object_speed(d, 0.9);
+					if (d.age > 1000 && !d.is_firing && (d.is_firing = true))
+						stg3Danns2(this);
+				}
+				else {
+					d.vx = random(-0.1, 0.1);
+					d.vy = random(0.05, 0.15);
+					return true;
+				}
+			}, obj.data)
+		})
+	}, interval || 1000, null, range.length)
+}
+function stg3Sec3(interval, count) {
+	STORY.timeout(function (d, n) {
+		var obj = SPRITE.newObj('Enemy', {
+			x: UTIL.getGamePosX(random(1)),
+			y: GAME.rect.t,
+			vx: 0,
+			vy: 0.1,
+			frames: RES.frames.Enemy3B,
+		})
+		obj.anim(50, function(d) {
+			if (d.age < 500)
+				;
+			else if (d.age < 2000) {
+				decrease_object_speed(d, 0.9);
+				if (d.age > 1000 && !d.is_firing && (d.is_firing = true))
+					stg3Danns3(this);
+			}
+			else {
+				d.vy -= 0.01;
+			}
+		}, obj.data)
+	}, interval || 1000, null, count || 99)
+}
+function stg3Sec4(pth, count, offset, interval, speed, rand, life) {
+	STORY.timeout(function (d, n) {
+		ieach(offset || [[0, 0]], function(i, v) {
+			var obj = SPRITE.newObj('Enemy', {
+				life: life || 1,
+				frames: RES.frames.Enemy00,
+				pathnodes: UTIL.pathOffset(RES.path[pth], v[0], v[1]),
+			});
+			STORY.timeout(function() {
+				obj.anim(interval || 1500, function() {
+					stg3Danns4(obj, speed, rand);
+				});
 			}, random(1500));
 		});
 	}, 250, null, count);
 }
+
 function stg3Danns1(from, speed, rand) {
 	var to = UTIL.getOneAlive('Player');
 	array(2, function(j) {
@@ -115,6 +183,45 @@ function stg3Danns1(from, speed, rand) {
 				color: 'b',
 				frames: RES.frames.LongB[6],
 			})
+		})
+	})
+}
+function stg3Danns2(from) {
+	var f0 = random(PI2);
+	range(1, 0, 1/16, function(f) {
+		newDannmaku(from, null, 0, f0+f*PI2, 0.1, 0, {
+			color: 'b',
+			frames: RES.frames.TamaB[6],
+		})
+	})
+	var pl = UTIL.getOneAlive('Player'),
+		to = pl && { data:{ x:pl.data.x, y:pl.data.y, } };
+	STORY.timeout(function(d, n) {
+		range(0.5001, -0.5, 1/4, function(f) {
+			newDannmaku(from, to, 0, f, 0.3-n*0.015, 0, {
+				color: 'b',
+				frames: RES.frames.LongB[6],
+			})
+		})
+	}, 50, null, 15)
+}
+function stg3Danns3(from) {
+	var to = UTIL.getOneAlive('Player');
+	ieach([0.10, 0.12, 0.14], function(i, v) {
+		range(1, 0, 1/30, function(f) {
+			newDannmaku(from, to, 0, f*PI2, v, 0, {
+				color: 'r',
+				frames: RES.frames.TamaA[2],
+			})
+		})
+	})
+}
+function stg3Danns4(from) {
+	var to = UTIL.getOneAlive('Player');
+	range(0.5001, -0.5, 1/6, function(f) {
+		newDannmaku(from, to, 0, f*0.2, 0.15, 0, {
+			color: 'r',
+			frames: RES.frames.TamaSmallX[2],
 		})
 	})
 }
@@ -134,7 +241,31 @@ function newStage3(difficuty) {
 			[stg3Sec1, ['s3A2', 16], 2000, ],
 			[stg3Sec1, ['s3A3', 12], 6000, ],
 			[stg3Sec1, ['s3A4', 12], 7000, ],
-		], duration: 13000 },
+		], duration: 15000 },
+		{ init:stg3Sec2, args:[[0.4, 0.3, 0.2, 0.1], 1000], duration:6000, },
+		{ init:stg3Sec2, args:[[0.1, 0.2, 0.3], 500], duration:6000, },
+		{ init:newSecList, args:[
+			[stg3Sec3],
+			[stg3Sec4, ['s0A2', 7, [[0, 0], [30, 0]]]],
+			[stg3Sec4, ['s0A1', 7, [[0, 0], [-30, 0]]], 2000],
+		], duration: 8000 },
+		{ init:newSecList, args:[
+			[stg3Sec3],
+			[stg3Sec4, ['s0A2', 7, [[0, 0], [30, 0]]]],
+			[stg3Sec4, ['s0A1', 7, [[0, 0], [-30, 0]]], 2000],
+		], duration: 8000 },
+		{ init:newSecList, args:[
+			[stg3Sec1, ['s3A1', 16], ],
+			[stg3Sec1, ['s3A2', 16], 2000, ],
+			[stg3Sec3, [500, 4], 3000],
+			[stg3Sec2, [[0.1, 0.2, 0.3], 300], 6000, ],
+		], duration: 8000 },
+		{ init:newSecList, args:[
+			[stg3Sec1, ['s3A3', 12], ],
+			[stg3Sec1, ['s3A4', 12], 2000, ],
+			[stg3Sec3, [500, 4], 3000],
+			[stg3Sec2, [[0.1, 0.2, 0.3], 300], 6000, ],
+		], duration: 8000 },
 	], newStgSecNormal, 'sec');
 	return stage;
 }

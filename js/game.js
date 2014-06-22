@@ -18,7 +18,10 @@ function str_endwith(s, e) {
 }
 function range(e, b, d, fn) {
 	var ls = [];
-	for (var i = b||0, k = d||1; i < e; i += k) {
+	b = b || 0;
+	d = d || 1;
+	d = (b < e && d > 0) || (b > e && d < 0) ? d : -d;
+	for (var i = b; (b < e && i < e) || (b > e && i > e); i += d) {
 		ls.push(fn ? fn(i) : i);
 	}
 	return ls;
@@ -2165,7 +2168,6 @@ function newBoss(name) {
 		r: 24,
 		life: 400,
 		frtick: 150,
-		frames: frames,
 		respawn: Inf,
 		boss: name,
 	});
@@ -2237,6 +2239,8 @@ function newBoss(name) {
 			d.frame.w = d.frame.sw * d.ph;
 			d.frame.h = d.frame.sh * (2 - d.ph);
 		}, boss.data);
+	}
+	else if (name == 'meiling') {
 	}
 
 	return boss;
@@ -2737,7 +2741,7 @@ function newStgHook() {
 				})
 				if (GAME.double_player_mode && !(GAME.double_player_mode = false))
 					newPlayer('p2');
-				if (GAME.many_lives_mode && !(GAME.many_lives_mode = false)) {
+				if (1 || GAME.many_lives_mode && !(GAME.many_lives_mode = false)) {
 					STATICS.player = 7;
 					STATICS.bomb_reset = 7;
 					STATICS.bomb = STATICS.bomb_reset;
