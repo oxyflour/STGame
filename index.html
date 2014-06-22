@@ -413,6 +413,13 @@
 				{ res:'powerup', sx:0, sy:0, sw:50, sh:8, w:50, h:8 },
 			];
 
+			_t.Cloud1 = [
+				{ res:'stg3bg', sx:0, sy:81, sw:148, sh:48, w:148, h:48 },
+			]
+			_t.Cloud2 = [
+				{ res:'stg3bg', sx:148, sy:80, sw:108, sh:32, w:108, h:32 },
+			]
+
 			return _t;
 		})
 	</script>
@@ -1119,7 +1126,7 @@ function changeGameState(k) {
 
 function loadAndStart() {
 	GAME.reset();
-	GAME.load((GAME.begin_stage || newStage1)());
+	GAME.load((GAME.begin_stage || newStage3)());
 	GAME.start('init');
 	if (GAME.begin_stage)
 		GAME.begin_stage = 0;

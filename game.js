@@ -454,7 +454,7 @@ var DC = (function(canv) {
 	canv.width = canv.scrollWidth;
 	canv.height = canv.scrollHeight;
 	_t.clear = function() {
-		_t.clearRect(0, 0, canv.width, canv.height);
+		this.clearRect(0, 0, canv.width, canv.height);
 	}
 	_t.drawImageInt = function(i, sx, sy, sw, sh, dx, dy, dw, dh) {
 		var f = Math.floor;
@@ -467,7 +467,7 @@ var DC = (function(canv) {
 		dw = f(dw);
 		dh = f(dh);
 		if (sw > 0 && sh > 0)
-			_t.drawImage(i, sx, sy, sw, sh, dx, dy, dw, dh);
+			this.drawImage(i, sx, sy, sw, sh, dx, dy, dw, dh);
 	}
 	_t.font = '20px Arial';
 	_t.textAlign = 'center';
@@ -3547,11 +3547,6 @@ function newStg3BgAnim(bg) {
 		rotate: [30, 60],
 	}
 	updateBgImg(e, 0);
-
-	var cv = $e('bg_stg3_dot'),
-		dc = cv.getContext('2d');
-	cv.width = parseFloat($style(cv, 'width'));
-	cv.height = parseFloat($style(cv, 'height'));
 	bg.anim(50, function(d) {
 		var age = d.age,
 			begin  =  50000, end  =  70000,
@@ -3574,7 +3569,13 @@ function newStg3BgAnim(bg) {
 			updateBgImg(e, f);
 			mask.style.opacity = f;
 		}
+	}, bg.data);
 
+	var cv = $e('bg_stg3_dot'),
+		dc = cv.getContext('2d');
+	cv.width = parseFloat($style(cv, 'width'));
+	cv.height = parseFloat($style(cv, 'height'));
+	bg.anim(50, function(d) {
 		dc.clearRect(0, 0, cv.width, cv.height);
 		ieach(gnd.towers, function(i, v) {
 			var py = v.py + gnd.offsetY - e.oriy,
@@ -3595,8 +3596,34 @@ function newStg3BgAnim(bg) {
 					r = v.r * 500/Math.sqrt(x*x + y*y + z*z);
 				dc.drawImage(f, 0, 0, f.width, f.height, v.x-r, v.y-r, r*2, r*2);
 			}
-		});
-	}, bg.data);
+		})
+	}, bg.data)
+
+	bg.anim(1000, function(d) {
+		if (random(1) > 0.5) {
+			var obj = SPRITE.newObj('Circle', {
+				r: 80,
+				x: random(GAME.rect.l, GAME.rect.r),
+				y: GAME.rect.t,
+				vx: 0,
+				vy: random(0.05, 0.12),
+				frames: randin([RES.frames.Cloud1, RES.frames.Cloud2]),
+			})
+			obj.drawFrame = function(dc, d) {
+				var f = d.frame,
+					w = f.w * d.scale,
+					h = f.h * d.scale;
+				dc.drawImage(RES[f.res],
+					f.sx, f.sy, f.sw, f.sh,
+					d.x-w/2, d.y-h/2, w, h);
+			}
+			obj.anim(50, function(d) {
+				d.scale += 0.015;
+			}, obj.data)
+		}
+		if (d.age > 50000)
+			return true;
+	}, bg.data)
 }
 function killCls() {
 	ieach(arguments, function(i, c) {
