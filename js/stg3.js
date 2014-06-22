@@ -109,8 +109,9 @@ function stg3Sec1(pth, count, offset, speed, rand, life) {
 function stg3Danns1(from, speed, rand) {
 	var to = UTIL.getOneAlive('Player');
 	array(2, function(j) {
+		var f0 = random(PI2);
 		range(1, 0, 1/10, function(f) {
-			newDannmaku(from, null, 10*j, f+random(0.1), 0.1+0.02*j, 0, {
+			newDannmaku(from, null, 10*j, f*PI2+f0+random(0.1), 0.1+0.02*j, 0, {
 				color: 'b',
 				frames: RES.frames.LongB[6],
 			})
@@ -128,7 +129,12 @@ function newStage3(difficuty) {
 		text: RES.st_stg3_title,
 	});
 	newStgSecsFromList(stage, [
-		{ init:stg3Sec1, args:['s3A1', 16], duration:12000, bgm:RES.bgm_stg2a, },
+		{ init:newSecList, args:[
+			[stg3Sec1, ['s3A1', 16], ],
+			[stg3Sec1, ['s3A2', 16], 2000, ],
+			[stg3Sec1, ['s3A3', 12], 6000, ],
+			[stg3Sec1, ['s3A4', 12], 7000, ],
+		], duration: 13000 },
 	], newStgSecNormal, 'sec');
 	return stage;
 }
