@@ -443,14 +443,14 @@
 	<!-- path data -->
 	<script id="path">
 		(function(RES) {
-			function pathFromBezier(bezs) {
+			function pathFromBezier(bezs, speed) {
 				// bezs: array of [x1, y1, cx1, cy1, cx2, cy2, x2, y2, n]
 				return ieach(bezs, function(i, v, d) {
 					range(1-1e-5, 0, Math.abs(1/v[8]), function(f) {
 						f = v[8] < 0 ? 1-f : f;
 						var x = bezier([v[0], v[2], v[4], v[6]], f),
 							y = bezier([v[1], v[3], v[5], v[7]], f);
-						d.push({ x:x-32, y:y-16, v:0.12 });
+						d.push({ x:x-32, y:y-16, v:speed });
 					})
 				}, [])
 			}
@@ -465,7 +465,7 @@
 				[300, 12, 342, 116, 289, 163, 223, 137, 10],
 				[223, 137, 134, 100, 36, 191, 81, 304, 10],
 				[81, 304, 120, 451, 130, 476, 167, 581, 10],
-			]);
+			], 0.12);
 			_t.s0A2 = pathFlipFrom(_t.s0A1);
 
 			_t.s3A1 = pathFromBezier([
@@ -473,13 +473,13 @@
 				[100, 36, 128, -10, 248, 35, 207, 123, -10],
 				[99, 141, 74, 100, 73, 72, 100, 36, -10],
 				[99, 141, 153, 270, 236, 456, 295, 582, 10],
-			]);
+			], 0.15);
 			_t.s3A2 = pathFlipFrom(_t.s3A1);
 
 			_t.s3A3 = pathFromBezier([
 				[28, 142, 83, 51, 184, -2, 257, 106, 10],
 				[257, 106, 280, 144, 440, 424, 508, 555, 20],
-			]);
+			], 0.15);
 			_t.s3A4 = pathFlipFrom(_t.s3A3);
 			return _t;
 		})
