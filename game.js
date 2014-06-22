@@ -704,7 +704,7 @@ var SPRITE = (function() {
 	}
 	function draw() {
 		if (!(this.finished = this.obj.finished))
-			this.obj.draw();
+			this.obj.draw(DC);
 	}
 	var _t = {
 		cls: newGroupAnim(),
@@ -1157,7 +1157,7 @@ return proto = {
 			this.finished = true;
 	},
 	drawBasic: undefined,
-	drawText: function(d) {
+	drawText: function(dc, d) {
 		var t = d.text;
 		if (t.text && t.res && t.map) {
 			var m = t.map,
@@ -1165,22 +1165,22 @@ return proto = {
 				h = m.ch;
 			ieach(t.text, function(i, c) {
 				var pos = m[c];
-				DC.drawImageInt(RES[t.res], pos.x, pos.y, m.cw, m.ch,
+				dc.drawImageInt(RES[t.res], pos.x, pos.y, m.cw, m.ch,
 					d.x - w/2 + m.cw*i, d.y - h/2, m.cw, m.ch);
 			});
 		}
 		else if (t.text) {
 			if (t.font)
-				DC.font = t.font;
+				dc.font = t.font;
 			if (t.color)
-				DC.fillStyle = t.color;
-			DC.fillText(t.text, d.x, d.y);
+				dc.fillStyle = t.color;
+			dc.fillText(t.text, d.x, d.y);
 		}
 		else {
-			DC.fillText(t, d.x, d.y);
+			dc.fillText(t, d.x, d.y);
 		}
 	},
-	drawFrame: function(d) {
+	drawFrame: function(dc, d) {
 		var f = d.frame,
 			w = (f.w || f.sw) * d.scale,
 			h = (f.h || f.sh) * d.scale;
@@ -1189,32 +1189,32 @@ return proto = {
 		if (f.rotate) {
 			var t = +f.rotate===f.rotate ? f.rotate :
 				PI*1.5 + Math.atan2(d.vy, d.vx);
-			DC.translate(d.x, d.y);
-			DC.rotate(t);
-			DC.drawImageInt(RES[f.res],
+			dc.translate(d.x, d.y);
+			dc.rotate(t);
+			dc.drawImageInt(RES[f.res],
 				f.sx, f.sy, f.sw, f.sh,
 				-w/2, -h/2, w, h);
 		}
-		else DC.drawImageInt(RES[f.res],
+		else dc.drawImageInt(RES[f.res],
 			f.sx, f.sy, f.sw, f.sh,
 			d.x-w/2, d.y-h/2, w, h);
 	},
-	draw: function() {
+	draw: function(dc) {
 		var d = this.data;
 		if (d.ph > 0) {
-			DC.save();
+			dc.save();
 			if (d.ph < 1 || d.opacity < 1)
-				DC.globalAlpha = d.ph*d.opacity;
+				dc.globalAlpha = d.ph*d.opacity;
 			if (d.blend)
-				DC.globalCompositeOperation = d.blend;
+				dc.globalCompositeOperation = d.blend;
 
-			if (!this.drawBasic || this.drawBasic(d)) {
+			if (!this.drawBasic || this.drawBasic(dc, d)) {
 				if (d.frame)
-					this.drawFrame(d);
+					this.drawFrame(dc, d);
 				else if (d.text)
-					this.drawText(d);
+					this.drawText(dc, d);
 			}
-			DC.restore();
+			dc.restore();
 		}
 	},
 	anim: function(t, fn, d, id) {
@@ -1301,20 +1301,20 @@ return proto = {
 		this.checkPosition(rt, sp);
 	},
 	drawCircle: undefined,
-	drawRound: function(d) {
+	drawRound: function(dc, d) {
 		if (d.color)
-			DC.fillStyle = d.color;
-		DC.beginPath();
-		DC.arc(d.x, d.y, d.r, 0, PI2);
-		DC.closePath();
-		DC.fill();
+			dc.fillStyle = d.color;
+		dc.beginPath();
+		dc.arc(d.x, d.y, d.r, 0, PI2);
+		dc.closePath();
+		dc.fill();
 	},
-	drawBasic: function(d) {
-		if (!this.drawCircle || this.drawCircle(d)) {
+	drawBasic: function(dc, d) {
+		if (!this.drawCircle || this.drawCircle(dc, d)) {
 			if (d.frame)
 				return true;
 			else
-				this.drawRound(d);
+				this.drawRound(dc, d);
 		}
 	},
 	space: {
@@ -1453,9 +1453,9 @@ return proto = {
 		if (rt.b > gt.b)
 			d.y = gt.b - d.r;
 	},
-	drawBasic: function(d) {
+	drawBasic: function(dc, d) {
 		if (this.is_invinc)
-			DC.globalAlpha = 0.5;
+			dc.globalAlpha = 0.5;
 		var f = d.frame;
 		f.w = f.sw * d.ph;
 		f.h = f.sh * (2 - d.ph);
@@ -1653,8 +1653,8 @@ return proto =  {
 
 SPRITE.newCls('Drop', 'Circle', function(from, proto) {
 return proto = {
-	drawBasic: function(d) {
-		if (d.y < GAME.rect.t && d.frame_small) this.drawFrame({
+	drawBasic: function(dc, d) {
+		if (d.y < GAME.rect.t && d.frame_small) this.drawFrame(dc, {
 			x: d.x,
 			y: GAME.rect.t + 8,
 			scale: 1,
@@ -1942,7 +1942,7 @@ function newBomb(player) {
 	});
 	bg.draw = return_nothing;
 	bg.data.elem.object = bg;
-	bg.drawCircle = function(d) {
+	bg.drawCircle = function(dc, d) {
 		var p = d.parent;
 		d.x = p.data.x;
 		d.y = p.data.y;
@@ -1995,7 +1995,7 @@ function newShield(bomb) {
 		parent: bomb,
 		damage_pt: 10,
 	});
-	sh.drawCircle = function(d) {
+	sh.drawCircle = function(dc, d) {
 		var ph = ease_out(d.ph);
 		d.r = 30 + ph * 20;
 		d.scale = (10 + ph * 40) / 30;
@@ -2306,13 +2306,13 @@ function newLaser(from, x, y, dx, dy, width, ext) {
 	obj.runCircle = function(dt, d) {
 		d.damage_pt = this.is_creating || this.is_dying ? 0 : 1;
 	};
-	obj.drawCircle = function(d) {
+	obj.drawCircle = function(dc, d) {
 		var f = d.frame,
 			w = f.w * d.scale * d.r / 8 * (this.is_creating ? Math.max(d.ph*3-2, 0.1) : d.ph),
 			h = sqrt_sum(d.dx, d.dy);
-		DC.translate(d.x, d.y);
-		DC.rotate(-Math.atan2(d.dx, d.dy));
-		DC.drawImage(RES[f.res],
+		dc.translate(d.x, d.y);
+		dc.rotate(-Math.atan2(d.dx, d.dy));
+		dc.drawImage(RES[f.res],
 			f.sx, f.sy, f.sw, f.sh,
 			-w/2, 0, w, h);
 	};
@@ -2353,16 +2353,16 @@ function newBoss(name) {
 	boss.effects = array(3, function(i) {
 		return newBossGadgets(boss);
 	});
-	boss.drawBasic = function(d) {
+	boss.drawBasic = function(dc, d) {
 		ieach(boss.effects, function(i, v) {
 			if (v.data.z < 0)
-				v.drawEffects();
+				v.drawEffects(dc);
 		});
 		if (d.frame)
-			this.drawFrame(d);
+			this.drawFrame(dc, d);
 		ieach(boss.effects, function(i, v) {
 			if (v.data.z >= 0)
-				v.drawEffects();
+				v.drawEffects(dc);
 		});
 	}
 
@@ -2460,8 +2460,8 @@ function newLifeBar(boss) {
 		y: GAME.rect.t+8,
 		frame: { res:'front', sx:0, sy:144, sw:48, sh:16, w:48, h:16 },
 	});
-	bar.drawBasic = function(d) {
-		this.drawText({
+	bar.drawBasic = function(dc, d) {
+		this.drawText(dc, {
 			text: {
 				text: '0',
 				res: 'ascii_yellow',
@@ -2483,13 +2483,13 @@ function newLifeBar(boss) {
 			else
 				len = len * f;
 		}
-		DC.beginPath();
-		DC.moveTo(x, y);
-		DC.lineTo(x + len, y);
-		DC.closePath();
-		DC.strokeStyle = 'white';
-		DC.lineWidth = 5;
-		DC.stroke();
+		dc.beginPath();
+		dc.moveTo(x, y);
+		dc.lineTo(x + len, y);
+		dc.closePath();
+		dc.strokeStyle = 'white';
+		dc.lineWidth = 5;
+		dc.stroke();
 		return true;
 	};
 	return bar;
@@ -3450,7 +3450,7 @@ function newEffectPiece(from, color, scale, duration) {
 		duration: duration || 100,
 	})
 	p.data.scale0 = p.data.scale;
-	p.drawCircle = function(d) {
+	p.drawCircle = function(dc, d) {
 		d.scale = (ease_in(d.ph) * 1.5 + 0.5) * d.scale0;
 		return true;
 	};
@@ -3640,7 +3640,7 @@ function newStgSecInit(next, para) {
 					},
 					sy: UTIL.getGamePosY(0.5) + 40,
 				});
-				d.text.drawBasic = function(d) {
+				d.text.drawBasic = function(dc, d) {
 					if (!this.is_dying)
 						d.y = d.sy - ease_out(d.ph)*10;
 					return true;
