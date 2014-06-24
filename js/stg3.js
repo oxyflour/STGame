@@ -180,6 +180,7 @@ function stg3Danns1(from, speed, rand) {
 		var f0 = random(PI2);
 		range(1, 0, 1/10, function(f) {
 			newDannmaku(from, null, 10*j, f*PI2+f0+random(0.1), 0.1+0.02*j, 0, {
+				r: 3,
 				color: 'b',
 				frames: RES.frames.LongB[6],
 			})
@@ -199,6 +200,7 @@ function stg3Danns2(from) {
 	STORY.timeout(function(d, n) {
 		range(0.5001, -0.5, 1/4, function(f) {
 			newDannmaku(from, to, 0, f, 0.3-n*0.015, 0, {
+				r: 3,
 				color: 'b',
 				frames: RES.frames.LongB[6],
 			})
@@ -226,10 +228,51 @@ function stg3Danns4(from) {
 	})
 }
 
+function meilingFire1B(from) {
+	var x = from.data.x,
+		y = from.data.y;
+	STORY.timeout(function(d, n) {
+		range(1, 0, 1/30, function(f) {
+			newDannmaku({
+				data: {
+					x: x+random(-10, 10),
+					y: y+random(-10, 10),
+				},
+			}, null, 0, f*PI2+random(0.5), random(0.05, 0.15), 0, {
+				color: 'b',
+				frames: RES.frames.TamaB[6],
+			})
+		})
+		y += 10;
+	}, 8000/60, null, 7)
+}
+function meilingFire2R(from) {
+	var to = UTIL.getOneAlive('Player');
+	array(2, function(i) {
+		range(1, 0, 1/40, function(f) {
+			newDannmaku(from, to, 0, f*PI2, 0.1+i*0.02, 0, {
+				r: 3,
+				color: 'r',
+				frames: RES.frames.LongA[2],
+			})
+		})
+	})
+}
+function meilingFire3R(from) {
+	var to = UTIL.getOneAlive('Player');
+	range(1, 0, 1/100, function(f) {
+		newDannmaku(from, to, 0, f*PI2, 0.06, 0, {
+			color: 'r',
+			frames: RES.frames.TamaA[2],
+		})
+	})
+	meilingFire2R(from);
+}
+
 function newStage3(difficuty) {
 	var stage = {};
 	stage.hook = newStgHook();
-	stage.init = newStgSecInit('sec0', {
+	stage.init = newStgSecInit('bossIn', {
 		bgelem: $('.bg-stg3'),
 		bganim: newStg3BgAnim,
 		title: 'STAGE 3',
@@ -268,6 +311,10 @@ function newStage3(difficuty) {
 		], duration: 8000, next:'bossIn' },
 	], newStgSecNormal, 'sec');
 	newStgSecsFromList(stage, [
+		{ text:RES.st_stg3_diag1,  pos:'.fr.dg', face:'.f6a', name:'diag0', next:'bossQuit', clear:true, },
+		{ text:RES.st_stg3_diag2,  pos:'.fl.dg', face:'.f0a.f2', next:'secIn', ended:true, },
+	], newStgSecDiag, 'diag');
+	newStgSecsFromList(stage, [
 		{
 			name: 'bossIn',
 			boss: 'meiling',
@@ -279,6 +326,46 @@ function newStage3(difficuty) {
 			no_countdown: true,
 			no_lifebar: true,
 			invinc: true,
+		},
+		{
+			pathnodes: [
+				{ v:0.2 },
+				{ t: 500, fn:meilingFire1B, fx:0.3, fy:0.1 },
+				{ t:2500, fn:meilingFire2R, },
+				{ t: 500, fn:meilingFire3R, fx:0.6, fy:0.2, },
+				{ t:2500, fn:meilingFire2R, },
+				{ t: 500, fn:meilingFire1B, },
+				{ t: 500, fn:meilingFire2R, fx:0.5, fy:0.3, },
+				{ t:2500, },
+				{ t: 500, fn:meilingFire3R, fx:0.8, fy:0.3, },
+				{ t:2500, fn:meilingFire1B, },
+				{ t: 500, fn:meilingFire2R, fx:0.5, fy:0.2, },
+				{ t:2500, },
+				{ t: 500, fn:meilingFire3R, fx:0.8, fy:0.1, },
+				{ t:2500, fn:meilingFire1B, },
+				{ t: 500, fn:meilingFire2R, fx:0.5, fy:0.2, },
+				{ t:2500, },
+				{ t: 500, fn:meilingFire3R, fx:0.8, fy:0.1, },
+				{ t:2500, fn:meilingFire1B, },
+				{ t: 500, fn:meilingFire2R, fx:0.5, fy:0.2, },
+				{ t:2500, },
+				{ t: 500, fn:meilingFire3R, fx:0.8, fy:0.1, },
+			],
+			duration: 30000,
+			next: 'diag0',
+		},
+		{
+			pathnodes: [
+				{ v:0.3 },
+				{ fx:0.5, fy:0.0 },
+				{ fy:-1, v:0.3 },
+			],
+			name: 'bossQuit',
+			next: 'diag1',
+			duration: 500,
+			no_countdown: true,
+			invinc: true,
+			disable_fire: true,
 		},
 	], newStgSecBoss, 'boss');
 	return stage;
