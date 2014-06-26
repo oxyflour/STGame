@@ -2521,7 +2521,7 @@ function newStgSecInit(next, para) {
 }
 function newStgSecNormal(next, para) {
 	return {
-		run: UTIL.newTimeRunner(para.duration, next),
+		run: UTIL.newTimeRunner(para.duration || 100, next),
 		init: function(d) {
 			para.init && para.init.apply(null, para.args);
 			if (para.bgm) {
