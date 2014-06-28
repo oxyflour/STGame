@@ -645,6 +645,8 @@ var RES = (function(res) {
 				d[v.id] = v;
 			}
 			else if (v.tagName == 'AUDIO') {
+				if ($attr(v, 'audio-src') && !v.src)
+					v.src = $attr(v, 'audio-src');
 				v.replayTime = parseFloat($attr(v, 'replay-time') || '0');
 				if ((v.replayQueueLength = parseFloat($attr(v, 'replay-queue'))) > 0) {
 					var queue = [v],
@@ -686,7 +688,7 @@ var RES = (function(res) {
 			if (v.tagName == 'IMG')
 				d.push(v.complete ? 1 : 0);
 			else if (v.tagName == 'AUDIO')
-				d.push(v.complete ? 1 : 0);
+				d.push(v.complete || $attr(v, 'complete') ? 1 : 0);
 		}, []);
 		_t.process = sum(ls) / ls.length;
 		if (_t.process == 1) {
