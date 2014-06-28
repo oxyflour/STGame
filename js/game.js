@@ -592,7 +592,7 @@ var RES = (function(res) {
 					sx = st[0] ? parseFloat(st[0]) : 0,
 					sy = st[1] ? parseFloat(st[1]) : sx;
 				dc.drawImage(sc.s, sc.x, sc.y, sc.w, sc.h,
-					0, 0, sc.w * sx, sc.h * sy);
+					sc.w/2*(1-sx), sc.h/2*(1-sy), sc.w * sx, sc.h * sy);
 			}
 			else if (t.k == 'colormask') {
 				dc.drawImage(sc.s, sc.x, sc.y, sc.w, sc.h,
@@ -2065,16 +2065,28 @@ function newDannmaku(from, to, r, rt, v, vt, ext) {
 	if (!to || !to.data) to = {
 		data: { x: UTIL.getGamePosX(0.5), y: UTIL.getGamePosY(0.9), },
 	};
-	var rt0 = Math.atan2(to.data.y - from.data.y, to.data.x - from.data.x),
-		cos = Math.cos(rt0 + rt),
-		sin = Math.sin(rt0 + rt),
-		cosv = Math.cos(rt0 + rt + vt),
-		sinv = Math.sin(rt0 + rt + vt);
+	var dy = to.data.y - from.data.y,
+		dx = to.data.x - from.data.x,
+		rt0 = Math.atan2(dy, dx),
+		rt1 = rt0 + rt,
+		cos = Math.cos(rt1),
+		sin = Math.sin(rt1),
+		rt2 = rt1 + vt,
+		cosv = Math.cos(rt2),
+		sinv = Math.sin(rt2);
 	var obj = SPRITE.newObj('Dannmaku', fill(ext, {
 		x: from.data.x + r * cos,
 		y: from.data.y + r * sin,
 		vx: v * cosv,
 		vy: v * sinv,
+		r: {
+			TamaA: 5,
+			TamaB: 5,
+			LongA: 3,
+			LongB: 3,
+			LongC: 3,
+		}[ext.tama || 'TamaA'],
+		frames: RES.frames[ext.tama || 'TamaA']['kr m b c g  y ow'.indexOf(ext.color)],
 	}));
 	obj.runCircle = function(dt, d) {
 		if (this.is_creating) {
@@ -2243,8 +2255,10 @@ function newBoss(name) {
 	else if (name == 'meiling') {
 		UTIL.addFrameAnim(boss, RES.frames.Meiling);
 		boss.anim(50, function(d) {
-			if (d.age > 100 && (d.x != d.x0 || d.y != d.y0) && (this.is_moving = true))
-				newEffectPiece(boss, 'w');
+			if ((d.x != d.x0 || d.y != d.y0) && (this.is_moving = true)) {
+				if (!this.is_creating)
+					newEffectPiece(boss, 'w');
+			}
 			else if (this.is_moving && !(this.is_moving = false)) {
 				var obj = SPRITE.newObj('Basic', {
 					x: d.x,
@@ -2260,6 +2274,15 @@ function newBoss(name) {
 				}
 			}
 		}, boss.data)
+		boss.drawBasic = (function(draw) {
+			return function(dt, d) {
+				var py = d.y;
+				if (!d.vx && !d.vy)
+					d.y = py + 3 * Math.sin(d.age * 0.005);
+				draw.call(boss, dt, d);
+				d.y = py;
+			}
+		})(boss.drawBasic)
 	}
 
 	return boss;
@@ -2362,9 +2385,16 @@ function newBossBackground(boss, elem) {
 		y: 0,
 	})
 	elem.object = obj;
+	elem.speed = parseFloat($attr(elem, 'bg-speed') || 0);
+	elem.rotate = parseFloat($attr(elem, 'bg-rotate') || 0);
 	obj.anim(50, function(d) {
 		elem.style.opacity = d.ph;
-		elem.style.backgroundPosition = '0 '+(-d.age*0.1)+'px';
+		if (elem.speed)
+			elem.style.backgroundPosition = '0 '+(-d.age*elem.speed)+'px';
+		if (elem.rotate) {
+			$style(elem, 'transform-origin', '50% 50%');
+			$style(elem, 'transform', 'rotate('+(-d.age*elem.rotate)+'deg)');
+		}
 	}, obj.data)
 	return obj;
 }

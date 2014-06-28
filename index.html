@@ -41,8 +41,7 @@
 	<img id="stg3enm" src="res/stg3enm.png" />
 	<img id="front" src="res/front.png" />
 	<canvas id="dotmeiling" from="stg3enm 144 208 48 48" transform="scale:1 0.5"></canvas>
-	<canvas id="dotmeiling2" from="dotmeiling" transform="offset:0 -12"></canvas>
-	<canvas id="effmeiling" from="dotmeiling2" transform="rotate:{{range(180, 0, 30)}}"></canvas>
+	<canvas id="effmeiling" from="dotmeiling" transform="rotate:{{range(180, 0, 30)}}"></canvas>
 	<canvas id="bombs" from="player0L 0 97 63 64"
 		transform="colormask:White,DeepPink,DodgerBlue,SpringGreen,Black"></canvas>
 	<!-- use these patterns as background -->
@@ -634,6 +633,7 @@
 	<script type="text/html" id="st_stg2_diag24">总之，挡路的话还是要处理掉呢</script>
 	<!-- stage 3 -->
 	<script type="text/html" id="st_stg3_title">红色之境  ~ Scalet Land</script>
+	<script type="text/html" id="st_stg3_sc1">虹符「彩虹的风铃」</script>
 	<script type="text/html" id="st_stg3_diag1">可恶，背水阵！</script>
 	<script type="text/html" id="st_stg3_diag2">你一个人也算是「阵」吗？</script>
 	<script type="text/html" id="st_stg3_diag3">你不要跟过来啊～</script>
@@ -691,13 +691,15 @@
 				<canvas class="absolute game-size bg-stg1" style="height:2400px"
 					id="stg1cv1" bg-speed="0.01"></canvas>
 				<div class="absolute game-size"
-					style="height:350px;background:linear-gradient(rgba(0,0,0,0.8),transparent);-webkit-transform:translate3d(0,0,0.1px)"></div>
+					style="height:350px;background:linear-gradient(rgba(0,0,0,0.8),transparent);
+						-webkit-transform:translate3d(0,0,0.1px)"></div>
 			</div>
 			<div class="game-size absolute no-overflow ui-obj bg-stg1" id="bg_stg1_top">
 				<canvas class="absolute game-size bg-stg1" style="height:1000px;"
 					id="stg1cv2" bg-speed="0.015"></canvas>
 				<div class="absolute game-size"
-					style="height:300px;background:linear-gradient(rgba(0,0,0,0.6),transparent);-webkit-transform:translate3d(0,0,0.1px)"></div>
+					style="height:300px;background:linear-gradient(rgba(0,0,0,0.6),transparent);
+						-webkit-transform:translate3d(0,0,0.1px)"></div>
 			</div>
 			<div class="game-size absolute no-overflow ui-obj bg-stg2 bg-persp">
 				<canvas class="absolute game-size bg-stg2" style="width:640px;height:704px;"
@@ -705,20 +707,25 @@
 				<canvas class="absolute game-size bg-stg2" style="width:640px;height:704px;opacity:0.7"
 					fill-with="stg2bg" bg-speed="0.02" bg-speed-x="-0.015" bg-offset="-200"></canvas>
 				<div class="absolute game-size"
-					style="height:300px;background:linear-gradient(rgba(0,0,100,0.7),transparent);-webkit-transform:translate3d(0,0,0.1px)"></div>
+					style="height:300px;background:linear-gradient(rgba(0,0,100,0.7),transparent);
+						-webkit-transform:translate3d(0,0,0.1px)"></div>
 			</div>
 			<div class="game-size absolute no-overflow ui-obj bg-stg3 bg-persp" id="bg_stg3">
 				<canvas class="absolute game-size bg-stg3" style="height:3180px;"
 					id="stg3cv" bg-speed="0.02"></canvas>
 				<div class="absolute game-size" id="bg_stg3_mask"
-					style="height:500px;background:linear-gradient(rgba(190,171,107,0.9),transparent);-webkit-transform:translate3d(0,0,0.1px)"></div>
+					style="height:500px;background:linear-gradient(rgba(190,171,107,0.9),transparent);
+						-webkit-transform:translate3d(0,0,0.1px)"></div>
 			</div>
 			<canvas class="game-size absolute no-overflow ui-obj bg-stg3" id="bg_stg3_dot"></canvas>
 			<div class="game-size absolute">
-				<div class="absolute game-size ui-obj anim-in-01s" id="bg_sc_rumia"
+				<div class="absolute game-size ui-obj anim-in-01s" id="bg_sc_rumia" bg-speed="0.1"
 					style="background:url(res/eff01.png);opacity:0;background-size:100%"></div>
-				<div class="absolute game-size ui-obj anim-in-01s" id="bg_sc_chiruno"
+				<div class="absolute game-size ui-obj anim-in-01s" id="bg_sc_chiruno" bg-speed="0.1"
 					style="background:url(res/eff02.png);opacity:0;background-size:100%"></div>
+				<div class="absolute ui-obj anim-in-01s" id="bg_sc_meiling" bg-rotate="0.02"
+					style="background:url(res/eff03.png);opacity:0;background-size:100%;
+						width:600px;height:600px;margin-left:-108px;margin-top:-76px"></div>
 				<img class="absolute game-size ui-obj anim-in-01s" id="bg_score"
 					src="res/loading.png" style="opacity:0" />
 				<div class="absolute game-size ui-obj anim-in-01s" id="bg_bomb"
@@ -734,6 +741,7 @@
 			<div class="fr sc">
 				<div class="face f3b" id="face_sc_rumia"></div>
 				<div class="face f5a" id="face_sc_chiruno"></div>
+				<div class="face f6a" id="face_sc_meiling"></div>
 				<span class="text scbg2"></span>
 			</div>
 			<div class="fl dg">

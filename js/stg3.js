@@ -188,6 +188,7 @@ function stg3Danns1(from, speed, rand) {
 	})
 }
 function stg3Danns2A(from, to, rads) {
+	to = to && { data:{ x:to.data.x, y:to.data.y, } };
 	STORY.timeout(function(d, n) {
 		range(0.5001, -0.5, 1/(rads || 4), function(f) {
 			newDannmaku(from, to, 0, f, 0.3-n*0.015, 0, {
@@ -206,9 +207,7 @@ function stg3Danns2(from) {
 			frames: RES.frames.TamaB[6],
 		})
 	})
-	var pl = UTIL.getOneAlive('Player'),
-		to = pl && { data:{ x:pl.data.x, y:pl.data.y, } };
-	stg3Danns2A(from, to, 4);
+	stg3Danns2A(from, UTIL.getOneAlive('Player'), 4);
 }
 function stg3Danns3(from) {
 	var to = UTIL.getOneAlive('Player');
@@ -292,12 +291,91 @@ function stg3Danns6(from) {
 }
 
 function meilingFire4(from) {
+	STORY.timeout(function(d, n) {
+		range(1, 0, (n < 20 ? 1/20 : 1/10), function(f) {
+			var t = (n < 20 ? random(0.5)-n*0.15 : -n*0.1) + f*PI2,
+				v = (n < 20 ? 0 : (20 - n)/30*0.05) + 0.2;
+			newDannmaku(from, null, 0, t, v, 0, {
+				color: 'r',
+				tama: 'LongC',
+			})
+		})
+	}, 50, null, 50)
+}
+function meilingSC1(from) {
+	STORY.timeout(function(d, n) {
+		range(1, 0, 1/8, function(f) {
+			newDannmaku(from, null, 0, f*PI2-n*0.1, 0.1, 0, {
+				r: 3,
+				color: 'c',
+				tama: 'LongC',
+			})
+		})
+		var r = Math.sin(n*0.04)+Math.cos(n*0.043);
+		ieach('roygcbm', function(i, c) {
+			range(1, 0, 1.5/(i+1), function(f) {
+				newDannmaku(from, null, 0, i*0.1-PI*r+f*PI2, 0.18, 0, {
+					color: c,
+					tama: 'LongC',
+				})
+			})
+		})
+		ieach([
+			[0.031, 0.043],
+			[0.028, 0.033],
+			[0.030,-0.039],
+			[0.040,-0.029],
+			[0.025, 0.033],
+			[0.035,-0.026],
+		], function(i, v) {
+			var r = Math.sin(n*v[0]) + Math.cos(n*v[1]);
+			newDannmaku(from, null, 0, PI*r, 0.18, 0, {
+				color: 'c',
+				tama: 'LongC',
+			})
+		})
+	}, 150, null, 1000)
+}
+function meilingFire6(from) {
+	var xs = [1/12, 3/12, 5/12];
+	STORY.timeout(function (d, n) {
+		var x = xs[n];
+		ieach([1, -1], function(i, k) {
+			var obj = SPRITE.newObj('Enemy', {
+				x: UTIL.getGamePosX(0.5 + k*x),
+				y: GAME.rect.t,
+				vx: 0,
+				vy: 0.1,
+				frames: RES.frames.Enemy3A,
+			})
+			obj.anim(50, function(d) {
+				if (d.age < 500)
+					;
+				else if (d.age < 10000) {
+					this.is_firing = true;
+					decrease_object_speed(d, 0.9);
+				}
+				else {
+					this.is_firing = false;
+					d.vx = random(-0.1, 0.1);
+					d.vy = random(0.05, 0.15);
+					return true;
+				}
+			}, obj.data)
+			obj.anim(2000, function(d) {
+				if (this.is_firing)
+					stg3Danns2A(this, UTIL.getOneAlive('Player'), 2);
+			}, obj.data)
+		})
+	}, 1000, null, xs.length)
+}
+function meilingFire6A(from) {
 }
 
 function newStage3(difficuty) {
 	var stage = {};
 	stage.hook = newStgHook();
-	stage.init = newStgSecInit('bossIn2', {
+	stage.init = newStgSecInit('boss6', {
 		bgelem: $('.bg-stg3'),
 		bganim: newStg3BgAnim,
 		title: 'STAGE 3',
@@ -454,21 +532,41 @@ function newStage3(difficuty) {
 		{
 			pathnodes: [
 				{ v:0.2, },
-				{ t:4000, fn:meilingFire4, },
+				{ t:2000, fn:meilingFire4, },
 				{ t:2000, fx:0.6, fy:0.1, },
-				{ t:4000, fn:meilingFire4, },
+				{ t:2000, fn:meilingFire4, },
 				{ t:2000, fx:0.4, fy:0.2, },
-				{ t:4000, fn:meilingFire4, },
+				{ t:2000, fn:meilingFire4, },
 				{ t:2000, fx:0.3, fy:0.1, },
-				{ t:4000, fn:meilingFire4, },
+				{ t:2000, fn:meilingFire4, },
 				{ t:2000, fx:0.5, fy:0.3, },
-				{ t:4000, fn:meilingFire4, },
+				{ t:2000, fn:meilingFire4, },
 				{ t:2000, fx:0.5, fy:0.1, },
-				{ t:4000, fn:meilingFire4, },
+				{ t:2000, fn:meilingFire4, },
 				{ t:2000, fx:0.3, fy:0.2, },
-				{ t:4000, fn:meilingFire4, },
+				{ t:2000, fn:meilingFire4, },
 			],
 			name: 'bossIn3',
+			duration: 30000,
+		},
+		{
+			pathnodes: [
+				{ v:0.2, },
+				{ t:NaN,  fx:0.5, fy:0.2, },
+				{ t:1000, fn:meilingSC1, },
+			],
+			duration: 30000,
+			scname: RES.st_stg3_sc1,
+		},
+		{
+			pathnodes: [
+				{ v:0.2, },
+				{ t:200, fn:meilingFire6, },
+				{ t:10000, },
+				{ t:200, fn:meilingFire6, },
+				{ t:10000, },
+			],
+			duration: 30000,
 		},
 	], newStgSecBoss, 'boss');
 	return stage;
