@@ -191,7 +191,7 @@ function stg3Danns2A(from, to, rads) {
 	to = to && { data:{ x:to.data.x, y:to.data.y, } };
 	STORY.timeout(function(d, n) {
 		range(0.5001, -0.5, 1/(rads || 4), function(f) {
-			newDannmaku(from, to, 0, f, 0.3-n*0.015, 0, {
+			newDannmaku(from, to, 0, f, 0.38-n*0.02, 0, {
 				r: 3,
 				color: 'b',
 				frames: RES.frames.LongB[6],

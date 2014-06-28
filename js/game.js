@@ -2088,14 +2088,15 @@ function newDannmaku(from, to, r, rt, v, vt, ext) {
 		}[ext.tama || 'TamaA'],
 		frames: RES.frames[ext.tama || 'TamaA']['kr m b c g  y ow'.indexOf(ext.color)],
 	}));
+	obj.redirect = function() {
+		this.data.vx = v * cosv;
+		this.data.vy = v * sinv;
+	}
 	obj.runCircle = function(dt, d) {
 		if (this.is_creating) {
 			if (!this.is_firing && (this.is_firing = true)) {
-				d.vx0 = d.vx;
-				d.vy0 = d.vy;
+				decrease_object_speed(d, 0.1);
 				d.scale0 = d.scale;
-				d.vx = d.vx0 * 0.1;
-				d.vy = d.vy0 * 0.1;
 			}
 			if (d.color && !this.is_color_set && (this.is_color_set = true))
 				UTIL.addFrameAnim(this, RES.frames.TamaColorNew[d.color]);
@@ -2103,8 +2104,7 @@ function newDannmaku(from, to, r, rt, v, vt, ext) {
 		}
 		else {
 			if (this.is_firing && !(this.is_firing = false)) {
-				d.vx = d.vx0;
-				d.vy = d.vy0;
+				this.redirect();
 				d.scale = d.scale0;
 			}
 			if (d.frames && !this.is_frame_set && (this.is_frame_set = true))
