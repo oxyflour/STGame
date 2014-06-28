@@ -101,11 +101,12 @@ function getRadioVal(ls) {
 }
 
 function evalRadioVal(name) {
-	try {
-		eval(getRadioVal($('input[name="'+name+'"]')));
+	var val = getRadioVal($('input[name="'+name+'"]'));
+	if (val && val != 'on') {
+		eval(val);
 		RES.se_ok00.replay();
 	}
-	catch(e) {
+	else {
 		RES.se_invalid.replay();
 	}
 }
