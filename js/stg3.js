@@ -505,7 +505,7 @@ function newStage3(difficuty) {
 			[stg3Sec1, ['s3A2', 16], 2000, ],
 			[stg3Sec1, ['s3A3', 12], 6000, ],
 			[stg3Sec1, ['s3A4', 12], 7000, ],
-		], duration: 15000 },
+		], duration: 15000, bgm:RES.bgm_stg3a, },
 		{ init:stg3Sec2, args:[[0.4, 0.3, 0.2, 0.1], 1000], duration:6000, },
 		{ init:stg3Sec2, args:[[0.1, 0.2, 0.3], 500], duration:6000, },
 		{ init:newSecList, args:[
@@ -675,6 +675,7 @@ function newStage3(difficuty) {
 			],
 			name: 'bossIn3',
 			duration: 30000,
+			bgm: RES.bgm_stg3b,
 		},
 		{
 			pathnodes: [
