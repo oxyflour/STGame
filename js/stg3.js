@@ -197,6 +197,7 @@ function stg3Danns2A(from, to, rads) {
 				frames: RES.frames.LongB[6],
 			})
 		})
+//		RES.se_lazer00.replay();
 	}, 50, null, 15)
 }
 function stg3Danns2(from, rads) {
@@ -210,15 +211,15 @@ function stg3Danns2(from, rads) {
 	stg3Danns2A(from, UTIL.getOneAlive('Player'), rads || 4);
 }
 function stg3Danns3(from) {
-	var to = UTIL.getOneAlive('Player');
 	ieach([0.10, 0.12, 0.14], function(i, v) {
-		range(1, 0, 1/30, function(f) {
-			newDannmaku(from, to, 0, f*PI2, v, 0, {
+		range(0.5001, -0.5, 1/30, function(f) {
+			newDannmaku(from, null, 0, f*PI*1.8, v, 0, {
 				color: 'r',
 				frames: RES.frames.TamaA[2],
 			})
 		})
 	})
+	RES.se_tan01.replay();
 }
 function stg3Danns4(from) {
 	var to = UTIL.getOneAlive('Player');
@@ -246,6 +247,7 @@ function meilingFire1B(from) {
 			})
 		})
 		y += 10;
+		RES.se_tan01.replay();
 	}, 8000/60, null, 7)
 }
 function meilingFire2R(from) {
@@ -288,6 +290,7 @@ function stg3Danns6(from, color, count) {
 				d.vy += 0.008;
 		}, obj.data)
 	})
+	RES.se_tan00.play();
 }
 
 function meilingFire4(from) {
@@ -300,9 +303,13 @@ function meilingFire4(from) {
 				tama: 'LongC',
 			})
 		})
+//		RES.se_tan00.replay();
 	}, 50, null, 50)
 }
 function meilingSC1(from) {
+	var rands = array(10, function() {
+		return [random(0.02, 0.05), random(0.02, 0.05)*randin([1, -1])];
+	})
 	STORY.timeout(function(d, n) {
 		range(1, 0, 1/8, function(f) {
 			newDannmaku(from, null, 0, f*PI2-n*0.1, 0.1, 0, {
@@ -311,8 +318,15 @@ function meilingSC1(from) {
 				tama: 'LongC',
 			})
 		})
-		var r = Math.sin(n*0.04)+Math.cos(n*0.043);
+		ieach(rands, function(i, v) {
+			var r = Math.sin(n*v[0]) + Math.cos(n*v[1]);
+			newDannmaku(from, null, 0, PI*r, 0.18, 0, {
+				color: 'c',
+				tama: 'LongC',
+			})
+		})
 		ieach('roygcbm', function(i, c) {
+			var r = Math.sin(n*0.04)+Math.cos(n*0.043);
 			range(1, 0, 1.5/(i+1), function(f) {
 				newDannmaku(from, null, 0, i*0.1-PI*r+f*PI2, 0.18, 0, {
 					color: c,
@@ -320,20 +334,7 @@ function meilingSC1(from) {
 				})
 			})
 		})
-		ieach([
-			[0.031, 0.043],
-			[0.028, 0.033],
-			[0.030,-0.039],
-			[0.040,-0.029],
-			[0.025, 0.033],
-			[0.035,-0.026],
-		], function(i, v) {
-			var r = Math.sin(n*v[0]) + Math.cos(n*v[1]);
-			newDannmaku(from, null, 0, PI*r, 0.18, 0, {
-				color: 'c',
-				tama: 'LongC',
-			})
-		})
+		RES.se_tan01.replay();
 	}, 150, null, 1000)
 }
 function meilingFire6(from, duration) {
@@ -382,6 +383,7 @@ function meilingFire6A(from) {
 			})
 		})
 	})
+	RES.se_tan01.play();
 }
 function meilingSC2(from, duration) {
 	from = { data:{ x:from.data.x, y:from.data.y, } };
@@ -400,6 +402,7 @@ function meilingSC2(from, duration) {
 				})
 			})
 		})
+//		RES.se_tan00.replay();
 	}, 80, null, Math.floor((duration || 5000) / 80))
 }
 function meilingFire7(from, color) {
@@ -430,9 +433,10 @@ function meilingFire7(from, color) {
 			}, obj.data)
 		})
 	})
+	RES.se_tan02.play();
 }
 function meilingFire7A(from) {
-	array(100, function() {
+	STORY.timeout(function(d, n) {
 		var obj = newDannmaku(from, null, 0, 0, 0, 0, {
 			vx: random(-0.1, 0.1),
 			vy: random(-0.06, -0.2),
@@ -443,7 +447,9 @@ function meilingFire7A(from) {
 			if (d.age > 150 && d.age < 2000)
 				d.vy += 0.01;
 		}, obj.data)
-	})
+//		if (n % 10 == 0)
+//			RES.se_tan00.replay(0.02);
+	}, 10, null, 100)
 }
 function meilingSC3(from) {
 	var f = 0;
@@ -455,6 +461,8 @@ function meilingSC3(from) {
 				tama: 'LongC',
 			})
 		})
+//		if (n % 10 == 0)
+//			RES.se_lazer00.replay();
 	}, 10, null, 65)
 }
 function meilingSC3A(from) {
@@ -471,6 +479,7 @@ function meilingSC3A(from) {
 				d.vy += d.ay*0.02;
 			}, obj.data)
 		})
+//		RES.se_lazer00.replay();
 	}, 40, null, 50)
 }
 function meilingSC4(from) {
@@ -487,6 +496,7 @@ function meilingSC4(from) {
 				decrease_object_speed(d, 1.02);
 			}, obj.data);
 		})
+//		RES.se_lazer00.replay();
 	}, 50, null, 1000)
 }
 

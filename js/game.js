@@ -656,17 +656,17 @@ var RES = (function(res) {
 						queue.push(c);
 					});
 					v.queue = queue;
-					v.replay = function() {
+					v.replay = function(t) {
 						index = (index + 1) % queue.length;
 						var a = queue[index];
 						a.volume = v.volume;
-						a.currentTime = v.replayTime;
+						a.currentTime = t >= 0 ? t : v.replayTime;
 						a.play();
 					};
 				}
 				else {
-					v.replay = function() {
-						v.currentTime = v.replayTime;
+					v.replay = function(t) {
+						v.currentTime = t >= 0 ? t : v.replayTime;
 						v.play();
 					}
 				}
@@ -2256,11 +2256,15 @@ function newBoss(name) {
 	else if (name == 'meiling') {
 		UTIL.addFrameAnim(boss, RES.frames.Meiling);
 		boss.anim(50, function(d) {
-			if ((d.x != d.x0 || d.y != d.y0) && (this.is_moving = true)) {
+			if ((d.x != d.x0 || d.y != d.y0)) {
 				if (!this.is_creating)
 					newEffectPiece(boss, 'w');
+				if (!this.is_moving && (this.is_moving = true))
+					RES.se_kira00.play();
 			}
 			else if (this.is_moving && !(this.is_moving = false)) {
+				if (!this.is_creating)
+					RES.se_tan01.play();
 				var obj = SPRITE.newObj('Basic', {
 					x: d.x,
 					y: d.y,
