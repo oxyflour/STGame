@@ -118,7 +118,7 @@ function stg3Sec2(range, interval, danns) {
 				frames: RES.frames.Enemy3A,
 			})
 			obj.anim(50, function(d) {
-				if (d.age < 500)
+				if (d.age < 400)
 					;
 				else if (d.age < 2000) {
 					decrease_object_speed(d, 0.9);
@@ -199,7 +199,7 @@ function stg3Danns2A(from, to, rads) {
 		})
 	}, 50, null, 15)
 }
-function stg3Danns2(from) {
+function stg3Danns2(from, rads) {
 	var f0 = random(PI2);
 	range(1, 0, 1/16, function(f) {
 		newDannmaku(from, null, 0, f0+f*PI2, 0.1, 0, {
@@ -207,7 +207,7 @@ function stg3Danns2(from) {
 			frames: RES.frames.TamaB[6],
 		})
 	})
-	stg3Danns2A(from, UTIL.getOneAlive('Player'), 4);
+	stg3Danns2A(from, UTIL.getOneAlive('Player'), rads || 4);
 }
 function stg3Danns3(from) {
 	var to = UTIL.getOneAlive('Player');
@@ -275,17 +275,17 @@ function stg3Danns5(from) {
 	var to = { data:{ x:from.data.x, y:GAME.rect.b, } };
 	stg3Danns2A(from, to, 2);
 }
-function stg3Danns6(from) {
-	array(20, function() {
+function stg3Danns6(from, color, count) {
+	array(count || 20, function() {
 		var obj = newDannmaku(from, null, 0, 0, 0, 0, {
-			vx: random(-0.2, 0.2),
-			vy: random(-0.1, -0.3),
-			color: 'w',
-			frames: RES.frames.TamaB[15],
+			vx: random(-0.15, 0.15),
+			vy: random(-0.06, -0.2),
+			color: color || 'w',
+			tama: 'TamaB',
 		})
 		obj.anim(50, function(d) {
-			decrease_object_speed(d, 0.98);
-			d.vy += 0.012;
+			if (d.age > 300 && d.age < 2000)
+				d.vy += 0.008;
 		}, obj.data)
 	})
 }
@@ -336,7 +336,7 @@ function meilingSC1(from) {
 		})
 	}, 150, null, 1000)
 }
-function meilingFire6(from) {
+function meilingFire6(from, duration) {
 	var xs = [1/12, 3/12, 5/12];
 	STORY.timeout(function (d, n) {
 		var x = xs[n];
@@ -347,35 +347,153 @@ function meilingFire6(from) {
 				vx: 0,
 				vy: 0.1,
 				frames: RES.frames.Enemy3A,
+				story: STORY.state.n,
 			})
 			obj.anim(50, function(d) {
-				if (d.age < 500)
+				if (d.age < 400)
 					;
-				else if (d.age < 10000) {
+				else if (d.age < (duration || 10000)) {
 					this.is_firing = true;
 					decrease_object_speed(d, 0.9);
 				}
-				else {
-					this.is_firing = false;
+				else if (this.is_firing && !(this.is_firing = false)) {
 					d.vx = random(-0.1, 0.1);
 					d.vy = random(0.05, 0.15);
-					return true;
+				}
+				if (STORY.state.n != d.story) {
+					newEffect(this, RES.frames.EffEnemy2);
+					return this.die() || true;
 				}
 			}, obj.data)
 			obj.anim(2000, function(d) {
 				if (this.is_firing)
-					stg3Danns2A(this, UTIL.getOneAlive('Player'), 2);
+					stg3Danns2(this, 2);
 			}, obj.data)
 		})
-	}, 1000, null, xs.length)
+	}, 600, null, xs.length)
 }
 function meilingFire6A(from) {
+	var to = UTIL.getOneAlive('Player');
+	array(3, function(i) {
+		range(1, 0, 1/20, function(f) {
+			newDannmaku(from, to, 0, f*PI2+i*0.02, 0.1+i*0.02, 0, {
+				color: 'b',
+				tama: 'TamaB',
+			})
+		})
+	})
+}
+function meilingSC2(from, duration) {
+	from = { data:{ x:from.data.x, y:from.data.y, } };
+	var pos = array(20, function(i) {
+		return { r:random(20, 100), t:random(0.5), }
+	})
+	STORY.timeout(function(d, n) {
+		var p = pos[n % pos.length];
+		array(3, function() {
+			var r = random(20),
+				t = random(0.1);
+			range(1, 0, 1/5, function(f) {
+				newDannmaku(from, null, p.r+r, p.t+t+f*PI2, random(0.1, 0.2), random(PI2), {
+					color: 'b',
+					tama: 'TamaB',
+				})
+			})
+		})
+	}, 80, null, Math.floor((duration || 5000) / 80))
+}
+function meilingFire7(from, color) {
+	var to = UTIL.getOneAlive('Player');
+	array(6, function(i) {
+		var v0 = 0.15 + i/5*0.25,
+			dv = 0.01 - i/5*0.005;
+		range(1, 0, 1/40, function(f) {
+			var obj = newDannmaku(from, to, 0, f*PI2, v0, 0, {
+				color: color || 'b',
+				tama: 'LongB',
+			})
+			obj.space = { l:150, t:150, r:150, b:20 };
+			obj.anim(50, function(d) {
+				if (d.age < 1600)
+					decrease_object_speed(d, 0.93);
+				else if (d.age < 2000) {
+					var dx = d.x - from.data.x,
+						dy = d.y - from.data.y,
+						dr = sqrt_sum(dx, dy),
+						x = from.data.x - 40*dy/dr,
+						y = from.data.y + 40*dx/dr,
+						v = Math.max(sqrt_sum(d.vx, d.vy), v0*0.5);
+					redirect_object(d, { x:x, y:y }, v+dv, 0.2);
+				}
+				else
+					return true;
+			}, obj.data)
+		})
+	})
+}
+function meilingFire7A(from) {
+	array(100, function() {
+		var obj = newDannmaku(from, null, 0, 0, 0, 0, {
+			vx: random(-0.1, 0.1),
+			vy: random(-0.06, -0.2),
+			color: 'b',
+			tama: 'LongC',
+		})
+		obj.anim(50, function(d) {
+			if (d.age > 150 && d.age < 2000)
+				d.vy += 0.01;
+		}, obj.data)
+	})
+}
+function meilingSC3(from) {
+	var f = 0;
+	STORY.timeout(function(d, n) {
+		f += 1/4/15;
+		ieach('cygb', function(i, c) {
+			newDannmaku(from, null, 0, (f+i/4)*PI2, 0.15, 0, {
+				color: c,
+				tama: 'LongC',
+			})
+		})
+	}, 10, null, 65)
+}
+function meilingSC3A(from) {
+	STORY.timeout(function(d, n) {
+		ieach('ryom', function(i, c) {
+			var obj = newDannmaku(from, null, 0, random(PI2), random(0.02, 0.08), 0, {
+				color: c,
+				tama: 'LongC',
+				ax: { r:-0.2, y:-0.1, o:0.1, m:0.2 }[c],
+				ay: { r: 0.1, y: 0.2, o:0.2, m:0.1 }[c],
+			})
+			obj.anim(80, function(d) {
+				d.vx += d.ax*0.02;
+				d.vy += d.ay*0.02;
+			}, obj.data)
+		})
+	}, 40, null, 50)
+}
+function meilingSC4(from) {
+	STORY.timeout(function(d, n) {
+		array(10, function() {
+			var obj = newDannmaku(from, null, 0, random(PI2), random(0.04, 0.12), 0, {
+				color: randin('rrbygc'),
+				tama: 'LongC',
+				accel: random(-0.1, 0.1),
+			})
+			obj.anim(100, function(d) {
+				d.vx += d.vy * d.accel;
+				d.vy -= d.vx * d.accel;
+				decrease_object_speed(d, 1.02);
+			}, obj.data);
+		})
+	}, 50, null, 1000)
 }
 
 function newStage3(difficuty) {
 	var stage = {};
 	stage.hook = newStgHook();
-	stage.init = newStgSecInit('boss6', {
+	stage.init = newStgSecInit('sec0', {
 		bgelem: $('.bg-stg3'),
 		bganim: newStg3BgAnim,
 		title: 'STAGE 3',
@@ -463,6 +581,9 @@ function newStage3(difficuty) {
 		{ text:RES.st_stg3_diag14, pos:'.fr.dg', face:'.f6a', },
 		{ text:RES.st_stg3_diag15, pos:'.fr.dg', face:'.f6a', },
 		{ text:RES.st_stg3_diag16, pos:'.fl.dg', face:'.f0c.f2', next:'bossIn3', ended:true, },
+		{ text:RES.st_stg3_diag17, pos:'.fl.dg', face:'.f0a', name:'diagIn2', },
+		{ text:RES.st_stg3_diag18, pos:'.fr.dg', face:'.f6b.f2', },
+		{ text:RES.st_stg3_diag19, pos:'.fl.dg', face:'.f0c.f2', next:'score', ended:true, },
 	], newStgSecDiag, 'diag');
 	newStgSecsFromList(stage, [
 		{
@@ -502,6 +623,12 @@ function newStage3(difficuty) {
 				{ t: 500, fn:meilingFire3R, fx:0.8, fy:0.1, },
 			],
 			duration: 30000,
+		},
+		{
+			duration: 100,
+			no_countdown: true,
+			invinc: true,
+			disable_fire: true,
 			next: 'diag0',
 		},
 		{
@@ -561,14 +688,158 @@ function newStage3(difficuty) {
 		{
 			pathnodes: [
 				{ v:0.2, },
-				{ t:200, fn:meilingFire6, },
-				{ t:10000, },
-				{ t:200, fn:meilingFire6, },
-				{ t:10000, },
+				{ t:NaN,  fx:0.5, fy:0.2, },
+				{ t:2000, fn:meilingFire6, args:[10000], },
+				{ t:1000, fn:meilingFire6A, },
+				{ t:1000, fn:meilingFire6A, },
+				{ t:1000, fn:meilingFire6A, },
+				{ t:100,  fx:0.5, fy:0.1, },
+				{ t:1000, fn:stg3Danns6, args:['b', 30], },
+				{ t:1000, fn:stg3Danns6, args:['b', 30], },
+				{ t:1000, fn:stg3Danns6, args:['b', 30], },
+				{ t:100,  fx:0.5, fy:0.2, },
+				{ t:1000, fn:stg3Danns6, args:['b', 30], },
+				{ t:1000, fn:stg3Danns6, args:['b', 30], },
+				{ t:1000, fn:stg3Danns6, args:['b', 30], },
+				{ t:100,  fx:0.6, fy:0.15, },
+				{ t:1000, fn:stg3Danns6, args:['b', 30], },
+				{ t:1000, fn:stg3Danns6, args:['b', 30], },
+				{ t:1000, fn:stg3Danns6, args:['b', 30], },
+				{ t:100,  fx:0.8, fy:0.15, },
+				{ t:2000, fn:meilingFire6, args:[10000], },
+				{ t:1000, fn:stg3Danns6, args:['b', 30], },
+				{ t:1000, fn:stg3Danns6, args:['b', 30], },
+				{ t:1000, fn:stg3Danns6, args:['b', 30], },
+				{ t:100,  fx:0.7, fy:0.1, },
+				{ t:1000, fn:stg3Danns6, args:['b', 30], },
+				{ t:1000, fn:stg3Danns6, args:['b', 30], },
+				{ t:1000, fn:stg3Danns6, args:['b', 30], },
+				{ t:100,  fx:0.6, fy:0.2, },
+				{ t:1000, fn:stg3Danns6, args:['b', 30], },
+				{ t:1000, fn:stg3Danns6, args:['b', 30], },
+				{ t:1000, fn:stg3Danns6, args:['b', 30], },
+				{ t:100,  fx:0.7, fy:0.1, },
+				{ t:2000, fn:meilingFire6, args:[10000], },
 			],
 			duration: 30000,
 		},
+		{
+			pathnodes: [
+				{ v:0.2 },
+				{ t:NaN,  fx:0.5, fy:0.2, },
+				{ t:1000, fn:meilingSC2, },
+				{ t:4000, fx:0.6, fy:0.3, },
+				{ t:1000, fn:meilingSC2, },
+				{ t:4000, fx:0.5, fy:0.1, },
+				{ t:1000, fn:meilingSC2, },
+				{ t:4000, fx:0.8, fy:0.2, },
+				{ t:1000, fn:meilingSC2, },
+				{ t:4000, fx:0.7, fy:0.1, },
+				{ t:1000, fn:meilingSC2, },
+				{ t:4000, fx:0.8, fy:0.2, },
+				{ t:1000, fn:meilingSC2, },
+				{ t:4000, fx:0.7, fy:0.1, },
+				{ t:1000, fn:meilingSC2, },
+				{ t:4000, fx:0.5, fy:0.3, },
+				{ t:1000, fn:meilingSC2, },
+				{ t:4000, fx:0.2, fy:0.2, },
+				{ t:1000, fn:meilingSC2, },
+				{ t:4000, fx:0.5, fy:0.2, },
+				{ t:1000, fn:meilingSC2, },
+			],
+			duration: 30000,
+			scname: RES.st_stg3_sc2,
+		},
+		{
+			pathnodes: [
+				{ v:0.2 },
+				{ t:1000, fx:0.5, fy:0.2, },
+				{ t:2000, fn:meilingFire7, },
+				{ t:2500, fn:meilingFire7, args:['r'], },
+				{ t:2000, fn:meilingFire7A, },
+				{ t:1000, fx:0.4, fy:0.1, },
+				{ t:2000, fn:meilingFire7, },
+				{ t:2500, fn:meilingFire7, args:['r'], },
+				{ t:2000, fn:meilingFire7A, },
+				{ t:1000, fx:0.6, fy:0.2, },
+				{ t:2000, fn:meilingFire7, },
+				{ t:2500, fn:meilingFire7, args:['r'], },
+				{ t:2000, fn:meilingFire7A, },
+				{ t:1000, fx:0.3, fy:0.1, },
+				{ t:2000, fn:meilingFire7, },
+				{ t:2500, fn:meilingFire7, args:['r'], },
+				{ t:2000, fn:meilingFire7A, },
+				{ t:1000, fx:0.6, fy:0.3, },
+				{ t:2000, fn:meilingFire7, },
+				{ t:2500, fn:meilingFire7, args:['r'], },
+				{ t:2000, fn:meilingFire7A, },
+				{ t:1000, fx:0.9, fy:0.3, },
+				{ t:2000, fn:meilingFire7, },
+				{ t:2500, fn:meilingFire7, args:['r'], },
+				{ t:2000, fn:meilingFire7A, },
+			],
+			duration: 40000,
+		},
+		{
+			pathnodes: [
+				{ v:0.2 },
+				{ t:NaN,  fx:0.5, fy:0.1, },
+				{ t:1500, fn:meilingSC3, },
+				{ t:NaN,  fx:0.8, fy:0.2, },
+				{ t:1000, fn:meilingSC3A, },
+				{ t:1500, fn:meilingSC3, },
+				{ t:NaN,  fx:0.5, fy:0.2, },
+				{ t:1000, fn:meilingSC3A, },
+				{ t:1500, fn:meilingSC3, },
+				{ t:NaN,  fx:0.1, fy:0.1, },
+				{ t:1000, fn:meilingSC3A, },
+				{ t:1500, fn:meilingSC3, },
+				{ t:NaN,  fx:0.5, fy:0.2, },
+				{ t:1000, fn:meilingSC3A, },
+				{ t:1500, fn:meilingSC3, },
+				{ t:NaN,  fx:0.8, fy:0.2, },
+				{ t:1000, fn:meilingSC3A, },
+				{ t:1500, fn:meilingSC3, },
+				{ t:NaN,  fx:0.6, fy:0.1, },
+				{ t:1000, fn:meilingSC3A, },
+				{ t:1500, fn:meilingSC3, },
+				{ t:NaN,  fx:0.4, fy:0.2, },
+				{ t:1000, fn:meilingSC3A, },
+				{ t:1500, fn:meilingSC3, },
+				{ t:NaN,  fx:0.6, fy:0.1, },
+				{ t:1000, fn:meilingSC3A, },
+				{ t:1500, fn:meilingSC3, },
+				{ t:NaN,  fx:0.4, fy:0.15, },
+				{ t:1000, fn:meilingSC3A, },
+				{ t:1500, fn:meilingSC3, },
+				{ t:NaN,  fx:0.4, fy:0.3, },
+				{ t:1000, fn:meilingSC3A, },
+				{ t:1500, fn:meilingSC3, },
+			],
+			duration: 30000,
+			scname: RES.st_stg3_sc3,
+		},
+		{
+			pathnodes: [
+				{ v:0.2 },
+				{ t:NaN,  fx:0.5, fy:0.2, },
+				{ fn:meilingSC4, },
+			],
+			duration: 35000,
+			scname: RES.st_stg3_sc4,
+			next: 'bossKill',
+		},
 	], newStgSecBoss, 'boss');
+	newStgSecsFromList(stage, [
+		{ name:'bossKill', next:'diagIn2', },
+		{ name:'bossKill2', next:'score', },
+	], newStgSecBossKill, 'bossKill');
+	stage.score = newStgSecScore('over');
+	stage.over = {
+		run: function(dt, d) {
+			GAME.state = GAME.states.OVER;
+		}
+	}
 	return stage;
 }
 

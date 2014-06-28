@@ -981,11 +981,6 @@ function newStage2(difficuty) {
 		{ name:'bossKill2', next:'score', },
 	], newStgSecBossKill, 'bossKill');
 	stage.askContinue = newStgSecAskContinue('secX');
-	stage.score = newStgSecScore('over');
-	stage.over = {
-		run: function(dt, d) {
-			GAME.state = GAME.states.OVER;
-		}
-	}
+	stage.score = newStgSecScore('ended', newStgLoader(newStage3));
 	return stage;
 }

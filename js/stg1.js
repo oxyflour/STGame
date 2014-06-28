@@ -1198,13 +1198,6 @@ function newStage1(difficuty) {
 		{ name:'bossKill2', next:'score', },
 	], newStgSecBossKill, 'bossKill');
 	stage.askContinue = newStgSecAskContinue('secX');
-	stage.score = newStgSecScore('ended', {
-		quit: function() {
-			setTimeout(function() {
-				GAME.load(newStage2());
-				GAME.start('init');
-			}, 10);
-		}
-	});
+	stage.score = newStgSecScore('ended', newStgLoader(newStage2));
 	return stage;
 }

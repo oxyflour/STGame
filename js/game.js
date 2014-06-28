@@ -2067,9 +2067,7 @@ function newDrop(type, x, y, extra) {
 }
 
 function newDannmaku(from, to, r, rt, v, vt, ext) {
-	if (!to || !to.data) to = {
-		data: { x: UTIL.getGamePosX(0.5), y: UTIL.getGamePosY(0.9), },
-	};
+	if (!to || !to.data) to = { data: UTIL.getGamePosXY(0.5, 0.9) };
 	var dy = to.data.y - from.data.y,
 		dx = to.data.x - from.data.x,
 		rt0 = Math.atan2(dy, dx),
@@ -2093,14 +2091,10 @@ function newDannmaku(from, to, r, rt, v, vt, ext) {
 		}[ext.tama || 'TamaA'],
 		frames: RES.frames[ext.tama || 'TamaA']['kr m b c g  y ow'.indexOf(ext.color)],
 	}));
-	obj.redirect = function() {
-		this.data.vx = v * cosv;
-		this.data.vy = v * sinv;
-	}
 	obj.runCircle = function(dt, d) {
 		if (this.is_creating) {
 			if (!this.is_firing && (this.is_firing = true)) {
-				decrease_object_speed(d, 0.1);
+				decrease_object_speed(d, 0.3);
 				d.scale0 = d.scale;
 			}
 			if (d.color && !this.is_color_set && (this.is_color_set = true))
@@ -2109,7 +2103,7 @@ function newDannmaku(from, to, r, rt, v, vt, ext) {
 		}
 		else {
 			if (this.is_firing && !(this.is_firing = false)) {
-				this.redirect();
+				decrease_object_speed(d, 1/0.3);
 				d.scale = d.scale0;
 			}
 			if (d.frames && !this.is_frame_set && (this.is_frame_set = true))
@@ -2767,6 +2761,16 @@ function newStgSecsFromList(stage, list, newStageFn, prefix) {
 			next = para.next || prefix+(i+1);
 		stage[name] = newStageFn(next, para);
 	}, prefix);
+}
+function newStgLoader(stg, difficulty) {
+	return {
+		quit: function() {
+			setTimeout(function() {
+				GAME.load(stg(difficulty));
+				GAME.start('init');
+			}, 10);
+		}
+	}
 }
 function newStgHook() {
 	return {
