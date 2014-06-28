@@ -1097,6 +1097,11 @@ var STATICS = {
 				this.style.zIndex = v ? 0 : -99;
 			};
 		}],
+		['ui-class', function(e) {
+			return function(v) {
+				this.className = v;
+			};
+		}],
 		['ui-focus', function(e) {
 			return function(v) {
 				var _t = this;

@@ -791,27 +791,27 @@
 		<div class="info absolute">
 			<div class="line">
 				<div class="label"><div class="label-max-point"></div></div>
-				<div class="ui" ui-bind="'ui num n'+getNum(STATICS.max_point+1e9, 1)" ui-bind-attr="this.className"></div>
-				<div class="ui" ui-bind="'ui num n'+getNum(STATICS.max_point+1e9, 2)" ui-bind-attr="this.className"></div>
-				<div class="ui" ui-bind="'ui num n'+getNum(STATICS.max_point+1e9, 3)" ui-bind-attr="this.className"></div>
-				<div class="ui" ui-bind="'ui num n'+getNum(STATICS.max_point+1e9, 4)" ui-bind-attr="this.className"></div>
-				<div class="ui" ui-bind="'ui num n'+getNum(STATICS.max_point+1e9, 5)" ui-bind-attr="this.className"></div>
-				<div class="ui" ui-bind="'ui num n'+getNum(STATICS.max_point+1e9, 6)" ui-bind-attr="this.className"></div>
-				<div class="ui" ui-bind="'ui num n'+getNum(STATICS.max_point+1e9, 7)" ui-bind-attr="this.className"></div>
-				<div class="ui" ui-bind="'ui num n'+getNum(STATICS.max_point+1e9, 8)" ui-bind-attr="this.className"></div>
-				<div class="ui" ui-bind="'ui num n'+getNum(STATICS.max_point+1e9, 9)" ui-bind-attr="this.className"></div>
+				<div class="ui" ui-class="'ui num n'+getNum(STATICS.max_point+1e9, 1)"></div>
+				<div class="ui" ui-class="'ui num n'+getNum(STATICS.max_point+1e9, 2)"></div>
+				<div class="ui" ui-class="'ui num n'+getNum(STATICS.max_point+1e9, 3)"></div>
+				<div class="ui" ui-class="'ui num n'+getNum(STATICS.max_point+1e9, 4)"></div>
+				<div class="ui" ui-class="'ui num n'+getNum(STATICS.max_point+1e9, 5)"></div>
+				<div class="ui" ui-class="'ui num n'+getNum(STATICS.max_point+1e9, 6)"></div>
+				<div class="ui" ui-class="'ui num n'+getNum(STATICS.max_point+1e9, 7)"></div>
+				<div class="ui" ui-class="'ui num n'+getNum(STATICS.max_point+1e9, 8)"></div>
+				<div class="ui" ui-class="'ui num n'+getNum(STATICS.max_point+1e9, 9)"></div>
 			</div>
 			<div class="line">
 				<div class="label"><div class="label-point"></div></div>
-				<div class="ui" ui-bind="'ui num n'+getNum(STATICS.point+1e9, 1)" ui-bind-attr="this.className"></div>
-				<div class="ui" ui-bind="'ui num n'+getNum(STATICS.point+1e9, 2)" ui-bind-attr="this.className"></div>
-				<div class="ui" ui-bind="'ui num n'+getNum(STATICS.point+1e9, 3)" ui-bind-attr="this.className"></div>
-				<div class="ui" ui-bind="'ui num n'+getNum(STATICS.point+1e9, 4)" ui-bind-attr="this.className"></div>
-				<div class="ui" ui-bind="'ui num n'+getNum(STATICS.point+1e9, 5)" ui-bind-attr="this.className"></div>
-				<div class="ui" ui-bind="'ui num n'+getNum(STATICS.point+1e9, 6)" ui-bind-attr="this.className"></div>
-				<div class="ui" ui-bind="'ui num n'+getNum(STATICS.point+1e9, 7)" ui-bind-attr="this.className"></div>
-				<div class="ui" ui-bind="'ui num n'+getNum(STATICS.point+1e9, 8)" ui-bind-attr="this.className"></div>
-				<div class="ui" ui-bind="'ui num n'+getNum(STATICS.point+1e9, 9)" ui-bind-attr="this.className"></div>
+				<div class="ui" ui-class="'ui num n'+getNum(STATICS.point+1e9, 1)"></div>
+				<div class="ui" ui-class="'ui num n'+getNum(STATICS.point+1e9, 2)"></div>
+				<div class="ui" ui-class="'ui num n'+getNum(STATICS.point+1e9, 3)"></div>
+				<div class="ui" ui-class="'ui num n'+getNum(STATICS.point+1e9, 4)"></div>
+				<div class="ui" ui-class="'ui num n'+getNum(STATICS.point+1e9, 5)"></div>
+				<div class="ui" ui-class="'ui num n'+getNum(STATICS.point+1e9, 6)"></div>
+				<div class="ui" ui-class="'ui num n'+getNum(STATICS.point+1e9, 7)"></div>
+				<div class="ui" ui-class="'ui num n'+getNum(STATICS.point+1e9, 8)"></div>
+				<div class="ui" ui-class="'ui num n'+getNum(STATICS.point+1e9, 9)"></div>
 			</div>
 			<div class="line-sep"></div>
 			<div class="line">
@@ -839,35 +839,35 @@
 				<div class="power-bar absolute ui" ui-bind="STATICS.power+'px'" ui-bind-attr="this.style.width"></div>
 				<div class="label"><div class="label-power"></div></div>
 				<div class="ui float-left" ui-show="STATICS.power < 128">
-					<div class="ui" ui-bind="'ui num n'+getNum(STATICS.power, 0)" ui-bind-attr="this.className"></div>
-					<div class="ui" ui-bind="'ui num n'+getNum(STATICS.power, 1)" ui-bind-attr="this.className"></div>
-					<div class="ui" ui-bind="'ui num n'+getNum(STATICS.power, 2)" ui-bind-attr="this.className"></div>
+					<div class="ui" ui-class="'ui num n'+getNum(STATICS.power, 0)"></div>
+					<div class="ui" ui-class="'ui num n'+getNum(STATICS.power, 1)"></div>
+					<div class="ui" ui-class="'ui num n'+getNum(STATICS.power, 2)"></div>
 				</div>
 				<div class="ui power-max" ui-show="STATICS.power >= 128"></div>
 			</div>
 			<div class="line-small">
 				<div class="label"><div class="label-graze"></div></div>
-				<div class="ui" ui-bind="'ui num n'+getNum(STATICS.graze, 0)" ui-bind-attr="this.className"></div>
-				<div class="ui" ui-bind="'ui num n'+getNum(STATICS.graze, 1)" ui-bind-attr="this.className"></div>
-				<div class="ui" ui-bind="'ui num n'+getNum(STATICS.graze, 2)" ui-bind-attr="this.className"></div>
-				<div class="ui" ui-bind="'ui num n'+getNum(STATICS.graze, 3)" ui-bind-attr="this.className"></div>
-				<div class="ui" ui-bind="'ui num n'+getNum(STATICS.graze, 4)" ui-bind-attr="this.className"></div>
-				<div class="ui" ui-bind="'ui num n'+getNum(STATICS.graze, 5)" ui-bind-attr="this.className"></div>
-				<div class="ui" ui-bind="'ui num n'+getNum(STATICS.graze, 6)" ui-bind-attr="this.className"></div>
-				<div class="ui" ui-bind="'ui num n'+getNum(STATICS.graze, 7)" ui-bind-attr="this.className"></div>
-				<div class="ui" ui-bind="'ui num n'+getNum(STATICS.graze, 8)" ui-bind-attr="this.className"></div>
+				<div class="ui" ui-class="'ui num n'+getNum(STATICS.graze, 0)"></div>
+				<div class="ui" ui-class="'ui num n'+getNum(STATICS.graze, 1)"></div>
+				<div class="ui" ui-class="'ui num n'+getNum(STATICS.graze, 2)"></div>
+				<div class="ui" ui-class="'ui num n'+getNum(STATICS.graze, 3)"></div>
+				<div class="ui" ui-class="'ui num n'+getNum(STATICS.graze, 4)"></div>
+				<div class="ui" ui-class="'ui num n'+getNum(STATICS.graze, 5)"></div>
+				<div class="ui" ui-class="'ui num n'+getNum(STATICS.graze, 6)"></div>
+				<div class="ui" ui-class="'ui num n'+getNum(STATICS.graze, 7)"></div>
+				<div class="ui" ui-class="'ui num n'+getNum(STATICS.graze, 8)"></div>
 			</div>
 			<div class="line-small">
 				<div class="label"><div class="label-dot"></div></div>
-				<div class="ui" ui-bind="'ui num n'+getNum(STATICS.dot, 0)" ui-bind-attr="this.className"></div>
-				<div class="ui" ui-bind="'ui num n'+getNum(STATICS.dot, 1)" ui-bind-attr="this.className"></div>
-				<div class="ui" ui-bind="'ui num n'+getNum(STATICS.dot, 2)" ui-bind-attr="this.className"></div>
-				<div class="ui" ui-bind="'ui num n'+getNum(STATICS.dot, 3)" ui-bind-attr="this.className"></div>
-				<div class="ui" ui-bind="'ui num n'+getNum(STATICS.dot, 4)" ui-bind-attr="this.className"></div>
-				<div class="ui" ui-bind="'ui num n'+getNum(STATICS.dot, 5)" ui-bind-attr="this.className"></div>
-				<div class="ui" ui-bind="'ui num n'+getNum(STATICS.dot, 6)" ui-bind-attr="this.className"></div>
-				<div class="ui" ui-bind="'ui num n'+getNum(STATICS.dot, 7)" ui-bind-attr="this.className"></div>
-				<div class="ui" ui-bind="'ui num n'+getNum(STATICS.dot, 8)" ui-bind-attr="this.className"></div>
+				<div class="ui" ui-class="'ui num n'+getNum(STATICS.dot, 0)"></div>
+				<div class="ui" ui-class="'ui num n'+getNum(STATICS.dot, 1)"></div>
+				<div class="ui" ui-class="'ui num n'+getNum(STATICS.dot, 2)"></div>
+				<div class="ui" ui-class="'ui num n'+getNum(STATICS.dot, 3)"></div>
+				<div class="ui" ui-class="'ui num n'+getNum(STATICS.dot, 4)"></div>
+				<div class="ui" ui-class="'ui num n'+getNum(STATICS.dot, 5)"></div>
+				<div class="ui" ui-class="'ui num n'+getNum(STATICS.dot, 6)"></div>
+				<div class="ui" ui-class="'ui num n'+getNum(STATICS.dot, 7)"></div>
+				<div class="ui" ui-class="'ui num n'+getNum(STATICS.dot, 8)"></div>
 			</div>
 		</div>
 		<div class="logo absolute"></div>
