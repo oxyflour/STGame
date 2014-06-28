@@ -96,7 +96,7 @@ function stg3Sec1(pth, count, offset, speed, rand, life) {
 	STORY.timeout(function (d, n) {
 		ieach(offset || [[0, 0]], function(i, v) {
 			var obj = SPRITE.newObj('Enemy', {
-				life: life || 1,
+				life: life || 2,
 				frames: RES.frames.Enemy2A,
 				pathnodes: UTIL.pathOffset(RES.path[pth], v[0], v[1]),
 			});
@@ -115,6 +115,7 @@ function stg3Sec2(range, interval, danns) {
 				y: GAME.rect.t,
 				vx: 0,
 				vy: 0.1,
+				life: 20,
 				frames: RES.frames.Enemy3A,
 			})
 			obj.anim(50, function(d) {
@@ -141,6 +142,7 @@ function stg3Sec3(interval, count) {
 			y: GAME.rect.t,
 			vx: 0,
 			vy: 0.1,
+			life: 20,
 			frames: RES.frames.Enemy3B,
 		})
 		obj.anim(50, function(d) {
@@ -161,7 +163,7 @@ function stg3Sec4(pth, count, offset, interval, speed, rand, life) {
 	STORY.timeout(function (d, n) {
 		ieach(offset || [[0, 0]], function(i, v) {
 			var obj = SPRITE.newObj('Enemy', {
-				life: life || 1,
+				life: life || 2,
 				frames: RES.frames.Enemy00,
 				pathnodes: UTIL.pathOffset(RES.path[pth], v[0], v[1]),
 			});
