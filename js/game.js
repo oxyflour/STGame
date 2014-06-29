@@ -1188,7 +1188,7 @@ return proto = {
 				h = m.ch;
 			ieach(t.text, function(i, c) {
 				var pos = m[c];
-				dc.drawImageInt(RES[t.res], pos.x, pos.y, m.cw, m.ch,
+				dc.drawImage(RES[t.res], pos.x, pos.y, m.cw, m.ch,
 					d.x - w/2 + m.cw*i, d.y - h/2, m.cw, m.ch);
 			});
 		}
@@ -2929,7 +2929,7 @@ function newStgHook() {
 				}
 				if (v.data.point_pt) {
 					STATICS.dot ++;
-					SPRITE.newObj('Basic', {
+					var obj = SPRITE.newObj('Basic', {
 						x: v.data.x,
 						y: v.data.y,
 						text: {
@@ -2939,6 +2939,9 @@ function newStgHook() {
 						},
 						duration: 1000,
 					});
+					obj.runBasic = function(dt, d) {
+						d.y -= 0.02*dt;
+					}
 				}
 				RES.se_item00.replay();
 			}
