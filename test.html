@@ -1,0 +1,48 @@
+<style>
+body {
+	-webkit-perspective: 1000px;
+}
+.cont {
+	-webkit-transform-style: preserve-3d;
+	-webkit-transform: rotateX(30deg);
+}
+.cube {
+	-webkit-transform-style: preserve-3d;
+	position: absolute;
+}
+.face {
+	position: absolute;
+	width: 100px;
+	height: 100px;
+}
+.face.top {
+	background: red;
+	-webkit-transform: rotateX(-90deg) translateZ(50px);
+}
+.face.left {
+	background: blue;
+	-webkit-transform: rotateY( 90deg) translateZ(50px);
+}
+.face.right {
+	background: blue;
+	-webkit-transform: rotateY(-90deg) translateZ(50px);
+}
+.face.front {
+	background: black;
+	-webkit-transform: rotateY(  0deg) translateZ(50px);
+}
+</style>
+<div class="cont">
+	<div class="cube" style="left:0">
+		<div class="face top"></div>
+		<div class="face left"></div>
+		<div class="face right"></div>
+		<div class="face front"></div>
+	</div>
+	<div class="cube" style="left:200px">
+		<div class="face top"></div>
+		<div class="face left"></div>
+		<div class="face right"></div>
+		<div class="face front"></div>
+	</div>
+</div>

@@ -310,8 +310,10 @@ function $style(e, k, v) {
 	}
 	else {
 		var pk = {
+			'perspective': 'Perspective',
 			'transform': 'Transform',
 			'transform-origin': 'TransformOrigin',
+			'transform-style': 'TransformStyle',
 		}[k];
 		if (pk) {
 			ieach([
@@ -2460,10 +2462,11 @@ function newBackground(scrollImgs) {
 	bg.draw = return_nothing;
 	ieach(scrollImgs, function(i, e) {
 		e.object = bg;
+		e.trans = $attr(e, 'bg-trans') || '';
 		e.offsetX = parseFloat($attr(e, 'bg-offset-x') || '0');
 		e.offsetY = parseFloat($attr(e, 'bg-offset') || '0');
-		e.totalX = parseFloat($style(e, 'width')) - parseFloat($style('.game', 'width'));
-		e.totalY = parseFloat($style(e, 'height')) - parseFloat($style('.game', 'height'));
+		e.totalX = parseFloat($style(e, 'width')) - parseFloat($attr(e, 'bg-repeat-x') || $style('.game', 'width'));
+		e.totalY = parseFloat($style(e, 'height')) - parseFloat($attr(e, 'bg-repeat') || $style('.game', 'height'));
 		e.speedX = parseFloat($attr(e, 'bg-speed-x') || '0');
 		e.speedY = parseFloat($attr(e, 'bg-speed') || '0');
 	});
@@ -2477,9 +2480,8 @@ function newBackground(scrollImgs) {
 					e.offsetX += e.totalX;
 				if ((e.offsetY += e.speedY * 50) > 0)
 					e.offsetY -= e.totalY;
-				var trans = 'translate(' + e.offsetX + 'px, ' + e.offsetY + 'px)',
-					trans2 = trans + ' rotate(0.0001deg)';
-				$style(e, 'transform', trans2);
+				var trans = 'translate3d(' + e.offsetX + 'px, ' + e.offsetY + 'px, 0px)';
+				$style(e, 'transform', e.trans+' '+trans);
 			}
 		});
 	});

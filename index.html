@@ -189,6 +189,84 @@
 			})
 		})
 	</script>
+	<!-- stg4 bg -->
+	<img id="stg4bg" src="res/stg4bg.png" />
+	<canvas id="stg4_block_front0" from="stg4bg 16 64 240 160" transform=";"></canvas>
+	<canvas id="stg4_block_front1" from="stg4_block_front0 190 0 240 160" bg-css=".block .face-b"></canvas>
+	<canvas id="stg4_block_side" from="stg4bg 16 16 64 32" bg-css=".block .face-f, .block .face-l, .block .face-r"></canvas>
+	<script id="gen_stg4bg">
+	(function(RES) {
+		function newBlock(x, y, cx, cy, cz) {
+			var e = $new('div', {
+				className: 'block',
+			});
+			keach({
+				position: 'relative',
+				left: x+'px',
+				top: y+'px',
+				'transform-style': 'preserve-3d',
+			}, function(k, v) {
+				$style(e, k, v);
+			})
+			e.appendChild(newFace('f', cx, cy, cz));
+			e.appendChild(newFace('b', cx, cy, cz));
+			e.appendChild(newFace('l', cx, cy, cz));
+			e.appendChild(newFace('r', cx, cy, cz));
+			return e;
+		}
+		function newFace(d, cx, cy, cz) {
+			var i = 'fstblr'.indexOf(d),
+				w = [cx, cx, cx, cx, cz, cz][i],
+				h = [cy, cy, cz, cz, cy, cy][i],
+				t = [cz, cz, cy, cy, cx, cx][i];
+			var e = $new('div', {
+				className: 'face-'+d,
+			});
+			keach({
+				position: 'absolute',
+				width: w+'px',
+				height: h+'px',
+				left: (-w/2)+'px',
+				top: (-h/2)+'px',
+				transform: {
+					f: '',
+					s: 'rotateX(180deg) ',
+					t: 'rotateX( 90deg) ',
+					b: 'rotateX(-90deg) ',
+					l: 'rotateY( 90deg) ',
+					r: 'rotateY(-90deg) ',
+				}[d] + 'translateZ('+(t/2)+'px)',
+				'background-color': {
+					f: 'black',
+					s: 'white',
+					t: 'red',
+					b: 'orange',
+					l: 'blue',
+					r: 'cyan',
+				}[d],
+			}, function(k, v) {
+				$style(e, k, v);
+			})
+			return e;
+		}
+		var bg = $i('#stg4gnd');
+		$style(bg.parentNode, 'perspective', '1000px');
+		$style(bg, 'transform-style', 'preserve-3d');
+		$style(bg, 'transform-origin', 'center top');
+
+		var th = parseInt($style(bg, 'height')),
+			rh = parseInt($attr(bg, 'bg-repeat')),
+			ps = [];
+		range(th - rh, 0, 300, function(y) {
+			var x = random(400);
+			bg.appendChild(newBlock(x, y, 242, 50, 150));
+			if (y < rh) ps.push({ x:x, y:th-rh+y });
+		})
+		ieach(ps, function(i, v) {
+			bg.appendChild(newBlock(v.x, v.y, 242, 50, 150));
+		})
+	})
+	</script>
 	<!-- creating background css with toDataUrl -->
 	<script id="gen_bgcss">
 		(function(RES) {
@@ -728,6 +806,11 @@
 					style="height:500px;background:linear-gradient(rgba(190,171,107,0.9),transparent);
 						-webkit-transform:translate3d(0,0,0.1px)"></div>
 			</div>
+			<div class="game-size absolute no-overflow ui-obj bg-stg4" style="background:#222">
+				<div class="absolute game-size bg-stg4" style="height:3200px" bg-repeat="1200px"
+					id="stg4gnd" bg-speed="0.02" bg-trans="rotateX(60deg)">
+				</div>
+			</div>
 			<canvas class="game-size absolute no-overflow ui-obj bg-stg3" id="bg_stg3_dot"></canvas>
 			<div class="game-size absolute">
 				<div class="absolute game-size ui-obj anim-in-01s" id="bg_sc_rumia" bg-speed="0.1"
@@ -1049,6 +1132,7 @@
 <script src="js/stg1.js"></script>
 <script src="js/stg2.js"></script>
 <script src="js/stg3.js"></script>
+<script src="js/stg4.js"></script>
 <script src="js/index.js"></script>
 </body>
 </html>
