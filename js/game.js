@@ -208,7 +208,7 @@ function redirect_object(from, to, v, f) {
 		r = sqrt_sum(dx, dy);
 	var vx = v * dx / r,
 		vy = v * dy / r;
-	if (f > 0 && f < 1) {
+	if (f >= 0 && f <= 1) {
 		var tx = interp(from.vx, vx, f),
 			ty = interp(from.vy, vy, f),
 			tr = sqrt_sum(tx, ty);
@@ -218,6 +218,12 @@ function redirect_object(from, to, v, f) {
 	from.vx = vx;
 	from.vy = vy;
 	return r;
+}
+function rotate_object_speed(obj, a, v) {
+	var t = Math.atan2(obj.vy, obj.vx) + a;
+	v = v || sqrt_sum(obj.vx, obj.vy);
+	obj.vx = v * Math.cos(t);
+	obj.vy = v * Math.sin(t);
 }
 function decrease_object_speed(obj, f) {
 	obj.vx *= f;
@@ -2796,7 +2802,7 @@ function newStgHook() {
 					bomb_reset: 3,
 					bomb_max: 7,
 					point: 0,
-					player: 3,
+					player: 99,//debug,
 					bomb: 3,
 					power: 0,
 					graze: 0,
@@ -2805,7 +2811,7 @@ function newStgHook() {
 				})
 				if (GAME.double_player_mode && !(GAME.double_player_mode = false))
 					newPlayer('p2');
-				if (1 || GAME.many_lives_mode && !(GAME.many_lives_mode = false)) {
+				if (GAME.many_lives_mode && !(GAME.many_lives_mode = false)) {
 					STATICS.player = 7;
 					STATICS.bomb_reset = 7;
 					STATICS.bomb = STATICS.bomb_reset;

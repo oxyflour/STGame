@@ -199,7 +199,7 @@ function stg3Danns2A(from, to, rads) {
 				frames: RES.frames.LongB[6],
 			})
 		})
-//		RES.se_lazer00.replay();
+		RES.se_stg3_lz.replay(0.02);
 	}, 50, null, 15)
 }
 function stg3Danns2(from, rads) {
@@ -274,6 +274,41 @@ function meilingFire3R(from) {
 	})
 	meilingFire2R(from);
 }
+function meilingSC0(from) {
+	STORY.timeout(function(d, n) {
+		ieach([1, -1], function(i, x) {
+			range(1, 0, 1/6, function(f) {
+				var obj = newDannmaku(from, null, 0, f*PI2+n*x*0.15, 0.2, 0, {
+					color: 'y',
+					tama: 'LongC',
+				})
+				obj.anim(100, function(d) {
+					if (d.age < 800)
+						;
+					else if (d.age < 1500)
+						decrease_object_speed(d, 0.5);
+					else if (d.age < 1800) {
+						if (!this.is_redirected && (this.is_redirected = true))
+							rotate_object_speed(d, x*2.6, 0.08);
+					}
+					else {
+						rotate_object_speed(d, x*2.6, 0.1);
+						return true;
+					}
+				}, obj.data)
+			})
+		})
+		RES.se_kira01.play();
+	}, 100, null, 1000)
+	STORY.timeout(function(d, n) {
+		range(1, 0, 1/50, function(f) {
+			newDannmaku(from, UTIL.getOneAlive('Player'), 0, f*PI2, 0.12, 0, {
+				color: 'r',
+				tama: 'LongC',
+			})
+		})
+	}, 2000, null, 1000)
+}
 
 function stg3Danns5(from) {
 	var to = { data:{ x:from.data.x, y:GAME.rect.b, } };
@@ -305,7 +340,8 @@ function meilingFire4(from) {
 				tama: 'LongC',
 			})
 		})
-//		RES.se_tan00.replay();
+		if (n % 3 == 0)
+			RES.se_stg3_fire1.replay(0.02);
 	}, 50, null, 50)
 }
 function meilingSC1(from) {
@@ -349,6 +385,7 @@ function meilingFire6(from, duration) {
 				y: GAME.rect.t,
 				vx: 0,
 				vy: 0.1,
+				life: 20,
 				frames: RES.frames.Enemy3A,
 				story: STORY.state.n,
 			})
@@ -404,7 +441,7 @@ function meilingSC2(from, duration) {
 				})
 			})
 		})
-//		RES.se_tan00.replay();
+		RES.se_stg3_tan.replay();
 	}, 80, null, Math.floor((duration || 5000) / 80))
 }
 function meilingFire7(from, color) {
@@ -449,8 +486,8 @@ function meilingFire7A(from) {
 			if (d.age > 150 && d.age < 2000)
 				d.vy += 0.01;
 		}, obj.data)
-//		if (n % 10 == 0)
-//			RES.se_tan00.replay(0.02);
+		if (n % 5 == 0)
+			RES.se_stg3_fire1.replay(0.02);
 	}, 10, null, 100)
 }
 function meilingSC3(from) {
@@ -463,8 +500,8 @@ function meilingSC3(from) {
 				tama: 'LongC',
 			})
 		})
-//		if (n % 10 == 0)
-//			RES.se_lazer00.replay();
+		if (n % 5 == 0)
+			RES.se_stg3_fire1.replay(0.02);
 	}, 10, null, 65)
 }
 function meilingSC3A(from) {
@@ -481,7 +518,8 @@ function meilingSC3A(from) {
 				d.vy += d.ay*0.02;
 			}, obj.data)
 		})
-//		RES.se_lazer00.replay();
+		if (n % 2 == 0)
+			RES.se_stg3_fire1.replay(0.02);
 	}, 40, null, 50)
 }
 function meilingSC4(from) {
@@ -498,7 +536,8 @@ function meilingSC4(from) {
 				decrease_object_speed(d, 1.02);
 			}, obj.data);
 		})
-//		RES.se_lazer00.replay();
+		if (n % 3 == 0)
+			RES.se_stg3_fire1.replay(0.02);
 	}, 50, null, 1000)
 }
 
@@ -637,6 +676,15 @@ function newStage3(difficuty) {
 			duration: 30000,
 		},
 		{
+			pathnodes: [
+				{ v:0.2 },
+				{ t:NaN, fx:0.5, fy:0.2, },
+				{ t:2000, fn:meilingSC0, },
+			],
+			duration: 20000,
+			scname: RES.st_stg3_sc0,
+		},
+		{
 			duration: 100,
 			no_countdown: true,
 			invinc: true,
@@ -702,7 +750,7 @@ function newStage3(difficuty) {
 			pathnodes: [
 				{ v:0.2, },
 				{ t:NaN,  fx:0.5, fy:0.2, },
-				{ t:2000, fn:meilingFire6, args:[10000], },
+				{ t:2000, fn:meilingFire6, args:[14000], },
 				{ t:1000, fn:meilingFire6A, },
 				{ t:1000, fn:meilingFire6A, },
 				{ t:1000, fn:meilingFire6A, },
@@ -719,7 +767,7 @@ function newStage3(difficuty) {
 				{ t:1000, fn:stg3Danns6, args:['b', 30], },
 				{ t:1000, fn:stg3Danns6, args:['b', 30], },
 				{ t:100,  fx:0.8, fy:0.15, },
-				{ t:2000, fn:meilingFire6, args:[10000], },
+				{ t:2000, fn:meilingFire6, args:[14000], },
 				{ t:1000, fn:stg3Danns6, args:['b', 30], },
 				{ t:1000, fn:stg3Danns6, args:['b', 30], },
 				{ t:1000, fn:stg3Danns6, args:['b', 30], },
@@ -732,7 +780,7 @@ function newStage3(difficuty) {
 				{ t:1000, fn:stg3Danns6, args:['b', 30], },
 				{ t:1000, fn:stg3Danns6, args:['b', 30], },
 				{ t:100,  fx:0.7, fy:0.1, },
-				{ t:2000, fn:meilingFire6, args:[10000], },
+				{ t:2000, fn:meilingFire6, args:[14000], },
 			],
 			duration: 30000,
 		},
