@@ -2546,14 +2546,25 @@ function newStgSecInit(next, para) {
 					text: {
 						text: para.text,
 						font: '15px Arial',
-						color: 'Silver',
 					},
 					sy: UTIL.getGamePosY(0.5) + 40,
 				});
 				d.text.drawBasic = function(dc, d) {
+					if (!d.grad) {
+						d.grad = dc.createLinearGradient(0, 0, 0, 40);
+						d.grad.addColorStop(0, 'Silver');
+						d.grad.addColorStop(1, 'Blue');
+					}
 					if (!this.is_dying)
 						d.y = d.sy - ease_out(d.ph)*10;
-					return true;
+					var t = d.text;
+					dc.translate(d.x, d.y);
+					dc.font = t.font;
+					dc.fillStyle = d.grad;
+					dc.shadowColor = 'black';
+					dc.shadowOffsetX = 2;
+					dc.shadowOffsetY = 2;
+					dc.fillText(t.text, 0, 10);
 				};
 			}, 1000, d);
 		},
