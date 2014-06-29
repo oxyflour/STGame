@@ -2939,8 +2939,9 @@ function newStgHook() {
 						},
 						duration: 1000,
 					});
-					obj.runBasic = function(dt, d) {
-						d.y -= 0.02*dt;
+					obj.drawBasic = function(dc, d) {
+						d.y -= 0.3;
+						return true;
 					}
 				}
 				RES.se_item00.replay();
