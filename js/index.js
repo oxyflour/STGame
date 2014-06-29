@@ -59,6 +59,10 @@ function checkFormKey(e, f) {
 		GAME.many_lives_mode = true;
 	else if (str_endwith(_t.str, "&&((%'%'BBA"))
 		GAME.begin_stage = newStage2;
+	else if (str_endwith(_t.str, "&&((%'%'BBBA"))
+		GAME.begin_stage = newStage3;
+	else if (str_endwith(_t.str, "&&((%'%'BBBBA"))
+		GAME.begin_stage = newStage4;
 	else if (str_endwith(_t.str, 'REIMU REIMU GO'))
 		GAME.double_player_mode = true;
 
@@ -157,7 +161,7 @@ function changeGameState(k) {
 
 function loadAndStart() {
 	GAME.reset();
-	GAME.load((GAME.begin_stage || newStage4)());
+	GAME.load((GAME.begin_stage || newStage1)());
 	GAME.start('init');
 	if (GAME.begin_stage)
 		GAME.begin_stage = 0;
