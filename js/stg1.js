@@ -161,12 +161,13 @@ function newDanns1(from, speed, rand) {
 function newDanns2(from) {
 	var to = UTIL.getNearestAlive(from, 'Player');
 	if (!from.is_dying) range(0.501, -0.5, 1/8, function(f) {
-		var obj = newDannmaku(from, to, 0, f*PI*0.6, 0.5, 0, {
+		var obj = newDannmaku(from, to, 0, f*PI*0.6, 0.4, 0, {
+			dh: 1/200,
 			color: 'r',
 			frames: RES.frames.TamaA[2],
 		});
 		obj.anim(50, function(d) {
-			return d.age < 800 ? decrease_object_speed(d, 0.85) : true;
+			return d.age < 800 ? decrease_object_speed(d, 0.9) : true;
 		}, obj.data);
 	})
 }
