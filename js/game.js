@@ -1228,8 +1228,8 @@ return proto = {
 			var t = +f.rotate===f.rotate ? f.rotate :
 				PI*1.5 + Math.atan2(d.vy, d.vx);
 
-			//if (0 || f.rotate_list) {
-			if (0) { // disabled
+			/* disabled because it seems not any faster
+			if (f.rotate_list) {
 				var k = f.rotate_key || (f.rotate_key = 'rotate_list_'+[f.res, f.sx, f.sy, f.sw, f.sh].join('_')),
 					a = RES[k] || (RES[k] = UTIL.newRotateList(f)),
 					i = Math.floor(t/PI2*f.rotate_list) % f.rotate_list;
@@ -1238,6 +1238,8 @@ return proto = {
 					d.x-w/2, d.y-h/2, w, h);
 			}
 			else {
+			*/
+			{
 				dc.translate(d.x, d.y);
 				dc.rotate(t);
 				dc.drawImageInt(RES[f.res],
