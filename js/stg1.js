@@ -432,10 +432,11 @@ function newBossDanns8(from, color, count, delay, dec, dv) {
 				vr: 0,
 				vt: 0,
 				vi: i *= -1,
+				delay: delay || 1000,
 			});
 			obj.space = { l:50, r:50, t:50, b:80, };
 			obj.anim(80, function(d) {
-				if (d.age < (delay || 1000)) {
+				if (d.age < d.delay) {
 					decrease_object_speed(d, dec || 0.8);
 				}
 				else {
@@ -443,7 +444,7 @@ function newBossDanns8(from, color, count, delay, dec, dv) {
 						cos = (d.x - d.sx) / r,
 						sin = (d.y - d.sy) / r;
 					d.vr += d.dv;
-					d.vt = d.vt ? d.vt*0.98 : r*d.vi*0.002;
+					d.vt = d.vt ? d.vt*0.98 : r/d.delay*d.vi*2;
 					d.vx = d.vr * cos + d.vt * sin;
 					d.vy = d.vr * sin - d.vt * cos;
 					if (r < 20)
