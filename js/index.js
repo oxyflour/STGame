@@ -161,8 +161,8 @@ function changeGameState(k) {
 
 function loadAndStart() {
 	GAME.reset();
-	GAME.load((GAME.begin_stage || newStage3)());
-	GAME.start('boss2');
+	GAME.load((GAME.begin_stage || newStage4)());
+	GAME.start('init');
 	if (GAME.begin_stage)
 		GAME.begin_stage = 0;
 }

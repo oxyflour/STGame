@@ -259,12 +259,20 @@
 			ps = [];
 		range(th - rh, 0, 300, function(y) {
 			var x = random(400);
-			bg.appendChild(newBlock(x, y, 242, 50, 150));
+			bg.appendChild(newBlock(x, y, 242, 50, 160));
 			if (y < rh) ps.push({ x:x, y:th-rh+y });
 		})
 		ieach(ps, function(i, v) {
-			bg.appendChild(newBlock(v.x, v.y, 242, 50, 150));
+			bg.appendChild(newBlock(v.x, v.y, 242, 50, 160));
 		})
+	})
+	</script>
+	<img id="stg4enm" src="res/stg4enm.png" />
+	<script id="stg4frs">
+	(function(RES) {
+		return {
+			Circle: newFrame('stg4enm', 0, 96, 64, 64),
+		}
 	})
 	</script>
 	<!-- creating background css with toDataUrl -->
@@ -736,6 +744,8 @@
 	<script type="text/html" id="st_stg3_diag17">那么，领路就拜托你了哦</script>
 	<script type="text/html" id="st_stg3_diag18">再往前啥都没了<br />因为是体验版来着</script>
 	<script type="text/html" id="st_stg3_diag19">嘛，那就没辙了</script>
+	<!-- stage 3 -->
+	<script type="text/html" id="st_stg4_title">暗闇之馆  ~ Save the mind.</script>
 	<!-- sfx -->
 	<audio preload oncanplaythrough="this.complete=true" class="se" id="se_graze" src="res/se_graze.mp3" replay-queue="4"></audio>
 	<audio preload oncanplaythrough="this.complete=true" class="se" id="se_pldead00" src="res/se_pldead00.mp3"></audio>
@@ -807,7 +817,7 @@
 					style="height:500px;background:linear-gradient(rgba(190,171,107,0.9),transparent);
 						-webkit-transform:translate3d(0,0,0.1px)"></div>
 			</div>
-			<div class="game-size absolute no-overflow ui-obj bg-stg4" style="background:#222">
+			<div class="game-size absolute no-overflow ui-obj bg-stg4" style="background:#000">
 				<div class="absolute game-size bg-stg4" style="height:3200px" bg-repeat="1200px"
 					id="stg4gnd" bg-speed="0.02" bg-trans="rotateX(60deg)">
 				</div>
