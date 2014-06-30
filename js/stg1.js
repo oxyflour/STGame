@@ -1199,6 +1199,7 @@ function newStage1(difficuty) {
 		{ name:'bossKill2', next:'score', },
 	], newStgSecBossKill, 'bossKill');
 	stage.askContinue = newStgSecAskContinue('secX');
-	stage.score = newStgSecScore('ended', newStgLoader(newStage2(difficuty)));
+	stage.score = newStgSecScore('ended');
+	stage.ended = newStgSecLoadNew(newStage2(difficuty));
 	return stage;
 }

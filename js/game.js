@@ -2787,15 +2787,11 @@ function newStgSecOver() {
 		}
 	}
 }
-function newStgSecsFromList(stage, list, newStageFn, prefix) {
-	ieach(list, function(i, para, prefix) {
-		var name = para.name || prefix+i,
-			next = para.next || prefix+(i+1);
-		stage[name] = newStageFn(next, para);
-	}, prefix);
-}
-function newStgLoader(stg) {
+function newStgSecLoadNew(stg) {
 	return {
+		run: function() {
+			return 'loading new stage...'
+		},
 		quit: function() {
 			setTimeout(function() {
 				GAME.load(stg);
@@ -2803,6 +2799,13 @@ function newStgLoader(stg) {
 			}, 10);
 		}
 	}
+}
+function newStgSecsFromList(stage, list, newStageFn, prefix) {
+	ieach(list, function(i, para, prefix) {
+		var name = para.name || prefix+i,
+			next = para.next || prefix+(i+1);
+		stage[name] = newStageFn(next, para);
+	}, prefix);
 }
 function newStgHook() {
 	return {
