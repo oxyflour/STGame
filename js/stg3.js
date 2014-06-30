@@ -292,14 +292,14 @@ function meilingSC0(from) {
 							rotate_object_speed(d, x*2.6, 0.08);
 					}
 					else {
-						rotate_object_speed(d, x*2.6, 0.1);
+						rotate_object_speed(d, x*2.6, 0.12);
 						return true;
 					}
 				}, obj.data)
 			})
 		})
 		RES.se_kira01.play();
-	}, 100, null, 1000)
+	}, 80, null, 1000)
 	STORY.timeout(function(d, n) {
 		range(1, 0, 1/50, function(f) {
 			newDannmaku(from, UTIL.getOneAlive('Player'), 0, f*PI2, 0.12, 0, {
