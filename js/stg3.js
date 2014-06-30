@@ -894,7 +894,8 @@ function newStage3(difficuty) {
 	newStgSecsFromList(stage, [
 		{ name:'bossKill', next:'diagIn2', },
 	], newStgSecBossKill, 'bossKill');
-	stage.score = newStgSecScore('ended', newStgLoader(newStage4));
+	stage.score = newStgSecScore('over');
+	stage.over = newStgSecOver();
 	return stage;
 }
 

@@ -2780,6 +2780,13 @@ function newStgSecScore(next, para) {
 		},
 	};
 }
+function newStgSecOver() {
+	return {
+		run: function(dt, d) {
+			GAME.state = GAME.states.OVER;
+		}
+	}
+}
 function newStgSecsFromList(stage, list, newStageFn, prefix) {
 	ieach(list, function(i, para, prefix) {
 		var name = para.name || prefix+i,
@@ -2787,11 +2794,11 @@ function newStgSecsFromList(stage, list, newStageFn, prefix) {
 		stage[name] = newStageFn(next, para);
 	}, prefix);
 }
-function newStgLoader(stg, difficulty) {
+function newStgLoader(stg) {
 	return {
 		quit: function() {
 			setTimeout(function() {
-				GAME.load(stg(difficulty));
+				GAME.load(stg);
 				GAME.start('init');
 			}, 10);
 		}

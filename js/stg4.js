@@ -6,10 +6,5 @@ function newStage4(difficuty) {
 		title: 'STAGE 4',
 		text: 'Hello MuQ!',
 	});
-	stage.over = {
-		run: function(dt, d) {
-			GAME.state = GAME.states.OVER;
-		}
-	}
 	return stage;
 }
