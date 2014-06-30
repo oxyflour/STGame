@@ -1052,6 +1052,21 @@ var UTIL = {
 			if (d.age > t) return n;
 		}
 	},
+	newRotateList: function(f) {
+		return range(360, 0, 360/f.rotate_list, function(t) {
+			var cv = $new('canvas', {
+				width: f.sw,
+				height: f.sh,
+			})
+			var dc = cv.getContext('2d');
+			dc.translate(f.sw/2, f.sh/2);
+			dc.rotate(t / 360 * PI2);
+			dc.drawImage(RES[f.res],
+				f.sx, f.sy, f.sw, f.sh,
+				-f.sw/2, -f.sh/2, f.sw, f.sh);
+			return cv;
+		})
+	},
 	pathOffset: function(ps, dx, dy) {
 		return ieach(ps, function(i, v, d) {
 			v = extend({}, v);
@@ -1212,11 +1227,23 @@ return proto = {
 		if (f.rotate) {
 			var t = +f.rotate===f.rotate ? f.rotate :
 				PI*1.5 + Math.atan2(d.vy, d.vx);
-			dc.translate(d.x, d.y);
-			dc.rotate(t);
-			dc.drawImageInt(RES[f.res],
-				f.sx, f.sy, f.sw, f.sh,
-				-w/2, -h/2, w, h);
+
+			//if (0 || f.rotate_list) {
+			if (0) { // disabled
+				var k = f.rotate_key || (f.rotate_key = 'rotate_list_'+[f.res, f.sx, f.sy, f.sw, f.sh].join('_')),
+					a = RES[k] || (RES[k] = UTIL.newRotateList(f)),
+					i = Math.floor(t/PI2*f.rotate_list) % f.rotate_list;
+				dc.drawImageInt(a[i],
+					0, 0, f.sw, f.sh,
+					d.x-w/2, d.y-h/2, w, h);
+			}
+			else {
+				dc.translate(d.x, d.y);
+				dc.rotate(t);
+				dc.drawImageInt(RES[f.res],
+					f.sx, f.sy, f.sw, f.sh,
+					-w/2, -h/2, w, h);
+			}
 		}
 		else dc.drawImageInt(RES[f.res],
 			f.sx, f.sy, f.sw, f.sh,

@@ -346,7 +346,8 @@
 
 			ieach(['Drops', 'Lasers', 'TamaA', 'TamaB', 'LongA', 'LongB', 'LongC'], function(i, k) {
 				_t[k] = array(16, function(j) {
-					return { res:'etama3', sx:16*j, sy:i*16, sw:16, sh:16, w:16, h:16, rotate:k.indexOf('Long')==0 }
+					return { res:'etama3', sx:16*j, sy:i*16, sw:16, sh:16, w:16, h:16,
+						rotate:k.indexOf('Long')==0 ? 'speed' : 0, rotate_list:360, }
 				});
 			});
 			_t.TamaSmall = array(5, function(i) {
