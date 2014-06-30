@@ -430,7 +430,8 @@ function newBossDanns8(from, color, count, delay, dec, dv) {
 				sy: from.data.y,
 				dv: (dv || 0.002) - j*0.00015,
 				vr: 0,
-				vt: (i *= -1)*0.1 - j*0.002,
+				vt: 0,
+				vi: i *= -1,
 			});
 			obj.space = { l:50, r:50, t:50, b:80, };
 			obj.anim(80, function(d) {
@@ -438,11 +439,11 @@ function newBossDanns8(from, color, count, delay, dec, dv) {
 					decrease_object_speed(d, dec || 0.8);
 				}
 				else {
-					d.vr += d.dv;
-					d.vt *= 0.99;
 					var r = sqrt_sum(d.x - d.sx, d.y - d.sy),
 						cos = (d.x - d.sx) / r,
 						sin = (d.y - d.sy) / r;
+					d.vr += d.dv;
+					d.vt = d.vt ? d.vt*0.98 : r*d.vi*0.002;
 					d.vx = d.vr * cos + d.vt * sin;
 					d.vy = d.vr * sin - d.vt * cos;
 					if (r < 20)
