@@ -1006,6 +1006,8 @@ var UTIL = {
 				e.vx = e.vy = 0;
 				return true;
 			}
+			if (n.v === Inf)
+				return true;
 
 			if (d.index == 0) {
 				// directly move object to the first point
@@ -2108,6 +2110,32 @@ function newDrop(type, x, y, extra) {
 	}));
 }
 
+function getDannmakuRadius(tama) {
+	return {
+		TamaA: 5,
+		TamaB: 5,
+		LongA: 3,
+		LongB: 3,
+		LongC: 3,
+		TamaSmall: 5,
+		TamaSmallX: 3,
+		TamaSmallY: 3,
+	}[tama] || 5;
+}
+function getDannmakuFrames(tama, color) {
+	if (tama == 'TamaA' ||
+		tama == 'TamaB' ||
+		tama == 'LongA' ||
+		tama == 'LongB' ||
+		tama == 'LongC')
+		return RES.frames[tama]['kr m b c g  y ow'.indexOf(color)];
+	else if (tama == 'TamaSmall')
+		return RES.frames[tama]['krbgy'.indexOf(color)];
+	else if (tama == 'TamaSmallX')
+		return RES.frames[tama]['kr mpb  '.indexOf(color)];
+	else if (tama == 'TamaSmallY')
+		return RES.frames[tama]['cg  y rw'.indexOf(color)];
+}
 function newDannmaku(from, to, r, rt, v, vt, ext) {
 	if (!to || !to.data) to = { data: UTIL.getGamePosXY(0.5, 0.9) };
 	var dy = to.data.y - from.data.y,
@@ -2124,14 +2152,8 @@ function newDannmaku(from, to, r, rt, v, vt, ext) {
 		y: from.data.y + r * sin,
 		vx: v * cosv,
 		vy: v * sinv,
-		r: {
-			TamaA: 5,
-			TamaB: 5,
-			LongA: 3,
-			LongB: 3,
-			LongC: 3,
-		}[ext.tama || 'TamaA'],
-		frames: RES.frames[ext.tama || 'TamaA']['kr m b c g  y ow'.indexOf(ext.color)],
+		r: getDannmakuRadius(ext.tama || 'TamaA'),
+		frames: getDannmakuFrames(ext.tama || 'TamaA', ext.color || 'w'),
 	}));
 	obj.runCircle = function(dt, d) {
 		if (this.is_creating) {
@@ -2320,12 +2342,21 @@ function newBoss(name) {
 			}
 		}, boss.data)
 		boss.drawBasic = (function(draw) {
-			return function(dt, d) {
+			return function(dc, d) {
 				var py = d.y;
 				if (!d.vx && !d.vy)
 					d.y = py + 3 * Math.sin(d.age * 0.005);
-				draw.call(boss, dt, d);
+				draw.call(boss, dc, d);
 				d.y = py;
+			}
+		})(boss.drawBasic)
+	}
+	else if (name == 'koakuma') {
+		UTIL.addFrameAnim(boss, RES.frames.Koakuma);
+		boss.drawBasic = (function(draw) {
+			return function(dc, d) {
+				d.scale = this.is_creating ? 3 - 2 * d.ph : 1;
+				draw.call(boss, dc, d);
 			}
 		})(boss.drawBasic)
 	}
