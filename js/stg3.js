@@ -544,7 +544,7 @@ function meilingSC4(from) {
 function newStage3(difficuty) {
 	var stage = {};
 	stage.hook = newStgHook();
-	stage.init = newStgSecInit('bossIn3', {
+	stage.init = newStgSecInit('init', {
 		bgelem: $('.bg-stg3'),
 		bganim: newStg3BgAnim,
 		title: 'STAGE 3',
@@ -580,7 +580,7 @@ function newStage3(difficuty) {
 			[stg3Sec1, ['s3A4', 12], 2000, ],
 			[stg3Sec3, [500, 4], 3000],
 			[stg3Sec2, [[0.1, 0.2, 0.3], 300], 6000, ],
-		], duration: 8000, },
+		], duration: 12000, },
 		{ next:'bossIn' },
 		{ name:'secIn', },
 		{ init:newSecList, args:[
@@ -613,7 +613,7 @@ function newStage3(difficuty) {
 			[stg3Sec1, ['s3A4', 12], ],
 		], duration: 2000, },
 		{ init:stg3Sec2, args:[[0.25], 1000, stg3Danns6], duration:3000, },
-		{ init:stg3Sec2, args:[[0.05, 0.15, 0.25, 0.35, 0.45], 200, stg3Danns5], duration:5000, next:'bossIn2', },
+		{ init:stg3Sec2, args:[[0.05, 0.15, 0.25, 0.35, 0.45], 200, stg3Danns5], duration:8000, next:'bossIn2', },
 	], newStgSecNormal, 'sec');
 	newStgSecsFromList(stage, [
 		{ text:RES.st_stg3_diag1,  pos:'.fr.dg', face:'.f6a', name:'diag0', next:'bossQuit', clear:true, },
