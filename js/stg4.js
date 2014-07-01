@@ -2,7 +2,7 @@ function stg4Sec1() {
 	var range = [].slice.call(arguments, 0);
 	STORY.timeout(function(d, n) {
 		var v = range.shift();
-		ieach([1, -1], function(i, x) {
+		ieach(v.mirror ? [1, -1] : [1], function(i, x) {
 			var obj = SPRITE.newObj('Enemy', {
 				x: UTIL.getGamePosX(x > 0 ? v.fx : 1-v.fx),
 				y: UTIL.getGamePosY(v.fy),
@@ -19,12 +19,6 @@ function stg4Sec1() {
 			}, obj.data)
 			obj.anim(v.t + (v.s || 500), function(d) {
 				if (d.age) {
-					SPRITE.newObj('Basic', {
-						x: d.x,
-						y: d.y,
-						frames: RES.stg4frs.Circle,
-						duration: 1000,
-					})
 					if (v.q == '-y') {
 						d.vy = -0.1;
 					}
@@ -38,46 +32,57 @@ function stg4Sec1() {
 		})
 	}, 500, null, range.length)
 }
-function stg4Sec2(pth, times) {
+function stg4Sec2(pth, times, interval) {
 	STORY.timeout(function(d, n) {
 		var obj = SPRITE.newObj('Enemy', {
 			frames: RES.frames.Enemy2A,
 			pathnodes: UTIL.pathOffset(RES.path[pth], 0, 0),
-			times: times || 2,
+			times: times >= 0 ? times : 2,
 		})
 		STORY.timeout(function(d, n) {
-			obj.anim(500, function(d) {
-				stg4Fire2(this);
-				if (d.times -- < 0)
+			obj.anim(interval || 500, function(d) {
+				if (d.times -- > 0)
+					stg4Fire2(this);
+				else
 					return true;
 			}, obj.data)
 		}, random(200, 500));
 	}, 350, null, 7)
 }
+function stg4Sec3A(fx, fy, duration) {
+	var obj = SPRITE.newObj('Enemy', {
+		x: UTIL.getGamePosX(fx),
+		y: UTIL.getGamePosY(fy),
+		frames: RES.stg4frs.EnemySq,
+		duration: duration,
+		f0: random(PI2),
+	})
+	obj.anim(50, function(d) {
+		d.y += Math.cos(d.age * 0.005);
+	}, obj.data)
+	obj.anim(800, function(d) {
+		if (d.age) stg4Fire4(obj, d.f0 += 0.1);
+	}, obj.data)
+	SPRITE.newObj('Basic', {
+		parent: obj,
+		x: obj.data.x,
+		y: obj.data.y,
+		frames: RES.stg4frs.Circle,
+	})
+}
 function stg4Sec3(duration) {
 	STORY.timeout(function(d, n) {
-		var obj = SPRITE.newObj('Enemy', {
-			x: UTIL.getGamePosX(random(0.1, 0.9)),
-			y: UTIL.getGamePosY(random(0.1, 0.4)),
-			frames: RES.stg4frs.EnemySq,
-			duration: duration + (n - 6)*600,
-		})
-		obj.anim(50, function(d) {
-			d.y += Math.cos(d.age * 0.005);
-		}, obj.data)
-		STORY.timeout(function(d, n) {
-			stg4Fire4(obj, n*0.1);
-		}, 800, null, 1000)
-		SPRITE.newObj('Basic', {
-			parent: obj,
-			x: obj.data.x,
-			y: obj.data.y,
-			frames: RES.stg4frs.Circle,
-		})
+		stg4Sec3A(random(0.1, 0.9), random(0.1, 0.4), duration + (n - 6)*600)
 	}, 600, null, 6)
 }
 
-function stg4Fire1(from) {
+function stg4Fire1(from, duration) {
+	SPRITE.newObj('Basic', {
+		x: from.data.x,
+		y: from.data.y,
+		frames: RES.stg4frs.Circle,
+		duration: 1000,
+	})
 	var px = from.data.x,
 		py = from.data.y;
 	STORY.timeout(function(d, n) {
@@ -95,7 +100,7 @@ function stg4Fire1(from) {
 			})
 		})
 		RES.se_tan00.replay()
-	}, 100, null, 10)
+	}, 100, null, (duration || 1000)/100)
 }
 function stg4Fire2(from) {
 	var to = UTIL.getOneAlive('Player');
@@ -147,22 +152,127 @@ function stg4Fire4(from, f0) {
 	})
 }
 
-function koakumaFire1(from) {
+function koakumaFire1(from, direction) {
+	STORY.timeout(function(d, n) {
+		range(1, 0, 1/8, function(f) {
+			newDannmaku(from, null, 0, f*PI2-n*(direction || 1)*0.2, 0.15, 0, {
+				no_frame: true,
+				blend: 'lighter',
+				color: 'b',
+				tama: 'TamaMax',
+			})
+		})
+		RES.se_tan00.play()
+	}, 280, null, 8)
+}
+function koakumaFire(from) {
+	koakumaFire1(from, 1)
+	STORY.timeout(function(d, n) {
+		koakumaFire1(from, n % 2 ? 1 : -1)
+	}, 3500, null, 1000)
+	stg4Fire1(from, 2000)
+	STORY.timeout(function(d, n) {
+		stg4Fire1(from, 2000)
+	}, 4000, null, 1000)
+}
+
+function stg4Sec4() {
+	ieach([0.1, 0.9], function(i, fx) {
+		var obj = SPRITE.newObj('Enemy', {
+			x: UTIL.getGamePosX(fx),
+			y: UTIL.getGamePosX(0.2),
+			frames: RES.stg4frs.EnemySr,
+			times: 9,
+			duration: 9000,
+		})
+		SPRITE.newObj('Basic', {
+			x: obj.data.x,
+			y: obj.data.y,
+			parent: obj,
+			frames: RES.stg4frs.Circle,
+		})
+		obj.anim(50, function(d) {
+			d.y += Math.cos(d.age * 0.005);
+		}, obj.data)
+		STORY.timeout(function(d, n) {
+			stg4Fire5(obj)
+		}, 1000, null, 9)
+	})
+}
+function stg4Sec5() {
+	var range = [].slice.call(arguments, 0);
+	STORY.timeout(function(d, n) {
+		var x = range.shift();
+		ieach([x, 1-x], function(i, fx) {
+			var from = {
+				data: UTIL.getGamePosXY(fx, 0.1+x/4),
+			}
+			var obj = newLaserWithDot(from, from.data.x, from.data.y, 0, GAME.rect.b, 30, {
+				dh: 1/3000,
+				duration: 5000,
+				dot_color: 'b',
+			})
+			SPRITE.newObj('Basic', {
+				x: obj.data.x,
+				y: obj.data.y,
+				parent: obj.data.dot,
+				frames: RES.stg4frs.Circle,
+			})
+			STORY.timeout(function(d) {
+				stg4Fire6(from);
+			}, 1000)
+		})
+	}, 500, null, range.length)
+}
+function stg4Sec6() {
+	var i = 0;
+	stg4Sec2('s4AL' + (i ++), 4, 300);
+	STORY.timeout(function(d, n) {
+		stg4Sec2('s4AL' + (i ++), 4, 300);
+	}, 3000, null, RES.path.s4AL.length - 1)
+}
+
+function stg4Fire5(from) {
+	var to = UTIL.getOneAlive('Player');
+	array(3, function(i) {
+		range(1, 0, 1/30, function(f) {
+			var obj = newDannmaku(from, to, 0, f*PI2, 0.3+i*0.05, 0, {
+				color: 'b',
+				tama: 'TamaB',
+			})
+			obj.anim(80, function(d) {
+				if (d.age < 800)
+					decrease_object_speed(d, 0.92)
+				else
+					return true;
+			}, obj.data)
+		})
+	})
+}
+function stg4Fire6(from) {
+	array(2, function(i) {
+		range(1, 0, 1/20, function(f) {
+			newDannmaku(from, null, 0, f*PI2, 0.1+0.02*i, 0, {
+				color: 'b',
+				tama: 'LongB',
+			})
+		})
+	})
 }
 
 function newStage4(difficuty) {
 	var stage = {};
 	stage.hook = newStgHook();
-	stage.init = newStgSecInit('boss0', {
+	stage.init = newStgSecInit('sec14', {
 		bgelem: $('.bg-stg4'),
 		title: 'STAGE 4',
 		text: RES.st_stg4_title,
 	});
 	newStgSecsFromList(stage, [
 		{ duration:8000, init:stg4Sec1, args:[
-			{ t:600, fx:0.1, fy:0, },
-			{ t:800, fx:0.2, fy:0, },
-			{ t:1000, fx:0.4, fy:0, },
+			{ t: 600, fx:0.1, fy:0, mirror:true, },
+			{ t: 800, fx:0.2, fy:0, mirror:true, },
+			{ t:1000, fx:0.4, fy:0, mirror:true, },
 		], },
 		{ duration:4000, init:newSecList, args:[
 			[stg4Sec2, ['s4A1']],
@@ -173,9 +283,9 @@ function newStage4(difficuty) {
 			[stg4Sec2, ['s4A4'], 500],
 		]},
 		{ duration:5000, init:stg4Sec1, args:[
-			{ t:600, fx:0, fy:0.1, },
-			{ t:500, fx:0, fy:0.2, },
-			{ t:400, fx:0, fy:0.3, },
+			{ t:600, fx:0, fy:0.1, mirror:true, },
+			{ t:500, fx:0, fy:0.2, mirror:true, },
+			{ t:400, fx:0, fy:0.3, mirror:true, },
 		], },
 		{ duration:5000, init:newSecList, args:[
 			[stg4Sec2, ['s4A3']],
@@ -186,8 +296,8 @@ function newStage4(difficuty) {
 			[stg4Sec2, ['s4A2'], 500],
 		]},
 		{ duration:5000, init:stg4Sec1, args:[
-			{ t:1000, s:10000, fx:0.2, fy:0, fn:stg4Fire3, q:'-y'},
-			{ t:1000, s:10000, fx:0, fy:0.2, fn:stg4Fire3, q:'-y'},
+			{ t:1000, s:10000, fx:0.2, fy:0, fn:stg4Fire3, q:'-y', mirror:true, },
+			{ t:1000, s:10000, fx:0, fy:0.2, fn:stg4Fire3, q:'-y', mirror:true, },
 		], },
 		{ duration:5000, init:newSecList, args:[
 			[stg4Sec2, ['s4A3']],
@@ -202,6 +312,35 @@ function newStage4(difficuty) {
 			[stg4Sec2, ['s4A4'], 500],
 		]},
 		{ duration:10000, init:stg4Sec3, args:[10000], next:'boss0', },
+		{ duration:15000, init:newSecList, args:[
+			[stg4Sec4],
+			[stg4Sec1, [
+				{ t: 600, fx:0.1, fy:0, mirror:true, },
+				{ t: 800, fx:0.2, fy:0, mirror:true, },
+				{ t:1000, fx:0.4, fy:0, mirror:true, },
+			], 2000],
+			[stg4Sec2, ['s4A3', 0], 4000],
+			[stg4Sec2, ['s4A4', 0], 4000],
+			[stg4Sec5, [0.10, 0.30, 0.40], 5000],
+			[stg4Sec5, [0.05, 0.25, 0.35], 9000],
+		], name:'secA' },
+		{ duration:8000, init:newSecList, args:[
+			[stg4Sec3A, [0.60, 0.1, 6000]],
+			[stg4Sec3A, [0.65, 0.1, 6000]],
+			[stg4Sec1, [
+				{ t:1000, s:8000, fx:0.2, fy:0, fn:stg4Fire3, q:'-y'},
+			]],
+			[stg4Sec2, ['s4A4'], 3000],
+		]},
+		{ duration:8000, init:newSecList, args:[
+			[stg4Sec3A, [0.40, 0.1, 6000]],
+			[stg4Sec3A, [0.35, 0.1, 6000]],
+			[stg4Sec1, [
+				{ t:1000, s:8000, fx:0.8, fy:0, fn:stg4Fire3, q:'-y'},
+			]],
+			[stg4Sec2, ['s4A3'], 3000],
+		]},
+		{ duration:24000, init:stg4Sec6, },
 	], newStgSecNormal, 'sec');
 	newStgSecsFromList(stage, [
 		{
@@ -210,10 +349,29 @@ function newStage4(difficuty) {
 				{ v:0.1, fx:0.5, fy:0.3, },
 				{ t:NaN, }
 			],
-			duration: 2000,
+			duration: 200,
 			no_countdown: true,
 			no_lifebar: true,
 			invinc: true,
+		},
+		{
+			pathnodes: [
+				{ v:0.2 },
+				{ t:3000, fn:koakumaFire, },
+				{ t:12000, fx:0.3, fy:0.2, },
+				{ t:4000, fx:0.4, fy:0.3, },
+				{ t:8000, fx:0.3, fy:0.3, },
+				{ t:7000, fx:0.4, fy:0.3, },
+				{ t:7000, fx:0.5, fy:0.4, },
+			],
+			duration: 40000,
+		},
+		{
+			pathnodes: [
+				{ v:0.2, fx:0.5, fy:-1, },
+			],
+			duration: 200,
+			next: 'secA',
 		},
 	], newStgSecBoss, 'boss');
 	return stage;

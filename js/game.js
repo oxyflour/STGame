@@ -2120,6 +2120,7 @@ function getDannmakuRadius(tama) {
 		TamaSmall: 5,
 		TamaSmallX: 3,
 		TamaSmallY: 3,
+		TamaMax: 10,
 	}[tama] || 5;
 }
 function getDannmakuFrames(tama, color) {
@@ -2135,6 +2136,8 @@ function getDannmakuFrames(tama, color) {
 		return RES.frames[tama]['kr mpb  '.indexOf(color)];
 	else if (tama == 'TamaSmallY')
 		return RES.frames[tama]['cg  y rw'.indexOf(color)];
+	else if (tama == 'TamaMax')
+		return RES.frames[tama]['rbgy'.indexOf(color)];
 }
 function newDannmaku(from, to, r, rt, v, vt, ext) {
 	if (!to || !to.data) to = { data: UTIL.getGamePosXY(0.5, 0.9) };
@@ -2155,7 +2158,7 @@ function newDannmaku(from, to, r, rt, v, vt, ext) {
 		r: getDannmakuRadius(ext.tama || 'TamaA'),
 		frames: getDannmakuFrames(ext.tama || 'TamaA', ext.color || 'w'),
 	}));
-	obj.runCircle = function(dt, d) {
+	if (!ext.no_frame) obj.runCircle = function(dt, d) {
 		if (this.is_creating) {
 			if (!this.is_firing && (this.is_firing = true)) {
 				decrease_object_speed(d, 0.3);
@@ -2228,7 +2231,7 @@ function newLaserWithDot(from, x, y, dx, dy, width, ext) {
 		y: y,
 		vx: 0,
 		vy: 0,
-		frame: RES.frames.TamaFire[2],
+		frame: RES.frames.TamaFire['krmbcgyw'.indexOf(ext.dot_color || 'm')],
 		scale: width / 12,
 		blend: 'lighter',
 	});
@@ -2356,7 +2359,11 @@ function newBoss(name) {
 		boss.drawBasic = (function(draw) {
 			return function(dc, d) {
 				d.scale = this.is_creating ? 3 - 2 * d.ph : 1;
+				var py = d.y;
+				if (!d.vx && !d.vy)
+					d.y = py + 3 * Math.sin(d.age * 0.005);
 				draw.call(boss, dc, d);
+				d.y = py;
 			}
 		})(boss.drawBasic)
 	}

@@ -273,6 +273,7 @@
 		return {
 			Circle: newFrame('stg4enm', 0, 96, 64, 64),
 			EnemySq: newFrame('stg4enm', 160, 96, 32, 32),
+			EnemySr: newFrame('stg4enm', 192, 96, 32, 32),
 		}
 	})
 	</script>
@@ -523,6 +524,7 @@
 			_t.EffMeiling = array(RES.effmeiling.width/48, function(i) {
 				return { res:'effmeiling', sx:i*48, sy:0, sw:48, sh:48, w:48, h:48 };
 			});
+
 			_t.Koakuma = newFrame('stg4enm', 0, 204, 32, 54);
 
 			return _t;
@@ -546,6 +548,13 @@
 					if (!bezs[i+1])
 						d.push({ v:Inf })
 				}, [])
+			}
+			function pathFromTwoPoints(sfx, sfy, dfx, dfy, speed) {
+				return [
+					{ fx:sfx, fy:sfy, v:speed, },
+					{ fx:dfx, fy:dfy, },
+					{ v:Inf, },
+				]
 			}
 			function pathFlipFrom(pth) {
 				return ieach(pth, function(i, v, d) {
@@ -588,6 +597,19 @@
 				[252, 92, 218, 46, 219, 53, 181, 6, 10],
 			], 0.2);
 			_t.s4A4 = pathFlipFrom(_t.s4A3);
+
+			ieach(_t.s4AL = [
+				pathFromTwoPoints(0.2, 0, 0.2, 1, 0.3),
+				pathFromTwoPoints(0.5, 0, 0.5, 1, 0.3),
+				pathFromTwoPoints(0, 0.2, 1, 0.2, 0.3),
+				pathFromTwoPoints(1,0.25, 0,0.25, 0.3),
+				pathFromTwoPoints(0.8, 0, 0.8, 1, 0.3),
+				pathFromTwoPoints(0.5, 0, 0.5, 1, 0.3),
+				pathFromTwoPoints(1, 0.1, 0, 0.1, 0.3),
+				pathFromTwoPoints(0, 0.2, 1, 0.2, 0.3),
+			], function(i, pth) {
+				_t['s4AL' + i] = pth;
+			})
 
 			return _t;
 		})
