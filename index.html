@@ -268,6 +268,7 @@
 	})
 	</script>
 	<img id="stg4enm" src="res/stg4enm.png" />
+	<canvas id="stg4enmR" from="stg4enm 96 202 144 54" transform="mirror:x"></canvas>
 	<script id="stg4frs">
 	(function(RES) {
 		return {
@@ -525,7 +526,35 @@
 				return { res:'effmeiling', sx:i*48, sy:0, sw:48, sh:48, w:48, h:48 };
 			});
 
-			_t.Koakuma = newFrame('stg4enm', 0, 204, 32, 54);
+			_t.Koakuma = newFrame('stg4enm', 0, 202, 32, 54);
+
+			function newBossFrame(name, fr_normal, fr_fire, fr_left, fr_right) {
+				var fs = fr_normal;
+				lastOfArray(fs).next = 0;
+
+				fs.reset_index = fs.length;
+				ieach(fr_fire, function(i, f) {
+					fs.push(f)
+				})
+
+				_t[name] = fs;
+				_t[name + 'L'] = fr_left;
+				_t[name + 'R'] = fr_right;
+			}
+
+			newBossFrame('Patchouli', [
+				newFrame('stg4enm', 32, 202, 32, 54),
+			], [
+				newFrame('stg4enm', 64, 202, 32, 54),
+			], [
+				newFrame('stg4enm',  96, 202, 48, 54),
+				newFrame('stg4enm', 144, 202, 48, 54),
+				newFrame('stg4enm', 192, 202, 48, 54),
+			], [
+				newFrame('stg4enmR',  0, 0, 48, 54),
+				newFrame('stg4enmR', 48, 0, 48, 54),
+				newFrame('stg4enmR', 96, 0, 48, 54),
+			])
 
 			return _t;
 		})
@@ -789,7 +818,26 @@
 	<script type="text/html" id="st_stg3_diag18">再往前啥都没了<br />因为是体验版来着</script>
 	<script type="text/html" id="st_stg3_diag19">嘛，那就没辙了</script>
 	<!-- stage 3 -->
-	<script type="text/html" id="st_stg4_title">暗闇之馆  ~ Save the mind.</script>
+	<script type="text/html" id="st_stg4_title">暗闇之馆  ~ Save the mind</script>
+	<script type="text/html" id="st_stg3_diag1">这家人屋里都不安窗户的吗？</script>
+	<script type="text/html" id="st_stg3_diag2">而且从外面看的时候<br />没感觉有这么大啊？</script>
+	<script type="text/html" id="st_stg3_diag3">那边的红白！</script>
+	<script type="text/html" id="st_stg3_diag4">不准在我的书房里撒泼</script>
+	<script type="text/html" id="st_stg3_diag5">书房？（红白？）</script>
+	<script type="text/html" id="st_stg3_diag6">这里的书价值能比得上你家神社<br />５年份的香火钱呢</script>
+	<script type="text/html" id="st_stg3_diag7">我那里就算年中无休也一个参拜客也没有哦</script>
+	<script type="text/html" id="st_stg3_diag8">嘛反正也就是有那种程度的价值了</script>
+	<script type="text/html" id="st_stg3_diag9">说起来在这么暗的屋子里<br />能读书吗？</script>
+	<script type="text/html" id="st_stg3_diag10">我可不是像你一样的鸟目<br />患者</script>
+	<script type="text/html" id="st_stg3_diag11">所以说～我才不是鸟目<br />呃</script>
+	<script type="text/html" id="st_stg3_diag12">切，才不是想说这个呢<br />你就是这里的主人吗？</script>
+	<script type="text/html" id="st_stg3_diag13">你找大小姐有什么事？</script>
+	<script type="text/html" id="st_stg3_diag14">放出的雾太多了，很令人为难</script>
+	<script type="text/html" id="st_stg3_diag15">那么，就绝对不可以让你<br />去见大小姐了</script>
+	<script type="text/html" id="st_stg3_diag16">不许碍事</script>
+	<script type="text/html" id="st_stg3_diag17">...话说回来，你是谁？</script>
+	<script type="text/html" id="st_stg3_diag18">说起来这个馆，从外面看<br />有这么宽敞么？</script>
+	<script type="text/html" id="st_stg3_diag19">因为家里有个喜欢摆弄空间的人<br />在啊</script>
 	<!-- sfx -->
 	<audio preload oncanplaythrough="this.complete=true" class="se" id="se_graze" src="res/se_graze.mp3" replay-queue="4"></audio>
 	<audio preload oncanplaythrough="this.complete=true" class="se" id="se_pldead00" src="res/se_pldead00.mp3"></audio>
@@ -912,6 +960,10 @@
 				<div class="face f6a f2"></div>
 				<div class="face f6b"></div>
 				<div class="face f6b f2"></div>
+				<div class="face f8a"></div>
+				<div class="face f8a f2"></div>
+				<div class="face f8b"></div>
+				<div class="face f8b f2"></div>
 			</div>
 			<div class="ft dg">
 				<div class="text"></div>

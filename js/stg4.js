@@ -106,7 +106,7 @@ function stg4Fire2(from) {
 	var to = UTIL.getOneAlive('Player');
 	array(2, function(i) {
 		range(0.5001, -0.5, 1/8, function(f) {
-			newDannmaku(from, to, 0, f*2, 0.08+i*0.02, 0, {
+			newDannmaku(from, to, 0, f*2, 0.12+i*0.02, 0, {
 				color: 'b',
 				tama: 'LongA',
 			})
@@ -263,7 +263,7 @@ function stg4Fire6(from) {
 function newStage4(difficuty) {
 	var stage = {};
 	stage.hook = newStgHook();
-	stage.init = newStgSecInit('sec14', {
+	stage.init = newStgSecInit('diag0', {
 		bgelem: $('.bg-stg4'),
 		title: 'STAGE 4',
 		text: RES.st_stg4_title,
@@ -340,8 +340,27 @@ function newStage4(difficuty) {
 			]],
 			[stg4Sec2, ['s4A3'], 3000],
 		]},
-		{ duration:24000, init:stg4Sec6, },
+		{ duration:24000, init:stg4Sec6, next:'diag0', },
 	], newStgSecNormal, 'sec');
+	newStgSecsFromList(stage, [
+		{ text:RES.st_stg3_diag1,  pos:'.fl.dg', face:'.f0a', clear:true, },
+		{ text:RES.st_stg3_diag2,  pos:'.fl.dg', face:'.f0a.f2', next:'muqIn', },
+		{ text:RES.st_stg3_diag3,  pos:'.fr.dg', face:'.f8a', name:'diagMuqIn', },
+		{ text:RES.st_stg3_diag4,  pos:'.fr.dg', face:'.f8a.f2', },
+		{ text:RES.st_stg3_diag5,  pos:'.fl.dg', face:'.f0c.f2', },
+		{ text:RES.st_stg3_diag6,  pos:'.fr.dg', face:'.f8b', },
+		{ text:RES.st_stg3_diag7,  pos:'.fl.dg', face:'.f0a.f2', },
+		{ text:RES.st_stg3_diag8,  pos:'.fr.dg', face:'.f8a.f2', },
+		{ text:RES.st_stg3_diag9,  pos:'.fl.dg', face:'.f0c.f2', },
+		{ text:RES.st_stg3_diag10, pos:'.fr.dg', face:'.f8a.f2', },
+		{ text:RES.st_stg3_diag11, pos:'.fl.dg', face:'.f0c', },
+		{ text:RES.st_stg3_diag12, pos:'.fl.dg', face:'.f0c.f2', },
+		{ text:RES.st_stg3_diag13, pos:'.fr.dg', face:'.f8a', },
+		{ text:RES.st_stg3_diag14, pos:'.fl.dg', face:'.f0a.f2', },
+		{ text:RES.st_stg3_diag15, pos:'.fr.dg', face:'.f8a', },
+		{ text:RES.st_stg3_diag16, pos:'.fl.dg', face:'.f0a.f2', },
+		{ text:RES.st_stg3_diag17, pos:'.fr.dg', face:'.f8a.f2', ended:true, next:'muqFight', },
+	], newStgSecDiag, 'diag');
 	newStgSecsFromList(stage, [
 		{
 			boss: 'koakuma',
@@ -372,6 +391,19 @@ function newStage4(difficuty) {
 			],
 			duration: 200,
 			next: 'secA',
+		},
+		{
+			boss: 'patchouli',
+			pathnodes: [
+				{ fx:0.1, fy:0.0, v:0.2, },
+				{ fx:0.5, fy:0.3, },
+			],
+			duration: 500,
+			name: 'muqIn',
+			next: 'diagMuqIn',
+			no_countdown: true,
+			invinc: true,
+			disable_fire: true,
 		},
 	], newStgSecBoss, 'boss');
 	return stage;

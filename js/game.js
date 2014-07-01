@@ -2266,22 +2266,7 @@ function newBoss(name) {
 	}
 
 	if (name == 'rumia') {
-		UTIL.addFrameAnim(boss, function(fd) {
-			var d = this.data,
-				fs = RES.frames.Boss,
-				vx = Math.abs(d.vx);
-			if (vx > 0.02 || vx < -0.02) {
-				fs = d.vx > 0 ? RES.frames.BossL : RES.frames.BossR;
-				if (fd.frames != fs)
-					fd.index = 0;
-				var max = vx > 0.1 ? fs.length - 2 : fs.length - 3;
-				fd.index = limit_between(fd.index, 0, max);
-			}
-			else if (this.is_firing && !(this.is_firing = false)) {
-				fd.index = fs.reset_index;
-			}
-			return fs;
-		});
+		UTIL.addFrameAnim(boss, newBossFrames('Boss'));
 	}
 	else if (name == 'daiyousei') {
 		UTIL.addFrameAnim(boss, RES.frames.Boss2A);
@@ -2298,20 +2283,7 @@ function newBoss(name) {
 		}, boss.data);
 	}
 	else if (name == 'chiruno') {
-		UTIL.addFrameAnim(boss, function(fd) {
-			var d = this.data,
-				fs = RES.frames.Chiruno,
-				vx = Math.abs(d.vx);
-			if (vx > 0.02 || vx < -0.02) {
-				fs = d.vx > 0 ? RES.frames.ChirunoL : RES.frames.ChirunoR;
-				if (fd.frames != fs)
-					fd.index = 0;
-			}
-			else if (this.is_firing && !(this.is_firing = false)) {
-				fd.index = fs.reset_index;
-			}
-			return fs;
-		});
+		UTIL.addFrameAnim(boss, newBossFrames('Chiruno', true));
 		boss.data.dh = 1/500;
 		boss.anim(30, function(d) {
 			d.frame.w = d.frame.sw * d.ph;
@@ -2367,8 +2339,45 @@ function newBoss(name) {
 			}
 		})(boss.drawBasic)
 	}
+	else if (name == 'patchouli') {
+		UTIL.addFrameAnim(boss, newBossFrames('Patchouli'));
+		newBossBgCircle(boss);
+	}
 
 	return boss;
+}
+function newBossFrames(name, norepeat) {
+	return function (fd) {
+		var d = this.data,
+			fs = RES.frames[name],
+			vx = Math.abs(d.vx);
+		if (vx > 0.02 || vx < -0.02) {
+			fs = d.vx > 0 ? RES.frames[name+'L'] : RES.frames[name+'R'];
+			if (fd.frames != fs)
+				fd.index = 0;
+			if (!norepeat) {
+				var max = vx > 0.1 ? fs.length - 2 : fs.length - 3;
+				fd.index = limit_between(fd.index, 0, max);
+			}
+		}
+		else if (this.is_firing && !(this.is_firing = false)) {
+			fd.index = fs.reset_index;
+		}
+		return fs;
+	}
+}
+function newBossBgCircle(boss) {
+	var obj = SPRITE.newObj('Basic', {
+		parent: boss,
+		scale: 1.5,
+		frame: extend({ rotate:0 }, RES.stg4frs.Circle),
+	})
+	obj.runBasic = function(dt, d) {
+		d.x = d.parent.data.x;
+		d.y = d.parent.data.y;
+		d.frame.rotate -= dt*0.001;
+	}
+	return obj;
 }
 function newBossGadgets(boss) {
 	var eff = SPRITE.newObj('Basic', {
