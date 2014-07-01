@@ -801,12 +801,13 @@ var STORY = (function() {
 			};
 		})(_t.state.set, _t.hook);
 	}
-	_t.timeout = function(f, t, d, n) {
+	_t.timeout = function(f, t, d, n, e) {
 		var s = _t.state.s;
 		n = (n >= 0) ? n : 1;
 		_t.timer.add(newTicker(t, function(d) {
 			this.finished = _t.state.s != s || f(d, --n) || n <= 0;
 		}, d));
+		if (e) f(d, n);
 	}
 	_t.run = function(dt) {
 		if (_t.hook.before_run)
@@ -2193,6 +2194,7 @@ function newLaser(from, x, y, dx, dy, width, ext) {
 		vy: 0,
 		dx: dx,
 		dy: dy,
+		expand: 2,
 		frame: RES.frames.LaserLong[6],
 		blend: 'lighter',
 	}));
@@ -2208,7 +2210,7 @@ function newLaser(from, x, y, dx, dy, width, ext) {
 	};
 	obj.drawCircle = function(dc, d) {
 		var f = d.frame,
-			w = f.w * d.scale * d.r / 8 * (this.is_creating ? Math.max(d.ph*3-2, 0.1) : d.ph),
+			w = f.w * d.scale * d.r / 8 * (this.is_creating ? Math.max(d.ph*(d.expand+1)-d.expand, 0.1) : d.ph),
 			h = sqrt_sum(d.dx, d.dy);
 		dc.translate(d.x, d.y);
 		dc.rotate(-Math.atan2(d.dx, d.dy));
@@ -2238,6 +2240,10 @@ function newLaserWithDot(from, x, y, dx, dy, width, ext) {
 	var obj = newLaser(from, x, y, dx, dy, width, ext);
 	obj.data.dot = dot;
 	dot.data.duration = obj.data.duration + 500;
+	dot.runCircle = function(dt, d) {
+		d.x = obj.data.x;
+		d.y = obj.data.y;
+	}
 	return obj;
 }
 
