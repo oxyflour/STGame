@@ -2233,7 +2233,7 @@ function newLaserWithDot(from, x, y, dx, dy, width, ext) {
 		y: y,
 		vx: 0,
 		vy: 0,
-		frame: RES.frames.TamaFire['krmbcgyw'.indexOf(ext.dot_color || 'm')],
+		frame: RES.frames.TamaMedium['krmbcgyw'.indexOf(ext.dot_color || 'm')],
 		scale: width / 12,
 		blend: 'lighter',
 	});
