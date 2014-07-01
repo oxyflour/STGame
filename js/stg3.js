@@ -544,7 +544,7 @@ function meilingSC4(from) {
 function newStage3(difficuty) {
 	var stage = {};
 	stage.hook = newStgHook();
-	stage.init = newStgSecInit('init', {
+	stage.init = newStgSecInit('sec0', {
 		bgelem: $('.bg-stg3'),
 		bganim: newStg3BgAnim,
 		title: 'STAGE 3',
