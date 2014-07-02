@@ -473,7 +473,7 @@
 			_t.ChirunoL = [
 				{ res:'stg2enm2', sx:32, sy:0, sw:48, sh:64, w:48, h:64 },
 			];
-			_t.CHirunoR = [
+			_t.ChirunoR = [
 				{ res:'stg2enm2R', sx: 0, sy:0, sw:48, sh:64, w:48, h:64 },
 			];
 
@@ -555,6 +555,10 @@
 				newFrame('stg4enmR', 48, 0, 48, 54),
 				newFrame('stg4enmR', 96, 0, 48, 54),
 			])
+
+			_t.Fire = array(4, function(i) {
+				return newFrame('etama3', i*32, 192, 32, 32, 0, 0, { rotate:true })
+			})
 
 			return _t;
 		})
@@ -820,6 +824,10 @@
 	<!-- stage 3 -->
 	<script type="text/html" id="st_stg4_title">暗闇之馆  ~ Save the mind</script>
 	<script type="text/html" id="st_stg4_sc1">火符「火神之光 上级」</script>
+	<script type="text/html" id="st_stg4_sc2">土符「三石牌坊的震动」</script>
+	<script type="text/html" id="st_stg4_sc3">火&土符「环状熔岩带」</script>
+	<script type="text/html" id="st_stg4_sc4">金&水符「水银之毒」</script>
+	<script type="text/html" id="st_stg4_sc5">木&火符「森林大火」</script>
 	<script type="text/html" id="st_stg4_diag1">这家人屋里都不安窗户的吗？</script>
 	<script type="text/html" id="st_stg4_diag2">而且从外面看的时候<br />没感觉有这么大啊？</script>
 	<script type="text/html" id="st_stg4_diag3">那边的红白！</script>
@@ -924,7 +932,7 @@
 				<div class="absolute ui-obj anim-in-01s" id="bg_sc_meiling" bg-rotate="0.02"
 					style="background:url(res/eff03.png);opacity:0;background-size:100%;
 						width:600px;height:600px;margin-left:-108px;margin-top:-76px"></div>
-				<div class="absolute game-size ui-obj anim-in-01s" id="bg_sc_patchouli" bg-speed="0.1"
+				<div class="absolute game-size ui-obj anim-in-01s" id="bg_sc_patchouli" bg-speed="-0.1"
 					style="background:url(res/eff04.png);opacity:0;background-size:50%"></div>
 				<img class="absolute game-size ui-obj anim-in-01s" id="bg_score"
 					src="res/loading.png" style="opacity:0" />
@@ -942,6 +950,7 @@
 				<div class="face f3b" id="face_sc_rumia"></div>
 				<div class="face f5a" id="face_sc_chiruno"></div>
 				<div class="face f6a" id="face_sc_meiling"></div>
+				<div class="face f8a f2" id="face_sc_patchouli"></div>
 				<span class="text scbg2"></span>
 			</div>
 			<div class="fl dg">

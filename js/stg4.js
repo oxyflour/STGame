@@ -156,10 +156,10 @@ function koakumaFire1(from, direction) {
 	STORY.timeout(function(d, n) {
 		range(1, 0, 1/8, function(f) {
 			newDannmaku(from, null, 0, f*PI2-n*(direction || 1)*0.2, 0.15, 0, {
-				no_frame: true,
-				blend: 'lighter',
 				color: 'b',
 				tama: 'TamaMax',
+				no_frame: true,
+				blend: 'lighter',
 			})
 		})
 		RES.se_tan00.play()
@@ -283,12 +283,12 @@ function patchouliFire1A(from, color, vt) {
 		})(obj.runCircle)
 	})
 }
-function patchouliFire1B(from, to, rads, layers) {
+function patchouliFire1B(from, to, rads, layers, speed) {
 	var f0 = to ? 0 : random(PI2);
 	array(layers || 4, function(i) {
 		range(1, 0, 1/(rads || 24), function(f) {
-			newDannmaku(from, to, 0, f*PI2+f0, 0.1+i*0.015, 0, {
-				color: 'r',
+			newDannmaku(from, to, 0, f*PI2+f0, (speed||0.1)*(1+i*0.15), 0, {
+				color: speed > 0.1 ? 'b' : 'r',
 				tama: 'TamaB',
 			})
 		})
@@ -304,6 +304,27 @@ function patchouliFire1C(from) {
 		patchouliFire1B({ data:v }, UTIL.getOneAlive('Player'), 10, 2)
 	})
 }
+function patchouliFire1D(from) {
+	var pos = [
+		{ x:from.data.x-20, y:from.data.y+30, },
+		{ x:from.data.x-20, y:from.data.y-30, },
+		{ x:from.data.x+20, y:from.data.y-30, },
+		{ x:from.data.x+20, y:from.data.y+30, },
+	]
+	var to = UTIL.getOneAlive('Player')
+	STORY.timeout(function(d, n) {
+		ieach(pos, function(i, v) {
+			array(2, function(i) {
+				ieach([-0.05, 0.05], function(j, f) {
+					newDannmaku({ data:v }, to, 0, f*PI2, 0.1+i*0.02, 0, {
+						color: 'r',
+						tama: 'TamaB',
+					})
+				})
+			})
+		})
+	}, 500, null, 4)
+}
 function patchouliFire1(from) {
 	var i = randin([1, -1]);
 	STORY.timeout(function(d, n) {
@@ -315,11 +336,167 @@ function patchouliFire1(from) {
 		}, 500, null, 5)
 	}, 3000)
 }
+function patchouliSC1(from) {
+	STORY.timeout(function(d, n) {
+		array(2, function(i) {
+			array(2, function(k) {
+				range(10, 0, 1, function(j) {
+					var f = j / 10;
+					var obj = newDannmaku(from, null, 0, f*PI2+n, 0.15+i*0.05, 0, {
+						sx: from.data.x,
+						sy: from.data.y,
+						sd: k % 2 ? 1 : -1,
+						sc: 0.97 + (j % 3)*0.01,
+						no_frame: true,
+						frames: RES.frames.Fire,
+					})
+					obj.anim(80, function(d) {
+						if (d.age < 500)
+							return;
+						else if (d.age < 1500) {
+							var dx = d.sx - d.x,
+								dy = d.sy - d.y,
+								x = d.x - dy*d.sd,
+								y = d.y + dx*d.sd,
+								v = sqrt_sum(d.vx, d.vy)*d.sc;
+							redirect_object(d, { x:x, y:y }, v, 0.25);
+						}
+						else {
+							rotate_object_speed(d, random(d.sd*0.2), random(0.03, 0.15));
+							return true;
+						}
+					}, obj.data)
+				})
+			})
+		})
+	}, 120, null, 5)
+}
+function patchouliFire2A(from) {
+	patchouliFire1B(from, UTIL.getOneAlive('Player'), 24, 1, 0.11);
+}
+function patchouliFire2(from) {
+	var i = randin([1, -1]);
+	STORY.timeout(function(d, n) {
+		patchouliFire1A(from, 'r', PI2/8/1200*(i *= -1));
+	}, 800, null, 1, true)
+	STORY.timeout(function(d, n) {
+		var to = UTIL.getOneAlive('Player');
+		STORY.timeout(function() {
+			patchouliFire1B(from, to, 8, 5, 0.25);
+		}, 150, null, 20)
+	}, 3000)
+}
+function patchouliSC2(from) {
+	STORY.timeout(function(d, n) {
+		array(10, function(i) {
+			var obj = newDannmaku(from, null, 0, random(-1, 1), random(0.02, 0.05), 0, {
+				color: 'y',
+				tama: 'TamaA',
+			})
+			obj.anim(random(1000, 4000), function(d) {
+				if (d.age)
+					return rotate_object_speed(d, random(-1, 1), random(0.03, 0.15)) || true;
+			}, obj.data)
+		})
+	}, 200, null, 1000)
+	STORY.timeout(function(d, n) {
+		var to = UTIL.getOneAlive('Player')
+		range(1, 0, 1/7, function(f) {
+			newDannmaku(from, to, 0, f*PI2, 0.2, 0, {
+				color: 'y',
+				tama: 'TamaMax',
+				no_frame: true,
+				blend: 'lighter',
+			})
+		})
+	}, 800, null, 1000)
+}
+function patchouliSC3A(from) {
+	STORY.timeout(function(d, n) {
+		var f0 = random(PI2);
+		array(2, function(i) {
+			var fi = random(0.1);
+			range(1, 0, 1/24, function(f) {
+				newDannmaku(from, null, 0, f*PI2+f0+fi, 0.12+i*0.04, 0, {
+					frames: RES.frames.Fire,
+					no_frame: true,
+				})
+			})
+		})
+	}, 160, null, 8)
+}
+function patchouliSC3B(from) {
+	STORY.timeout(function(d, n) {
+		array(30, function(i) {
+			var obj = newDannmaku(from, null, 0, random(-1, 1), random(0.05, 0.1), 0, {
+				color: 'y',
+				tama: 'TamaA',
+			})
+			obj.anim(80, function(d) {
+				if (d.age < 2000)
+					decrease_object_speed(d, 0.98)
+				else
+					return rotate_object_speed(d, (i % 3 - 1)*0.8, random(0.05, 0.15)) || true;
+			}, obj.data)
+		})
+	}, 200, null, 3)
+}
+function patchouliSC4(from, color) {
+	array(2, function(i) {
+		range(1, 0, 1/40, function(f) {
+			var obj = newDannmaku(from, null, 0, (f+i/80)*PI2, 0.2+0.04*i, 0, {
+				color: color,
+				tama: 'TamaB',
+				vt: 0.03 * (color=='o' ? 1 : -1) * (1+0.4*i),
+			})
+			obj.anim(80, function(d) {
+				if (d.age < 1000)
+					decrease_object_speed(d, 0.95)
+				rotate_object_speed(d, d.vt)
+			}, obj.data)
+		})
+	})
+}
+function patchouliSC5A(from) {
+	STORY.timeout(function(d, n) {
+		array(20, function(i) {
+			var obj = newDannmaku(from, null, 0, random(PI2), random(0.1, 0.3), 0, {
+				dvx: random(0.005),
+				color: 'r',
+				frames: RES.frames.Fire,
+			})
+			obj.anim(80, function(d) {
+				if (d.age < 1000)
+					decrease_object_speed(d, 0.95)
+				d.vx -= d.dvx;
+			}, obj.data)
+		})
+	}, 800, null, 1000)
+}
+function patchouliSC5B(from) {
+	STORY.timeout(function(d, n) {
+		var from = { data:UTIL.getGamePosXY(1, random(0.1, 1)) };
+		array(2, function(i) {
+			var v = random(0.1, 0.3)*(1+0.3*i),
+				t = PI/6+0.1*i;
+			var obj = newDannmaku(from, null, 0, 0.1+i, v, 0, {
+				vx: -v*Math.cos(t),
+				vy:  v*Math.sin(t),
+				color: 'r',
+				tama: 'LongC',
+			})
+			obj.anim(80, function(d) {
+				if (d.age < 1000)
+					decrease_object_speed(d, 0.95)
+			}, obj.data)
+		})
+	}, 200, null, 1000)
+}
 
 function newStage4(difficuty) {
 	var stage = {};
 	stage.hook = newStgHook();
-	stage.init = newStgSecInit('muqFight', {
+	stage.init = newStgSecInit('boss10', {
 		bgelem: $('.bg-stg4'),
 		title: 'STAGE 4',
 		text: RES.st_stg4_title,
@@ -415,7 +592,9 @@ function newStage4(difficuty) {
 		{ text:RES.st_stg4_diag14, pos:'.fl.dg', face:'.f0a.f2', },
 		{ text:RES.st_stg4_diag15, pos:'.fr.dg', face:'.f8a', },
 		{ text:RES.st_stg4_diag16, pos:'.fl.dg', face:'.f0a.f2', },
-		{ text:RES.st_stg4_diag17, pos:'.fr.dg', face:'.f8a.f2', ended:true, next:'muqFight', },
+		{ text:RES.st_stg4_diag17, pos:'.fr.dg', face:'.f8a.f2', next:'muqFight', ended:true, },
+		{ text:RES.st_stg4_diag18, pos:'.fl.dg', face:'.f0b.f2', name:'muqSad', },
+		{ text:RES.st_stg4_diag19, pos:'.fr.dg', face:'.f8b.f2', next:'score', ended:true, },
 	], newStgSecDiag, 'diag');
 	newStgSecsFromList(stage, [
 		{
@@ -472,7 +651,7 @@ function newStage4(difficuty) {
 				{ t:4000, fn:patchouliFire1, },
 				{ t:NaN,  fx:0.5, fy:0.1, },
 				{ t:NaN,  fx:0.5, fy:0.3, },
-				{ t:100,  fn:patchouliFire1C, },
+				{ t:100,  fn:patchouliFire1D, },
 				{ t:4000, fn:patchouliFire1, },
 				{ t:NaN,  fx:0.2, fy:0.3, },
 				{ t:NaN,  fx:0.5, fy:0.3, },
@@ -480,7 +659,7 @@ function newStage4(difficuty) {
 				{ t:4000, fn:patchouliFire1, },
 				{ t:NaN,  fx:0.8, fy:0.1, },
 				{ t:NaN,  fx:0.5, fy:0.3, },
-				{ t:100,  fn:patchouliFire1C, },
+				{ t:100,  fn:patchouliFire1D, },
 				{ t:4000, fn:patchouliFire1, },
 				{ t:NaN,  fx:0.2, fy:0.1, },
 				{ t:NaN,  fx:0.5, fy:0.3, },
@@ -488,7 +667,7 @@ function newStage4(difficuty) {
 				{ t:4000, fn:patchouliFire1, },
 				{ t:NaN,  fx:0.3, fy:0.1, },
 				{ t:NaN,  fx:0.5, fy:0.3, },
-				{ t:100,  fn:patchouliFire1C, },
+				{ t:100,  fn:patchouliFire1D, },
 				{ t:4000, fn:patchouliFire1, },
 			],
 			duration: 40000,
@@ -497,9 +676,114 @@ function newStage4(difficuty) {
 			scname: RES.st_stg4_sc1,
 			pathnodes: [
 				{ v:0.1 },
+				{ t:200,  fx:0.2, fy:0.2, },
+				{ t:2800, fn:patchouliSC1, },
+				{ t:200,  fx:0.5, fy:0.2, },
+				{ t:2800, fn:patchouliSC1, },
+				{ t:200,  fx:0.5, fy:0.1, },
+				{ t:2800, fn:patchouliSC1, },
+				{ t:200,  fx:0.5, fy:0.3, },
+				{ t:2800, fn:patchouliSC1, },
+				{ t:200,  fx:0.3, fy:0.1, },
+				{ t:2800, fn:patchouliSC1, },
+				{ t:200,  fx:0.2, fy:0.2, },
+				{ t:2800, fn:patchouliSC1, },
+				{ t:200,  fx:0.3, fy:0.1, },
+				{ t:2800, fn:patchouliSC1, },
+				{ t:200,  fx:0.2, fy:0.2, },
+				{ t:2800, fn:patchouliSC1, },
+				{ t:200,  fx:0.5, fy:0.1, },
+				{ t:2800, fn:patchouliSC1, },
+				{ t:200,  fx:0.5, fy:0.3, },
+				{ t:2800, fn:patchouliSC1, },
 			],
 			duration: 30000,
-		}
+		},
+		{
+			pathnodes: [
+				{ v:0.1 },
+				{ t:4000, fn:patchouliFire2, },
+				{ t:NaN,  fx:0.8, fy:0.1, },
+				{ t:NaN,  fx:0.5, fy:0.3, },
+				{ t:100,  fn:patchouliFire1C, },
+				{ t:4000, fn:patchouliFire2, },
+				{ t:NaN,  fx:0.5, fy:0.1, },
+				{ t:NaN,  fx:0.5, fy:0.3, },
+				{ t:100,  fn:patchouliFire1D, },
+				{ t:100,  fn:patchouliFire2A, },
+				{ t:4000, fn:patchouliFire2, },
+				{ t:NaN,  fx:0.2, fy:0.3, },
+				{ t:NaN,  fx:0.5, fy:0.3, },
+				{ t:100,  fn:patchouliFire1C, },
+				{ t:100,  fn:patchouliFire2A, },
+				{ t:4000, fn:patchouliFire2, },
+				{ t:NaN,  fx:0.8, fy:0.1, },
+				{ t:NaN,  fx:0.5, fy:0.3, },
+				{ t:100,  fn:patchouliFire1D, },
+				{ t:100,  fn:patchouliFire2A, },
+				{ t:4000, fn:patchouliFire2, },
+				{ t:NaN,  fx:0.2, fy:0.1, },
+				{ t:NaN,  fx:0.5, fy:0.3, },
+				{ t:100,  fn:patchouliFire1C, },
+				{ t:100,  fn:patchouliFire2A, },
+				{ t:4000, fn:patchouliFire2, },
+				{ t:NaN,  fx:0.3, fy:0.1, },
+				{ t:NaN,  fx:0.5, fy:0.3, },
+				{ t:100,  fn:patchouliFire1D, },
+				{ t:100,  fn:patchouliFire2A, },
+				{ t:4000, fn:patchouliFire2, },
+			],
+			duration: 40000,
+		},
+		{
+			scname: RES.st_stg4_sc2,
+			pathnodes: [
+				{ v:0.1 },
+				{ t:200,  fx:0.5, fy:0.2, },
+				{ t:200,  fn:patchouliSC2, },
+			],
+			duration: 35000,
+		},
+		{
+			scname: RES.st_stg4_sc3,
+			pathnodes: ieach(range(15), function(i, j, d) {
+				d.push({ t:200,  fx:random(0.05, 0.95), fy:random(0.05, 0.25), });
+				d.push({ t:2000, fn:patchouliSC3A, });
+				d.push({ t:1000, fn:patchouliSC3B, });
+			}, [
+				{ v:0.1 },
+			]),
+			duration: 40000,
+		},
+		{
+			scname: RES.st_stg4_sc4,
+			pathnodes: ieach(range(15), function(i, j, d) {
+				d.push({ t:NaN,  fx:random(0.05, 0.95), fy:random(0.05, 0.25), });
+				array(8, function() {
+					d.push({ t:300, fn:patchouliSC4, args:['o'], });
+					d.push({ t:300, fn:patchouliSC4, args:['c'], });
+				})
+			}, [
+				{ v:0.1 },
+			]),
+			duration: 40000,
+		},
+		{
+			scname: RES.st_stg4_sc5,
+			pathnodes: [
+				{ v:0.1 },
+				{ fx:0.5, fy:0.2, },
+				{ t:100, fn:patchouliSC5A, },
+				{ t:100, fn:patchouliSC5B, },
+			],
+			duration: 40000,
+			next: 'bossKill',
+		},
 	], newStgSecBoss, 'boss');
+	newStgSecsFromList(stage, [
+		{ name:'bossKill', next:'muqSad', },
+	], newStgSecBossKill, 'bossKill');
+	stage.score = newStgSecScore('ended');
+	stage.ended = newStgSecOver();
 	return stage;
 }

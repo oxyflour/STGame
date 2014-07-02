@@ -203,6 +203,8 @@ function circles_hit(cr1, cr2) {
 function redirect_object(from, to, v, f) {
 	if (to.x == from.x && to.y == from.y)
 		return from.vx = from.vy = 0;
+	if (!v)
+		v = sqrt_sum(from.vx, from.vy);
 	var dx = to.x - from.x,
 		dy = to.y - from.y,
 		r = sqrt_sum(dx, dy);
