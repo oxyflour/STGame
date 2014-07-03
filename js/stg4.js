@@ -496,7 +496,7 @@ function patchouliSC5B(from) {
 function newStage4(difficuty) {
 	var stage = {};
 	stage.hook = newStgHook();
-	stage.init = newStgSecInit('boss10', {
+	stage.init = newStgSecInit('init', {
 		bgelem: $('.bg-stg4'),
 		title: 'STAGE 4',
 		text: RES.st_stg4_title,
