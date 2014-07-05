@@ -280,7 +280,7 @@
 	</script>
 	<!-- stg5 -->
 	<img id="stg5enm2" src="res/stg5enm2.png" />
-	<canvas id="stg5enmR" from="stg5enm2 0 128 108 64" transform="mirror:x"></canvas>
+	<canvas id="stg5enmR" from="stg5enm2 128 0 108 64" transform="mirror:x"></canvas>
 	<!-- creating background css with toDataUrl -->
 	<script id="gen_bgcss">
 		(function(RES) {
@@ -372,6 +372,9 @@
 			})
 			_t.TamaLarge = array(8, function(i) {
 				return { res:'etama3', sx:32*i, sy:128, sw:32, sh:32, w:32, h:32 }
+			});
+			_t.Knife = array(8, function(i) {
+				return { res:'etama3', sx:32*i, sy:160, sw:32, sh:32, w:32, h:32, rotate:true }
 			});
 			_t.TamaSmallX = array(8, function(i) {
 				return { res:'etama3', sx:8*i+128, sy:208, sw:8, sh:8, w:8, h:8 }
@@ -873,6 +876,7 @@
 	<script type="text/html" id="st_stg4_diag19">因为家里有个喜欢摆弄空间的人<br />在啊</script>
 	<!-- stage 5 -->
 	<script type="text/html" id="st_stg5_title">红月之下那潇洒的随从</script>
+	<script type="text/html" id="st_stg5_sc1">幻符「迷幻的杰克」</script>
 	<script type="text/html" id="st_stg5_diag1">啊—没法继续扫除了！</script>
 	<script type="text/html" id="st_stg5_diag2">这不是会惹大小姐生气吗！！</script>
 	<script type="text/html" id="st_stg5_diag3">还在这里影响扫除啊～</script>
@@ -985,6 +989,9 @@
 						width:600px;height:600px;margin-left:-108px;margin-top:-76px"></div>
 				<div class="absolute game-size ui-obj anim-in-01s" id="bg_sc_patchouli" bg-speed="-0.1"
 					style="background:url(res/eff04.png);opacity:0;background-size:50%"></div>
+				<div class="absolute ui-obj anim-in-01s" id="bg_sc_sakuya" bg-rotate="0.02"
+					style="background:url(res/eff05.png);opacity:0;background-size:100%;
+						width:600px;height:600px;margin-left:-108px;margin-top:-76px"></div>
 				<img class="absolute game-size ui-obj anim-in-01s" id="bg_score"
 					src="res/loading.png" style="opacity:0" />
 				<div class="absolute game-size ui-obj anim-in-01s" id="bg_bomb"

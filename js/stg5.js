@@ -47,7 +47,7 @@ function stg5Sec3(fx) {
 
 function stg5Fire1(from, color) {
 	var pl = UTIL.getOneAlive('Player'),
-		to = { data:{ x:pl.data.x, y:pl.data.y } };
+		to = to && { data:{ x:pl.data.x, y:pl.data.y } };
 		n = 8;
 	from.anim(100, function(d) {
 		if (n-- > 0) range(1, 0, 1/40, function(f) {
@@ -87,10 +87,113 @@ function stg5Fire3(from) {
 	}, from.data)
 }
 
+function sakuyaFire1A(from, rads) {
+	var pl = UTIL.getOneAlive('Player'),
+		to = to && { data:{ x:pl.data.x, y:pl.data.y } };
+	STORY.timeout(function(d, n) {
+		var f0 = (n - 3.5) / 7 * (rads || 1);
+		range(0.501, -0.5, 1/7, function(f) {
+			newDannmaku(from, to, 0, f*2.4+f0*2, 0.2, 0, {
+				color: 'b',
+				tama: 'Knife',
+			})
+		})
+	}, 150, null, 8)
+}
+function sakuyaFire1B(from, rads) {
+	STORY.timeout(function(d, n) {
+		var f0 = (n - 4.5) / 9 * (rads || 1);
+		array(3, function(i) {
+			range(0.501, -0.5, 1/4, function(f) {
+				newDannmaku(from, null, 0, f0*3+f*0.18, 0.1+i*0.02, 0, {
+					color: 'r',
+					tama: 'LongB',
+				})
+			})
+		})
+	}, 50, null, 10)
+}
+
+function sakuyaFire2A1(from, color) {
+	var f0 = random(PI2), df = randin([1, -1])*0.5;
+	from.anim(100, function(d) {
+		if (!this.is_dying) range(0.5001, -0.5, 1/4, function(f) {
+			var t = f * 0.08;
+			var obj = newDannmaku(from, null, 0, f0+t, 0.15/Math.cos(t), 0, {
+				no_frame: true,
+				color: color || 'g',
+				tama: 'LongC',
+			})
+		})
+		f0 += df;
+	}, from.data)
+}
+function sakuyaFire2A(from) {
+	ieach([
+		[ 0.3, 'g'],
+		[ 0.7, 'g'],
+		[ 1.1, 'b'],
+		[ 1.5, 'b'],
+		[-0.3, 'b'],
+		[-0.7, 'b'],
+		[-1.1, 'g'],
+		[-1.5, 'g'],
+	], function(i, v) {
+		var f = v[0], c = v[1];
+		var obj = SPRITE.newObj('Circle', {
+			x: from.data.x,
+			y: from.data.y,
+			vx: 0.1 * Math.sin(f),
+			vy: 0.1 * Math.cos(f),
+			frames: RES.stg4frs.Circle,
+			duration: 3000,
+		})
+		obj.anim(80, function(d) {
+			decrease_object_speed(d, 0.94)
+		}, obj.data)
+		sakuyaFire2A1(obj, c);
+	})
+}
+function sakuyaFire2B(from) {
+	var to = UTIL.getOneAlive('Player');
+	STORY.timeout(function(d, n) {
+		array(2, function(i) {
+			range(1, 0, 1/15, function(f) {
+				newDannmaku(from, to, 0, f*PI2+i*PI2/30, 0.15+i*0.05, 0, {
+					color: 'b',
+					tama: 'Knife',
+				})
+			})
+		})
+	}, 500, null, 4)
+}
+function sakuyaFire2C1(from, rt, speed) {
+	array(8, function(i) {
+		i = 8 - i;
+		var v = speed*(1+0.15*i);
+		newDannmaku(from, null, 0, rt, v, 0, {
+			vx: v * Math.sin(rt),
+			vy: v * Math.cos(rt),
+			color: 'm',
+			tama: 'Knife',
+		})
+	})
+}
+function sakuyaFire2C(from) {
+	var f0 = 0.05;
+	STORY.timeout(function(d, n) {
+		ieach([1, -1], function(i, x) {
+			sakuyaFire2C1(from, f0*0.5*x, 0.12)
+			sakuyaFire2C1(from, f0*1.5*x, 0.12-f0*0.01)
+		})
+		f0 += 0.3;
+	}, 150, null, 12)
+}
+
 function newStage5(difficulty) {
 	var stage = {};
 	stage.hook = newStgHook();
-	stage.init = newStgSecInit('sec7', {
+	stage.init = newStgSecInit('sakuyaFire1', {
 		bgelem: $('.bg-stg5'),
 		bganim: newStg5BgAnim,
 		title: 'STAGE 5',
@@ -160,7 +263,47 @@ function newStage5(difficulty) {
 		},
 		{
 			name: 'sakuyaFire1',
-		}
+			duration: 40000,
+			pathnodes: ieach(range(15), function(i, j, d) {
+				d.push({ t:500, fx:random(0.1, 0.9), fy:random(0.05, 0.4) });
+				d.push({ t:1500, fn:sakuyaFire1A, args:[ 1], });
+				d.push({ t:500,  fn:sakuyaFire1B, args:[ 1], });
+				d.push({ t:1500, fn:sakuyaFire1A, args:[-1], });
+				d.push({ t:500,  fn:sakuyaFire1B, args:[-1], });
+			}, [
+				{ v:0.2, },
+			]),
+		},
+		{
+			duration: 500,
+			pathnodes: [
+				{ v:0.2 },
+				{ t:1000 },
+				{ fx:0.5, fy:-1 },
+			],
+			no_countdown: true,
+			invinc: true,
+			disable_fire: true,
+			next: 'secRestart',
+		},
+		{
+			name: 'sakuyaFire2',
+			duration: 45000,
+			pathnodes: ieach(range(15), function(i, j, d) {
+				d.push({ t:500, fx:random(0.1, 0.9), fy:random(0.05, 0.4) });
+				d.push({ t:500, fn:sakuyaFire2A, });
+				d.push({ t:4000, fn:sakuyaFire2B, });
+				d.push({ t:4000, fn:sakuyaFire2C, });
+			}, [
+				{ v:0.2, },
+			]),
+		},
+		{
+			duration: 30000,
+			scname: RES.st_stg5_sc1,
+			pathnodes: [
+			],
+		},
 	], newStgSecBoss, 'boss');
 	return stage;
 }
