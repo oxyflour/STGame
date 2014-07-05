@@ -2348,6 +2348,10 @@ function newBoss(name) {
 		UTIL.addFrameAnim(boss, newBossFrames('Patchouli'));
 		newBossBgCircle(boss);
 	}
+	else if (name == 'sakuya') {
+		UTIL.addFrameAnim(boss, newBossFrames('Sakuya'));
+		newBossBgCircle(boss);
+	}
 
 	return boss;
 }

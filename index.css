@@ -447,6 +447,12 @@ input[type="radio"] {
 .f8b {
 	background: url(res/face08b.png) 0 0;
 }
+.f9a {
+	background: url(res/face09a.png) 0 0;
+}
+.f9b {
+	background: url(res/face09b.png) 0 0;
+}
 .f2 {
 	background-position: -128px 0;
 }
