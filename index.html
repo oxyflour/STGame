@@ -376,12 +376,13 @@
 			_t.Knife = array(8, function(i) {
 				return { res:'etama3', sx:32*i, sy:160, sw:32, sh:32, w:32, h:32, rotate:true }
 			});
-			_t.TamaSmallX = array(8, function(i) {
-				return { res:'etama3', sx:8*i+128, sy:208, sw:8, sh:8, w:8, h:8 }
-			});
-			_t.TamaSmallY = array(8, function(i) {
-				return { res:'etama3', sx:8*i+128, sy:208+8, sw:8, sh:8, w:8, h:8 }
-			});
+			_t.TamaMini = arrcat(
+				array(8, function(i) {
+					return { res:'etama3', sx:8*i+128, sy:208, sw:8, sh:8, w:8, h:8 }
+				}), array(8, function(i) {
+					return { res:'etama3', sx:8*i+128, sy:208+8, sw:8, sh:8, w:8, h:8 }
+				})
+			);
 			_t.TamaMedium = array(8, function(i) {
 				return { res:'etama3', sx:32*i, sy:257-32, sw:32, sh:32, w:32, h:32 }
 			});

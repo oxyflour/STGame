@@ -102,9 +102,8 @@ function newStg2Danns2(from) {
 		rt = random(-0.1, 0.1);
 	if (!from.is_dying) ieach([-0.1, 0, 0.1], function(i, x) {
 		newDannmaku(from, to, 0, rt+x, 0.2, 0, {
-			r: 3,
 			color: 'b',
-			frames: RES.frames.TamaSmallX[5],
+			tama: 'TamaMini',
 		});
 	})
 }
@@ -227,7 +226,7 @@ function chirunoFire2(from, interval, count, layers, speed, rand, type) {
 				frames: {
 					b: RES.frames.TamaB[6],
 					a: RES.frames.TamaA[6],
-					s: RES.frames.TamaSmallX[7],
+					s: RES.frames.TamaMini[7],
 				}[type],
 			})
 		})

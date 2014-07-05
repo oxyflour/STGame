@@ -2118,8 +2118,7 @@ function getDannmakuRadius(tama) {
 		LongB: 3,
 		LongC: 3,
 		TamaSmall: 5,
-		TamaSmallX: 3,
-		TamaSmallY: 3,
+		TamaMini: 3,
 		TamaLarge: 8,
 		Knife: 4,
 		TamaMax: 10,
@@ -2130,14 +2129,11 @@ function getDannmakuFrames(tama, color) {
 		tama == 'TamaB' ||
 		tama == 'LongA' ||
 		tama == 'LongB' ||
-		tama == 'LongC')
+		tama == 'LongC' ||
+		tama == 'TamaMini')
 		return RES.frames[tama]['krRmMbBcCgGayYow'.indexOf(color)];
 	else if (tama == 'TamaSmall')
 		return RES.frames[tama]['krbgy'.indexOf(color)];
-	else if (tama == 'TamaSmallX')
-		return RES.frames[tama]['krRmMbBc'.indexOf(color)];
-	else if (tama == 'TamaSmallY')
-		return RES.frames[tama]['CgGayYow'.indexOf(color)];
 	else if (tama == 'TamaLarge' || tama == 'Knife')
 		return RES.frames[tama]['krmbcgyw'.indexOf(color)];
 	else if (tama == 'TamaMax')

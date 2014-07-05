@@ -135,7 +135,7 @@ function stg4Fire4(from, f0) {
 		range(1, 0, 1/16, function(f) {
 			ieach([
 				{ f:0.0, t:'TamaB', },
-				{ f:0.1, t:'TamaSmallY', },
+				{ f:0.1, t:'TamaMini', },
 			], function(j, v) {
 				var obj = newDannmaku(from, null, 0, f*PI2+f0+v.f, 0.3+i*0.1, 0, {
 					color: 'g',

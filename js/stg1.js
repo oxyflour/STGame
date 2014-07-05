@@ -152,9 +152,8 @@ function newDanns1(from, speed, rand) {
 	var to = UTIL.getNearestAlive(from, 'Player');
 	if (!from.is_dying) {
 		newDannmaku(from, to, 0, rand ? random(rand) : 0, speed || 0.2, 0, {
-			r: 3,
 			color: 'b',
-			frames: RES.frames.TamaSmallX[5],
+			tama: 'TamaMini',
 		});
 	}
 }
@@ -174,9 +173,8 @@ function newDanns2(from) {
 function newDannsEx1(from, rt, v) {
 	var to = UTIL.getNearestAlive(from, 'Player');
 	return newDannmaku(from, to, 0, rt, v, 0, {
-		r: 3,
 		color: 'r',
-		frames: RES.frames.TamaSmallX[1],
+		tama: 'TamaMini',
 	})
 }
 function newDannsEx2(from, vt, f) {
@@ -235,9 +233,8 @@ function newBossDanns0(from) {
 		var r = random(-0.05, 0.05);
 		if (!from.is_dying) range(1, 0.001, 1/50, function(f) {
 			newDannmaku(from, to, 0, f*PI2+r, 0.15, 0, {
-				r: 3,
 				color: 'b',
-				frames: RES.frames.TamaSmallX[5],
+				tama: 'TamaMini',
 			});
 		});
 	}, 500, null, Inf);
@@ -258,22 +255,12 @@ function newBossDanns0A(from) {
 function newBossDanns2(from) {
 	from.is_firing = true;
 	var to = UTIL.getNearestAlive(from, 'Player');
-	var ds = [
-		{ color:'k', frames:RES.frames.TamaSmallX[0] },
-		{ color:'r', frames:RES.frames.TamaSmallX[1] },
-		{ color:'r', frames:RES.frames.TamaSmallX[2] },
-		{ color:'m', frames:RES.frames.TamaSmallX[3] },
-		{ color:'m', frames:RES.frames.TamaSmallX[4] },
-		{ color:'b', frames:RES.frames.TamaSmallX[5] },
-		{ color:'b', frames:RES.frames.TamaSmallX[6] },
-	];
+	var ds = 'krrmmbb';
 	if (!from.is_dying) STORY.timeout(function(d, j) {
-		var para = d[j];
 		range(1, 0.001, 1/15, function(f) {
 			var obj = newDannmaku(from, to, 0, f*PI2+j*0.1, 0.1, 0, {
-				r: 3,
-				color: para.color,
-				frames: para.frames,
+				color: d[j],
+				tama: 'TamaMini',
 			});
 			obj.anim(50, function(d) {
 				if (d.age < 2000) {
@@ -296,12 +283,12 @@ function newBossDanns2(from) {
 function newBossDanns3(from, colors) {
 	var to = UTIL.getNearestAlive(from, 'Player');
 	var df = {
-		'b': { color:'b', frames1:RES.frames.TamaSmallX[5], frames2:RES.frames.LongA[6], },
-		'r': { color:'r', frames1:RES.frames.TamaSmallX[1], frames2:RES.frames.LongA[2], },
-		'g': { color:'g', frames1:RES.frames.TamaSmallY[2], frames2:RES.frames.LongA[9], },
-		'y': { color:'y', frames1:RES.frames.TamaSmallY[4], frames2:RES.frames.LongA[12], },
-		'Y': { color:'y', frames1:RES.frames.TamaSmallY[5], frames2:RES.frames.LongA[14], },
-		'B': { color:'b', frames1:RES.frames.TamaSmallX[5], frames2:RES.frames.TamaA[5], },
+		'b': { color:'b', frames1:RES.frames.TamaMini[5], frames2:RES.frames.LongA[6], },
+		'r': { color:'r', frames1:RES.frames.TamaMini[1], frames2:RES.frames.LongA[2], },
+		'g': { color:'g', frames1:RES.frames.TamaMini[2], frames2:RES.frames.LongA[9], },
+		'y': { color:'y', frames1:RES.frames.TamaMini[4], frames2:RES.frames.LongA[12], },
+		'Y': { color:'y', frames1:RES.frames.TamaMini[5], frames2:RES.frames.LongA[14], },
+		'B': { color:'b', frames1:RES.frames.TamaMini[5], frames2:RES.frames.TamaA[5], },
 	};
 	var ds = ieach(colors, function(i, c, d) {
 		if (df[c]) d.push(df[c]);

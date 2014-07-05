@@ -228,7 +228,7 @@ function stg3Danns4(from) {
 	range(0.5001, -0.5, 1/6, function(f) {
 		newDannmaku(from, to, 0, f*0.2, 0.15, 0, {
 			color: 'r',
-			frames: RES.frames.TamaSmallX[2],
+			tama: 'TamaMini',
 		})
 	})
 }
