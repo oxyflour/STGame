@@ -1,32 +1,6 @@
-ieach($('form[eval-radios]'), function(i, e) {
-	e.action = 'javascript:evalRadioVal("eval_radio'+i+'")';
-	e.addEventListener('keydown', function(e) {
-		this.active = true;
-	})
-	e.addEventListener('keyup', function(e) {
-		this.active && !(this.active = false) && checkFormKey(e, this);
-	})
-	ieach($('input[type="radio"]', e), function(j, r) {
-		r.name = 'eval_radio'+i;
-	});
-});
-ieach($('input[type="radio"]'), function(i, v) {
-	var n = v.nextElementSibling;
-	if (n && n.tagName == 'LABEL' && !v.id) {
-		n.setAttribute('for', v.id = 'radio'+i);
-		n.addEventListener('mouseup', function(e) {
-			// have to wait before radios changed
-			setTimeout(function() {
-				v.form.submit();
-			}, 10);
-		});
-	}
-});
-ieach($('.ui-obj'), function(i, v) {
-	v.className += ' ui';
-	v.setAttribute('ui-show', 'this.object && !this.object.finished');
-});
-
+function newFrame(r, sx, sy, sw, sh, w, h, e) {
+	return extend({ res:r, sx:sx, sy:sy, sw:sw, sh:sh, w:w||sw, h:h||sh, }, e)
+}
 function lastOfArray(ls) {
 	return ls[ls.length - 1];
 }
@@ -173,6 +147,35 @@ function checkStart() {
 		changeGameState('TITLE');
 }
 
+ieach($('form[eval-radios]'), function(i, e) {
+	e.action = 'javascript:evalRadioVal("eval_radio'+i+'")';
+	e.addEventListener('keydown', function(e) {
+		this.active = true;
+	})
+	e.addEventListener('keyup', function(e) {
+		this.active && !(this.active = false) && checkFormKey(e, this);
+	})
+	ieach($('input[type="radio"]', e), function(j, r) {
+		r.name = 'eval_radio'+i;
+	});
+});
+ieach($('input[type="radio"]'), function(i, v) {
+	var n = v.nextElementSibling;
+	if (n && n.tagName == 'LABEL' && !v.id) {
+		n.setAttribute('for', v.id = 'radio'+i);
+		n.addEventListener('mouseup', function(e) {
+			// have to wait before radios changed
+			setTimeout(function() {
+				v.form.submit();
+			}, 10);
+		});
+	}
+});
+ieach($('.ui-obj'), function(i, v) {
+	v.className += ' ui';
+	v.setAttribute('ui-show', 'this.object && !this.object.finished');
+});
+
 setAudioVolume('audio.se', 0.2);
 setAudioVolume('audio.bgm', 0.5);
 
@@ -185,17 +188,20 @@ RES.check(function() {
 });
 
 setInterval(function checkGame() {
+	// find active radio button when game is not running
 	if (GAME.state != GAME.states.RUNNING) {
 		var f = $i('input:focus');
 		if (!f || !f.scrollHeight)
 			checkActiveRadios();
 	}
+	// check bgms
 	var _t = checkGame,
 		bgm = getBGM();
 	if (_t.bgm !== bgm) {
 		if (_t.bgm)
 			_t.bgm.pause();
 		if (_t.bgm = bgm) {
+			// first pause it to resolve issue on Chrome
 			_t.bgm.pause();
 			_t.bgm.play();
 		}

@@ -466,9 +466,6 @@ function newStateMachine(stes) {
 	}
 	return _t;
 }
-function newFrame(r, sx, sy, sw, sh, w, h, e) {
-	return extend({ res:r, sx:sx, sy:sy, sw:sw, sh:sh, w:w||sw, h:h||sh, }, e)
-}
 
 var DC = (function(canv) {
 	var _t = canv.getContext('2d');
