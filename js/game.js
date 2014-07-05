@@ -2131,13 +2131,13 @@ function getDannmakuFrames(tama, color) {
 		tama == 'LongA' ||
 		tama == 'LongB' ||
 		tama == 'LongC')
-		return RES.frames[tama]['kr m b c g  y ow'.indexOf(color)];
+		return RES.frames[tama]['krRmMbBcCgGayYow'.indexOf(color)];
 	else if (tama == 'TamaSmall')
 		return RES.frames[tama]['krbgy'.indexOf(color)];
 	else if (tama == 'TamaSmallX')
-		return RES.frames[tama]['kr mpb  '.indexOf(color)];
+		return RES.frames[tama]['krRmMbBc'.indexOf(color)];
 	else if (tama == 'TamaSmallY')
-		return RES.frames[tama]['cg  y rw'.indexOf(color)];
+		return RES.frames[tama]['CgGayYow'.indexOf(color)];
 	else if (tama == 'TamaLarge' || tama == 'Knife')
 		return RES.frames[tama]['krmbcgyw'.indexOf(color)];
 	else if (tama == 'TamaMax')
