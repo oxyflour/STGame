@@ -1490,7 +1490,7 @@ return proto = {
 			this.is_juesi = decrease_to_zero(this.is_juesi, dt);
 	},
 	runBasic: function(dt, d) {
-		if (!this.is_dying)
+		if (!this.is_dying && !this.is_disabled)
 			this.runPlayer(dt, d);
 
 		var rt = this.rect;

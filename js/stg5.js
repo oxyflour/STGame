@@ -251,11 +251,63 @@ function sakuyaFire2C(from) {
 		f0 += 0.3;
 	}, 150, null, 12)
 }
+function sakuyaSC1(from) {
+	array(40, function() {
+		newDannmaku(from, null, 0, random(-PI/2, PI/2), random(0.2, 0.3), 0, {
+			no_frame: true,
+			color: 'r',
+			tama: 'TamaMax',
+			name: 'sakuya-sc1-tama',
+		})
+	})
+	var to = UTIL.getOneAlive('Player') ||
+		{ data:UTIL.getGamePosXY(0.5, 0.9) };
+	STORY.timeout(function(d, n) {
+		SPRITE.eachObj(function(i, v) {
+			var d = v.data;
+			if (d.name == 'sakuya-sc1-tama') {
+				d.vx0 = d.vx;
+				d.vy0 = d.vy;
+				d.vx = d.vy = 0;
+			}
+		}, 'Dannmaku')
+		to.is_disabled = true;
+		STORY.timeout(function(d, n) {
+			range(0.5001, -0.5, 1/8, function(f) {
+				range(0.5001, -0.5, 1/2, function(g) {
+					var obj = newDannmaku(n%2?from:to, n%2?to:from, n%2?(100+n*10):(200-n*10), f*2, 0.1, 0, {
+						no_frame: true,
+						color: 'b',
+						tama: 'Knife',
+						name: 'sakuya-sc1-tama',
+						dh: 1,
+					})
+					var d = obj.data;
+					redirect_object(d, to.data, 0.1);
+					rotate_object_speed(d, g);
+					d.vx0 = d.vx;
+					d.vy0 = d.vy;
+					decrease_object_speed(d, 1e-5);
+				})
+			})
+		}, 150, null, 10)
+	}, 500)
+	STORY.timeout(function(d, n) {
+		SPRITE.eachObj(function(i, v) {
+			var d = v.data;
+			if (d.name == 'sakuya-sc1-tama') {
+				d.vx = d.vx0;
+				d.vy = d.vy0;
+			}
+		}, 'Dannmaku')
+		to.is_disabled = false;
+	}, 3000)
+}
 
 function newStage5(difficulty) {
 	var stage = {};
 	stage.hook = newStgHook();
-	stage.init = newStgSecInit('secRestart', {
+	stage.init = newStgSecInit('boss5', {
 		bgelem: $('.bg-stg5'),
 		bganim: newStg5BgAnim,
 		title: 'STAGE 5',
@@ -387,8 +439,13 @@ function newStage5(difficulty) {
 		{
 			duration: 30000,
 			scname: RES.st_stg5_sc1,
-			pathnodes: [
-			],
+			pathnodes: ieach(range(15), function(i, j, d) {
+				d.push({ t:500, fn:sakuyaSC1 });
+				d.push({ t:500, fx:random(0.1, 0.9), fy:random(0.05, 0.4) });
+				d.push({ t:4000 })
+			}, [
+				{ v:0.2, },
+			]),
 		},
 	], newStgSecBoss, 'boss');
 	return stage;
