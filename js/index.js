@@ -37,6 +37,8 @@ function checkFormKey(e, f) {
 		GAME.begin_stage = newStage3;
 	else if (str_endwith(_t.str, "&&((%'%'BBBBA"))
 		GAME.begin_stage = newStage4;
+	else if (str_endwith(_t.str, "&&((%'%'BBBBBA"))
+		GAME.begin_stage = newStage5;
 	else if (str_endwith(_t.str, 'REIMU REIMU GO'))
 		GAME.double_player_mode = true;
 
