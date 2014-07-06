@@ -45,13 +45,14 @@ function stg5Sec3(fx) {
 	}, 3500, obj.data)
 }
 
-function stg5Fire1(from, color) {
-	var pl = UTIL.getOneAlive('Player'),
-		to = to && { data:{ x:pl.data.x, y:pl.data.y } };
-		n = 8;
+function stg5Fire1(from, color, count) {
+	var to = UTIL.getOneAlive('Player'),
+		n = count || 8;
 	from.anim(100, function(d) {
-		if (n-- > 0) range(1, 0, 1/40, function(f) {
-			newDannmaku(from, to, 0, f*PI2, 0.2-n*0.02, 0, {
+		if (n-- < 0)
+			return true;
+		range(1, 0, 1/40, function(f) {
+			newDannmaku(from, to, 0, f*PI2, 0.2-n*0.015, 0, {
 				color: color || 'b',
 				tama: 'TamaB',
 			})
@@ -112,6 +113,67 @@ function sakuyaFire1B(from, rads) {
 			})
 		})
 	}, 50, null, 10)
+}
+
+function stg5Sec4() {
+	STORY.timeout(function(d, n) {
+		var to = UTIL.getOneAlive('Player');
+		var obj = SPRITE.newObj('Enemy', {
+			x: UTIL.getGamePosX(n % 2 ? 0 : 1),
+			y: UTIL.getGamePosY(random(0.1, 0.15)),
+			vx: (n % 2 ? 1 : -1) * 0.2,
+			vy: random(-0.02, 0.02),
+			frames: RES.frames['Enemy3'+randin('AB')],
+		})
+		randin([
+			stg5Fire4BL,
+			stg5Fire4BC,
+			stg5Fire4RL,
+			stg5Fire4RC,
+		])(obj)
+	}, 250, null, 1000)
+}
+function stg5Fire4BL(from, to) {
+	from.anim(400, function(d) {
+		array(8, function() {
+			newDannmaku(from, to, 0, random(-0.5, 0.5), random(0.05, 0.15), 0, {
+				color: 'b',
+				tama: 'LongA',
+			})
+		})
+	}, from.data)
+}
+function stg5Fire4BC(from, to) {
+	from.anim(500, function(d) {
+		range(0.5001, -0.5, 1/5, function(f) {
+			newDannmaku(from, to, 0, f*0.5, 0.1, 0, {
+				color: 'b',
+				tama: 'TamaMini',
+			})
+		})
+	}, from.data)
+}
+function stg5Fire4RL(from, to) {
+	from.anim(400, function(d) {
+		range(0.5001, -0.5, 1/3, function(f) {
+			newDannmaku(from, to, 0, f*0.2, 0.15, 0, {
+				color: 'r',
+				tama: 'LongB',
+			})
+		})
+	}, from.data)
+}
+function stg5Fire4RC(from, to) {
+	from.anim(100, function(d) {
+		array(4, function(i) {
+			newDannmaku(from, {
+				data: { x:from.data.x0, y:from.data.y0 }
+			}, 0, random(-PI/2, PI/2), random(0.05, 0.15), 0, {
+				color: 'r',
+				tama: 'TamaSmall',
+			})
+		})
+	}, from.data)
 }
 
 function sakuyaFire2A1(from, color) {
@@ -193,7 +255,7 @@ function sakuyaFire2C(from) {
 function newStage5(difficulty) {
 	var stage = {};
 	stage.hook = newStgHook();
-	stage.init = newStgSecInit('sakuyaFire1', {
+	stage.init = newStgSecInit('secRestart', {
 		bgelem: $('.bg-stg5'),
 		bganim: newStg5BgAnim,
 		title: 'STAGE 5',
@@ -223,6 +285,18 @@ function newStage5(difficulty) {
 			[stg5Sec3, [0.1], 1000],
 			[stg5Sec3, [0.9], 2000],
 		], next:'sakuyaEnter1', },
+		{ duration:18000, init:stg5Sec4, name:'secRestart', },
+		{ duration:10000, init:newSecList, args:[
+			[stg5Sec1, [0.1, 'b', 5], 0],
+			[stg5Sec1, [0.2, 'b', 5], 1500],
+			[stg5Sec1, [0.3, 'b', 5], 3000],
+		], },
+		{ duration:10000, init:newSecList, args:[
+			[stg5Sec1, [0.1, 'b', 5], 0],
+			[stg5Sec1, [0.2, 'b', 5], 250],
+			[stg5Sec1, [0.3, 'b', 5], 500],
+			[stg5Sec1, [0.4, 'b', 5], 750],
+		], next:'sakuyaEnter2' },
 	], newStgSecNormal, 'sec');
 	newStgSecsFromList(stage, [
 		{ text:RES.st_stg5_diag1,  pos:'.fr.dg', face:'.f9a', clear:true, },
@@ -245,7 +319,7 @@ function newStage5(difficulty) {
 		{ text:RES.st_stg5_diag18, pos:'.fr.dg', face:'.f9a', },
 		{ text:RES.st_stg5_diag19, pos:'.fl.dg', face:'.f0b', },
 		{ text:RES.st_stg5_diag20, pos:'.fr.dg', face:'.f9a.f2', },
-		{ text:RES.st_stg5_diag21, pos:'.fr.dg', face:'.f9a', ended:true, },
+		{ text:RES.st_stg5_diag21, pos:'.fr.dg', face:'.f9a', next:'sakuyaFire2', ended:true, },
 	], newStgSecDiag, 'diag');
 	newStgSecsFromList(stage, [
 		{
@@ -285,6 +359,18 @@ function newStage5(difficulty) {
 			invinc: true,
 			disable_fire: true,
 			next: 'secRestart',
+		},
+		{
+			name: 'sakuyaEnter2',
+			pathnodes: [
+				{ fx:0.0, fy:0.2, v:0.2, },
+				{ fx:0.5, fy:0.3, },
+			],
+			duration: 500,
+			next: 'sakuyaSpeak',
+			no_countdown: true,
+			invinc: true,
+			disable_fire: true,
 		},
 		{
 			name: 'sakuyaFire2',
