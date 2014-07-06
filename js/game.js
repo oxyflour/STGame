@@ -386,6 +386,7 @@ function newAnimateList() {
 	};
 	_t.add = function(t) { // t should be object like { run: function(){} }
 		t.finished = false;
+		t.disabled = false;
 		//_t[unused.length ? unused.pop() : _t.length] = t;
 		_t.push(t);
 	};
@@ -397,7 +398,7 @@ function newAnimateList() {
 					_t[i] = undefined;
 					unused.push(i);
 				}
-				else
+				else if (!t.disabled)
 					t.run(dt);
 			}
 		}
@@ -655,8 +656,8 @@ var RES = (function(res) {
 				d[v.id] = v;
 			}
 			else if (v.tagName == 'AUDIO') {
-				if ($attr(v, 'audio-src') && !v.src)
-					v.src = $attr(v, 'audio-src');
+//				if (!v.src && $attr(v, 'audio-src'))
+//					v.src = $attr(v, 'audio-src');
 				v.replayTime = parseFloat($attr(v, 'replay-time') || '0');
 				if ((v.replayQueueLength = parseFloat($attr(v, 'replay-queue'))) > 0) {
 					var queue = [v],
@@ -936,6 +937,10 @@ var UTIL = {
 			}
 		}, c);
 		return t;
+	},
+	getPlayerPos: function() {
+		var pl = UTIL.getOneAlive('Player');
+		return pl && { data:{ x:pl.data.x, y:pl.data.y } };
 	},
 	getGamePosX: function(f) {
 		return interp(GAME.rect.l, GAME.rect.r, f);
@@ -1419,10 +1424,10 @@ return proto = {
 		}
 		else if (e.damage_pt) {
 			var u = { x:d.x, y:d.y, r:d.h };
-			if (!this.is_invinc && (that.is_line ? line_circle_intersect(e, u) : circle_intersect(e, u)))
-				STORY.on(STORY.events.PLAYER_HIT, this);
-			else if (!that.grazed && (that.is_line ? line_circle_intersect(e, d) : circle_intersect(e, d)))
-				STORY.on(STORY.events.PLAYER_GRAZE, that.grazed = this);
+			if (!this.is_invinc && !that.hit_with && (that.is_line ? line_circle_intersect(e, u) : circle_intersect(e, u)))
+				STORY.on(STORY.events.PLAYER_HIT, that.hit_with = this);
+			else if (!that.grazed_by && (that.is_line ? line_circle_intersect(e, d) : circle_intersect(e, d)))
+				STORY.on(STORY.events.PLAYER_GRAZE, that.grazed_by = this);
 		}
 	},
 	
@@ -1490,7 +1495,7 @@ return proto = {
 			this.is_juesi = decrease_to_zero(this.is_juesi, dt);
 	},
 	runBasic: function(dt, d) {
-		if (!this.is_dying && !this.is_disabled)
+		if (!this.is_dying)
 			this.runPlayer(dt, d);
 
 		var rt = this.rect;
@@ -2120,6 +2125,7 @@ function getDannmakuRadius(tama) {
 		TamaSmall: 5,
 		TamaMini: 3,
 		TamaLarge: 8,
+		Fire: 5,
 		Knife: 4,
 		TamaMax: 10,
 	}[tama] || 5;
@@ -2138,6 +2144,8 @@ function getDannmakuFrames(tama, color) {
 		return RES.frames[tama]['krmbcgyw'.indexOf(color)];
 	else if (tama == 'TamaMax')
 		return RES.frames[tama]['rbgy'.indexOf(color)];
+	else if (tama == 'Fire')
+		return RES.frames.Fire;
 }
 function newDannmaku(from, to, r, rt, v, vt, ext) {
 	if (!to || !to.data) to = { data: UTIL.getGamePosXY(0.5, 0.9) };

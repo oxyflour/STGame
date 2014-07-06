@@ -784,6 +784,6 @@ function newStage4(difficuty) {
 		{ name:'bossKill', next:'muqSad', },
 	], newStgSecBossKill, 'bossKill');
 	stage.score = newStgSecScore('ended');
-	stage.ended = newStgSecOver();
+	stage.ended = newStgSecLoadNew(newStage5(difficuty));
 	return stage;
 }

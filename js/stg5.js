@@ -89,8 +89,7 @@ function stg5Fire3(from) {
 }
 
 function sakuyaFire1A(from, rads) {
-	var pl = UTIL.getOneAlive('Player'),
-		to = to && { data:{ x:pl.data.x, y:pl.data.y } };
+	var to = UTIL.getPlayerPos();
 	STORY.timeout(function(d, n) {
 		var f0 = (n - 3.5) / 7 * (rads || 1);
 		range(0.501, -0.5, 1/7, function(f) {
@@ -176,7 +175,21 @@ function stg5Fire4RC(from, to) {
 	}, from.data)
 }
 
-function sakuyaFire2A1(from, color) {
+function sakuyaFire2AC(from, rt, color, tama) {
+	var obj = SPRITE.newObj('Circle', {
+		x: from.data.x,
+		y: from.data.y,
+		vx: 0.1 * Math.sin(rt),
+		vy: 0.1 * Math.cos(rt),
+		frames: RES.stg4frs.Circle,
+		duration: 3000,
+	})
+	obj.anim(80, function(d) {
+		decrease_object_speed(d, 0.94)
+	}, obj.data)
+	sakuyaFire2A1(obj, color, tama);
+}
+function sakuyaFire2A1(from, color, tama) {
 	var f0 = random(PI2), df = randin([1, -1])*0.5;
 	from.anim(100, function(d) {
 		if (!this.is_dying) range(0.5001, -0.5, 1/4, function(f) {
@@ -184,8 +197,14 @@ function sakuyaFire2A1(from, color) {
 			var obj = newDannmaku(from, null, 0, f0+t, 0.15/Math.cos(t), 0, {
 				no_frame: true,
 				color: color || 'g',
-				tama: 'LongC',
+				tama: tama || 'LongC',
 			})
+			if (tama == 'LongB') obj.runCircle = function(dt, d) {
+				if (d.x < GAME.rect.l || d.x > GAME.rect.r)
+					d.vx = -d.vx;
+				if (d.y < GAME.rect.t)
+					d.vy = -d.vy;
+			}
 		})
 		f0 += df;
 	}, from.data)
@@ -201,19 +220,7 @@ function sakuyaFire2A(from) {
 		[-1.1, 'g'],
 		[-1.5, 'g'],
 	], function(i, v) {
-		var f = v[0], c = v[1];
-		var obj = SPRITE.newObj('Circle', {
-			x: from.data.x,
-			y: from.data.y,
-			vx: 0.1 * Math.sin(f),
-			vy: 0.1 * Math.cos(f),
-			frames: RES.stg4frs.Circle,
-			duration: 3000,
-		})
-		obj.anim(80, function(d) {
-			decrease_object_speed(d, 0.94)
-		}, obj.data)
-		sakuyaFire2A1(obj, c);
+		sakuyaFire2AC(from, v[0], v[1])
 	})
 }
 function sakuyaFire2B(from) {
@@ -251,63 +258,184 @@ function sakuyaFire2C(from) {
 		f0 += 0.3;
 	}, 150, null, 12)
 }
-function sakuyaSC1(from) {
-	array(40, function() {
-		newDannmaku(from, null, 0, random(-PI/2, PI/2), random(0.2, 0.3), 0, {
+function sakuyaSC1K(from) {
+	STORY.timeout(function(d, n) {
+		var r = random(50, 200),
+			t = random(PI2);
+		var obj = SPRITE.newObj('Circle', {
+			x: from.data.x + r*Math.cos(t),
+			y: from.data.y + r*Math.sin(t),
+			frames: RES.frames.EffEnemy2[0],
+			opacity: 0.5,
+		})
+		redirect_object(obj.data, from.data, 0.1)
+		obj.anim(50, function(d) {
+			decrease_object_speed(d, 1.05)
+			if (sqrt_sum(from.data.x - d.x, from.data.y - d.y) < 50)
+				return this.die() || true;
+		}, obj.data)
+	}, 30, null, 100)
+}
+function sakuyaSC1A(from) {
+	array(20, function() {
+		newDannmaku(from, null, 0, random(-PI/2, PI/2), random(0.06, 0.3), 0, {
 			no_frame: true,
 			color: 'r',
 			tama: 'TamaMax',
-			name: 'sakuya-sc1-tama',
+			blend: 'lighter',
 		})
 	})
-	var to = UTIL.getOneAlive('Player') ||
-		{ data:UTIL.getGamePosXY(0.5, 0.9) };
+}
+function sakuyaSC1(from, freeze, release) {
 	STORY.timeout(function(d, n) {
 		SPRITE.eachObj(function(i, v) {
-			var d = v.data;
-			if (d.name == 'sakuya-sc1-tama') {
-				d.vx0 = d.vx;
-				d.vy0 = d.vy;
-				d.vx = d.vy = 0;
-			}
+			v.disabled = true;
 		}, 'Dannmaku')
-		to.is_disabled = true;
+		SPRITE.eachObj(function(i, v) {
+			v.disabled = true;
+		}, 'Player')
+		var to = UTIL.getOneAlive('Player') ||
+			{ data:UTIL.getGamePosXY(0.5, 0.9) };
 		STORY.timeout(function(d, n) {
+			var r = sqrt_sum(from.data.x - to.data.x, from.data.y - to.data.y);
 			range(0.5001, -0.5, 1/8, function(f) {
+				var fact = n*0.07+0.1,
+					dist = n % 2 ? r*fact : r*(1-fact),
+					rads = n % 2 ? (1.5-n*0.05) : (1+n*0.08);
 				range(0.5001, -0.5, 1/2, function(g) {
-					var obj = newDannmaku(n%2?from:to, n%2?to:from, n%2?(100+n*10):(200-n*10), f*2, 0.1, 0, {
+					var obj = newDannmaku(n%2?from:to, n%2?to:from, dist, f*rads, 0.1, 0, {
 						no_frame: true,
 						color: 'b',
 						tama: 'Knife',
-						name: 'sakuya-sc1-tama',
-						dh: 1,
+						ph: 1,
 					})
+					obj.disabled = true;
 					var d = obj.data;
 					redirect_object(d, to.data, 0.1);
-					rotate_object_speed(d, g);
-					d.vx0 = d.vx;
-					d.vy0 = d.vy;
-					decrease_object_speed(d, 1e-5);
+					rotate_object_speed(d, g*2);
 				})
 			})
 		}, 150, null, 10)
-	}, 500)
+	}, freeze || 1000)
 	STORY.timeout(function(d, n) {
 		SPRITE.eachObj(function(i, v) {
-			var d = v.data;
-			if (d.name == 'sakuya-sc1-tama') {
-				d.vx = d.vx0;
-				d.vy = d.vy0;
-			}
+			v.disabled = false;
 		}, 'Dannmaku')
-		to.is_disabled = false;
-	}, 3000)
+		SPRITE.eachObj(function(i, v) {
+			v.disabled = false;
+		}, 'Player')
+	}, release || 3000)
+}
+function sakuyaFire3A(from) {
+	ieach([
+		[ 0.7, 'r'],
+		[ 1.5, 'b'],
+		[-0.7, 'b'],
+		[-1.5, 'r'],
+	], function(i, v) {
+		sakuyaFire2AC(from, v[0], v[1], 'LongB')
+	})
+}
+function sakuyaSC2A(from) {
+	array(4, function(i) {
+		ieach([16, 18], function(j, n) {
+			range(1, 0, 1/n, function(f) {
+				newDannmaku(from, null, 0, f*PI2+PI/2, 0.08+i*0.02, 0, {
+					no_frame: true,
+					tama: 'Fire',
+				})
+			})
+		})
+	})
+}
+function sakuyaSC2C(from) {
+	SPRITE.eachObj(function(i, v) {
+		var d = v.data;
+		if (d.tama == 'Fire')
+			rotate_object_speed(d, random(-2, 2))
+		else if (d.tama == 'Knife' && random(1) > 0.2) STORY.timeout(function() {
+			UTIL.addFrameAnim(v, RES.frames.Knife[5]);
+			rotate_object_speed(d, random(-2, 2))
+		}, random(50, 500))
+	}, 'Dannmaku')
+}
+function sakuyaFire4(from, color) {
+	var pl = UTIL.getOneAlive('Player'),
+		to = pl && { data:{ x:pl.data.x, y:pl.data.y } };
+	STORY.timeout(function(d, n) {
+		array(2, function(i) {
+			range(1, 0, 1/5, function(f) {
+				var obj = newDannmaku(from, to, 0, f*PI2+n*0.1, 0.1+i*0.02, 0, {
+					color: color || 'b',
+					tama: 'Knife',
+				})
+				obj.runCircle = (function(run) {
+					return function(dt, d) {
+						if (d.x < GAME.rect.l || d.x > GAME.rect.r)
+							d.vx = -d.vx;
+						if (d.y < GAME.rect.t)
+							d.vy = -d.vy;
+						run.call(this, dt, d);
+					}
+				})(obj.runCircle)
+			})
+		})
+	}, 100, null, 8)
+}
+function sakuyaSC3A(from) {
+	var to = UTIL.getPlayerPos();
+	STORY.timeout(function(d, n) {
+		array(3, function(i) {
+			i = 3 - i;
+			range(1, 0, 1/15, function(f) {
+				newDannmaku(from, to, 0, f*PI2+n*0.06, 0.1+i*0.02, 0, {
+					color: 'b',
+					tama: 'Knife',
+				})
+			})
+		})
+	}, 100, null, 8)
+}
+function sakuyaSC3B(from) {
+	var to = UTIL.getPlayerPos();
+	STORY.timeout(function(d, n) {
+		var f0 = (7 - n) / 8 * PI2;
+		array(4, function(i) {
+			i = 4 - i;
+			range(0.5001, -0.5, 1/7, function(f) {
+				newDannmaku(from, to, 0, f0+f*0.25, 0.12+i*0.02, 0, {
+					color: 'r',
+					tama: 'Knife',
+				})
+			})
+		})
+	}, 50, null, 8)
+}
+function sakuyaSC3C(from) {
+	SPRITE.eachObj(function(i, v) {
+		v.disabled = true;
+		if (v.data.tama == 'Knife' && random(1) > 0.3) STORY.timeout(function() {
+			UTIL.addFrameAnim(v, RES.frames.Knife[5]);
+			rotate_object_speed(v.data, random(-2, 2));
+		}, random(500, 1500));
+	}, 'Dannmaku')
+	SPRITE.eachObj(function(i, v) {
+		v.disabled = true;
+	}, 'Player')
+	STORY.timeout(function() {
+		SPRITE.eachObj(function(i, v) {
+			v.disabled = false;
+		}, 'Dannmaku')
+		SPRITE.eachObj(function(i, v) {
+			v.disabled = false;
+		}, 'Player')
+	}, 2000)
 }
 
 function newStage5(difficulty) {
 	var stage = {};
 	stage.hook = newStgHook();
-	stage.init = newStgSecInit('boss5', {
+	stage.init = newStgSecInit('sec0', {
 		bgelem: $('.bg-stg5'),
 		bganim: newStg5BgAnim,
 		title: 'STAGE 5',
@@ -372,6 +500,8 @@ function newStage5(difficulty) {
 		{ text:RES.st_stg5_diag19, pos:'.fl.dg', face:'.f0b', },
 		{ text:RES.st_stg5_diag20, pos:'.fr.dg', face:'.f9a.f2', },
 		{ text:RES.st_stg5_diag21, pos:'.fr.dg', face:'.f9a', next:'sakuyaFire2', ended:true, },
+		{ text:RES.st_stg5_diag22, pos:'.fl.dg', face:'.f0b.f2', name:'sakuyaSpeak2', },
+		{ text:RES.st_stg5_diag23, pos:'.fr.dg', face:'.f9b.f2', next:'score', ended:true, },
 	], newStgSecDiag, 'diag');
 	newStgSecsFromList(stage, [
 		{
@@ -440,13 +570,70 @@ function newStage5(difficulty) {
 			duration: 30000,
 			scname: RES.st_stg5_sc1,
 			pathnodes: ieach(range(15), function(i, j, d) {
-				d.push({ t:500, fn:sakuyaSC1 });
-				d.push({ t:500, fx:random(0.1, 0.9), fy:random(0.05, 0.4) });
-				d.push({ t:4000 })
+				d.push({ t:3000, fn:sakuyaSC1K })
+				d.push({ t:500,  fn:sakuyaSC1A });
+				d.push({ t:500,  fn:sakuyaSC1 });
+				d.push({ t:500,  fx:random(0.1, 0.9), fy:random(0.05, 0.4) });
+				d.push({ t:1000 });
 			}, [
 				{ v:0.2, },
 			]),
 		},
+		{
+			duration: 45000,
+			pathnodes: ieach(range(15), function(i, j, d) {
+				d.push({ t:500, fx:random(0.1, 0.9), fy:random(0.05, 0.4) });
+				d.push({ t:500, fn:sakuyaFire3A, });
+				d.push({ t:4000, fn:sakuyaFire2B, });
+			}, [
+				{ v:0.1, },
+			]),
+		},
+		{
+			duration: 30000,
+			scname: RES.st_stg5_sc2,
+			pathnodes: ieach(range(15), function(i, j, d) {
+				d.push({ t:3000, fn:sakuyaSC1K });
+				d.push({ t:500,  fn:sakuyaSC2A });
+				d.push({ t:500,  fn:sakuyaSC1, args:[1000, 3500] });
+				d.push({ t:2000, fx:random(0.1, 0.9), fy:random(0.05, 0.4) });
+				d.push({ t:500,  fn:sakuyaSC2C });
+			}, [
+				{ v:0.2, },
+			]),
+		},
+		{
+			duration: 45000,
+			pathnodes: ieach(range(15), function(i, j, d) {
+				d.push({ t:1000, fn:sakuyaFire4, args:['b'] });
+				d.push({ t:NaN,  fx:random(0.1, 0.9), fy:random(0.05, 0.4) });
+				d.push({ t:200,  fx:random(0.1, 0.9), fy:random(0.05, 0.4) });
+				d.push({ t:1000, fn:sakuyaFire4, args:['r'] });
+				d.push({ t:1000 });
+			}, [
+				{ v:0.2, },
+			]),
+		},
+		{
+			duration: 30000,
+			scname: RES.st_stg5_sc3,
+			pathnodes: ieach(range(15), function(i, j, d) {
+				d.push({ t:900, fn:sakuyaSC3A });
+				d.push({ t:500, fn:sakuyaSC3B });
+				d.push({ t:300,  fx:random(0.1, 0.9), fy:random(0.05, 0.4) });
+				d.push({ t:3000, fn:sakuyaSC3C });
+			}, [
+				{ v:0.2, },
+				{ fx:0.5, fy:0.3 },
+			]),
+			next:'bossKill',
+		},
 	], newStgSecBoss, 'boss');
+	newStgSecsFromList(stage, [
+		{ name:'bossKill', next:'sakuyaSpeak2', },
+	], newStgSecBossKill, 'bossKill');
+	stage.score = newStgSecScore('ended');
+	stage.ended = newStgSecOver();
+//	stage.ended = newStgSecLoadNew(newStage6(difficuty));
 	return stage;
 }
