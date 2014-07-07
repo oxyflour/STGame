@@ -88,17 +88,18 @@ function stg5Fire3(from) {
 	}, from.data)
 }
 
-function sakuyaFire1A(from, rads) {
+function sakuyaFire1A(from, rads, count, interval) {
 	var to = UTIL.getPlayerPos();
+	count = count || 7;
 	STORY.timeout(function(d, n) {
-		var f0 = (n - 3.5) / 7 * (rads || 1);
-		range(0.501, -0.5, 1/7, function(f) {
+		var f0 = (n - 3.5) / count * (rads || 1);
+		range(0.501, -0.5, 1 / count, function(f) {
 			newDannmaku(from, to, 0, f*2.4+f0*2, 0.2, 0, {
 				color: 'b',
 				tama: 'Knife',
 			})
 		})
-	}, 150, null, 8)
+	}, interval || 150, null, count + 1)
 }
 function sakuyaFire1B(from, rads) {
 	STORY.timeout(function(d, n) {

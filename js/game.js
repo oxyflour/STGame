@@ -2360,6 +2360,10 @@ function newBoss(name) {
 		UTIL.addFrameAnim(boss, newBossFrames('Sakuya'));
 		newBossBgCircle(boss);
 	}
+	else if (name == 'remilia') {
+		UTIL.addFrameAnim(boss, newBossFrames('Remilia'));
+		newBossBgCircle(boss);
+	}
 
 	return boss;
 }

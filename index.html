@@ -281,6 +281,9 @@
 	<!-- stg5 -->
 	<img id="stg5enm2" src="res/stg5enm2.png" />
 	<canvas id="stg5enmR" from="stg5enm2 128 0 108 64" transform="mirror:x"></canvas>
+	<!-- stg6 -->
+	<img id="stg6enm2" src="res/stg6enm2.png" />
+	<canvas id="stg6enmR" from="stg6enm2 64 0 128 80" transform="mirror:x"></canvas>
 	<!-- creating background css with toDataUrl -->
 	<script id="gen_bgcss">
 		(function(RES) {
@@ -577,6 +580,18 @@
 				newFrame('stg5enmR',  0, 0, 40, 64),
 				newFrame('stg5enmR', 40, 0, 36, 64),
 				newFrame('stg5enmR', 76, 0, 32, 64),
+			])
+
+			newBossFrame('Remilia', [
+				newFrame('stg6enm2',   0, 0, 64, 80),
+			], [
+				newFrame('stg6enm2',   0, 0, 64, 80),
+			], [
+				newFrame('stg6enm2',  64, 0, 64, 80),
+				newFrame('stg6enm2', 128, 0, 64, 80),
+			], [
+				newFrame('stg6enmR',   0, 0, 64, 80),
+				newFrame('stg6enmR',  64, 0, 64, 80),
 			])
 
 			_t.Fire = array(4, function(i) {
@@ -903,6 +918,37 @@
 	<script type="text/html" id="st_stg5_diag21">现在开始，即使要停止时间<br />我也要拖延你的脚步</script>
 	<script type="text/html" id="st_stg5_diag22">好了，现在我可以见她了吧</script>
 	<script type="text/html" id="st_stg5_diag23">好强...<br />但是，大小姐总会有办法的</script>
+	<!-- stage 6 -->
+	<script type="text/html" id="st_stg6_title">在乐园中洒下血土</script>
+	<script type="text/html" id="st_stg6_diag1">在大小姐生气之前<br />至少要消耗掉你一个BOMB才行～</script>
+	<script type="text/html" id="st_stg6_diag2">少废话，要不把你的使魔全放出来？</script>
+	<script type="text/html" id="st_stg6_diag3">差不多也该现出你的原形了吧？<br />大小姐？ </script>
+	<script type="text/html" id="st_stg6_diag4">...</script>
+	<script type="text/html" id="st_stg6_diag5">果然，人类还是不中用啊</script>
+	<script type="text/html" id="st_stg6_diag6">刚才的女仆原来是人类啊</script>
+	<script type="text/html" id="st_stg6_diag7">你这家伙，是杀人犯呢</script>
+	<script type="text/html" id="st_stg6_diag8">一个人的话又不是大量屠杀<br />所以没关系</script>
+	<script type="text/html" id="st_stg6_diag9">于是？</script>
+	<script type="text/html" id="st_stg6_diag10">是啊是啊，给人添麻烦了<br />你</script>
+	<script type="text/html" id="st_stg6_diag11">真武断呢。而且理由也不明</script>
+	<script type="text/html" id="st_stg6_diag12">总而言之，从这里离开<br />成吗？</script>
+	<script type="text/html" id="st_stg6_diag13">这里是我的城哦？</script>
+	<script type="text/html" id="st_stg6_diag14">要离开也该是你离开才对。</script>
+	<script type="text/html" id="st_stg6_diag15">我是说要你从这世上离开</script>
+	<script type="text/html" id="st_stg6_diag16">真是没办法呢</script>
+	<script type="text/html" id="st_stg6_diag17">虽然现在，已经吃得饱饱的了...</script>
+	<script type="text/html" id="st_stg6_diag18">当护卫的那个女仆<br />是你雇来的对吧？</script>
+	<script type="text/html" id="st_stg6_diag19">像你这样的深闺大小姐<br />一招就能打倒！</script>
+	<script type="text/html" id="st_stg6_diag20">咲夜是个优秀的扫除者</script>
+	<script type="text/html" id="st_stg6_diag21">托她的福，这里一颗头都没掉过哦</script>
+	<script type="text/html" id="st_stg6_diag22">你难道很强么？</script>
+	<script type="text/html" id="st_stg6_diag23">谁知道呢。<br />我又不怎么到外面去</script>
+	<script type="text/html" id="st_stg6_diag24">因为我对阳光很没辙</script>
+	<script type="text/html" id="st_stg6_diag25">...<br />似乎很有一手的样子呢</script>
+	<script type="text/html" id="st_stg6_diag26">在如此鲜红的月亮之下<br />我真的会杀掉你哦</script>
+	<script type="text/html" id="st_stg6_diag27">既然月亮如此鲜红</script>
+	<script type="text/html" id="st_stg6_diag28">看来会成为欢愉之夜呢</script>
+	<script type="text/html" id="st_stg6_diag29">看来会成为永远之夜呢</script>
 	<!-- sfx -->
 	<audio preload oncanplaythrough="this.complete=true" class="se" id="se_graze" src="res/se_graze.mp3" replay-queue="4"></audio>
 	<audio preload oncanplaythrough="this.complete=true" class="se" id="se_pldead00" src="res/se_pldead00.mp3"></audio>
@@ -982,6 +1028,8 @@
 			</div>
 			<div class="game-size absolute no-overflow ui-obj bg-stg5" style="background:#000">
 			</div>
+			<div class="game-size absolute no-overflow ui-obj bg-stg6" style="background:#000">
+			</div>
 			<div class="game-size absolute">
 				<div class="absolute game-size ui-obj anim-in-01s" id="bg_sc_rumia" bg-speed="0.1"
 					style="background:url(res/eff01.png);opacity:0;background-size:100%"></div>
@@ -1042,6 +1090,8 @@
 				<div class="face f9a f2"></div>
 				<div class="face f9b"></div>
 				<div class="face f9b f2"></div>
+				<div class="face f10a"></div>
+				<div class="face f10b"></div>
 			</div>
 			<div class="ft dg">
 				<div class="text"></div>
@@ -1319,6 +1369,7 @@
 <script src="js/stg3.js"></script>
 <script src="js/stg4.js"></script>
 <script src="js/stg5.js"></script>
+<script src="js/stg6.js"></script>
 <script src="js/index.js"></script>
 </body>
 </html>

@@ -453,6 +453,20 @@ input[type="radio"] {
 .f9b {
 	background: url(res/face09b.png) 0 0;
 }
+.f10a {
+	background: url(res/face10a.png) 0 0;
+	width: 256px;
+}
+.f10b {
+	background: url(res/face10b.png) 0 0;
+	width: 256px;
+}
+.diag.active .f10a,
+.diag.active .f10b {
+	-webkit-transform: translate(-64px, 10px);
+	    -ms-transform: translate(-64px, 10px);
+	   -moz-transform: translate(-64px, 10px);
+}
 .f2 {
 	background-position: -128px 0;
 }
