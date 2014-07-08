@@ -73,10 +73,229 @@ function sakuyaFire1C(from, rads) {
 	}, 50, null, 15)
 }
 
+function remiliaFire1(from) {
+	STORY.timeout(function(d, n) {
+		range(1, 0, 1/6, function(f) {
+			newDannmaku(from, null, 0, f*PI2+n*0.3, 0.2, 0, {
+				color: 'r',
+				tama: 'TamaMax',
+				blend: 'lighter',
+				no_frame: true,
+			})
+		})
+		range(1, 0, 1/8, function(f) {
+			newDannmaku(from, null, 0, f*PI2+n*0.2, 0.15, 0, {
+				color: 'b',
+				tama: 'TamaLarge',
+				no_frame: true,
+			})
+		})
+		range(0.5001, -0.5, 1/4, function(f) {
+			newDannmaku(from, null, 0, f*0.3+n*0.4, 0.15/Math.cos(f*0.1), 0, {
+				color: 'b',
+				tama: 'TamaB',
+				no_frame: true,
+			})
+		})
+	}, 120, null, 40)
+}
+function remiliaSC1(from) {
+	var f0 = random(PI2);
+	array(3, function(i) {
+		var r = 50 + 100 * i,
+			s = [0, 0.8, -1.2][i];
+		array(16, function(j) {
+			var f = j / 16,
+				t = f0 + f*PI2,
+				x = from.data.x + r*Math.cos(t),
+				y = from.data.y + r*Math.sin(t),
+				d = 500,
+				u = t + s*(j % 2 ? 1 : -1),
+				dx = d*Math.cos(u),
+				dy = d*Math.sin(u);
+			newLaserWithDot(from, x, y, dx, dy, 20, {
+				color: 'c',
+				frames: RES.frames.TamaB[8],
+				dh: 1/1500,
+				duration: 3000,
+			})
+		})
+	})
+	STORY.timeout(function(d, n) {
+		range(1, 0, 1/12, function(f) {
+			newDannmaku(from, null, 0, f*PI2-n*0.12+0.1, 0.18, 0, {
+				color: 'y',
+				tama: 'TamaMax',
+				blend: 'lighter',
+				no_frame: true,
+			})
+		})
+		array(2, function(i) {
+			range(1, 0, 1/14, function(f) {
+				newDannmaku(from, null, 0, f*PI2+n*0.08, 0.18+i*0.04, 0, {
+					color: 'b',
+					tama: 'TamaLarge',
+					no_frame: true,
+				})
+			})
+		})
+	}, 250, null, 4)
+}
+function remiliaFire2A(from, to, t) {
+	newDannmaku(from, to, 0, t, 0.4, 0, {
+		color: 'r',
+		tama: 'TamaMax',
+		blend: 'lighter',
+	})
+	array(8, function() {
+		newDannmaku(from, to, 0, t+random(-0.5, 0.5), random(0.15, 0.35), 0, {
+			color: 'r',
+			tama: 'TamaLarge',
+		})
+	})
+	array(16, function() {
+		newDannmaku(from, to, 0, t+random(-1, 1), random(0.05, 0.25), 0, {
+			color: 'r',
+			tama: 'TamaA',
+		})
+	})
+}
+function remiliaFire2(from, rads, interval, count1, count2) {
+	var to = rads ? null : UTIL.getOneAlive('Player');
+	STORY.timeout(function(d, n) {
+		var t = (3.5 - n) / 7 * rads;
+		remiliaFire2A(from, to, t)
+	}, interval || 160, null, 8)
+}
+function remiliaSC2(from) {
+	STORY.timeout(function(d, n) {
+		array(30, function(j) {
+			var f = j / 30;
+			var obj = newDannmaku(from, null, 0, f*PI2, 0.12, 0, {
+				color: 'r',
+				tama: 'Knife',
+				no_frame: true,
+			})
+			obj.anim(80, function(d) {
+				if (d.age < 2100)
+					rotate_object_speed(d, j % 2 ? 0.15 : -0.15);
+				else
+					return true;
+			}, obj.data)
+		})
+		range(1, 0, 1/36, function(f) {
+			var obj = newDannmaku(from, null, 0, f*PI2, 0.08, 0, {
+				color: 'r',
+				tama: 'LongA',
+				no_frame: true,
+				reflect: randin([0, 5, 5]),
+			})
+			obj.runCircle = function(dt, d) {
+				if (d.x < GAME.rect.l || d.x > GAME.rect.r)
+					if (d.reflect-- > 0) d.vx = -d.vx;
+				if (d.y < GAME.rect.t)
+					d.vy = -d.vy;
+			}
+		})
+	}, 250, null, 5)
+}
+function remiliaFire3(from, direction) {
+	STORY.timeout(function(d, n) {
+		array(2, function(i) {
+			range(1, 0, 1/4, function(f) {
+				newDannmaku(from, null, 0, f*PI2+n*direction, 0.25+i*0.05, 0, {
+					color: direction > 0 ? 'b' : 'r',
+					tama: 'Knife',
+				})
+			})
+		})
+	}, 50, null, 60)
+}
+function remiliaSC3A(from, ax, ay, delay) {
+	var obj = newDannmaku(from, null, 0, 0, 0, 0, {
+		dh: 1/500,
+		color: 'r',
+		tama: 'TamaB',
+	})
+	obj.anim(100, function(d) {
+		if (d.age > delay) {
+			d.vx += ax;
+			d.vy += ay;
+		}
+		if (d.age > delay + 1000)
+			return true;
+	}, obj.data)
+}
+function remiliaSC3(from, rads, count, rot, f0) {
+	var to = UTIL.getOneAlive('Player'),
+		ph = random(PI2);
+	range(0.5001, -0.5, 1/(count || 7), function(f) {
+		var obj = newDannmaku(from, to, 0, (f0 || 0) + f*(rads || 2), 0.3, 0, {
+			color: 'b',
+			tama: 'TamaMax',
+			no_frame: true,
+		})
+		var delay = 2000;
+		obj.anim(70, function(d) {
+			var t = d.age*0.005 + ph,
+				v = 0.004;
+			if (rot)
+				rotate_object_speed(d, rot);
+			if (d.age)
+				remiliaSC3A(this, Math.cos(t)*v, Math.sin(t)*v, delay-=100);
+		}, obj.data)
+	})
+}
+function remiliaFire4A(from) {
+	STORY.timeout(function(d, n) {
+		array(15, function() {
+			var obj = newDannmaku(from, null, 0, random(PI2), random(0.05, 0.15), 0, {
+				color: 'r',
+				tama: 'LongA',
+				no_frame: true,
+			})
+			obj.anim(80, function(d) {
+				d.vy += 0.01;
+			}, obj.data)
+		})
+	}, 100, null, 30)
+}
+function remiliaFire4B(from) {
+	STORY.timeout(function(d, n) {
+		var f0 = random(-1, 1);
+		range(0.5001, -0.5, 1/12, function(f) {
+			newDannmaku(from, null, 0, f0+f*2.5, 0.4, 0, {
+				color: 'r',
+				tama: 'TamaMax',
+				blend: 'lighter',
+			})
+		})
+	}, 200, null, 16)
+}
+function remiliaFire4C(from) {
+	var f0 = random(PI2);
+	STORY.timeout(function(d, n) {
+		f0 += random(0.03);
+		array(2, function(i) {
+			range(1, 0, 1/30, function(f) {
+				newDannmaku(from, null, 0, f0+f*PI2, 0.3+i*0.05, 0, {
+					tama: 'Fire',
+				})
+			})
+		})
+	}, 150, null, 20)
+}
+function remiliaSC4(from) {
+	var to = UTIL.getOneAlive('Player');
+	STORY.timeout(function(d, n) {
+		remiliaFire2A(from, to, Math.min(n-20, 0)/20*PI2)
+	}, 150, null, 28)
+}
+
 function newStage6(difficulty) {
 	var stage = {};
 	stage.hook = newStgHook();
-	stage.init = newStgSecInit('secRestart', {
+	stage.init = newStgSecInit('sec0', {
 		bgelem: $('.bg-stg6'),
 		title: 'STAGE 6',
 		text: RES.st_stg6_title,
@@ -181,9 +400,111 @@ function newStage6(difficulty) {
 			invinc: true,
 			disable_fire: true,
 		},
+		{
+			name: 'remiliaFire',
+			duration: 45000,
+			pathnodes: ieach(range(15), function(i, j, d) {
+				d.push({ t:2000, fn:remiliaFire1, });
+				d.push({ t:3000, fx:random(0.1, 0.9), fy:random(0.05, 0.4) });
+			}, [
+				{ v:0.2, },
+			]),
+		},
+		{
+			scname: RES.st_stg6_sc1,
+			duration: 40000,
+			pathnodes: ieach(range(15), function(i, j, d) {
+				d.push({ t:2000, fn:remiliaSC1, });
+				d.push({ t:3000, fx:random(0.1, 0.9), fy:random(0.05, 0.4) });
+			}, [
+				{ v:0.2, },
+			]),
+		},
+		{
+			duration: 45000,
+			pathnodes: ieach(range(15), function(i, j, d) {
+				d.push({ t:2000, fx:random(0.1, 0.9), fy:random(0.1, 0.3) });
+				d.push({ t:1000, fn:remiliaFire2, args:[0], });
+				d.push({ t:2000, fx:random(0.1, 0.9), fy:random(0.1, 0.3) });
+				d.push({ t:1000, fn:remiliaFire2, args:[i % 2 ? -3 : 3], });
+			}, [
+				{ v:0.2, },
+			]),
+		},
+		{
+			scname: RES.st_stg6_sc2,
+			duration: 40000,
+			pathnodes: ieach(range(15), function(i, j, d) {
+				d.push({ t:3000, fn:remiliaSC2, });
+				d.push({ t:1000, fx:random(0.1, 0.9), fy:random(0.05, 0.4) });
+			}, [
+				{ v:0.2, },
+			]),
+		},
+		{
+			duration: 45000,
+			pathnodes: ieach(range(15), function(i, j, d) {
+				d.push({ t:3000, fn:remiliaFire3, args:[ 0.1], });
+				d.push({ t:1000, fx:random(0.1, 0.9), fy:random(0.1, 0.3) });
+				d.push({ t:3000, fn:remiliaFire3, args:[-0.1], });
+				d.push({ t:1000, fx:random(0.1, 0.9), fy:random(0.1, 0.3) });
+			}, [
+				{ v:0.2, },
+			]),
+		},
+		{
+			scname: RES.st_stg6_sc3,
+			duration: 40000,
+			pathnodes: ieach(range(15), function(i, j, d) {
+				d.push({ t:3000, fn:remiliaSC3, });
+				d.push({ t:1000, fx:random(0.1, 0.9), fy:random(0.05, 0.4) });
+			}, [
+				{ v:0.2, },
+			]),
+		},
+		{
+			duration: 60000,
+			pathnodes: ieach(range(15), function(i, j, d) {
+				d.push({ t:200, fn:[remiliaFire4A, remiliaFire4B, remiliaFire4C][i % 3], });
+				array(5, function() {
+					d.push({ t:500, fx:random(0.1, 0.9), fy:random(0.1, 0.3) });
+				})
+				d.push({ t:2000 })
+			}, [
+				{ v:0.3, },
+			]),
+		},
+		{
+			scname: RES.st_stg6_sc4,
+			duration: 30000,
+			pathnodes: ieach(range(15), function(i, j, d) {
+				d.push({ t:2000, fn:remiliaSC4, });
+				d.push({ t:3000, fx:random(0.1, 0.9), fy:random(0.05, 0.4) });
+			}, [
+				{ v:0.2, },
+			]),
+		},
+		{
+			scname: RES.st_stg6_sc5,
+			duration: 100000,
+			pathnodes: ieach(range(30), function(i, j, d) {
+				d.push({ t:1000, fn:remiliaSC3, args:[PI2/16*15, 16, i % 2 ? 0.08 : -0.08], });
+				d.push({ t:2000, fx:random(0.1, 0.9), fy:random(0.05, 0.4) });
+				if (i % 4 == 0) {
+					var t = i % 8 ? 0.02 : -0.02;
+					array(4, function(i) {
+						d.push({ t:200, fn:remiliaSC3, args:[PI2/8*8, 8, t, i*0.2], });
+					})
+					d.push({ t:2000, fx:random(0.1, 0.9), fy:random(0.05, 0.4) });
+				}
+			}, [
+				{ v:0.2, },
+			]),
+			next: 'bossKill',
+		},
 	], newStgSecBoss, 'boss');
 	newStgSecsFromList(stage, [
-		{ name:'bossKill', next:'sakuyaSpeak2', },
+		{ name:'bossKill', next:'score', },
 	], newStgSecBossKill, 'bossKill');
 	stage.score = newStgSecScore('ended');
 	stage.ended = newStgSecOver();

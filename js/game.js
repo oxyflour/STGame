@@ -2241,15 +2241,18 @@ function newLaserWithDot(from, x, y, dx, dy, width, ext) {
 		vx: 0,
 		vy: 0,
 		frame: RES.frames.TamaMedium['krmbcgyw'.indexOf(ext.dot_color || 'm')],
-		scale: width / 12,
+		scale: width / 12 * (ext.dot_scale || 1),
+		damage_pt: 0,
 		blend: 'lighter',
 	});
 	var obj = newLaser(from, x, y, dx, dy, width, ext);
 	obj.data.dot = dot;
-	dot.data.duration = obj.data.duration + 500;
 	dot.runCircle = function(dt, d) {
 		d.x = obj.data.x;
 		d.y = obj.data.y;
+		d.opacity = limit_between(obj.opacity*1.2, 0, 1);
+		if (obj.is_dying)
+			this.die();
 	}
 	return obj;
 }
