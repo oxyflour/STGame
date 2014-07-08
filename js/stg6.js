@@ -316,7 +316,8 @@ function newStage6(difficulty) {
 		{ duration:500, init:stg6Sec2, args:[[0, 0.25], [1, 0.25]] },
 		{ duration:500, init:stg6Sec2, args:[[0, 0.15], [1, 0.15]] },
 		{ duration:500, init:stg6Sec2, args:[[0, 0.1], [1, 0.1]] },
-		{ duration:5000, name:'secRestart', next:'reimuSpeak'},
+		{ duration:5000, next:'sakuyaEnter1' },
+		{ duration:5000, name:'secRestart', next:'reimuSpeak' },
 	], newStgSecNormal, 'sec');
 	newStgSecsFromList(stage, [
 		{ text:RES.st_stg6_diag1,  pos:'.fr.dg', face:'.f9a.f2', clear:true },
