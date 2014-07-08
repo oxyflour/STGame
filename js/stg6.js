@@ -261,8 +261,9 @@ function remiliaFire4A(from) {
 	}, 100, null, 30)
 }
 function remiliaFire4B(from) {
+	var f0 = random(-1, 1);
 	STORY.timeout(function(d, n) {
-		var f0 = random(-1, 1);
+		f0 += random(-0.03, 0.03);
 		range(0.5001, -0.5, 1/12, function(f) {
 			newDannmaku(from, null, 0, f0+f*2.5, 0.4, 0, {
 				color: 'r',
@@ -275,7 +276,7 @@ function remiliaFire4B(from) {
 function remiliaFire4C(from) {
 	var f0 = random(PI2);
 	STORY.timeout(function(d, n) {
-		f0 += random(0.03);
+		f0 += random(-0.03, 0.03);
 		array(2, function(i) {
 			range(1, 0, 1/30, function(f) {
 				newDannmaku(from, null, 0, f0+f*PI2, 0.3+i*0.05, 0, {
