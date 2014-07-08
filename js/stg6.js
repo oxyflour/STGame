@@ -91,7 +91,7 @@ function remiliaFire1(from) {
 			})
 		})
 		range(0.5001, -0.5, 1/4, function(f) {
-			newDannmaku(from, null, 0, f*0.3+n*0.4, 0.15/Math.cos(f*0.1), 0, {
+			newDannmaku(from, null, 0, f*0.3+n*0.4, 0.12/Math.cos(f*0.1), 0, {
 				color: 'b',
 				tama: 'TamaB',
 				no_frame: true,
@@ -241,7 +241,7 @@ function remiliaSC3(from, rads, count, rot, f0) {
 				v = 0.004;
 			if (rot)
 				rotate_object_speed(d, rot);
-			if (d.age)
+			if (d.age && !this.is_dying)
 				remiliaSC3A(this, Math.cos(t)*v, Math.sin(t)*v, delay-=100);
 		}, obj.data)
 	})
