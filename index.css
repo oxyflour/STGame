@@ -461,8 +461,8 @@ input[type="radio"] {
 	background: url(res/face10b.png) 0 0;
 	width: 256px;
 }
-.diag.active .f10a,
-.diag.active .f10b {
+.diag.active .dg .f10a,
+.diag.active .dg .f10b {
 	-webkit-transform: translate(-64px, 10px);
 	    -ms-transform: translate(-64px, 10px);
 	   -moz-transform: translate(-64px, 10px);
