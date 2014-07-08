@@ -181,7 +181,9 @@ ieach($('.ui-obj'), function(i, v) {
 setAudioVolume('audio.se', 0.2);
 setAudioVolume('audio.bgm', 0.5);
 
+GAME.init();
 GAME.state = GAME.states.LOADING;
+
 RES.check(function() {
 	console.log('咦，你想做什么奇怪的事情吗？');
 	console.log('找秘籍的话，在主页面第950行附近哦');

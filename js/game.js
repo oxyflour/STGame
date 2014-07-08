@@ -1090,7 +1090,7 @@ var UTIL = {
 var STATICS = {
 };
 
-(function() {
+GAME.init = function() {
 	var gameTick = newTicker(5, function() {
 		if (GAME.state == GAME.states.RUNNING)
 			GAME.run(5);
@@ -1176,7 +1176,7 @@ var STATICS = {
 	ieach(['keydown', 'keyup'], function(i, v) {
 		window.addEventListener(v, GAME.input);
 	});
-})();
+}
 
 SPRITE.newCls('Basic', function(from) {
 return proto = {
