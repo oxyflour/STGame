@@ -141,6 +141,7 @@ function loadAndStart() {
 	GAME.reset();
 	GAME.load((GAME.begin_stage || newStage1)());
 	GAME.start('init');
+	STATICS.reset();
 	if (GAME.begin_stage)
 		GAME.begin_stage = 0;
 }

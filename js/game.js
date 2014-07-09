@@ -1094,6 +1094,21 @@ var UTIL = {
 };
 
 var STATICS = {
+	max_point: 1000000,
+	bomb_reset: 3,
+	bomb_max: 7,
+	point: 0,
+	bomb: 3,
+	player: 3,
+	power: 0,
+	reset: function() {
+		extend(this, {
+			point: 0,
+			bomb: 3,
+			player: 99,
+			power: 128,
+		})
+	}
 };
 
 GAME.init = function() {
@@ -2936,13 +2951,6 @@ function newStgHook() {
 			if (e == STORY.events.STORY_LOAD) {
 				SPRITE.eachObj(return_second, 'Player') || newPlayer();
 				extend(STATICS, {
-					max_point: 1000000,
-					bomb_reset: 3,
-					bomb_max: 7,
-					point: 0,
-					player: 99,//debug,
-					bomb: 3,
-					power: 0,
 					graze: 0,
 					dot: 0,
 					time: 0,
