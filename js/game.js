@@ -2569,19 +2569,23 @@ function newEffectPiece(from, color, scale, duration) {
 function newBackground(scrollImgs) {
 	var bg = SPRITE.newObj('Basic');
 	bg.draw = return_nothing;
+	bg.elem = scrollImgs;
 	ieach(scrollImgs, function(i, e) {
 		e.object = bg;
 		e.trans = $attr(e, 'bg-trans') || '';
 		e.offsetX = parseFloat($attr(e, 'bg-offset-x') || '0');
 		e.offsetY = parseFloat($attr(e, 'bg-offset') || '0');
+		e.offsetZ = parseFloat($attr(e, 'bg-offset-z') || '0');
 		e.totalX = parseFloat($style(e, 'width')) - parseFloat($attr(e, 'bg-repeat-x') || $style('.game', 'width'));
 		e.totalY = parseFloat($style(e, 'height')) - parseFloat($attr(e, 'bg-repeat') || $style('.game', 'height'));
+		e.totalZ = parseFloat($style(e, 'height')) - parseFloat($attr(e, 'bg-repeat-z') || $style('.game', 'height'));
 		e.speedX = parseFloat($attr(e, 'bg-speed-x') || '0');
 		e.speedY = parseFloat($attr(e, 'bg-speed') || '0');
+		e.speedZ = parseFloat($attr(e, 'bg-speed-z') || '0');
 	});
 	bg.anim(50, function() {
 		ieach(scrollImgs, function(i, e) {
-			if (e.speedX || e.speedY) {
+			if (e.speedX || e.speedY || e.speedZ) {
 				e.offsetX += e.speedX * 50;
 				if (e.offsetX > 0)
 					e.offsetX -= e.totalX;
@@ -2589,7 +2593,9 @@ function newBackground(scrollImgs) {
 					e.offsetX += e.totalX;
 				if ((e.offsetY += e.speedY * 50) > 0)
 					e.offsetY -= e.totalY;
-				var trans = 'translate3d(' + e.offsetX + 'px, ' + e.offsetY + 'px, 0px)';
+				if ((e.offsetZ += e.speedZ * 50) > 0)
+					e.offsetZ -= e.totalZ;
+				var trans = 'translate3d('+e.offsetX+'px, '+e.offsetY+'px, '+e.offsetZ+'px)';
 				$style(e, 'transform', e.trans+' '+trans);
 			}
 		});

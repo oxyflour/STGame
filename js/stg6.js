@@ -1,3 +1,20 @@
+function newStg6BgAnim(bg) {
+	var gnd = $i('#stg6gnd'),
+		dvy = 0;
+	bg.anim(100, function(d) {
+		if (gnd.offsetY > -500 && gnd.speedY > 0) {
+			if (!dvy)
+				dvy = (gnd.speedY*gnd.speedY) / (-2*gnd.offsetY)
+			if (gnd.speedY)
+				gnd.speedY = decrease_to_zero(gnd.speedY, dvy*100);
+			if (gnd.offsetY + gnd.speedY*100 > 0)
+				gnd.speedY = 0;
+			if (gnd.speedY == 0)
+				return true;
+		}
+	}, bg.data)
+}
+
 function stg6Sec1(pth, color) {
 	STORY.timeout(function(d, n) {
 		var obj = SPRITE.newObj('Enemy', {
@@ -298,6 +315,7 @@ function newStage6(difficulty) {
 	stage.hook = newStgHook();
 	stage.init = newStgSecInit('sec0', {
 		bgelem: $('.bg-stg6'),
+		bganim: newStg6BgAnim,
 		title: 'STAGE 6',
 		text: RES.st_stg6_title,
 	});

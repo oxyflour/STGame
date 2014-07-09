@@ -1,4 +1,5 @@
 function newStg5BgAnim(bg) {
+	// do nothing :)
 }
 
 function stg5Sec1(fx, color) {

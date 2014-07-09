@@ -321,6 +321,55 @@
 	<!-- stg6 -->
 	<img id="stg6enm2" src="res/stg6enm2.png" />
 	<canvas id="stg6enmR" from="stg6enm2 64 0 128 80" transform="mirror:x"></canvas>
+	<img id="stg6bg" src="res/stg6bg.png" />
+	<canvas id="stg6bg_wall" from="stg6bg 0 0 256 128" transform="mirror:0,x" stack="y" scale="1.5" bg-css=".bg-stg6-wall"></canvas>
+	<canvas id="stg6bg_wall2" from="stg6bg 0 0 128 128" scale="2" bg-css=".bg-stg6-wall2"></canvas>
+	<canvas id="stg6bg_moon" from="stg6bg 0 128 128 128" scale="2" bg-css=".bg-stg6-moon"></canvas>
+	<script id="gen_stg6bg">
+	(function(RES) {
+		function newWall(w, h, s) {
+			var e = $new('div', {
+				className: 'bg-stg6-wall',
+				style: 'position:absolute;width:'+w+'px;height:'+h+'px;',
+			});
+			keach(s, function(k, v) {
+				$style(e, k, v)
+			})
+			return e;
+		}
+
+		var bg = $i('#stg6gnd');
+		$style(bg.parentNode, 'perspective', '500px');
+		$style(bg, 'transform-style', 'preserve-3d');
+		$style(bg, 'transform-origin', 'center top');
+
+		var w = parseInt($style(bg, 'width')),
+			h = parseInt($style(bg, 'height'));
+		var top = $new('div', {
+			style: 'width:'+w+'px;margin:64px',
+		});
+		top.appendChild($new('div', {
+			className: 'bg-stg6-moon',
+			style: 'width:256px;height:256px'
+		}))
+		array(3, function() {
+			top.appendChild($new('div', {
+				className: 'bg-stg6-wall2',
+				style: 'width:256px;height:256px;'
+			}))
+		})
+		bg.appendChild(top)
+		bg.appendChild(newWall(w, h, {}));
+		bg.appendChild(newWall(w, h, {
+			'transform': 'translateX(-'+w+'px) rotateY(-30deg)',
+			'transform-origin': '100% center',
+		}));
+		bg.appendChild(newWall(w, h, {
+			'transform': 'translateX('+w+'px) rotateY(30deg)',
+			'transform-origin': '0 center',
+		}));
+	})
+	</script>
 	<!-- creating background css with toDataUrl -->
 	<script id="gen_bgcss">
 		(function(RES) {
@@ -1077,6 +1126,9 @@
 				</div>
 			</div>
 			<div class="game-size absolute no-overflow ui-obj bg-stg6" style="background:#000">
+				<div class="absolute game-size bg-stg6" style="height:2240px;"
+					id="stg6gnd" bg-speed="0.02" bg-trans="rotateX(-35deg)">
+				</div>
 			</div>
 			<div class="game-size absolute">
 				<div class="absolute game-size ui-obj anim-in-01s" id="bg_sc_rumia" bg-speed="0.1"
