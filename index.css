@@ -813,7 +813,8 @@ input[type="radio"] {
 }
 .game-select-diff .select,
 .game-select-char .select,
-.game-select-bomb .select {
+.game-select-bomb .select,
+.game-select-stage .select {
 	opacity: 1;
 }
 .select-diff {
@@ -874,35 +875,41 @@ input[type="radio"] {
 	   -moz-transform: translateX(500px);
 }
 .game-select-char .select-diff,
-.game-select-bomb .select-diff {
+.game-select-bomb .select-diff,
+.game-select-stage .select-diff {
 	-webkit-transform: translateX(-500px);
 	    -ms-transform: translateX(-500px);
 	   -moz-transform: translateX(-500px);
 }
 .game-select-char .select-diff input,
-.game-select-bomb .select-diff input {
+.game-select-bomb .select-diff input,
+.game-select-stage .select-diff input {
 	display: none;
 }
 .game-select-char input:checked + .menu-diff-easy,
-.game-select-bomb input:checked + .menu-diff-easy {
+.game-select-bomb input:checked + .menu-diff-easy,
+.game-select-stage input:checked + .menu-diff-easy {
 	-webkit-transform: translate(322px, 256px);
 	    -ms-transform: translate(322px, 256px);
 	   -moz-transform: translate(322px, 256px);
 }
 .game-select-char input:checked + .menu-diff-normal,
-.game-select-bomb input:checked + .menu-diff-normal {
+.game-select-bomb input:checked + .menu-diff-normal,
+.game-select-stage input:checked + .menu-diff-normal {
 	-webkit-transform: translate(322px, 160px);
 	    -ms-transform: translate(322px, 160px);
 	   -moz-transform: translate(322px, 160px);
 }
 .game-select-char input:checked + .menu-diff-hard,
-.game-select-bomb input:checked + .menu-diff-hard {
+.game-select-bomb input:checked + .menu-diff-hard,
+.game-select-stage input:checked + .menu-diff-hard {
 	-webkit-transform: translate(322px, 64px);
 	    -ms-transform: translate(322px, 64px);
 	   -moz-transform: translate(322px, 64px);
 }
 .game-select-char input:checked + .menu-diff-lunatic,
-.game-select-bomb input:checked + .menu-diff-lunatic {
+.game-select-bomb input:checked + .menu-diff-lunatic,
+.game-select-stage input:checked + .menu-diff-lunatic {
 	-webkit-transform: translate(322px, -32px);
 	    -ms-transform: translate(322px, -32px);
 	   -moz-transform: translate(322px, -32px);
@@ -949,11 +956,13 @@ input[type="radio"] {
 	    -ms-transform: translateX(320px);
 	   -moz-transform: translateX(320px);
 }
-.game-select-bomb .select-char input {
+.game-select-bomb .select-char input,
+.game-select-stage .select-char input {
 	display: none;
 }
-.game-select-bomb .select-char input:checked + .menu {
-	opacity: 1;
+.game-select-bomb .select-char input:checked + .menu,
+.game-select-stage .select-char input:checked + .menu {
+	opacity: 0.6;
 	-webkit-transform: translateX(192px);
 	    -ms-transform: translateX(192px);
 	   -moz-transform: translateX(192px);
@@ -1004,4 +1013,28 @@ input[type="radio"] {
 }
 .menu-bomb-b {
 	background-position: 0 -48px;
+}
+
+.select-stage {
+	margin-left: 320px;
+	margin-top: 200px;
+	opacity: 0;
+	-webkit-transition: opacity ease 0.4s;
+	    -ms-transition: opacity ease 0.4s;
+	   -moz-transition: opacity ease 0.4s;
+}
+.select-stage .menu-line {
+	height: 24px;
+}
+.select-stage input + .menu * {
+	opacity: 0.5;
+}
+.select-stage input:focus + .menu * {
+	opacity: 1;
+}
+.game-select-stage .select-stage {
+	opacity: 1;
+}
+.game-select-stage .select-bomb input {
+	display: none;
 }

@@ -343,6 +343,10 @@ function $readdClass(e, c) {
 	e.offsetWidth = e.offsetWidth;
 	e.classList.add(c);
 }
+function $addCssRule(s, r) {
+	var ss = document.styleSheets[0];
+	ss.addRule ? ss.addRule(s, r) : ss.insertRule(s+' {'+r+'}', ss.cssRules.length);
+}
 
 function newCounter() {
 	var t0 = Date.now();
@@ -857,6 +861,7 @@ var GAME = (function() {
 		'SELECT_DIFF',
 		'SELECT_CHAR',
 		'SELECT_BOMB',
+		'SELECT_STAGE',
 		'RUNNING',
 		'PAUSE',
 		'OVER',
@@ -1105,8 +1110,8 @@ var STATICS = {
 		extend(this, {
 			point: 0,
 			bomb: 3,
-			player: 99,
-			power: 128,
+			player: 3,
+			power: 0,
 		})
 	}
 };
@@ -2957,8 +2962,8 @@ function newStgHook() {
 				})
 				if (GAME.double_player_mode && !(GAME.double_player_mode = false))
 					newPlayer('p2');
-				if (GAME.many_lives_mode && !(GAME.many_lives_mode = false)) {
-					STATICS.player = 7;
+				if (1 || GAME.many_lives_mode && !(GAME.many_lives_mode = false)) {
+					STATICS.player = 99;
 					STATICS.bomb_reset = 7;
 					STATICS.bomb = STATICS.bomb_reset;
 				}

@@ -31,16 +31,6 @@ function checkFormKey(e, f) {
 		_t.str = _t.str.substring(_t.str.length - 20);
 	if (str_endwith(_t.str, "&&((%'%'BA"))
 		GAME.many_lives_mode = true;
-	else if (str_endwith(_t.str, "&&((%'%'BBA"))
-		GAME.begin_stage = newStage2;
-	else if (str_endwith(_t.str, "&&((%'%'BBBA"))
-		GAME.begin_stage = newStage3;
-	else if (str_endwith(_t.str, "&&((%'%'BBBBA"))
-		GAME.begin_stage = newStage4;
-	else if (str_endwith(_t.str, "&&((%'%'BBBBBA"))
-		GAME.begin_stage = newStage5;
-	else if (str_endwith(_t.str, "&&((%'%'BBBBBBA"))
-		GAME.begin_stage = newStage5;
 	else if (str_endwith(_t.str, 'REIMU REIMU GO'))
 		GAME.double_player_mode = true;
 
@@ -122,7 +112,9 @@ function changeGameState(k) {
 	function get_group(s) {
 		if (s == c.LOADING || s == c.TITLE || s == c.MENU)
 			return 0;
-		else if (s == c.SELECT || s == c.SELECT_DIFF || s == c.SELECT_CHAR || s == c.SELECT_BOMB)
+		else if (s == c.SELECT || s == c.SELECT_DIFF ||
+				s == c.SELECT_CHAR || s == c.SELECT_BOMB ||
+				s == c.SELECT_STAGE)
 			return 1;
 	}
 	var c = GAME.states;
@@ -137,13 +129,11 @@ function changeGameState(k) {
 	}
 }
 
-function loadAndStart() {
-	GAME.reset();
-	GAME.load((GAME.begin_stage || newStage1)());
-	GAME.start('init');
+function loadAndStart(stage) {
 	STATICS.reset();
-	if (GAME.begin_stage)
-		GAME.begin_stage = 0;
+	GAME.reset();
+	GAME.load(stage || newStage1());
+	GAME.start('init');
 }
 
 function checkStart() {
@@ -175,6 +165,13 @@ ieach($('input[type="radio"]'), function(i, v) {
 			}, 10);
 		});
 	}
+});
+ieach($('.char-string[char-string]'), function(i, e) {
+	ieach($attr(e, 'char-string'), function(i, c) {
+		e.appendChild($new('span', {
+			className: 'char char-'+c,
+		}))
+	})
 });
 ieach($('.ui-obj'), function(i, v) {
 	v.className += ' ui';
