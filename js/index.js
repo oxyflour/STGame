@@ -39,6 +39,8 @@ function checkFormKey(e, f) {
 		GAME.begin_stage = newStage4;
 	else if (str_endwith(_t.str, "&&((%'%'BBBBBA"))
 		GAME.begin_stage = newStage5;
+	else if (str_endwith(_t.str, "&&((%'%'BBBBBBA"))
+		GAME.begin_stage = newStage5;
 	else if (str_endwith(_t.str, 'REIMU REIMU GO'))
 		GAME.double_player_mode = true;
 
@@ -137,7 +139,7 @@ function changeGameState(k) {
 
 function loadAndStart() {
 	GAME.reset();
-	GAME.load((GAME.begin_stage || newStage6)());
+	GAME.load((GAME.begin_stage || newStage1)());
 	GAME.start('init');
 	if (GAME.begin_stage)
 		GAME.begin_stage = 0;
@@ -185,7 +187,7 @@ GAME.init();
 GAME.state = GAME.states.LOADING;
 
 RES.check(function() {
-	console.log('咦，你想找奇怪的东西吗？（秘籍在主页面第950行附近哦）');
+	console.log('咦，你想找奇怪的东西吗？（想找秘籍的话可以搜索"BBA"哦）');
 	console.log('对源代码感兴趣的话，直接到 https://github.com/oxyflour/stgame 去 pull 吧');
 	console.log('虽然现在是三无产品（无设计，无文档，无测试），有人想一起玩的话我会尽量补上的');
 });
