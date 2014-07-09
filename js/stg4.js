@@ -4,6 +4,7 @@ function stg4Sec1() {
 		var v = range.shift();
 		ieach(v.mirror ? [1, -1] : [1], function(i, x) {
 			var obj = SPRITE.newObj('Enemy', {
+				life: 20,
 				x: UTIL.getGamePosX(x > 0 ? v.fx : 1-v.fx),
 				y: UTIL.getGamePosY(v.fy),
 				vx: v.fx ? 0 : 0.1*x,
@@ -29,12 +30,21 @@ function stg4Sec1() {
 					return true;
 				}
 			}, obj.data)
+			if (v.clear) obj.anim(100, function(d) {
+				if (this.is_dying) {
+					SPRITE.eachObj(function(i, v) {
+						STORY.on(STORY.events.DANNMAKU_HIT, v);
+					}, 'Dannmaku')
+					return true;
+				}
+			}, obj.data)
 		})
 	}, 500, null, range.length)
 }
 function stg4Sec2(pth, times, interval) {
 	STORY.timeout(function(d, n) {
 		var obj = SPRITE.newObj('Enemy', {
+			life: 2,
 			frames: RES.frames.Enemy2A,
 			pathnodes: UTIL.pathOffset(RES.path[pth], 0, 0),
 			times: times >= 0 ? times : 2,
@@ -529,8 +539,8 @@ function newStage4(difficuty) {
 			[stg4Sec2, ['s4A2'], 500],
 		]},
 		{ duration:5000, init:stg4Sec1, args:[
-			{ t:1000, s:10000, fx:0.2, fy:0, fn:stg4Fire3, q:'-y', mirror:true, },
-			{ t:1000, s:10000, fx:0, fy:0.2, fn:stg4Fire3, q:'-y', mirror:true, },
+			{ t:1000, s:10000, fx:0.2, fy:0, fn:stg4Fire3, q:'-y', clear:true, mirror:true, },
+			{ t:1000, s:10000, fx:0, fy:0.2, fn:stg4Fire3, q:'-y', clear:true, mirror:true, },
 		], },
 		{ duration:5000, init:newSecList, args:[
 			[stg4Sec2, ['s4A3']],
@@ -561,7 +571,7 @@ function newStage4(difficuty) {
 			[stg4Sec3A, [0.60, 0.1, 6000]],
 			[stg4Sec3A, [0.65, 0.1, 6000]],
 			[stg4Sec1, [
-				{ t:1000, s:8000, fx:0.2, fy:0, fn:stg4Fire3, q:'-y'},
+				{ t:1000, s:8000, fx:0.2, fy:0, fn:stg4Fire3, q:'-y', clear:true },
 			]],
 			[stg4Sec2, ['s4A4'], 3000],
 		]},
@@ -569,7 +579,7 @@ function newStage4(difficuty) {
 			[stg4Sec3A, [0.40, 0.1, 6000]],
 			[stg4Sec3A, [0.35, 0.1, 6000]],
 			[stg4Sec1, [
-				{ t:1000, s:8000, fx:0.8, fy:0, fn:stg4Fire3, q:'-y'},
+				{ t:1000, s:8000, fx:0.8, fy:0, fn:stg4Fire3, q:'-y', clear:true },
 			]],
 			[stg4Sec2, ['s4A3'], 3000],
 		]},
