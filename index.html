@@ -236,14 +236,6 @@
 					l: 'rotateY( 90deg) ',
 					r: 'rotateY(-90deg) ',
 				}[d] + 'translateZ('+(t/2)+'px)',
-				'background-color': {
-					f: 'black',
-					s: 'white',
-					t: 'red',
-					b: 'orange',
-					l: 'blue',
-					r: 'cyan',
-				}[d],
 			}, function(k, v) {
 				$style(e, k, v);
 			})
@@ -281,6 +273,51 @@
 	<!-- stg5 -->
 	<img id="stg5enm2" src="res/stg5enm2.png" />
 	<canvas id="stg5enmR" from="stg5enm2 128 0 108 64" transform="mirror:x"></canvas>
+	<img id="stg5bg" src="res/stg5bg.png" />
+	<canvas id="stg5gnd_patt" from="stg5bg 16 16 64 32"></canvas>
+	<canvas id="stg5gnd_wnd" from="stg5bg 92 0 72 64" scale="1.5"></canvas>
+	<canvas id="stg5gnd_wall" from="stg5bg 162 0 64 64" transform="rotate:90" scale="1.5"></canvas>
+	<script id="gen_stg5bg">
+	(function(RES) {
+		var bg = $i('#stg5gnd');
+		$style(bg.parentNode, 'perspective', '500px');
+		$style(bg, 'transform-style', 'preserve-3d');
+		$style(bg, 'transform-origin', 'center top');
+		var w = parseInt($style(bg, 'width')),
+			h = parseInt($style(bg, 'height'));
+		ieach($('canvas.bg-stg5'), function(i, e) {
+			var p = RES.stg5gnd_wall,
+				dc = e.getContext('2d');
+			$style(e, 'width', (e.width = w)+'px');
+			$style(e, 'height', (e.height = h)+'px');
+
+			if (i == 0) {
+				var dc = getCanvasDC(e);
+				dc.fillWith(dc.createPattern(RES.stg5gnd_patt, 'repeat'))
+
+				var j = 0,
+					blend = dc.globalCompositeOperation;
+				dc.globalAlpha = 0.8;
+				dc.globalCompositeOperation = 'lighter';
+				range(e.height, 0, RES.stg5gnd_wnd.height, function(y) {
+					if (j ++ % 3) dc.drawImage(RES.stg5gnd_wnd, 210, y);
+				})
+				dc.globalAlpha = 1;
+				dc.globalCompositeOperation = blend;
+
+				var rh = parseInt($style('.game', 'height'));
+				dc.repeatSelf(0, e.height - rh, e.width, rh, 0, 0);
+			}
+
+			$style(e, 'transform', 'translateZ('+(i*25)+'px)');
+			ieach([0, w-p.width], function(i, x) {
+				range(h+p.height, 0, p.height, function(y) {
+					dc.drawImage(p, x, y);
+				})
+			})
+		})
+	})
+	</script>
 	<!-- stg6 -->
 	<img id="stg6enm2" src="res/stg6enm2.png" />
 	<canvas id="stg6enmR" from="stg6enm2 64 0 128 80" transform="mirror:x"></canvas>
@@ -1032,6 +1069,12 @@
 				</div>
 			</div>
 			<div class="game-size absolute no-overflow ui-obj bg-stg5" style="background:#000">
+				<div class="absolute game-size bg-stg5" style="height:3072px;"
+					id="stg5gnd" bg-speed="0.01" bg-trans="rotateX(30deg)">
+					<canvas class="absolute game-size bg-stg5"></canvas>
+					<canvas class="absolute game-size bg-stg5"></canvas>
+					<canvas class="absolute game-size bg-stg5"></canvas>
+				</div>
 			</div>
 			<div class="game-size absolute no-overflow ui-obj bg-stg6" style="background:#000">
 			</div>

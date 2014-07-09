@@ -299,10 +299,16 @@ function $new(t, d) {
 			e.setAttribute(k, v);
 	}, document.createElement(t));
 }
-function $attr(e, a) {
+function $attr(e, a, v) {
 	if (same_type(e, '')) e = $i(e);
-	var attr = e && e.attributes[a];
-	return attr && attr.textContent;
+	if (v === undefined) {
+		var attr = e && e.attributes[a];
+		return attr && attr.textContent;
+	}
+	else {
+		e.setAttribute(a, v);
+		return v;
+	}
 }
 function $style(e, k, v) {
 	if (same_type(e, '')) e = $i(e);
