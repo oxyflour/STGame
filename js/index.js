@@ -187,9 +187,8 @@ GAME.init();
 GAME.state = GAME.states.LOADING;
 
 RES.check(function() {
-	console.log('咦，你想找奇怪的东西吗？（想找秘籍的话可以搜索"BBA"哦）');
-	console.log('对源代码感兴趣的话，直接到 https://github.com/oxyflour/stgame 去 pull 吧');
-	console.log('虽然现在是三无产品（无设计，无文档，无测试），有人想一起玩的话我会尽量补上的');
+	console.log('咦，你想找奇怪的东西吗？（想找秘籍可以搜索"BBA"哦）');
+	console.log('有问题到 https://github.com/oxyflour/stgame 去扔 issue 吧');
 });
 
 setInterval(function checkGame() {

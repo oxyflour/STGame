@@ -633,8 +633,7 @@ function newStage3(difficuty) {
 		{ text:RES.st_stg3_diag15, pos:'.fr.dg', face:'.f6a', },
 		{ text:RES.st_stg3_diag16, pos:'.fl.dg', face:'.f0c.f2', next:'bossIn3', ended:true, },
 		{ text:RES.st_stg3_diag17, pos:'.fl.dg', face:'.f0a', name:'diagIn2', },
-		{ text:RES.st_stg3_diag18, pos:'.fr.dg', face:'.f6b.f2', },
-		{ text:RES.st_stg3_diag19, pos:'.fl.dg', face:'.f0c.f2', next:'score', ended:true, },
+		{ text:RES.st_stg3_diag18, pos:'.fr.dg', face:'.f6b.f2', next:'score', ended:true, },
 	], newStgSecDiag, 'diag');
 	newStgSecsFromList(stage, [
 		{
