@@ -969,12 +969,8 @@ var UTIL = {
 	addFrameAnim: function(v, fs, t) {
 		v.frames = fs;
 		t = t || v.data.frtick || 50;
-		// only one frame ?
-		if (fs.push && fs.length == 1) {
-			v.data.frame = fs[0];
-			v.anim(0, 0, 0, 'frame');
-		}
-		else v.anim(t, function(d) {
+		// an array or a function
+		if (fs.length > 1 || fs.call) v.anim(t, function(d) {
 			if (d.callback)
 				d.frames = d.callback.call(v, d);
 			if (d.frames) {
@@ -988,6 +984,10 @@ var UTIL = {
 			frames: fs.length >= 0 ? fs : [fs],
 			index: 0,
 		}, 'frame');
+		else {
+			v.data.frame = fs.length ? fs[0] : fs;
+			v.anim(0, 0, 0, 'frame');
+		}
 	},
 	// ps should be array of objects like
 	// { t:100, x/fx:0, y/fy:0, v:10, fn:func, args:[], }
@@ -1309,7 +1309,7 @@ return proto = {
 	anim: function(t, fn, d, id) {
 		if (t > 0) {
 			t = newTicker(t, function(obj) {
-				this.finished = obj.finished || fn.call(obj, d);
+				this.finished = obj.finished || (!obj.disabled && fn.call(obj, d));
 			}, this);
 
 			SPRITE.anim.add(t);
@@ -2419,27 +2419,30 @@ function newBossFrames(name, norepeat) {
 }
 function newBossCloud(boss) {
 	STORY.timeout(function(d, n) {
-		var r = random(50, 200),
-			t = random(PI2);
-		var obj = SPRITE.newObj('Circle', {
-			x: boss.data.x + r*Math.cos(t),
-			y: boss.data.y + r*Math.sin(t),
-			frames: RES.frames.EffEnemy2[0],
-			opacity: 0.5,
+		array(5, function() {
+			var r = random(50, 180),
+				t = random(PI2);
+			var obj = SPRITE.newObj('Circle', {
+				x: boss.data.x + r*Math.cos(t),
+				y: boss.data.y + r*Math.sin(t),
+				frames: RES.frames.EffEnemy2[0],
+				blend: 'lighter',
+				opacity: 0.5,
+			})
+			obj.anim(80, function(d) {
+				decrease_object_speed(d, 1.1)
+				redirect_object(d, boss.data, 0.1)
+				if (sqrt_sum(boss.data.x - d.x, boss.data.y - d.y) < 50)
+					return this.die() || true;
+			}, obj.data)
 		})
-		redirect_object(obj.data, boss.data, 0.1)
-		obj.anim(50, function(d) {
-			decrease_object_speed(d, 1.05)
-			if (sqrt_sum(boss.data.x - d.x, boss.data.y - d.y) < 50)
-				return this.die() || true;
-		}, obj.data)
-	}, 30, null, 100)
+	}, 50, null, 30)
 	RES.se_power0.play();
 }
-function newBossBgCircle(boss) {
+function newBossBgCircle(boss, scale) {
 	var obj = SPRITE.newObj('Basic', {
 		parent: boss,
-		scale: 1.5,
+		scale: scale ||  1.5,
 		frame: extend({ rotate:0 }, RES.stg4frs.Circle),
 	})
 	obj.runBasic = function(dt, d) {

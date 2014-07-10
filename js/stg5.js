@@ -340,7 +340,8 @@ function sakuyaSC1(from, freeze, release) {
 			v.disabled = true;
 		}, 'Dannmaku')
 		SPRITE.eachObj(function(i, v) {
-			v.disabled = true;
+			if (!v.is_creating && !this.is_dying)
+				v.disabled = true;
 		}, 'Player')
 		var to = UTIL.getOneAlive('Player') ||
 			{ data:UTIL.getGamePosXY(0.5, 0.9) };
@@ -405,7 +406,7 @@ function sakuyaSC2C(from) {
 			rotate_object_speed(d, random(-2, 2))
 		else if (d.tama == 'Knife' && random(1) > 0.2) STORY.timeout(function() {
 			UTIL.addFrameAnim(v, RES.frames.Knife[5]);
-			rotate_object_speed(d, random(-2, 2))
+			rotate_object_speed(d, random(-2, 2));
 		}, random(50, 500))
 	}, 'Dannmaku')
 }
