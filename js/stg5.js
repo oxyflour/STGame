@@ -531,6 +531,7 @@ function newStage5(difficulty) {
 			}, [
 				{ v:0.2, },
 			]),
+			life_pt: 1,
 		},
 		{
 			duration: 500,
@@ -539,7 +540,6 @@ function newStage5(difficulty) {
 				{ t:1000 },
 				{ fx:0.5, fy:-1 },
 			],
-			no_countdown: true,
 			invinc: true,
 			disable_fire: true,
 			next: 'secRestart',

@@ -580,6 +580,7 @@ function newStage2(difficuty) {
 				{ t:2000, fn:daiyouseiMove,  args:[0.7, 0.3]},
 				{ t:4000, fn:daiyouseiFire2, },
 			],
+			bomb_pt: 1,
 			duration: 30000,
 		},
 		{
@@ -590,7 +591,6 @@ function newStage2(difficuty) {
 			],
 			next: 'secH',
 			duration: 500,
-			no_countdown: true,
 			invinc: true,
 		},
 		{

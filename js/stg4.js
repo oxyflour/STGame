@@ -628,6 +628,7 @@ function newStage4(difficuty) {
 				{ t:7000, fx:0.4, fy:0.3, },
 				{ t:7000, fx:0.5, fy:0.4, },
 			],
+			bomb_pt: 1,
 			duration: 40000,
 		},
 		{

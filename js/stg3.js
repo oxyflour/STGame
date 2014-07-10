@@ -675,17 +675,17 @@ function newStage3(difficuty) {
 			duration: 30000,
 		},
 		{
+			scname: RES.st_stg3_sc0,
 			pathnodes: [
 				{ v:0.2 },
 				{ t:NaN, fx:0.5, fy:0.2, },
 				{ t:2000, fn:meilingSC0, },
 			],
+			life_pt: 1,
 			duration: 20000,
-			scname: RES.st_stg3_sc0,
 		},
 		{
 			duration: 100,
-			no_countdown: true,
 			invinc: true,
 			disable_fire: true,
 			next: 'diag0',

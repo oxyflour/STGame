@@ -2136,6 +2136,7 @@ function newDrop(type, x, y, extra) {
 		power_pt: { 0:1, 2:8, 4:128, }[type],
 		point_pt: type == 1 && randin([10, 20]),
 		bomb_pt: type == 3 && 1,
+		life_pt: type == 5 && 1,
 		frames: RES.frames.Drops[type],
 		frame_small: RES.frames.Drops[type+8],
 	}));
@@ -2312,7 +2313,6 @@ function newBoss(name) {
 	}
 	else if (name == 'daiyousei') {
 		UTIL.addFrameAnim(boss, RES.frames.Boss2A);
-		boss.data.bomb_pt = 1;
 		boss.data.respawn = 0;
 		boss.data.size = 0;
 		boss.anim(30, function(d) {
@@ -2779,7 +2779,7 @@ function newStgSecBoss(next, para) {
 					(d.boss.lifebar && !d.boss.lifebar.is_dying && !d.boss.lifebar.finished))
 				d.boss.lifebar.die();
 
-			if (para.duration > 0 && !para.no_countdown)
+			if (para.duration > 1000 && !para.no_countdown)
 				d.countdown = newCountDown(d.boss, para.duration);
 
 			if (para.scname) {
@@ -2824,13 +2824,15 @@ function newStgSecBoss(next, para) {
 					SPRITE.eachObj(function(i, obj) {
 						STORY.on(STORY.events.DANNMAKU_HIT, obj);
 					}, 'Dannmaku');
+					var x = d.boss.data.x,
+						y = d.boss.data.y;
 					if (para.scname) {
-						var x = d.boss.data.x,
-							y = d.boss.data.y;
 						ieach([0, 0, 0, 0, 2], function(i, type) {
 							newDrop(type, x, y, { vx:random(-0.2, 0.2), vy:random(-0.25, -0.3) });
 						})
 					}
+					if (para.bomb_pt >= 0) newDrop(3, x, y);
+					if (para.life_pt >= 0) newDrop(5, x, y);
 				}
 			}
 		},
@@ -3072,6 +3074,9 @@ function newStgHook() {
 						}
 					});
 					STATICS.power = limit_between(STATICS.power+pt, 0, 128);
+				}
+				if (v.data.life_pt) {
+					STATICS.player += v.data.life_pt;
 				}
 				if (v.data.bomb_pt) {
 					STATICS.bomb = limit_between(STATICS.bomb + v.data.bomb_pt, 0, STATICS.bomb_max);

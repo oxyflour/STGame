@@ -395,6 +395,7 @@ function newStage6(difficulty) {
 			}, [
 				{ v:0.2, },
 			]),
+			bomb_pt: 1,
 		},
 		{
 			duration: 500,
@@ -402,7 +403,6 @@ function newStage6(difficulty) {
 				{ v:0.2 },
 				{ fn:function(from) { from.die() } },
 			],
-			no_countdown: true,
 			invinc: true,
 			disable_fire: true,
 			next: 'secRestart',
