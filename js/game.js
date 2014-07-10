@@ -967,6 +967,7 @@ var UTIL = {
 	},
 	// fs can be function, frame array, or a single frame
 	addFrameAnim: function(v, fs, t) {
+		v.frames = fs;
 		t = t || v.data.frtick || 50;
 		// only one frame ?
 		if (fs.push && fs.length == 1) {
@@ -2415,6 +2416,25 @@ function newBossFrames(name, norepeat) {
 		}
 		return fs;
 	}
+}
+function newBossCloud(boss) {
+	STORY.timeout(function(d, n) {
+		var r = random(50, 200),
+			t = random(PI2);
+		var obj = SPRITE.newObj('Circle', {
+			x: boss.data.x + r*Math.cos(t),
+			y: boss.data.y + r*Math.sin(t),
+			frames: RES.frames.EffEnemy2[0],
+			opacity: 0.5,
+		})
+		redirect_object(obj.data, boss.data, 0.1)
+		obj.anim(50, function(d) {
+			decrease_object_speed(d, 1.05)
+			if (sqrt_sum(boss.data.x - d.x, boss.data.y - d.y) < 50)
+				return this.die() || true;
+		}, obj.data)
+	}, 30, null, 100)
+	RES.se_power0.play();
 }
 function newBossBgCircle(boss) {
 	var obj = SPRITE.newObj('Basic', {

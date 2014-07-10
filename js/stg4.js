@@ -138,6 +138,7 @@ function stg4Fire3(from) {
 		})
 		if (d.vx || d.vy)
 			return true;
+		RES.se_tan00.replay();
 	}, from.data);
 }
 function stg4Fire4(from, f0) {
@@ -160,6 +161,7 @@ function stg4Fire4(from, f0) {
 			})
 		})
 	})
+	RES.se_tan03.replay();
 }
 
 function koakumaFire1(from, direction) {
@@ -174,6 +176,7 @@ function koakumaFire1(from, direction) {
 		})
 		RES.se_tan00.play()
 	}, 280, null, 8)
+	RES.se_power0.play();
 }
 function koakumaFire(from) {
 	STORY.timeout(function(d, n) {
@@ -303,6 +306,7 @@ function patchouliFire1B(from, to, rads, layers, speed) {
 			})
 		})
 	})
+	RES.se_tan00.play();
 }
 function patchouliFire1C(from) {
 	ieach([
@@ -313,6 +317,7 @@ function patchouliFire1C(from) {
 	], function(i, v) {
 		patchouliFire1B({ data:v }, UTIL.getOneAlive('Player'), 10, 2)
 	})
+	RES.se_tan00.play();
 }
 function patchouliFire1D(from) {
 	var pos = [
@@ -334,6 +339,7 @@ function patchouliFire1D(from) {
 			})
 		})
 	}, 500, null, 4)
+	RES.se_tan00.play();
 }
 function patchouliFire1(from) {
 	var i = randin([1, -1]);
@@ -379,6 +385,7 @@ function patchouliSC1(from) {
 				})
 			})
 		})
+		RES.se_tan03.replay();
 	}, 120, null, 5)
 }
 function patchouliFire2A(from) {
@@ -408,6 +415,7 @@ function patchouliSC2(from) {
 					return rotate_object_speed(d, random(-1, 1), random(0.03, 0.15)) || true;
 			}, obj.data)
 		})
+		RES.se_tan01.replay();
 	}, 200, null, 1000)
 	STORY.timeout(function(d, n) {
 		var to = UTIL.getOneAlive('Player')
@@ -433,6 +441,7 @@ function patchouliSC3A(from) {
 				})
 			})
 		})
+		RES.se_tan02.replay();
 	}, 160, null, 8)
 }
 function patchouliSC3B(from) {
@@ -449,6 +458,7 @@ function patchouliSC3B(from) {
 					return rotate_object_speed(d, (i % 3 - 1)*0.8, random(0.05, 0.15)) || true;
 			}, obj.data)
 		})
+		RES.se_tan01.replay();
 	}, 200, null, 3)
 }
 function patchouliSC4(from, color) {
@@ -466,6 +476,7 @@ function patchouliSC4(from, color) {
 			}, obj.data)
 		})
 	})
+	RES.se_tan00.replay();
 }
 function patchouliSC5A(from) {
 	STORY.timeout(function(d, n) {
@@ -481,6 +492,7 @@ function patchouliSC5A(from) {
 				d.vx -= d.dvx;
 			}, obj.data)
 		})
+		RES.se_tan02.replay();
 	}, 800, null, 1000)
 }
 function patchouliSC5B(from) {
@@ -501,6 +513,7 @@ function patchouliSC5B(from) {
 			}, obj.data)
 		})
 	}, 200, null, 1000)
+	RES.se_kira01.play();
 }
 
 function newStage4(difficuty) {

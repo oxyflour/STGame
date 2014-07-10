@@ -5,6 +5,7 @@ function newStg5BgAnim(bg) {
 function stg5Sec1(fx, color) {
 	ieach([fx, 1-fx], function(i, fx) {
 		var obj = SPRITE.newObj('Enemy', {
+			life: 20,
 			x: UTIL.getGamePosX(fx),
 			y: GAME.rect.t,
 			vx: 0,
@@ -23,6 +24,7 @@ function stg5Sec1(fx, color) {
 function stg5Sec2(pth) {
 	STORY.timeout(function(d, n) {
 		var obj = SPRITE.newObj('Enemy', {
+			life: 20,
 			pathnodes: RES.path[pth],
 			frames: RES.frames.Enemy3A,
 		})
@@ -31,6 +33,7 @@ function stg5Sec2(pth) {
 }
 function stg5Sec3(fx) {
 	var obj = SPRITE.newObj('Enemy', {
+		life: 20,
 		frames: RES.frames.Enemy3B,
 		x: UTIL.getGamePosX(fx),
 		y: GAME.rect.t,
@@ -59,6 +62,7 @@ function stg5Fire1(from, color, count) {
 			})
 		})
 	}, from.data)
+	RES.se_tan00.replay();
 }
 function stg5Fire2(from) {
 	from.anim(400, function(d) {
@@ -69,6 +73,7 @@ function stg5Fire2(from) {
 			})
 		})
 	}, from.data)
+	RES.se_tan00.replay();
 }
 function stg5Fire3(from) {
 	var to = UTIL.getOneAlive('Player');
@@ -86,6 +91,7 @@ function stg5Fire3(from) {
 				})
 			})
 		})
+		RES.se_tan00.replay();
 	}, from.data)
 }
 
@@ -100,6 +106,7 @@ function sakuyaFire1A(from, rads, count, interval) {
 				tama: 'Knife',
 			})
 		})
+		RES.se_tan00.replay();
 	}, interval || 150, null, count + 1)
 }
 function sakuyaFire1B(from, rads) {
@@ -114,12 +121,66 @@ function sakuyaFire1B(from, rads) {
 			})
 		})
 	}, 50, null, 10)
+	RES.se_power0.replay();
+}
+function sakuyaMove(from, fx, fy) {
+	var ph = 1,
+		dh = -1/500;
+	from.anim(80, function(d) {
+		d.opacity = ph;
+		if (dh > 0 && (ph += dh*80) < 0) {
+			dh = -dh;
+			d.x = UTIL.getGamePosX(fx);
+			d.y = UTIL.getGamePosX(fy);
+		}
+		if (dh < 0 && (ph += dh*80) > 1) {
+			ph = 1;
+			return true;
+		}
+	}, from.data)
+}
+function sakuyaSC0A(from) {
+	var to = UTIL.getOneAlive('Player');
+	STORY.timeout(function(d, n) {
+		array(2, function(i) {
+			range(1, 0, 1/14, function(f) {
+				var obj = newDannmaku(from, to, 0, f*PI2, 0.1+i*0.02, 0, {
+					color: 'r',
+					tama: 'LongB',
+				})
+				obj.runCircle = (function(run) {
+					return function(dt, d) {
+						if (d.x < GAME.rect.l || d.x > GAME.rect.r)
+							d.vx = -d.vx;
+						if (d.y < GAME.rect.t)
+							d.vy = -d.vy;
+					}
+				})(obj.runCircle)
+			})
+		})
+		RES.se_tan00.replay();
+	}, 50, null, 15);
+}
+function sakuyaSC0B(from) {
+	var to = UTIL.getOneAlive('Player');
+	STORY.timeout(function(d, n) {
+		array(2, function(i) {
+			range(0.5001, -0.5, 1/10, function(f) {
+				newDannmaku(from, to, 0, f*PI, 0.15+i*0.05, 0, {
+					color: 'b',
+					tama: 'Knife',
+				})
+			})
+		})
+	}, 150, null, 5)
+	RES.se_tan00.play();
 }
 
 function stg5Sec4() {
 	STORY.timeout(function(d, n) {
 		var to = UTIL.getOneAlive('Player');
 		var obj = SPRITE.newObj('Enemy', {
+			life: 20,
 			x: UTIL.getGamePosX(n % 2 ? 0 : 1),
 			y: UTIL.getGamePosY(random(0.1, 0.15)),
 			vx: (n % 2 ? 1 : -1) * 0.2,
@@ -132,6 +193,7 @@ function stg5Sec4() {
 			stg5Fire4RL,
 			stg5Fire4RC,
 		])(obj)
+		RES.se_tan00.replay();
 	}, 250, null, 1000)
 }
 function stg5Fire4BL(from, to) {
@@ -177,7 +239,7 @@ function stg5Fire4RC(from, to) {
 	}, from.data)
 }
 
-function sakuyaFire2AC(from, rt, color, tama) {
+function sakuyaFire2AC(from, rt, color, tama, interval) {
 	var obj = SPRITE.newObj('Circle', {
 		x: from.data.x,
 		y: from.data.y,
@@ -189,11 +251,11 @@ function sakuyaFire2AC(from, rt, color, tama) {
 	obj.anim(80, function(d) {
 		decrease_object_speed(d, 0.94)
 	}, obj.data)
-	sakuyaFire2A1(obj, color, tama);
+	sakuyaFire2A1(obj, color, tama, interval);
 }
-function sakuyaFire2A1(from, color, tama) {
+function sakuyaFire2A1(from, color, tama, interval) {
 	var f0 = random(PI2), df = randin([1, -1])*0.5;
-	from.anim(100, function(d) {
+	from.anim(interval || 100, function(d) {
 		if (!this.is_dying) range(0.5001, -0.5, 1/4, function(f) {
 			var t = f * 0.08;
 			var obj = newDannmaku(from, null, 0, f0+t, 0.15/Math.cos(t), 0, {
@@ -210,6 +272,7 @@ function sakuyaFire2A1(from, color, tama) {
 		})
 		f0 += df;
 	}, from.data)
+	RES.se_tan00.replay();
 }
 function sakuyaFire2A(from) {
 	ieach([
@@ -258,25 +321,8 @@ function sakuyaFire2C(from) {
 			sakuyaFire2C1(from, f0*1.5*x, 0.12-f0*0.01)
 		})
 		f0 += 0.3;
+		RES.se_tan00.replay();
 	}, 150, null, 12)
-}
-function sakuyaSC1K(from) {
-	STORY.timeout(function(d, n) {
-		var r = random(50, 200),
-			t = random(PI2);
-		var obj = SPRITE.newObj('Circle', {
-			x: from.data.x + r*Math.cos(t),
-			y: from.data.y + r*Math.sin(t),
-			frames: RES.frames.EffEnemy2[0],
-			opacity: 0.5,
-		})
-		redirect_object(obj.data, from.data, 0.1)
-		obj.anim(50, function(d) {
-			decrease_object_speed(d, 1.05)
-			if (sqrt_sum(from.data.x - d.x, from.data.y - d.y) < 50)
-				return this.die() || true;
-		}, obj.data)
-	}, 30, null, 100)
 }
 function sakuyaSC1A(from) {
 	array(20, function() {
@@ -317,6 +363,7 @@ function sakuyaSC1(from, freeze, release) {
 					rotate_object_speed(d, g*2);
 				})
 			})
+			RES.se_tan00.replay();
 		}, 150, null, 10)
 	}, freeze || 1000)
 	STORY.timeout(function(d, n) {
@@ -335,7 +382,7 @@ function sakuyaFire3A(from) {
 		[-0.7, 'b'],
 		[-1.5, 'r'],
 	], function(i, v) {
-		sakuyaFire2AC(from, v[0], v[1], 'LongB')
+		sakuyaFire2AC(from, v[0], v[1], 'LongB', 200)
 	})
 }
 function sakuyaSC2A(from) {
@@ -349,6 +396,7 @@ function sakuyaSC2A(from) {
 			})
 		})
 	})
+	RES.se_tan00.play();
 }
 function sakuyaSC2C(from) {
 	SPRITE.eachObj(function(i, v) {
@@ -382,6 +430,7 @@ function sakuyaFire4(from, color) {
 				})(obj.runCircle)
 			})
 		})
+		RES.se_tan00.replay();
 	}, 100, null, 8)
 }
 function sakuyaSC3A(from) {
@@ -396,6 +445,7 @@ function sakuyaSC3A(from) {
 				})
 			})
 		})
+		RES.se_tan00.replay();
 	}, 100, null, 8)
 }
 function sakuyaSC3B(from) {
@@ -411,6 +461,7 @@ function sakuyaSC3B(from) {
 				})
 			})
 		})
+		RES.se_tan00.replay();
 	}, 50, null, 8)
 }
 function sakuyaSC3C(from) {
@@ -531,6 +582,20 @@ function newStage5(difficulty) {
 			}, [
 				{ v:0.2, },
 			]),
+			fail_next: 'boss3',
+		},
+		{
+			scname: RES.st_stg5_sc0,
+			duration: 40000,
+			pathnodes: ieach(range(15), function(i, j, d) {
+				d.push({ t:500, fn:sakuyaMove, args:[random(0.1, 0.9), random(0.05, 0.4)], });
+				d.push({ t:100, fx:random(0.1, 0.9), fy:random(0.05, 0.4) });
+				d.push({ t:1500, fn:sakuyaSC0A, });
+				d.push({ t:500, fn:sakuyaMove, args:[random(0.1, 0.9), random(0.05, 0.4)], });
+				d.push({ t:1000, fn:sakuyaSC0B, });
+			}, [
+				{ v:0.15, },
+			]),
 			life_pt: 1,
 		},
 		{
@@ -572,7 +637,7 @@ function newStage5(difficulty) {
 			duration: 30000,
 			scname: RES.st_stg5_sc1,
 			pathnodes: ieach(range(15), function(i, j, d) {
-				d.push({ t:3000, fn:sakuyaSC1K })
+				d.push({ t:3000, fn:newBossCloud })
 				d.push({ t:500,  fn:sakuyaSC1A });
 				d.push({ t:500,  fn:sakuyaSC1 });
 				d.push({ t:500,  fx:random(0.1, 0.9), fy:random(0.05, 0.4) });
@@ -595,7 +660,7 @@ function newStage5(difficulty) {
 			duration: 30000,
 			scname: RES.st_stg5_sc2,
 			pathnodes: ieach(range(15), function(i, j, d) {
-				d.push({ t:3000, fn:sakuyaSC1K });
+				d.push({ t:3000, fn:newBossCloud });
 				d.push({ t:500,  fn:sakuyaSC2A });
 				d.push({ t:500,  fn:sakuyaSC1, args:[1000, 3500] });
 				d.push({ t:2000, fx:random(0.1, 0.9), fy:random(0.05, 0.4) });
@@ -635,7 +700,6 @@ function newStage5(difficulty) {
 		{ name:'bossKill', next:'sakuyaSpeak2', },
 	], newStgSecBossKill, 'bossKill');
 	stage.score = newStgSecScore('ended');
-	stage.ended = newStgSecOver();
-//	stage.ended = newStgSecLoadNew(newStage6(difficuty));
+	stage.ended = newStgSecLoadNew(newStage6(difficulty));
 	return stage;
 }

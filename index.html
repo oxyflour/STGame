@@ -701,6 +701,9 @@
 			_t.Fire = array(4, function(i) {
 				return newFrame('etama3', i*32, 192, 32, 32, 0, 0, { rotate:true })
 			})
+			_t.Bat = array(4, function(i) {
+				return newFrame('stg6enm2', i*64, 80, 64, 32)
+			})
 
 			return _t;
 		})
@@ -984,6 +987,7 @@
 	<script type="text/html" id="st_stg4_diag19">因为家里有个喜欢摆弄空间的人<br />在啊</script>
 	<!-- stage 5 -->
 	<script type="text/html" id="st_stg5_title">红月之下那潇洒的随从</script>
+	<script type="text/html" id="st_stg5_sc0">幻在「钟表的遗骸」</script>
 	<script type="text/html" id="st_stg5_sc1">幻幽「迷幻的杰克」</script>
 	<script type="text/html" id="st_stg5_sc2">幻世「The World」</script>
 	<script type="text/html" id="st_stg5_sc3">女仆秘技「杀人人偶」</script>
@@ -1012,6 +1016,7 @@
 	<script type="text/html" id="st_stg5_diag23">好强...<br />但是，大小姐总会有办法的</script>
 	<!-- stage 6 -->
 	<script type="text/html" id="st_stg6_title">在乐园中洒下血土</script>
+	<script type="text/html" id="st_stg6_sc0">奇术「永恒的温柔」</script>
 	<script type="text/html" id="st_stg6_sc1">神罚「幼小的恶魔领主」</script>
 	<script type="text/html" id="st_stg6_sc2">狱罚「千根针的针山」</script>
 	<script type="text/html" id="st_stg6_sc3">神术「吸血鬼幻想」</script>
@@ -1063,6 +1068,7 @@
 	<audio preload oncanplaythrough="this.complete=true" class="se" id="se_damage00" src="res/se_damage00.mp3" replay-queue="4"></audio>
 	<audio preload oncanplaythrough="this.complete=true" class="se" id="se_enep00" src="res/se_enep00.mp3" replay-queue="4"></audio>
 	<audio preload oncanplaythrough="this.complete=true" class="se" id="se_enep01" src="res/se_enep01.mp3"></audio>
+	<audio preload oncanplaythrough="this.complete=true" class="se" id="se_power0" src="res/se_power0.mp3"></audio>
 	<audio preload oncanplaythrough="this.complete=true" class="se" id="se_power1" src="res/se_power1.mp3"></audio>
 	<audio preload oncanplaythrough="this.complete=true" class="se" id="se_tan00" src="res/se_tan00.mp3" replay-queue="4"></audio>
 	<audio preload oncanplaythrough="this.complete=true" class="se" id="se_tan01" src="res/se_tan01.mp3" replay-queue="4"></audio>
@@ -1135,7 +1141,7 @@
 			</div>
 			<div class="game-size absolute no-overflow ui-obj bg-stg6" style="background:#000">
 				<div class="absolute game-size bg-stg6" style="height:2240px;"
-					id="stg6gnd" bg-speed="0.02" bg-trans="rotateX(-35deg)">
+					id="stg6gnd" bg-speed="0.03" bg-trans="rotateX(-35deg)">
 				</div>
 			</div>
 			<div class="game-size absolute">
@@ -1458,19 +1464,19 @@
 				<label class="menu menu-title-practice-start"></label>
 			</div>
 			<div class="menu-line">
-				<input type="radio" />
+				<input type="radio" disabled />
 				<label class="menu menu-title-replay"></label>
 			</div>
 			<div class="menu-line">
-				<input type="radio" />
+				<input type="radio" disabled />
 				<label class="menu menu-title-score"></label>
 			</div>
 			<div class="menu-line">
-				<input type="radio" />
+				<input type="radio" disabled />
 				<label class="menu menu-title-music-room"></label>
 			</div>
 			<div class="menu-line">
-				<input type="radio" />
+				<input type="radio" disabled />
 				<label class="menu menu-title-option"></label>
 			</div>
 			<div class="menu-line">

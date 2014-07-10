@@ -18,6 +18,7 @@ function newStg6BgAnim(bg) {
 function stg6Sec1(pth, color) {
 	STORY.timeout(function(d, n) {
 		var obj = SPRITE.newObj('Enemy', {
+			life: 2,
 			pathnodes: RES.path[pth],
 			frames: RES.frames.Enemy2A,
 		})
@@ -28,11 +29,12 @@ function stg6Sec2() {
 	ieach(arguments, function(i, a) {
 		var fx = a[0], fy = a[1];
 		var obj = SPRITE.newObj('Enemy', {
+			life: 20,
 			x: UTIL.getGamePosX(fx),
 			y: UTIL.getGamePosY(fy),
 			vx: [0.1, -0.1][fx] || 0,
 			vy: [0.1, -0.1][fy] || 0,
-			frames: RES.frames.Enemy3A,
+			frames: RES.frames.Enemy3B,
 		})
 		obj.anim(500, function(d) {
 			if (d.age) {
@@ -67,6 +69,7 @@ function stg6Fire2(from) {
 			})
 		})
 	})
+	RES.se_tan00.replay();
 }
 
 function sakuyaFire1C(from, rads) {
@@ -82,12 +85,25 @@ function sakuyaFire1C(from, rads) {
 				if (d.age < 1000)
 					decrease_object_speed(d, 0.95);
 				else {
-					rotate_object_speed(d, t0, 0.2);
+					rotate_object_speed(d, t0, 0.1);
 					return true;
 				}
 			}, obj.data)
 		})
 	}, 50, null, 15)
+}
+function sakuya6SC0(from) {
+	STORY.timeout(function(d, n) {
+		array(10, function() {
+			newDannmaku(from, null, 0, random(PI2), random(0.15, 0.35), 0, {
+				color: 'b',
+				tama: 'TamaB',
+			})
+		})
+	}, 30, null, 1000)
+	STORY.timeout(function() {
+		RES.se_tan00.replay();
+	}, 200, null, 1000);
 }
 
 function remiliaFire1(from) {
@@ -114,12 +130,15 @@ function remiliaFire1(from) {
 				no_frame: true,
 			})
 		})
+		if (n % 2 == 0)
+			RES.se_tan00.replay();
 	}, 120, null, 40)
 }
 function remiliaSC1(from) {
 	var f0 = random(PI2);
-	array(3, function(i) {
-		var r = 50 + 100 * i,
+	STORY.timeout(function(d, n) {
+		var i = 2 - n,
+			r = 50 + 100 * i,
 			s = [0, 0.8, -1.2][i];
 		array(16, function(j) {
 			var f = j / 16,
@@ -137,7 +156,7 @@ function remiliaSC1(from) {
 				duration: 3000,
 			})
 		})
-	})
+	}, 50, null, 3)
 	STORY.timeout(function(d, n) {
 		range(1, 0, 1/12, function(f) {
 			newDannmaku(from, null, 0, f*PI2-n*0.12+0.1, 0.18, 0, {
@@ -156,6 +175,7 @@ function remiliaSC1(from) {
 				})
 			})
 		})
+		RES.se_tan00.replay();
 	}, 250, null, 4)
 }
 function remiliaFire2A(from, to, t) {
@@ -183,6 +203,7 @@ function remiliaFire2(from, rads, interval, count1, count2) {
 		var t = (3.5 - n) / 7 * rads;
 		remiliaFire2A(from, to, t)
 	}, interval || 160, null, 8)
+	RES.se_tan00.play();
 }
 function remiliaSC2(from) {
 	STORY.timeout(function(d, n) {
@@ -226,6 +247,8 @@ function remiliaFire3(from, direction) {
 				})
 			})
 		})
+		if (n % 6 == 0)
+			RES.se_tan01.replay();
 	}, 50, null, 60)
 }
 function remiliaSC3A(from, ax, ay, delay) {
@@ -262,6 +285,31 @@ function remiliaSC3(from, rads, count, rot, f0) {
 				remiliaSC3A(this, Math.cos(t)*v, Math.sin(t)*v, delay-=100);
 		}, obj.data)
 	})
+	RES.se_tan00.play();
+}
+function remiliaShow(from, show) {
+	var d = from.data;
+	if (!from.frames_old)
+		from.frames_old = from.frames;
+	if (show) {
+		from.is_invinc = false;
+		UTIL.addFrameAnim(from, from.frames_old);
+	}
+	else {
+		from.is_invinc = true;
+		UTIL.addFrameAnim(from, RES.frames.Bat);
+		STORY.timeout(function() {
+			array(5, function() {
+				SPRITE.newObj('Circle', {
+					x: d.x,
+					y: d.y,
+					vx: random(-0.2, -0.2),
+					vy: random(0.15, 0.3),
+					frames: RES.frames.Bat,
+				})
+			})
+		}, 50, null, 20)
+	}
 }
 function remiliaFire4A(from) {
 	STORY.timeout(function(d, n) {
@@ -275,6 +323,8 @@ function remiliaFire4A(from) {
 				d.vy += 0.01;
 			}, obj.data)
 		})
+		if (n % 3 == 0)
+			RES.se_kira00.replay();
 	}, 100, null, 30)
 }
 function remiliaFire4B(from) {
@@ -288,6 +338,8 @@ function remiliaFire4B(from) {
 				blend: 'lighter',
 			})
 		})
+		if (n % 2 == 0)
+			RES.se_kira01.replay();
 	}, 200, null, 16)
 }
 function remiliaFire4C(from) {
@@ -301,6 +353,8 @@ function remiliaFire4C(from) {
 				})
 			})
 		})
+		if (n % 3 == 0)
+			RES.se_kira00.replay();
 	}, 150, null, 20)
 }
 function remiliaSC4(from) {
@@ -395,6 +449,16 @@ function newStage6(difficulty) {
 			}, [
 				{ v:0.2, },
 			]),
+			fail_next: 'boss3',
+		},
+		{
+			scname: RES.st_stg6_sc0,
+			duration: 15000,
+			pathnodes: [
+				{ v:0.1, },
+				{ fx:0.5, fy:0.2, },
+				{ fn:sakuya6SC0, },
+			],
 			bomb_pt: 1,
 		},
 		{
@@ -434,6 +498,7 @@ function newStage6(difficulty) {
 			scname: RES.st_stg6_sc1,
 			duration: 40000,
 			pathnodes: ieach(range(15), function(i, j, d) {
+				d.push({ t:500, fn:newBossCloud, });
 				d.push({ t:2000, fn:remiliaSC1, });
 				d.push({ t:3000, fx:random(0.1, 0.9), fy:random(0.05, 0.4) });
 			}, [
@@ -478,6 +543,7 @@ function newStage6(difficulty) {
 			scname: RES.st_stg6_sc3,
 			duration: 40000,
 			pathnodes: ieach(range(15), function(i, j, d) {
+				d.push({ t:500, fn:newBossCloud, });
 				d.push({ t:3000, fn:remiliaSC3, });
 				d.push({ t:1000, fx:random(0.1, 0.9), fy:random(0.05, 0.4) });
 			}, [
@@ -488,11 +554,14 @@ function newStage6(difficulty) {
 		{
 			duration: 60000,
 			pathnodes: ieach(range(15), function(i, j, d) {
+				d.push({ t:800, fn:newBossCloud, });
+				d.push({ t:200, fn:remiliaShow, args:[false], });
 				d.push({ t:200, fn:[remiliaFire4A, remiliaFire4B, remiliaFire4C][i % 3], });
 				array(5, function() {
 					d.push({ t:500, fx:random(0.1, 0.9), fy:random(0.1, 0.3) });
 				})
-				d.push({ t:2000 })
+				d.push({ t:200, fn:remiliaShow, args:[true], });
+				d.push({ t:1000 })
 			}, [
 				{ v:0.3, },
 			]),
@@ -501,6 +570,7 @@ function newStage6(difficulty) {
 			scname: RES.st_stg6_sc4,
 			duration: 30000,
 			pathnodes: ieach(range(15), function(i, j, d) {
+				d.push({ t:800, fn:newBossCloud, });
 				d.push({ t:2000, fn:remiliaSC4, });
 				d.push({ t:3000, fx:random(0.1, 0.9), fy:random(0.05, 0.4) });
 			}, [
