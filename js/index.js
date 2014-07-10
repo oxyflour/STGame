@@ -23,7 +23,7 @@ function checkActiveRadios() {
 function checkFormKey(e, f) {
 	if (RES.process !== 1 || GAME.state == GAME.states.RUNNING)
 		return;
-
+	// CHEAT CODE
 	var _t = checkFormKey;
 	if (!_t.str) _t.str = '';
 	_t.str += String.fromCharCode(e.which) || ' ';
@@ -33,16 +33,18 @@ function checkFormKey(e, f) {
 		GAME.many_lives_mode = true;
 	else if (str_endwith(_t.str, 'REIMU REIMU GO'))
 		GAME.double_player_mode = true;
-
+	// submit
 	if (e.which == 'Z'.charCodeAt(0) || e.which == 13) {
 		f.submit();
 	}
+	// escape
 	else if (e.which == 27) {
 		var fn = $attr(f, 'onescape');
 		if (fn && Function(fn)() === false)
 			e.stopPropagation();
 		RES.se_cancel00.replay();
 	}
+	// do nothing
 	else {
 		RES.se_select00.replay();
 	}
@@ -129,17 +131,21 @@ function changeGameState(k) {
 	}
 }
 
-function loadAndStart(stage) {
+function resetAndStart(stage) {
 	STATICS.reset();
+	if (isPracticeMode()) {
+		extend(STATICS, {
+			player: 3,
+			power: 128,
+		})
+	}
 	GAME.reset();
 	GAME.load(stage || newStage1());
 	GAME.start('init');
 }
 
-function checkStart() {
-	GAME.ready = true;
-	if (RES.process == 1)
-		changeGameState('TITLE');
+function isPracticeMode() {
+	return !$('.menu-title input:checked + .menu-title-start')[0]
 }
 
 ieach($('form[eval-radios]'), function(i, e) {

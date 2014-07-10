@@ -2987,8 +2987,8 @@ function newStgHook() {
 				})
 				if (GAME.double_player_mode && !(GAME.double_player_mode = false))
 					newPlayer('p2');
-				if (1 || GAME.many_lives_mode && !(GAME.many_lives_mode = false)) {
-					STATICS.player = 99;
+				if (GAME.many_lives_mode && !(GAME.many_lives_mode = false)) {
+					STATICS.player = 7;
 					STATICS.bomb_reset = 7;
 					STATICS.bomb = STATICS.bomb_reset;
 				}

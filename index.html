@@ -1392,11 +1392,11 @@
 			onescape="changeGameState('SELECT_CHAR')">
 			<div class="select-title"></div>
 			<div class="menu-line">
-				<input type="radio" value="$('.menu-title input:checked + .menu-title-start')[0] ? loadAndStart() : changeGameState('SELECT_STAGE')" />
+				<input type="radio" value="isPracticeMode() ? changeGameState('SELECT_STAGE') : resetAndStart()" />
 				<label class="menu menu-bomb-a"></label>
 			</div>
 			<div class="menu-line">
-				<input type="radio" value="$('.menu-title input:checked + .menu-title-start')[0] ? loadAndStart() : changeGameState('SELECT_STAGE')" />
+				<input type="radio" value="isPracticeMode() ? changeGameState('SELECT_STAGE') : resetAndStart()" />
 				<label class="menu menu-bomb-b"></label>
 			</div>
 		</form>
@@ -1404,27 +1404,27 @@
 			ui-focus="GAME.state == GAME.states.SELECT_STAGE"
 			onescape="changeGameState('SELECT_BOMB')">
 			<div class="menu-line">
-				<input type="radio" value="loadAndStart(newStage1())" />
+				<input type="radio" value="resetAndStart(newStage1())" />
 				<label class="menu char-cyan char-string" char-string="STAGE 1  000000000"></label>
 			</div>
 			<div class="menu-line">
-				<input type="radio" value="loadAndStart(newStage2())" />
+				<input type="radio" value="resetAndStart(newStage2())" />
 				<label class="menu char-cyan char-string" char-string="STAGE 2  000000000"></label>
 			</div>
 			<div class="menu-line">
-				<input type="radio" value="loadAndStart(newStage3())" />
+				<input type="radio" value="resetAndStart(newStage3())" />
 				<label class="menu char-cyan char-string" char-string="STAGE 3  000000000"></label>
 			</div>
 			<div class="menu-line">
-				<input type="radio" value="loadAndStart(newStage4())" />
+				<input type="radio" value="resetAndStart(newStage4())" />
 				<label class="menu char-cyan char-string" char-string="STAGE 4  000000000"></label>
 			</div>
 			<div class="menu-line">
-				<input type="radio" value="loadAndStart(newStage5())" />
+				<input type="radio" value="resetAndStart(newStage5())" />
 				<label class="menu char-cyan char-string" char-string="STAGE 5  000000000"></label>
 			</div>
 			<div class="menu-line">
-				<input type="radio" value="loadAndStart(newStage6())" />
+				<input type="radio" value="resetAndStart(newStage6())" />
 				<label class="menu char-cyan char-string" char-string="STAGE 6  000000000"></label>
 			</div>
 		</form>
@@ -1501,12 +1501,13 @@
 				请勿将本游戏用于任何商业用途。<br />
 				发现莉格露(BUG)请点<a href="https://github.com/oxyflour/STGame/issues?state=open">这里</a>
 			</h4>
-			<button class="ui hidden" ui-show="RES.process == 1" onclick="checkStart()" style="font-size:100%;padding:0.5em">好的</button>
+			<button class="ui hidden" ui-show="RES.process == 1" onclick="if (RES.process == 1) changeGameState('TITLE')"
+				style="font-size:100%;padding:0.5em">好的</button>
 			<h3 class="ui" ui-show="RES.process < 1">loading <span class="ui" ui-bind="(RES.process*100).toFixed(1)+'%'">...</span></h3>
 		</div>
 		<form class="absolute ui" eval-radios
 			ui-focus="GAME.state == GAME.states.LOADING">
-			<input type="radio" value="checkStart()" />
+			<input type="radio" value="if (RES.process == 1) changeGameState('TITLE')" />
 		</form>
 	</div>
 </div>
