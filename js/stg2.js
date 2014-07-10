@@ -536,7 +536,7 @@ function newStage2(difficuty) {
 		{ text:RES.st_stg2_diag7,  pos:'.fl.dg', face:'.f0b.f2', },
 		{ text:RES.st_stg2_diag8,  pos:'.fr.dg', face:'.f5a.f2', },
 		{ text:RES.st_stg2_diag9,  pos:'.fr.dg', face:'.f5a.f2', next:'bossC', ended:true, },
-		{ text:RES.st_stg2_diag10, pos:'.fl.dg', face:'.f0b.f2', name:'diagC', next:'askContinue', clear:true, ended:true, },
+		{ text:RES.st_stg2_diag10, pos:'.fl.dg', face:'.f0b.f2', name:'diagC', next:'score', clear:true, ended:true, },
 		{ text:RES.st_stg2_diag11, pos:'.fl.dg', face:'.f0b.f2', name:'diagD', next:'bossX', clear:true, },
 		{ text:RES.st_stg2_diag12, pos:'.fr.dg', face:'.f5a.f2', name:'diagX', },
 		{ text:RES.st_stg2_diag13, pos:'.fl.dg', face:'.f0c', },
