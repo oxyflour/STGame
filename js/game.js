@@ -2288,7 +2288,7 @@ function newLaserWithDot(from, x, y, dx, dy, width, ext) {
 function newBoss(name) {
 	var boss = SPRITE.newObj('Enemy', {
 		r: 24,
-		life: 400,
+		life: 360,
 		frtick: 150,
 		respawn: Inf,
 		boss: name,
@@ -2947,14 +2947,14 @@ function newStgSecOver() {
 		}
 	}
 }
-function newStgSecLoadNew(stg) {
+function newStgSecLoadNew(stg, difficulty, next) {
 	return {
 		run: function() {
 			return 'loading new stage...'
 		},
 		quit: function() {
 			setTimeout(function() {
-				GAME.load(stg);
+				GAME.load(stg(difficulty, next));
 				GAME.start('init');
 			}, 10);
 		}

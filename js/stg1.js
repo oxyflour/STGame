@@ -33,7 +33,7 @@ function newSec1(pth, count, offset, interval, speed, rand, life) {
 	STORY.timeout(function (d, n) {
 		ieach(offset || [[0, 0]], function(i, v) {
 			var obj = SPRITE.newObj('Enemy', {
-				life: life || 1,
+				life: life || 2,
 				frames: RES.frames.Enemy00,
 				pathnodes: UTIL.pathOffset(RES.path[pth], v[0], v[1]),
 			});
@@ -51,6 +51,7 @@ function newSec2(ylim, count, speed) {
 			var f = 0.5 + (n+0.5)/(count+0.5)*0.5 * x,
 				dvx = 0.005 * x, dvy = -0.003;
 			var obj = SPRITE.newObj('Enemy', {
+				life: 2,
 				frames: RES.frames.Enemy00,
 				x: UTIL.getGamePosX(f),
 				y: 0,
@@ -74,7 +75,7 @@ function newSec3(tick, count, layers, life) {
 	STORY.timeout(function (d, n) {
 		var enm = SPRITE.newObj('Enemy', {
 			frames: RES.frames.Enemy01,
-			life: life || 1,
+			life: life || 5,
 			x: UTIL.getGamePosX(random(0, 1)),
 			y: 0,
 			vy: 0.1,
@@ -103,7 +104,7 @@ function newSec4(fn, life) {
 		ps[0].x = ps[0].y = undefined;
 		var obj = SPRITE.newObj('Enemy', {
 			frames: RES.frames.Enemy00,
-			life: life || 1,
+			life: life || 2,
 			x: px,
 			y: GAME.rect.t,
 			pathnodes: ps,
@@ -582,7 +583,7 @@ function newBossDannsEx4(from) {
 	}, 50, null, 100);
 }
 
-function newStage1(difficuty) {
+function newStage1(difficulty, next) {
 	var stage = {};
 	stage.hook = newStgHook();
 	stage.init = newStgSecInit('sec0', {
@@ -1189,6 +1190,6 @@ function newStage1(difficuty) {
 	], newStgSecBossKill, 'bossKill');
 	stage.askContinue = newStgSecAskContinue('secX');
 	stage.score = newStgSecScore('ended');
-	stage.ended = newStgSecLoadNew(newStage2(difficuty));
+	stage.ended = next ? newStgSecLoadNew(newStage2, difficulty, next) : newStgSecOver();
 	return stage;
 }

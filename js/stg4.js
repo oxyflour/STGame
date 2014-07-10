@@ -516,7 +516,7 @@ function patchouliSC5B(from) {
 	RES.se_kira01.play();
 }
 
-function newStage4(difficuty) {
+function newStage4(difficulty, next) {
 	var stage = {};
 	stage.hook = newStgHook();
 	stage.init = newStgSecInit('sec0', {
@@ -808,6 +808,6 @@ function newStage4(difficuty) {
 		{ name:'bossKill', next:'muqSad', },
 	], newStgSecBossKill, 'bossKill');
 	stage.score = newStgSecScore('ended');
-	stage.ended = newStgSecLoadNew(newStage5(difficuty));
+	stage.ended = next ? newStgSecLoadNew(newStage5, difficulty, next) : newStgSecOver();
 	return stage;
 }

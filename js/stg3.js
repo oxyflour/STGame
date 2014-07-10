@@ -541,7 +541,7 @@ function meilingSC4(from) {
 	}, 50, null, 1000)
 }
 
-function newStage3(difficuty) {
+function newStage3(difficulty, next) {
 	var stage = {};
 	stage.hook = newStgHook();
 	stage.init = newStgSecInit('sec0', {
@@ -894,7 +894,7 @@ function newStage3(difficuty) {
 		{ name:'bossKill', next:'diagIn2', },
 	], newStgSecBossKill, 'bossKill');
 	stage.score = newStgSecScore('ended');
-	stage.ended = newStgSecLoadNew(newStage4(difficuty));
+	stage.ended = next ? newStgSecLoadNew(newStage4, difficulty, next) : newStgSecOver();
 	return stage;
 }
 

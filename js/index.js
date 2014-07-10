@@ -135,12 +135,12 @@ function resetAndStart(stage) {
 	STATICS.reset();
 	if (isPracticeMode()) {
 		extend(STATICS, {
-			player: 3,
+			player: 7,
 			power: 128,
 		})
 	}
 	GAME.reset();
-	GAME.load(stage || newStage1());
+	GAME.load(stage || newStage1('normal', true));
 	GAME.start('init');
 }
 

@@ -486,7 +486,7 @@ function sakuyaSC3C(from) {
 	}, 2000)
 }
 
-function newStage5(difficulty) {
+function newStage5(difficulty, next) {
 	var stage = {};
 	stage.hook = newStgHook();
 	stage.init = newStgSecInit('sec0', {
@@ -701,6 +701,6 @@ function newStage5(difficulty) {
 		{ name:'bossKill', next:'sakuyaSpeak2', },
 	], newStgSecBossKill, 'bossKill');
 	stage.score = newStgSecScore('ended');
-	stage.ended = newStgSecLoadNew(newStage6(difficulty));
+	stage.ended = next ? newStgSecLoadNew(newStage6, difficulty, next) : newStgSecOver();
 	return stage;
 }

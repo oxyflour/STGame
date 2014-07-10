@@ -364,7 +364,7 @@ function remiliaSC4(from) {
 	}, 150, null, 28)
 }
 
-function newStage6(difficulty) {
+function newStage6(difficulty, next) {
 	var stage = {};
 	stage.hook = newStgHook();
 	stage.init = newStgSecInit('sec0', {

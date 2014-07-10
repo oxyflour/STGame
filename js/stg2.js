@@ -475,7 +475,7 @@ function chirunoFireEx3(from) {
 	}, 50, null, 5000);
 }
 
-function newStage2(difficuty) {
+function newStage2(difficulty, next) {
 	var stage = {};
 	stage.hook = newStgHook();
 	stage.init = newStgSecInit('sec0', {
@@ -511,7 +511,8 @@ function newStage2(difficuty) {
 		{ init:newSecList, args:[
 			[newStg2Sec3, ['Enemy2C', 500, 20]],
 			[newSec3, [500, 20, 5]],
-		], duration:10000, next: 'diagA', },
+		], duration:10000, },
+		{ duration:2000, next: 'diagA', },
 		{ init:newStg2Sec1, args:[120, 100, 'w'], duration:12000, name:'secX', bgm:RES.bgm_stg2a, },
 		{ init:newSecList, args:[
 			[newStg2Sec1, [300, 20, 'w']],
@@ -981,6 +982,6 @@ function newStage2(difficuty) {
 	], newStgSecBossKill, 'bossKill');
 	stage.askContinue = newStgSecAskContinue('secX');
 	stage.score = newStgSecScore('ended');
-	stage.ended = newStgSecLoadNew(newStage3(difficuty));
+	stage.ended = next ? newStgSecLoadNew(newStage3, difficulty, next) : newStgSecOver();
 	return stage;
 }
