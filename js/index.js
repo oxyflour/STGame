@@ -135,7 +135,7 @@ function resetAndStart(stage) {
 	STATICS.reset();
 	if (isPracticeMode()) {
 		extend(STATICS, {
-			player: 99,
+			player: 7,
 			power: 128,
 		})
 	}
