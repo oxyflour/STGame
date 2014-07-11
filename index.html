@@ -1102,7 +1102,7 @@
 	<div class="screen play absolute ui"
 		ui-show="GAME.state == GAME.states.RUNNING || GAME.state == GAME.states.PAUSE ||
 			GAME.state == GAME.states.OVER">
-		<div class="game absolute no-overflow" style="z-index:0">
+		<div class="game absolute no-overflow" style="z-index:0;background:black">
 			<div class="game-size absolute no-overflow ui-obj bg-stg1" id="bg_stg1_bottom">
 				<canvas class="absolute game-size bg-stg1" style="height:2400px"
 					id="stg1cv1" bg-speed="0.01"></canvas>
@@ -1134,7 +1134,7 @@
 						-webkit-transform:translate3d(0,0,0.1px)"></div>
 			</div>
 			<canvas class="game-size absolute no-overflow ui-obj bg-stg3" id="bg_stg3_dot"></canvas>
-			<div class="game-size absolute no-overflow ui-obj bg-stg4" style="background:#000">
+			<div class="game-size absolute no-overflow ui-obj bg-stg4">
 				<div class="absolute game-size bg-stg4" style="height:3200px" bg-repeat="1200px"
 					id="stg4gnd" bg-speed="0.02" bg-trans="rotateX(60deg)">
 				</div>
@@ -1147,7 +1147,7 @@
 					<canvas class="absolute game-size bg-stg5"></canvas>
 				</div>
 			</div>
-			<div class="game-size absolute no-overflow ui-obj bg-stg6" style="background:#000">
+			<div class="game-size absolute no-overflow ui-obj bg-stg6">
 				<div class="absolute game-size bg-stg6" style="height:2240px;"
 					id="stg6gnd" bg-speed="0.03" bg-trans="rotateX(-35deg)">
 				</div>
@@ -1507,16 +1507,16 @@
 				本游戏作者与上海爱丽丝幻乐团没有任何关系，原作品的版权归ZUN所有。<br />
 				请勿将本游戏用于任何商业用途。<br />
 				<br />
-				<p class="show-on-tested-browser hidden">
+				<div class="show-on-tested-browser hidden">
 					发现莉格露(BUG)请点
 					<a href="https://github.com/oxyflour/STGame/issues?state=open">这里</a>
-				</p>
-				<p class="hide-on-tested-browser hidden">
+				</div>
+				<div class="hide-on-tested-browser hidden">
 					<big style="color:red">注意:</big>
 					你的浏览器没有测试过。有问题请点
 					<a href="https://github.com/oxyflour/STGame/issues?state=open">这里</a>
 					报告问题和你的浏览器版本
-				</p>
+				</div>
 			</h4>
 			<button class="ui hidden" ui-show="RES.process == 1" onclick="if (RES.process == 1) changeGameState('TITLE')"
 				style="font-size:100%;padding:0.5em">好的</button>

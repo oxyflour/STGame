@@ -2122,8 +2122,8 @@ function newDannmaku(from, to, r, rt, v, vt, ext) {
 		cos = Math.cos(rt1),
 		sin = Math.sin(rt1),
 		rt2 = rt1 + vt,
-		cosv = Math.cos(rt2),
-		sinv = Math.sin(rt2);
+		cosv = rt1 == rt2 ? cos : Math.cos(rt2),
+		sinv = rt1 == rt2 ? sin : Math.sin(rt2);
 	var obj = SPRITE.newObj('Dannmaku', fill(ext, {
 		x: from.data.x + r * cos,
 		y: from.data.y + r * sin,
@@ -2490,7 +2490,7 @@ function newBossBackground(boss, elem) {
 	elem.object = obj;
 	elem.speed = parseFloat($attr(elem, 'bg-speed') || 0);
 	elem.rotate = parseFloat($attr(elem, 'bg-rotate') || 0);
-	obj.anim(50, function(d) {
+	if (location.search != '?nobg') obj.anim(50, function(d) {
 		elem.style.opacity = d.ph;
 		if (elem.speed)
 			elem.style.backgroundPosition = '0 '+(-d.age*elem.speed)+'px';
@@ -2564,7 +2564,10 @@ function newBackground(scrollImgs) {
 		e.speedY = parseFloat($attr(e, 'bg-speed') || '0');
 		e.speedZ = parseFloat($attr(e, 'bg-speed-z') || '0');
 	});
-	bg.anim(50, function() {
+	if (location.search == '?nobg') ieach(scrollImgs, function(i, e) {
+		e.style.display = 'none';
+	})
+	else bg.anim(50, function() {
 		ieach(scrollImgs, function(i, e) {
 			if (e.speedX || e.speedY || e.speedZ) {
 				e.offsetX += e.speedX * 50;
