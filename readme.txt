@@ -1,7 +1,7 @@
-This is an HTML5 based Touhou like Shooting Game(STG).
+This is an HTML5 implement of Touhou Project (the Embodiment of Scarlet Devil).
 You need a modern browser to play it.
 
-这是一个东方红魔乡一面的复刻版本，你需要一个主流的支持 html5 的浏览器才能玩
+这是一个东方红魔乡的复刻版本，你需要一个主流的支持 html5 的浏览器才能玩
 
 
 使用的素材：
@@ -21,10 +21,12 @@ DONEs
 - 简易的帧动画
 - 敌机沿固定路线的移动和开火
 - 基于 css 动画的背景
-- 更多样的弹幕
+- 更多弹幕
 - BOMB!
 - 其他抬头显示
 - 游戏对话
+- 背景管理器
+- 关卡载入器
 
 TODOs
 - 弹幕速度校正
@@ -35,13 +37,10 @@ TODOs
 - 更多音效（比如达到 full power 的音效）
 - 修复不同浏览器音效延迟不同的问题
 - 更好的碰撞检测机制
-- 背景管理器
-- 关卡载入器
 
 MORE
 - 完整的设置页面
 - 更多的自机（灵B，魔A，魔B）
-- 更多关卡（2面，3面）
 
 MAYBE POSSIBLE
 - 游戏录像
