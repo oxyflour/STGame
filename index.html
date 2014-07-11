@@ -1505,16 +1505,16 @@
 					<a href="https://github.com/oxyflour/STGame/issues?state=open">这里</a>
 				</p>
 				<p class="hide-on-tested-browser hidden">
-					<big style="color:gray">注意:</big>
-					你的浏览器没有测试过，有问题请点
+					<big style="color:red">注意:</big>
+					你的浏览器没有测试过。有问题请点
 					<a href="https://github.com/oxyflour/STGame/issues?state=open">这里</a>
-					报告你的浏览器版本
+					报告问题和你的浏览器版本
 				</p>
 			</h4>
 			<button class="ui hidden" ui-show="RES.process == 1" onclick="if (RES.process == 1) changeGameState('TITLE')"
 				style="font-size:100%;padding:0.5em">好的</button>
 			<p class="ui hidden" ui-show="RES.process < 1">loading <span class="ui" ui-bind="(RES.process*100).toFixed(1)+'%'">...</span></p>
-			<p class="ui hidden" ui-show="RES.error">载入失败...你的浏览器可能不支持某些 html5 特性</p>
+			<p class="ui hidden show-game-error">载入失败...你的浏览器可能不支持某些 html5 特性</p>
 		</div>
 		<form class="absolute ui" eval-radios
 			ui-focus="GAME.state == GAME.states.LOADING">
@@ -1530,9 +1530,5 @@
 <script src="js/stg5.js"></script>
 <script src="js/stg6.js"></script>
 <script src="js/index.js"></script>
-<script>
-	console.log('咦，你想找奇怪的东西吗？（想找秘籍可以搜索"CHEAT"哦）');
-	console.log('有问题到 https://github.com/oxyflour/stgame 去扔 issue 吧');
-</script>
 </body>
 </html>

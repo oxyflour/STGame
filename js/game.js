@@ -666,8 +666,8 @@ var RES = (function(res) {
 				d[v.id] = v;
 			}
 			else if (v.tagName == 'AUDIO') {
-//				if (!v.src && $attr(v, 'audio-src'))
-//					v.src = $attr(v, 'audio-src');
+				//if (!v.src && $attr(v, 'audio-src'))
+				//	v.src = $attr(v, 'audio-src');
 				v.replayTime = parseFloat($attr(v, 'replay-time') || '0');
 				if ((v.replayQueueLength = parseFloat($attr(v, 'replay-queue'))) > 0) {
 					var queue = [v],
@@ -719,8 +719,6 @@ var RES = (function(res) {
 			}
 			catch (e) {
 				fe && fe(e);
-				_t.process = NaN;
-				_t.error = e;
 				throw e;
 			}
 		}
@@ -1615,74 +1613,6 @@ return proto = {
 	}
 }
 });
-
-/*
-SPRITE.newCls('Ball', 'Circle', function(from, proto) {
-return proto = {
-	layer: 'L20',
-	hits: [
-		'Ball',
-	],
-	hitWith: function(that) {
-		var d = this.data,
-			e = that.data;
-		if (circle_intersect(d, e))
-			circles_hit(d, e);
-	},
-
-	data0: {
-		damage_pt: 1,
-		dh: 1/200,
-		kh: 1/500,
-	},
-	init: function(d) {
-		from.init.call(this, d = fill(d, proto.data0));
-	}
-}
-});
-
-SPRITE.newCls('Stick', 'Circle', function(from, proto) {
-return proto = {
-	layer: 'L20',
-	hits: [
-		'Ball',
-	],
-	hitWith: function(that) {
-		var d = this.data,
-			e = that.data;
-			cr = line_circle_intersect(d, e);
-		if (cr)
-			circles_hit(cr, e);
-	},
-	mkRect: function(rt, d) {
-		rt.l = Math.min(d.x0, d.x, d.x + d.dx);
-		rt.t = Math.min(d.y0, d.y, d.y + d.dy);
-		rt.r = Math.max(d.x0, d.x, d.x + d.dx);
-		rt.b = Math.max(d.y0, d.y, d.y + d.dy);
-	},
-	drawBasic: function(d) {
-		DC.beginPath();
-		DC.moveTo(d.x, d.y);
-		DC.lineTo(d.x + d.dx, d.y + d.dy);
-		DC.lineWidth = d.r;
-		DC.stroke();
-		DC.closePath();
-	},
-
-	data0: {
-		damage_pt: 1,
-		dh: 1/200,
-		kh: 1/500,
-		dx: 0,
-		dy: (GAME.rect.b - GAME.rect.t)*0.2,
-	},
-	is_line: 1,
-	init: function(d) {
-		from.init.call(this, d = fill(d, proto.data0));
-	}
-}
-});
-*/
 
 SPRITE.newCls('Enemy', 'Circle', function(from, proto) {
 return proto = {

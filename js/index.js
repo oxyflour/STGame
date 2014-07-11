@@ -188,7 +188,15 @@ setAudioVolume('audio.se', 0.2);
 setAudioVolume('audio.bgm', 0.5);
 
 GAME.init();
-RES.check();
+RES.check(function() {
+	console.log('咦，你想找奇怪的东西吗？（想找秘籍可以搜索"CHEAT"哦）');
+	console.log('有问题到 https://github.com/oxyflour/stgame 去扔 issue 吧');
+}, function(e) {
+	ieach($('.show-game-error'), function(i, e) {
+		e.style.display = 'block';
+	})
+	RES.process = NaN;
+});
 
 var isTestedBrowser = (
 	((isChrome = /Chrome\/(\d+)/.exec(navigator.userAgent)) && parseInt(isChrome[1]) >= 35) ||
