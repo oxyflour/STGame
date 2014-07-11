@@ -323,19 +323,32 @@
 	<img id="stg6enm2" src="res/stg6enm2.png" />
 	<canvas id="stg6enmR" from="stg6enm2 64 0 128 80" transform="mirror:x"></canvas>
 	<img id="stg6bg" src="res/stg6bg.png" />
-	<canvas id="stg6bg_wall" from="stg6bg 0 0 256 128" transform="mirror:0,x" stack="y" scale="1.5" bg-css=".bg-stg6-wall"></canvas>
-	<canvas id="stg6bg_wall2" from="stg6bg 0 0 128 128" scale="2" bg-css=".bg-stg6-wall2"></canvas>
-	<canvas id="stg6bg_moon" from="stg6bg 0 128 128 128" scale="2" bg-css=".bg-stg6-moon"></canvas>
+	<canvas id="stg6bg_wall" from="stg6bg 0 0 256 128" transform="mirror:0,x" stack="y" scale="1.5"></canvas>
+	<canvas id="stg6bg_wall2" from="stg6bg 0 0 128 128" scale="2"></canvas>
+	<canvas id="stg6bg_moon" from="stg6bg 0 128 128 128" scale="2"></canvas>
 	<script id="gen_stg6bg">
 	(function(RES) {
 		function newWall(w, h, s) {
-			var e = $new('div', {
-				className: 'bg-stg6-wall',
+			var e = $new('canvas', {
 				style: 'position:absolute;width:'+w+'px;height:'+h+'px;',
+				width: w+'px',
+				height: h+'px',
 			});
 			keach(s, function(k, v) {
 				$style(e, k, v)
 			})
+			var dc = getCanvasDC(e);
+			dc.fillWith(dc.createPattern(RES.stg6bg_wall, 'repeat'));
+			return e;
+		}
+		function cloneCanvas(cv) {
+			var e = $new('canvas', {
+				style: 'width:'+$style(cv, 'width')+';height:'+$style(cv, 'height')+';',
+				width: cv.width,
+				height: cv.height,
+			})
+			var dc = getCanvasDC(e);
+			dc.drawImage(cv, 0, 0);
 			return e;
 		}
 
@@ -349,16 +362,10 @@
 		var top = $new('div', {
 			style: 'width:'+w+'px;margin:64px',
 		});
-		top.appendChild($new('div', {
-			className: 'bg-stg6-moon',
-			style: 'width:256px;height:256px'
-		}))
-		array(3, function() {
-			top.appendChild($new('div', {
-				className: 'bg-stg6-wall2',
-				style: 'width:256px;height:256px;'
-			}))
-		})
+		top.appendChild(cloneCanvas(RES.stg6bg_moon ));
+		top.appendChild(cloneCanvas(RES.stg6bg_wall2));
+		top.appendChild(cloneCanvas(RES.stg6bg_wall2));
+		top.appendChild(cloneCanvas(RES.stg6bg_wall2));
 		bg.appendChild(top)
 		bg.appendChild(newWall(w, h, {}));
 		bg.appendChild(newWall(w, h, {
