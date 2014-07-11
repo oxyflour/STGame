@@ -4,7 +4,7 @@ function stg4Sec1() {
 		var v = range.shift();
 		ieach(v.mirror ? [1, -1] : [1], function(i, x) {
 			var obj = SPRITE.newObj('Enemy', {
-				life: 20,
+				life: v.clear ? 80 : 20,
 				x: UTIL.getGamePosX(x > 0 ? v.fx : 1-v.fx),
 				y: UTIL.getGamePosY(v.fy),
 				vx: v.fx ? 0 : 0.1*x,
@@ -61,6 +61,7 @@ function stg4Sec2(pth, times, interval) {
 }
 function stg4Sec3A(fx, fy, duration) {
 	var obj = SPRITE.newObj('Enemy', {
+		life: 1000,
 		x: UTIL.getGamePosX(fx),
 		y: UTIL.getGamePosY(fy),
 		frames: RES.stg4frs.EnemySq,
@@ -161,7 +162,7 @@ function stg4Fire4(from, f0) {
 			})
 		})
 	})
-	RES.se_tan03.replay();
+	RES.se_tan02.replay();
 }
 
 function koakumaFire1(from, direction) {
@@ -190,6 +191,7 @@ function koakumaFire(from) {
 function stg4Sec4() {
 	ieach([0.1, 0.9], function(i, fx) {
 		var obj = SPRITE.newObj('Enemy', {
+			life: 1000,
 			x: UTIL.getGamePosX(fx),
 			y: UTIL.getGamePosX(0.2),
 			frames: RES.stg4frs.EnemySr,
@@ -300,8 +302,8 @@ function patchouliFire1B(from, to, rads, layers, speed) {
 	var f0 = to ? 0 : random(PI2);
 	array(layers || 4, function(i) {
 		range(1, 0, 1/(rads || 24), function(f) {
-			newDannmaku(from, to, 0, f*PI2+f0, (speed||0.1)*(1+i*0.15), 0, {
-				color: speed > 0.1 ? 'b' : 'r',
+			newDannmaku(from, to, 0, f*PI2+f0, (speed||0.15)*(1+i*0.15), 0, {
+				color: speed > 0.15 ? 'b' : 'r',
 				tama: 'TamaB',
 			})
 		})
@@ -309,14 +311,17 @@ function patchouliFire1B(from, to, rads, layers, speed) {
 	RES.se_tan00.play();
 }
 function patchouliFire1C(from) {
-	ieach([
+	var pos = [
 		{ x:from.data.x-20, y:from.data.y+30, },
 		{ x:from.data.x-20, y:from.data.y-30, },
 		{ x:from.data.x+20, y:from.data.y-30, },
 		{ x:from.data.x+20, y:from.data.y+30, },
-	], function(i, v) {
-		patchouliFire1B({ data:v }, UTIL.getOneAlive('Player'), 10, 2)
-	})
+	]
+	STORY.timeout(function(d, n) {
+		ieach(pos, function(i, v) {
+			patchouliFire1B({ data:v }, UTIL.getOneAlive('Player'), 10, 2)
+		})
+	}, 800, null, 4)
 	RES.se_tan00.play();
 }
 function patchouliFire1D(from) {
@@ -369,7 +374,7 @@ function patchouliSC1(from) {
 					obj.anim(80, function(d) {
 						if (d.age < 500)
 							return;
-						else if (d.age < 1500) {
+						else if (d.age < 1800) {
 							var dx = d.sx - d.x,
 								dy = d.sy - d.y,
 								x = d.x - dy*d.sd,
@@ -385,11 +390,11 @@ function patchouliSC1(from) {
 				})
 			})
 		})
-		RES.se_tan03.replay();
+		RES.se_tan02.replay();
 	}, 120, null, 5)
 }
 function patchouliFire2A(from) {
-	patchouliFire1B(from, UTIL.getOneAlive('Player'), 24, 1, 0.11);
+	patchouliFire1B(from, UTIL.getOneAlive('Player'), 24, 1, 0.18);
 }
 function patchouliFire2(from) {
 	var i = randin([1, -1]);
@@ -412,7 +417,7 @@ function patchouliSC2(from) {
 			})
 			obj.anim(random(1000, 4000), function(d) {
 				if (d.age)
-					return rotate_object_speed(d, random(-1, 1), random(0.03, 0.15)) || true;
+					return rotate_object_speed(d, random(-1, 1), random(0.05, 0.15)) || true;
 			}, obj.data)
 		})
 		RES.se_tan01.replay();
@@ -447,7 +452,7 @@ function patchouliSC3A(from) {
 function patchouliSC3B(from) {
 	STORY.timeout(function(d, n) {
 		array(30, function(i) {
-			var obj = newDannmaku(from, null, 0, random(-1, 1), random(0.05, 0.1), 0, {
+			var obj = newDannmaku(from, null, 0, random(-1, 1), random(0.08, 0.12), 0, {
 				color: 'y',
 				tama: 'TamaA',
 			})
@@ -455,7 +460,7 @@ function patchouliSC3B(from) {
 				if (d.age < 2000)
 					decrease_object_speed(d, 0.98)
 				else
-					return rotate_object_speed(d, (i % 3 - 1)*0.8, random(0.05, 0.15)) || true;
+					return rotate_object_speed(d, (i % 3 - 1)*0.8, random(0.08, 0.2)) || true;
 			}, obj.data)
 		})
 		RES.se_tan01.replay();
@@ -464,14 +469,13 @@ function patchouliSC3B(from) {
 function patchouliSC4(from, color) {
 	array(2, function(i) {
 		range(1, 0, 1/40, function(f) {
-			var obj = newDannmaku(from, null, 0, (f+i/80)*PI2, 0.2+0.04*i, 0, {
+			var obj = newDannmaku(from, null, 0, (f+i/80)*PI2, 0.2+0.05*i, 0, {
 				color: color,
 				tama: 'TamaB',
-				vt: 0.03 * (color=='o' ? 1 : -1) * (1+0.4*i),
+				vt: 0.025 * (color=='o' ? 1 : -1) * (1+0.4*i),
 			})
 			obj.anim(80, function(d) {
-				if (d.age < 1000)
-					decrease_object_speed(d, 0.95)
+				decrease_object_speed(d, d.age < 1000 ? 0.95 : 0.998)
 				rotate_object_speed(d, d.vt)
 			}, obj.data)
 		})

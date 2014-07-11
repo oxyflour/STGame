@@ -29,7 +29,7 @@ function stg5Sec2(pth) {
 			frames: RES.frames.Enemy3A,
 		})
 		stg5Fire2(obj);
-	}, 600, null, 8)
+	}, 600, null, 5)
 }
 function stg5Sec3(fx) {
 	var obj = SPRITE.newObj('Enemy', {
@@ -46,7 +46,7 @@ function stg5Sec3(fx) {
 	}, 500, obj.data)
 	STORY.timeout(function(d) {
 		d.vy = 0.1;
-	}, 3500, obj.data)
+	}, 4000, obj.data)
 }
 
 function stg5Fire1(from, color, count) {
@@ -82,7 +82,7 @@ function stg5Fire3(from) {
 			return true;
 		var f0 = random(-PI/2, PI/2),
 			t = random(0.05, 0.30),
-			v = random(0.10, 0.15);
+			v = random(0.10, 0.20);
 		range(1, 0, 1/4, function(f) {
 			ieach(f ? [-t*f, t*f] : [0], function(i, f) {
 				newDannmaku(from, to, 0, f0+f, v/Math.cos(f), 0, {
@@ -199,7 +199,7 @@ function stg5Sec4() {
 function stg5Fire4BL(from, to) {
 	from.anim(400, function(d) {
 		array(8, function() {
-			newDannmaku(from, to, 0, random(-0.5, 0.5), random(0.05, 0.15), 0, {
+			newDannmaku(from, to, 0, random(-1, 1), random(0.05, 0.15), 0, {
 				color: 'b',
 				tama: 'LongA',
 			})
@@ -209,7 +209,7 @@ function stg5Fire4BL(from, to) {
 function stg5Fire4BC(from, to) {
 	from.anim(500, function(d) {
 		range(0.5001, -0.5, 1/5, function(f) {
-			newDannmaku(from, to, 0, f*0.5, 0.1, 0, {
+			newDannmaku(from, to, 0, f*1.0, 0.1, 0, {
 				color: 'b',
 				tama: 'TamaMini',
 			})
@@ -219,7 +219,7 @@ function stg5Fire4BC(from, to) {
 function stg5Fire4RL(from, to) {
 	from.anim(400, function(d) {
 		range(0.5001, -0.5, 1/3, function(f) {
-			newDannmaku(from, to, 0, f*0.2, 0.15, 0, {
+			newDannmaku(from, to, 0, f*0.6, 0.1, 0, {
 				color: 'r',
 				tama: 'LongB',
 			})
@@ -527,9 +527,9 @@ function newStage5(difficulty, next) {
 		], },
 		{ duration:10000, init:newSecList, args:[
 			[stg5Sec1, [0.1, 'b', 5], 0],
-			[stg5Sec1, [0.2, 'b', 5], 250],
-			[stg5Sec1, [0.3, 'b', 5], 500],
-			[stg5Sec1, [0.4, 'b', 5], 750],
+			[stg5Sec1, [0.2, 'b', 5], 500],
+			[stg5Sec1, [0.3, 'b', 5], 1000],
+			[stg5Sec1, [0.4, 'b', 5], 1500],
 		], next:'sakuyaEnter2' },
 	], newStgSecNormal, 'sec');
 	newStgSecsFromList(stage, [

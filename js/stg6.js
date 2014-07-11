@@ -109,7 +109,7 @@ function sakuya6SC0(from) {
 function remiliaFire1(from) {
 	STORY.timeout(function(d, n) {
 		range(1, 0, 1/6, function(f) {
-			newDannmaku(from, null, 0, f*PI2+n*0.3, 0.2, 0, {
+			newDannmaku(from, null, 0, f*PI2+n*0.3, 0.25, 0, {
 				color: 'r',
 				tama: 'TamaMax',
 				blend: 'lighter',
@@ -303,7 +303,7 @@ function remiliaShow(from, show) {
 				SPRITE.newObj('Circle', {
 					x: d.x,
 					y: d.y,
-					vx: random(-0.2, -0.2),
+					vx: random(-0.2, 0.2),
 					vy: random(0.15, 0.3),
 					frames: RES.frames.Bat,
 				})
@@ -560,8 +560,8 @@ function newStage6(difficulty, next) {
 				array(5, function() {
 					d.push({ t:500, fx:random(0.1, 0.9), fy:random(0.1, 0.3) });
 				})
-				d.push({ t:200, fn:remiliaShow, args:[true], });
-				d.push({ t:1000 })
+				d.push({ t:500 })
+				d.push({ t:500, fn:remiliaShow, args:[true], });
 			}, [
 				{ v:0.3, },
 			]),
@@ -575,12 +575,13 @@ function newStage6(difficulty, next) {
 				d.push({ t:3000, fx:random(0.1, 0.9), fy:random(0.05, 0.4) });
 			}, [
 				{ v:0.2, },
-				{ fx:0.5, fy:0.3 },
+				{ fx:0.5, fy:0.3, fn:remiliaShow, args:[true] },
 			]),
 		},
 		{
 			scname: RES.st_stg6_sc5,
-			duration: 100000,
+			duration: 120000,
+			life: 1000,
 			pathnodes: ieach(range(30), function(i, j, d) {
 				d.push({ t:1000, fn:remiliaSC3, args:[PI2/16*15, 16, i % 2 ? 0.08 : -0.08], });
 				d.push({ t:2000, fx:random(0.1, 0.9), fy:random(0.05, 0.4) });

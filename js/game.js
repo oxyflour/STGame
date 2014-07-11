@@ -2005,8 +2005,8 @@ function newBullet(from, level) {
 		}
 	}
 	else {
-		newBulletOne(from, null, 2);
-		newBulletOne(from, null, -2);
+		newBulletOne(from, null, 1);
+		newBulletOne(from, null, -1);
 		newBulletOne(from, null, 6);
 		newBulletOne(from, null, -6);
 		if (i == 0 || i == 3) {
@@ -2793,6 +2793,8 @@ function newStgSecBoss(next, para) {
 			d.disable_fire = para.disable_fire;
 
 			d.boss = UTIL.getOneAlive('Enemy', 'boss', para.boss) || newBoss(para.boss);
+			if (para.life)
+				d.boss.data.life = para.life;
 			if (para.pathnodes)
 				UTIL.addPathAnim(d.boss, para.pathnodes);
 			if (!para.no_lifebar &&
@@ -2933,7 +2935,7 @@ function newStgSecScore(next, para) {
 				if (v.which == GAME.keychars.Z) {
 					if (v.type == 'keydown')
 						d.pass = 0;
-					else if (v.type == 'keyup' && d.pass === 0)
+					else if (v.type == 'keyup' && d.pass === 0 && d.age > 1000)
 						d.pass = 1;
 				}
 			}
