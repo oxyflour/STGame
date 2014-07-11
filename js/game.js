@@ -704,7 +704,7 @@ var RES = (function(res) {
 			}
 		}, _t);
 	}
-	_t.check = function check(fn) {
+	_t.check = function check(fn, fe) {
 		var ls = ieach(res.children, function(i, v, d) {
 			if (v.tagName == 'IMG')
 				d.push(v.complete ? 1 : 0);
@@ -713,11 +713,19 @@ var RES = (function(res) {
 		}, []);
 		_t.process = sum(ls) / ls.length;
 		if (_t.process == 1) {
-			loaded();
-			fn && fn();
+			try {
+				loaded();
+				fn && fn();
+			}
+			catch (e) {
+				fe && fe(e);
+				_t.process = NaN;
+				_t.error = e;
+				throw e;
+			}
 		}
 		else setTimeout(function() {
-			check(fn);
+			check(fn, fe);
 		}, 300);
 	};
 	return _t;
@@ -852,7 +860,6 @@ var GAME = (function() {
 		}, c1);
 	};
 	var _t = {};
-	_t.state = 0;
 	_t.states = dictflip([
 		'LOADING',
 		'TITLE',
@@ -867,6 +874,7 @@ var GAME = (function() {
 		'OVER',
 		'ENDED',
 	]);
+	_t.state = _t.states.LOADING;
 	_t.rect = {
 		l: 0,
 		t: 0,

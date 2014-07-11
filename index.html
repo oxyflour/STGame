@@ -1352,15 +1352,15 @@
 			onescape="changeGameState('TITLE')">
 			<div class="select-title"></div>
 			<div class="menu-line">
-				<input type="radio" />
+				<input type="radio" value="changeGameState('SELECT_CHAR')" />
 				<label class="menu menu-diff-easy"></label>
 			</div>
 			<div class="menu-line">
-				<input type="radio" />
+				<input type="radio" value="changeGameState('SELECT_CHAR')" />
 				<label class="menu menu-diff-normal"></label>
 			</div>
 			<div class="menu-line">
-				<input type="radio" />
+				<input type="radio" value="changeGameState('SELECT_CHAR')" />
 				<label class="menu menu-diff-hard"></label>
 			</div>
 			<div class="menu-line">
@@ -1494,16 +1494,26 @@
 			<br />
 			<h4>
 				这个网页游戏是东方红魔乡的部分游戏内容的复刻。<br />
-				<br />
 				由于本人对弹幕游戏的理解问题和技术力的限制，不可避免地存在各种与原作不符的操作和设定，可能给您带来不好的游戏体验请注意。<br />
 				<br />
 				本游戏作者与上海爱丽丝幻乐团没有任何关系，原作品的版权归ZUN所有。<br />
 				请勿将本游戏用于任何商业用途。<br />
-				发现莉格露(BUG)请点<a href="https://github.com/oxyflour/STGame/issues?state=open">这里</a>
+				<br />
+				<p class="show-on-tested-browser hidden">
+					发现莉格露(BUG)请点
+					<a href="https://github.com/oxyflour/STGame/issues?state=open">这里</a>
+				</p>
+				<p class="hide-on-tested-browser hidden">
+					<big style="color:gray">注意:</big>
+					你的浏览器没有测试过，有问题请点
+					<a href="https://github.com/oxyflour/STGame/issues?state=open">这里</a>
+					报告你的浏览器版本
+				</p>
 			</h4>
 			<button class="ui hidden" ui-show="RES.process == 1" onclick="if (RES.process == 1) changeGameState('TITLE')"
 				style="font-size:100%;padding:0.5em">好的</button>
-			<h3 class="ui" ui-show="RES.process < 1">loading <span class="ui" ui-bind="(RES.process*100).toFixed(1)+'%'">...</span></h3>
+			<p class="ui hidden" ui-show="RES.process < 1">loading <span class="ui" ui-bind="(RES.process*100).toFixed(1)+'%'">...</span></p>
+			<p class="ui hidden" ui-show="RES.error">载入失败...你的浏览器可能不支持某些 html5 特性</p>
 		</div>
 		<form class="absolute ui" eval-radios
 			ui-focus="GAME.state == GAME.states.LOADING">
@@ -1519,5 +1529,9 @@
 <script src="js/stg5.js"></script>
 <script src="js/stg6.js"></script>
 <script src="js/index.js"></script>
+<script>
+	console.log('咦，你想找奇怪的东西吗？（想找秘籍可以搜索"CHEAT"哦）');
+	console.log('有问题到 https://github.com/oxyflour/stgame 去扔 issue 吧');
+</script>
 </body>
 </html>

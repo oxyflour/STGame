@@ -188,12 +188,17 @@ setAudioVolume('audio.se', 0.2);
 setAudioVolume('audio.bgm', 0.5);
 
 GAME.init();
-GAME.state = GAME.states.LOADING;
+RES.check();
 
-RES.check(function() {
-	console.log('咦，你想找奇怪的东西吗？（想找秘籍可以搜索"BBA"哦）');
-	console.log('有问题到 https://github.com/oxyflour/stgame 去扔 issue 吧');
-});
+var isTestedBrowser = (
+	((isChrome = /Chrome\/(\d+)/.exec(navigator.userAgent)) && parseInt(isChrome[1]) >= 35) ||
+	((isIE = /Trident\/(\d+)/.exec(navigator.userAgent)) && parseInt(isIE[1]) >= 7) ||
+	((isFirefox = /Firefox\/(\d+)/.exec(navigator.userAgent)) && parseInt(isFirefox[1]) >= 29)
+)
+ieach($('.show-on-tested-browser, .hide-on-tested-browser'), function(i, e) {
+	e.classList.contains(isTestedBrowser ? 'hide-on-tested-browser' : 'show-on-tested-browser') ?
+		e.classList.add('hidden') : e.classList.remove('hidden');
+})
 
 setInterval(function checkGame() {
 	// find active radio button when game is not running
