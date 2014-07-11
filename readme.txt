@@ -1,4 +1,4 @@
-This is an HTML5 implement of Touhou Project (the Embodiment of Scarlet Devil).
+This is an HTML5 copy of Shooting Game Touhou Project  ~ the Embodiment of Scarlet Devil.
 You need a modern browser to play it.
 
 这是一个东方红魔乡的复刻版本，你需要一个主流的支持 html5 的浏览器才能玩
@@ -8,10 +8,10 @@ You need a modern browser to play it.
 
 - 东方红魔乡游戏本体：
 http://down.thwiki.cc/og/game/
-- 对话文本：
-http://thwiki.cc/%E6%B8%B8%E6%88%8F%E5%AF%B9%E8%AF%9D:%E4%B8%9C%E6%96%B9%E7%BA%A2%E9%AD%94%E4%B9%A1/%E5%8D%9A%E4%B8%BD%E7%81%B5%E6%A2%A6
 - 提取工具和音效：
 http://www.shrinemaiden.org/forum/index.php?topic=197.0
+- 对话文本：
+http://thwiki.cc/%E6%B8%B8%E6%88%8F%E5%AF%B9%E8%AF%9D:%E4%B8%9C%E6%96%B9%E7%BA%A2%E9%AD%94%E4%B9%A1/%E5%8D%9A%E4%B8%BD%E7%81%B5%E6%A2%A6
 
 
 下面是待办事项列表
@@ -29,18 +29,16 @@ DONEs
 - 关卡载入器
 
 TODOs
+- 完整的得分系统
 - 弹幕速度校正
 - 时间轴校正
 - 子弹威力校正
-- 完整的得分系统
-- 更多的特效（粒子系统？）
-- 更多音效（比如达到 full power 的音效）
-- 修复不同浏览器音效延迟不同的问题
-- 更好的碰撞检测机制
+- 更多特效
+- 更多音效
+- 修复不同浏览器的声音问题
+- 更完善的碰撞检测机制
 
 MORE
 - 完整的设置页面
 - 更多的自机（灵B，魔A，魔B）
-
-MAYBE POSSIBLE
 - 游戏录像
