@@ -2811,7 +2811,12 @@ function newStgSecBoss(next, para) {
 				if (d.scactive = $e(para.scface || 'face_sc_'+d.boss.data.boss)) {
 					d.scelem = d.scactive.parentNode;
 					$readdClass(d.scelem, 'active');
-					$i('.text', d.scelem).innerHTML = para.scname;
+					d.txtelem = $i('.text', d.scelem);
+					d.txtelem.innerHTML = para.scname;
+					setTimeout(function() {
+						var x = Math.min(128-d.txtelem.scrollWidth, 0);
+						$style(d.txtelem, 'transform', 'translateX('+x+'px)');
+					}, 50);
 					ieach($('.face', d.scelem), function(i, e) {
 						e.classList[e === d.scactive ? 'remove' : 'add']('hidden');
 					});
