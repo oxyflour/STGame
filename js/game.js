@@ -3090,3 +3090,66 @@ function newStgHook() {
 		}
 	}
 }
+
+function newStageBench(tama) {
+	var stage = {}
+	var secInit = {}
+	var tick = range(10),
+		fps = range(100, 110),
+		idx = 0;
+	secInit.init = function(d) {
+		var from = { data: UTIL.getGamePosXY(0.5, 0.5) };
+		var times = 10;
+		var text = SPRITE.newObj('Basic', {
+			y: 100,
+			text: 'READY',
+		})
+		STORY.timeout(function(x, n) {
+			text.data.text = n ? 'STARTING IN '+n+' SECONDS' : 'RUNNING';
+			if (!n) STORY.timeout(function(x, n) {
+				array(times += 5, function() {
+					newDannmaku(from, null, 0, random(PI2), random(0.3, 0.1), 0, {
+						no_frame: tama == 'Fire',
+						color: 'b',
+						tama: tama || 'TamaA',
+					})
+					/*
+					var v = random(0.1, 0.3),
+						t = random(PI2);
+					SPRITE.newObj('Dannmaku', {
+						vx: v*Math.cos(t),
+						vy: v*Math.sin(t),
+						x: UTIL.getGamePosX(0.5),
+						y: UTIL.getGamePosY(0.5),
+						frames: getDannmakuFrames(tama || 'TamaA', 'b'),
+					})
+					*/
+				})
+
+				idx ++;
+				fps[idx % fps.length] = GAME.fps;
+				tick[idx % tick.length] = GAME.tick;
+
+				var t = sum(tick) / tick.length,
+					f = sum(fps) / fps.length;
+				if (t > 100 || f < 30) {
+					text.data.text = 'Max Dannmakus: ' + SPRITE.cls.groups.Dannmaku.length;
+					return d.pass = true;
+				}
+				if (!n) {
+					text.data.text = 'Average Tick: '+t+', Fps: '+f;
+					return d.pass = true;
+				}
+			}, 300, null, 200)
+		}, 1000, null, 5)
+	}
+	secInit.run = function(dt, d) {
+		if (d.pass) STORY.timeout(function() {
+			d.quit = true;
+		}, 4000)
+		if (d.quit)
+			GAME.state = GAME.states.OVER;
+	}
+	stage.init = secInit;
+	return stage;
+}

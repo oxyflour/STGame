@@ -33,6 +33,16 @@ function checkFormKey(e, f) {
 		GAME.many_lives_mode = true;
 	else if (str_endwith(_t.str, 'REIMU REIMU GO'))
 		GAME.double_player_mode = true;
+	else if (str_endwith(_t.str, 'BENCH1'))
+		resetAndStart(newStageBench('TamaA'));
+	else if (str_endwith(_t.str, 'BENCH2'))
+		resetAndStart(newStageBench('LongA'));
+	else if (str_endwith(_t.str, 'BENCH3'))
+		resetAndStart(newStageBench('Knife'));
+	else if (str_endwith(_t.str, 'BENCH4'))
+		resetAndStart(newStageBench('Fire'));
+	else if (str_endwith(_t.str, 'BENCH5'))
+		resetAndStart(newStageBench('TamaMax'));
 	// submit
 	if (e.which == 'Z'.charCodeAt(0) || e.which == 13) {
 		f.submit();
