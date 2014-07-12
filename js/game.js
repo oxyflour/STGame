@@ -3133,7 +3133,11 @@ function newStageBench(tama) {
 				var t = sum(tick) / tick.length,
 					f = sum(fps) / fps.length;
 				if (t > 100 || f < 30) {
-					text.data.text = 'Max Dannmakus: ' + SPRITE.cls.groups.Dannmaku.length;
+					var c = 0;
+					SPRITE.eachObj(function(i, v) {
+						c ++;
+					}, 'Dannmaku');
+					text.data.text = 'Max Dannmakus: ' + c;
 					return d.pass = true;
 				}
 				if (!n) {
