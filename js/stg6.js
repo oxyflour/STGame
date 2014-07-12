@@ -492,6 +492,7 @@ function newStage6(difficulty, next) {
 				d.push({ t:3000, fx:random(0.1, 0.9), fy:random(0.05, 0.4) });
 			}, [
 				{ v:0.2, },
+				{ fx:0.5, fy:0.3, },
 			]),
 		},
 		{

@@ -718,6 +718,7 @@ function newStage3(difficulty, next) {
 		{
 			pathnodes: [
 				{ v:0.2, },
+				{ fx:0.5, fy:0.3, },
 				{ t:2000, fn:meilingFire4, },
 				{ t:2000, fx:0.6, fy:0.1, },
 				{ t:2000, fn:meilingFire4, },

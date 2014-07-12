@@ -672,6 +672,7 @@ function newStage4(difficulty, next) {
 			name: 'muqFight',
 			pathnodes: [
 				{ v:0.1 },
+				{ fx:0.5, fy:0.3, },
 				{ t:4000, fn:patchouliFire1, },
 				{ t:NaN,  fx:0.8, fy:0.1, },
 				{ t:NaN,  fx:0.5, fy:0.3, },
